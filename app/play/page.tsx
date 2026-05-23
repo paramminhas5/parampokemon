@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { GameBoot } from "@/components/game/GameBoot";
 import { Game } from "@/components/game/Game";
+import { PlayBodyClass } from "@/components/game/PlayBodyClass";
 
 export const metadata: Metadata = {
   title: "Play — Param Quest",
@@ -9,8 +10,11 @@ export const metadata: Metadata = {
 
 export default function PlayPage() {
   return (
-    <GameBoot>
-      <Game />
-    </GameBoot>
+    <>
+      <PlayBodyClass />
+      <GameBoot>
+        <Game />
+      </GameBoot>
+    </>
   );
 }

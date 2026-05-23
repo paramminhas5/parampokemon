@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { createEngine, TILE } from "@/game/engine";
-import { ZONES, type Interactive, type Zone, zoneAt, PLAYER_SPAWN } from "@/game/data";
+import { ZONES, type Interactive, type Zone, PLAYER_SPAWN } from "@/game/data";
 import { DialogBox } from "./DialogBox";
 import { StartMenu } from "./StartMenu";
 import { Bag } from "./Bag";
@@ -10,6 +10,7 @@ import { CliffNotes } from "./CliffNotes";
 import { Battle } from "./Battle";
 import { CatchModal } from "./CatchModal";
 import { WorldMap } from "./WorldMap";
+import { WorldSelect } from "./WorldSelect";
 import { ContactModal } from "./ContactModal";
 import { PressModal } from "./PressModal";
 import { playSound, setMuted, isMuted, loadMutePref } from "@/lib/audio";
@@ -32,6 +33,7 @@ export function Game() {
   const [bagOpen, setBagOpen] = useState(false);
   const [cliffOpen, setCliffOpen] = useState<Zone | null>(null);
   const [mapOpen, setMapOpen] = useState(false);
+  const [worldSelectOpen, setWorldSelectOpen] = useState(true); // open on launch
   const [battle, setBattle] = useState<Zone | null>(null);
   const [catchModal, setCatchModal] = useState<Zone | null>(null);
   const [contactOpen, setContactOpen] = useState(false);
@@ -39,6 +41,7 @@ export function Game() {
   const [toast, setToast] = useState<{ title: string; sub?: string } | null>(null);
   const [gotBadge, setGotBadge] = useState<{ label: string; color: string } | null>(null);
   const [muted, setMutedState] = useState(false);
+  const [engineReady, setEngineReady] = useState(false);
 
   const [badges, setBadges] = useState<Set<string>>(new Set());
   const [creatures, setCreatures] = useState<Set<string>>(new Set());
@@ -48,7 +51,7 @@ export function Game() {
   const [currentZoneId, setCurrentZoneId] = useState<string>(ZONES[0].id);
   const caughtRef = useRef<Set<string>>(new Set());
 
-  // Load save on mount
+  // Load save
   useEffect(() => {
     loadMutePref();
     setMutedState(isMuted());
@@ -65,7 +68,7 @@ export function Game() {
     } catch {}
   }, []);
 
-  // Persist save on every state change
+  // Save on change
   useEffect(() => {
     try {
       localStorage.setItem("pq_save", JSON.stringify({
@@ -75,36 +78,25 @@ export function Game() {
     } catch {}
   }, [badges, creatures, skills, defeated, visited]);
 
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const showToast = useCallback((title: string, sub?: string) => {
     setToast({ title, sub });
-    const t = setTimeout(() => setToast(null), 2800);
-    return () => clearTimeout(t);
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 2800);
   }, []);
 
-  const isModalOpen = !!(dialog || menuOpen || bagOpen || cliffOpen || mapOpen || battle || catchModal || contactOpen || pressOpen);
+  const isModalOpen = !!(dialog || menuOpen || bagOpen || cliffOpen || mapOpen || worldSelectOpen || battle || catchModal || contactOpen || pressOpen);
 
   useEffect(() => {
     if (!canvasRef.current) return;
     const engine = createEngine(canvasRef.current, {
       onInteract: (i: Interactive) => {
         if (i.kind === "npc") {
-          // Handle special NPCs
-          if (i.npc.special === "press-trigger") {
-            setPressOpen(true);
-            engine.setPaused(true);
-            return;
-          }
-          if (i.npc.special === "contact") {
-            setContactOpen(true);
-            engine.setPaused(true);
-            return;
-          }
+          if (i.npc.special === "contact") { setContactOpen(true); engine.setPaused(true); return; }
           setDialog({ type: "npc", name: i.npc.name, role: i.npc.role, quote: i.npc.quote });
           engine.setPaused(true);
-          if (i.npc.beat === "did" && i.zone.creature) {
-            if (!caughtRef.current.has(i.zone.creature.id)) {
-              setTimeout(() => { setCatchModal(i.zone); }, 400);
-            }
+          if (i.npc.beat === "did" && i.zone.creature && !caughtRef.current.has(i.zone.creature.id)) {
+            setTimeout(() => setCatchModal(i.zone), 400);
           }
           if (i.npc.beat === "learned" && i.zone.skill) {
             setSkills(prev => {
@@ -116,6 +108,10 @@ export function Game() {
             });
           }
         } else if (i.kind === "sign") {
+          // Check if this is a press wall sign
+          if ((i.sign as { pressWall?: boolean }).pressWall) {
+            setPressOpen(true); engine.setPaused(true); return;
+          }
           setDialog({ type: "sign", text: i.sign.text });
           engine.setPaused(true);
         }
@@ -124,25 +120,19 @@ export function Game() {
         setCurrentZoneId(z.id);
         setVisited(prev => { const n = new Set(prev); n.add(z.id); return n; });
         showToast(z.name.toUpperCase(), z.subtitle);
-        if (z.id !== "home") setCliffOpen(z);
-        engine.setPaused(true);
+        if (z.id !== "home") { setCliffOpen(z); engine.setPaused(true); }
       },
       onMenu: () => { setMenuOpen(true); engine.setPaused(true); },
       onBadge: (badgeId: string) => {
-        const z = ZONES.find(x => x.badge.id === badgeId);
-        if (!z) return;
         setBadges(prev => { const n = new Set(prev); n.add(badgeId); return n; });
-        engine.markGymDefeated("", badgeId);
-        setGotBadge({ label: z.badge.label, color: z.badge.color });
-        playSound("badge");
-        setTimeout(() => setGotBadge(null), 3000);
       },
       onGymEnter: (z: Zone) => { setBattle(z); engine.setPaused(true); },
       onWild: (z: Zone) => { setCatchModal(z); engine.setPaused(true); },
     });
     engineRef.current = engine;
+    setEngineReady(true);
 
-    // Restore engine state from saved data
+    // Restore engine state
     try {
       const raw = localStorage.getItem("pq_save");
       if (raw) {
@@ -157,23 +147,22 @@ export function Game() {
     return () => engine.destroy();
   }, [showToast]);
 
-  // Sync paused state with modals
   useEffect(() => {
     engineRef.current?.setPaused(isModalOpen);
   }, [isModalOpen]);
 
-  function closeDialog() {
-    setDialog(null);
-    engineRef.current?.setPaused(false);
-  }
-
   function handleWarp(zoneId: string) {
+    setWorldSelectOpen(false);
     setMapOpen(false);
     engineRef.current?.warpTo(zoneId);
     engineRef.current?.setPaused(false);
     playSound("warp");
     const z = ZONES.find(x => x.id === zoneId);
-    if (z) showToast(`⚡ WARPED TO ${z.name.toUpperCase()}`, z.subtitle);
+    if (z) {
+      setCurrentZoneId(zoneId);
+      setVisited(prev => { const n = new Set(prev); n.add(zoneId); return n; });
+      showToast(`⚡ ${z.name.toUpperCase()}`, z.subtitle);
+    }
   }
 
   function handleBattleWin(zone: Zone) {
@@ -194,195 +183,201 @@ export function Game() {
   return (
     <div style={{
       position: "fixed", inset: 0,
-      background: "#08101a",
-      display: "flex", flexDirection: "column",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      background: "#020509",
       overflow: "hidden",
     }}>
-      {/* Canvas */}
-      <canvas
-        ref={canvasRef}
-        width={INIT_W}
-        height={INIT_H}
-        style={{
-          width: "100%", height: "100%",
-          imageRendering: "pixelated",
-          display: "block",
-        }}
-      />
-
-      {/* HUD — TOP */}
+      {/* Parallax starfield behind the boxed game */}
       <div style={{
-        position: "absolute", top: 0, left: 0, right: 0,
-        display: "flex", alignItems: "center", gap: 8,
-        padding: "8px 8px",
-        paddingTop: "calc(env(safe-area-inset-top) + 8px)",
-        pointerEvents: "none",
-        zIndex: 20,
+        position: "absolute", inset: 0,
+        background: "radial-gradient(ellipse at 50% 30%, #0a1a35 0%, #030810 60%, #020509 100%)",
+        overflow: "hidden", zIndex: 0,
       }}>
-        {/* Zone name */}
-        <div style={{
-          flex: 1, minWidth: 0,
-          background: "rgba(6,12,24,0.88)",
-          border: "2px solid #1a2a4a",
-          padding: "6px 10px",
-          pointerEvents: "auto",
-        }}>
-          <div style={{ fontFamily: "var(--font-pixel)", fontSize: 7, color: "#3a5070", marginBottom: 2 }}>NOW IN</div>
-          <div style={{ fontFamily: "var(--font-pixel)", fontSize: 11, color: "#c8d8f0", lineHeight: 1 }}
-               className="truncate">{currentZone.name.toUpperCase()}</div>
-        </div>
-        {/* Badge counter */}
-        <div style={{
-          background: "rgba(6,12,24,0.88)",
-          border: "2px solid #1a2a4a",
-          padding: "6px 10px",
-          pointerEvents: "auto",
-        }}>
-          <div style={{ fontFamily: "var(--font-pixel)", fontSize: 11, color: "#ffd24a" }}>
-            ★ {defeated.size}/{totalGyms}
-          </div>
-        </div>
-        {/* Mute toggle */}
-        <button
-          onClick={() => { const m = !muted; setMuted(m); setMutedState(m); }}
-          style={{
-            background: "rgba(6,12,24,0.88)",
-            border: "2px solid #1a2a4a",
-            padding: "6px 10px",
-            color: muted ? "#3a5070" : "#7ce0ff",
-            fontFamily: "var(--font-pixel)", fontSize: 11,
-            cursor: "pointer", pointerEvents: "auto",
-          }}
-        >{muted ? "🔇" : "🔊"}</button>
-        {/* Exit */}
-        <Link href="/" style={{
-          background: "rgba(6,12,24,0.88)",
-          border: "2px solid #1a2a4a",
-          padding: "6px 10px",
-          fontFamily: "var(--font-pixel)", fontSize: 9,
-          color: "#5580aa", textDecoration: "none",
-          pointerEvents: "auto",
-        }}>✕ EXIT</Link>
-      </div>
-
-      {/* HUD — BOTTOM RIGHT */}
-      <div style={{
-        position: "absolute", bottom: 0, right: 0,
-        display: "flex", flexDirection: "column", gap: 6,
-        padding: "8px",
-        paddingBottom: "calc(env(safe-area-inset-bottom) + 8px)",
-        zIndex: 20,
-      }}>
-        {[
-          { label: "MAP ⚡", action: () => { setMapOpen(true); playSound("menu"); } },
-          { label: "NOTES", action: () => { setCliffOpen(currentZone); playSound("menu"); } },
-          { label: "BAG", action: () => { setBagOpen(true); playSound("menu"); } },
-          { label: "☰ MENU", action: () => { setMenuOpen(true); playSound("menu"); }, primary: true },
-        ].map(btn => (
-          <button
-            key={btn.label}
-            onClick={btn.action}
-            style={{
-              background: btn.primary ? "#1a3060" : "rgba(6,12,24,0.88)",
-              border: `2px solid ${btn.primary ? "#2a4a80" : "#1a2a4a"}`,
-              color: btn.primary ? "#7ce0ff" : "#5580aa",
-              padding: "10px 12px",
-              fontFamily: "var(--font-pixel)", fontSize: 9,
-              cursor: "pointer",
-              minHeight: 40,
-              letterSpacing: "0.05em",
-            }}
-          >{btn.label}</button>
+        {[...Array(80)].map((_, i) => (
+          <div key={i} style={{
+            position: "absolute",
+            left: `${(i * 43.7) % 100}%`,
+            top: `${(i * 31.3) % 100}%`,
+            width: i % 8 === 0 ? 3 : i % 4 === 0 ? 2 : 1,
+            height: i % 8 === 0 ? 3 : i % 4 === 0 ? 2 : 1,
+            background: i % 6 === 0 ? "#7ce0ff" : i % 3 === 0 ? "#ffd24a" : "#fff",
+            opacity: 0.05 + (i % 5) * 0.04,
+            borderRadius: "50%",
+          }} />
         ))}
       </div>
 
-      {/* Toast */}
-      {toast && (
-        <div style={{
-          position: "absolute", top: 70, left: "50%",
-          transform: "translateX(-50%)",
-          zIndex: 25, pointerEvents: "none",
-          background: "rgba(6,12,24,0.95)",
-          border: "2px solid #2a3a5a",
-          padding: "10px 16px",
-          textAlign: "center",
-          maxWidth: 320,
-          animation: "pq-fade-in 0.18s ease-out",
-        }}>
-          <div style={{ fontFamily: "var(--font-pixel)", fontSize: 10, color: "#7ce0ff" }}>{toast.title}</div>
-          {toast.sub && <div style={{ fontFamily: "var(--font-pixel)", fontSize: 7, color: "#3a5070", marginTop: 4 }}>{toast.sub}</div>}
-        </div>
-      )}
+      {/* Game container - boxed on desktop */}
+      <div style={{
+        position: "relative",
+        width: "min(100vw, 960px)",
+        height: "min(100vh, 640px)",
+        zIndex: 1,
+        display: "flex", flexDirection: "column",
+        boxShadow: "0 0 80px rgba(0,0,0,0.8), 0 0 2px rgba(124,224,255,0.15)",
+        border: "1px solid rgba(124,224,255,0.06)",
+      }}>
+        {/* Canvas */}
+        <canvas
+          ref={canvasRef}
+          width={INIT_W}
+          height={INIT_H}
+          style={{ width: "100%", height: "100%", imageRendering: "pixelated", display: "block" }}
+        />
 
-      {/* Badge earned overlay */}
-      {gotBadge && (
+        {/* HUD — TOP */}
         <div style={{
-          position: "absolute", inset: 0, zIndex: 45,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          pointerEvents: "none",
-          background: "rgba(4,8,16,0.7)",
+          position: "absolute", top: 0, left: 0, right: 0,
+          display: "flex", alignItems: "center", gap: 6,
+          padding: "8px",
+          paddingTop: "calc(env(safe-area-inset-top) + 8px)",
+          pointerEvents: "none", zIndex: 20,
         }}>
           <div style={{
-            border: `3px solid ${gotBadge.color}`,
-            background: `linear-gradient(135deg, ${gotBadge.color}22 0%, #060c18 100%)`,
-            padding: "32px 48px",
-            textAlign: "center",
-            boxShadow: `0 0 40px ${gotBadge.color}40`,
-            animation: "pq-badge-pop 0.4s cubic-bezier(0.34,1.56,0.64,1)",
+            flex: 1, minWidth: 0,
+            background: "rgba(4,8,20,0.9)", border: "2px solid #1a2a4a",
+            padding: "5px 10px", pointerEvents: "auto",
+          }}>
+            <div style={{ fontFamily: "var(--font-pixel)", fontSize: 6, color: "#2a3a50" }}>NOW IN</div>
+            <div style={{ fontFamily: "var(--font-pixel)", fontSize: 10, color: "#c8d8f0", lineHeight: 1, marginTop: 2 }}
+                 className="truncate">{currentZone.name.toUpperCase()}</div>
+          </div>
+          <div style={{
+            background: "rgba(4,8,20,0.9)", border: "2px solid #1a2a4a",
+            padding: "5px 10px", pointerEvents: "auto",
+          }}>
+            <div style={{ fontFamily: "var(--font-pixel)", fontSize: 10, color: "#ffd24a" }}>★ {defeated.size}/{totalGyms}</div>
+          </div>
+
+          {/* WORLD SELECT - prominent */}
+          <button
+            onClick={() => { setWorldSelectOpen(true); playSound("menu"); }}
+            style={{
+              background: "linear-gradient(135deg, rgba(124,224,255,0.15) 0%, rgba(58,120,216,0.08) 100%)",
+              border: "2px solid #7ce0ff60",
+              color: "#7ce0ff", padding: "5px 10px",
+              fontFamily: "var(--font-pixel)", fontSize: 8,
+              cursor: "pointer", pointerEvents: "auto",
+              animation: worldSelectOpen ? "none" : undefined,
+            }}
+          >⚡ WORLD SELECT</button>
+
+          <button onClick={() => { const m = !muted; setMuted(m); setMutedState(m); }} style={{
+            background: "rgba(4,8,20,0.9)", border: "2px solid #1a2a4a",
+            padding: "5px 8px", color: muted ? "#2a3a50" : "#5580aa",
+            fontFamily: "var(--font-pixel)", fontSize: 11,
+            cursor: "pointer", pointerEvents: "auto",
+          }}>{muted ? "🔇" : "🔊"}</button>
+
+          <Link href="/" style={{
+            background: "rgba(4,8,20,0.9)", border: "2px solid #1a2a4a",
+            padding: "5px 8px", fontFamily: "var(--font-pixel)", fontSize: 8,
+            color: "#3a5070", textDecoration: "none", pointerEvents: "auto",
+          }}>✕</Link>
+        </div>
+
+        {/* HUD — BOTTOM RIGHT */}
+        <div style={{
+          position: "absolute", bottom: 0, right: 0,
+          display: "flex", flexDirection: "column", gap: 5,
+          padding: "8px", paddingBottom: "calc(env(safe-area-inset-bottom) + 8px)",
+          zIndex: 20,
+        }}>
+          {[
+            { label: "NOTES", action: () => { setCliffOpen(currentZone); playSound("menu"); } },
+            { label: "BAG", action: () => { setBagOpen(true); playSound("menu"); } },
+            { label: "☰", action: () => { setMenuOpen(true); playSound("menu"); } },
+          ].map(btn => (
+            <button key={btn.label} onClick={btn.action} style={{
+              background: "rgba(4,8,20,0.9)", border: "2px solid #1a2a4a",
+              color: "#4a6080", padding: "9px 11px",
+              fontFamily: "var(--font-pixel)", fontSize: 9,
+              cursor: "pointer", minHeight: 38,
+            }}>{btn.label}</button>
+          ))}
+        </div>
+
+        {/* Toast */}
+        {toast && (
+          <div style={{
+            position: "absolute", top: 58, left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 25, pointerEvents: "none",
+            background: "rgba(4,8,20,0.96)", border: "2px solid #1a2a4a",
+            padding: "8px 14px", textAlign: "center", maxWidth: 300,
+            animation: "pq-fade-in 0.18s ease-out",
+          }}>
+            <div style={{ fontFamily: "var(--font-pixel)", fontSize: 9, color: "#7ce0ff" }}>{toast.title}</div>
+            {toast.sub && <div style={{ fontFamily: "var(--font-pixel)", fontSize: 6, color: "#2a3a50", marginTop: 3 }}>{toast.sub}</div>}
+          </div>
+        )}
+
+        {/* Badge earned */}
+        {gotBadge && (
+          <div style={{
+            position: "absolute", inset: 0, zIndex: 45,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            pointerEvents: "none", background: "rgba(3,6,14,0.7)",
           }}>
             <div style={{
-              width: 60, height: 60, borderRadius: "50%",
-              background: gotBadge.color,
               border: `3px solid ${gotBadge.color}`,
-              boxShadow: `0 0 20px ${gotBadge.color}`,
-              margin: "0 auto 16px",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontFamily: "var(--font-pixel)", fontSize: 24,
-            }}>★</div>
-            <div style={{ fontFamily: "var(--font-pixel)", fontSize: 7, color: gotBadge.color, marginBottom: 8 }}>
-              GYM BADGE EARNED
-            </div>
-            <div style={{ fontFamily: "var(--font-pixel)", fontSize: 13, color: "#fff" }}>
-              {gotBadge.label.toUpperCase()}
+              background: `linear-gradient(135deg, ${gotBadge.color}18 0%, #050c18 100%)`,
+              padding: "28px 44px", textAlign: "center",
+              boxShadow: `0 0 40px ${gotBadge.color}40`,
+              animation: "pq-badge-pop 0.4s cubic-bezier(0.34,1.56,0.64,1)",
+            }}>
+              <div style={{
+                width: 52, height: 52, borderRadius: "50%", background: gotBadge.color,
+                margin: "0 auto 14px", display: "flex", alignItems: "center", justifyContent: "center",
+                fontFamily: "var(--font-pixel)", fontSize: 22,
+                boxShadow: `0 0 20px ${gotBadge.color}`,
+              }}>★</div>
+              <div style={{ fontFamily: "var(--font-pixel)", fontSize: 6, color: gotBadge.color, marginBottom: 6 }}>
+                GYM BADGE EARNED
+              </div>
+              <div style={{ fontFamily: "var(--font-pixel)", fontSize: 12, color: "#fff" }}>
+                {gotBadge.label.toUpperCase()}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Overlays */}
-      {dialog && <DialogBox dialog={dialog} onClose={closeDialog} />}
-      {menuOpen && <StartMenu badges={badges} creatures={creatures} skills={skills} onClose={() => { setMenuOpen(false); }} />}
-      {bagOpen && <Bag creatures={creatures} skills={skills} badges={badges} onClose={() => setBagOpen(false)} />}
-      {cliffOpen && <CliffNotes zone={cliffOpen} onClose={() => setCliffOpen(null)} />}
-      {mapOpen && (
-        <WorldMap
-          visited={visited} defeated={defeated} currentId={currentZoneId}
-          onWarp={handleWarp}
-          onClose={() => setMapOpen(false)}
-        />
-      )}
-      {battle && (
-        <Battle
-          zone={battle} ownedSkills={skills} badges={badges}
-          onWin={() => handleBattleWin(battle)}
-          onFlee={() => { setBattle(null); engineRef.current?.setPaused(false); }}
-        />
-      )}
-      {catchModal && (
-        <CatchModal
-          zone={catchModal}
-          onCatch={() => {
-            const id = catchModal.creature!.id;
-            setCreatures(prev => { const n = new Set(prev); n.add(id); caughtRef.current = n; return n; });
-            engineRef.current?.addCreature(id);
-            playSound("catch");
-            showToast(`✦ ${catchModal.creature!.name.toUpperCase()} CAUGHT`, catchModal.creature!.description);
-          }}
-          onClose={() => { setCatchModal(null); engineRef.current?.setPaused(false); }}
-        />
-      )}
-      {contactOpen && <ContactModal onClose={() => { setContactOpen(false); engineRef.current?.setPaused(false); }} />}
-      {pressOpen && <PressModal onClose={() => { setPressOpen(false); engineRef.current?.setPaused(false); }} />}
+        {/* Overlays */}
+        {worldSelectOpen && (
+          <WorldSelect
+            onSelect={handleWarp}
+            onClose={() => { setWorldSelectOpen(false); engineRef.current?.setPaused(false); }}
+          />
+        )}
+        {mapOpen && (
+          <WorldMap visited={visited} defeated={defeated} currentId={currentZoneId}
+            onWarp={handleWarp} onClose={() => setMapOpen(false)} />
+        )}
+        {dialog && <DialogBox dialog={dialog} onClose={() => { setDialog(null); engineRef.current?.setPaused(false); }} />}
+        {menuOpen && <StartMenu badges={badges} creatures={creatures} skills={skills} onClose={() => setMenuOpen(false)} />}
+        {bagOpen && <Bag creatures={creatures} skills={skills} badges={badges} onClose={() => setBagOpen(false)} />}
+        {cliffOpen && <CliffNotes zone={cliffOpen} onClose={() => setCliffOpen(null)} />}
+        {battle && (
+          <Battle zone={battle} ownedSkills={skills} badges={badges}
+            onWin={() => handleBattleWin(battle)}
+            onFlee={() => { setBattle(null); engineRef.current?.setPaused(false); }} />
+        )}
+        {catchModal && (
+          <CatchModal
+            zone={catchModal}
+            badges={badges}
+            onCatch={() => {
+              const id = catchModal.creature!.id;
+              setCreatures(prev => { const n = new Set(prev); n.add(id); caughtRef.current = n; return n; });
+              engineRef.current?.addCreature(id);
+              showToast(`✦ ${catchModal.creature!.name.toUpperCase()} CAUGHT!`, catchModal.creature!.description);
+            }}
+            onClose={() => { setCatchModal(null); engineRef.current?.setPaused(false); }}
+          />
+        )}
+        {contactOpen && <ContactModal onClose={() => { setContactOpen(false); engineRef.current?.setPaused(false); }} />}
+        {pressOpen && <PressModal onClose={() => { setPressOpen(false); engineRef.current?.setPaused(false); }} />}
+      </div>
     </div>
   );
 }
