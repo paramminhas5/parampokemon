@@ -1,0 +1,686 @@
+// Param Quest — career data as a Pokémon-style RPG.
+
+export type Beat = "did" | "learned";
+export type NpcKind =
+  | "trainer-m" | "trainer-f" | "investor" | "engineer"
+  | "celeb" | "client" | "fan" | "tenant" | "professor" | "mom" | "rival";
+export type Dir = "up" | "down" | "left" | "right";
+
+export type LeaderSprite =
+  | "blankpage" | "longtail" | "zerorunway" | "prehype"
+  | "termsheet" | "noculture" | "blackbox" | "nobrief" | "statusquo";
+
+export type GameNpc = {
+  x: number; y: number;
+  name: string;
+  role: string;
+  quote: string;
+  kind: NpcKind;
+  beat: Beat;
+  special?: "press-trigger" | "contact";
+};
+export type GameSign = { x: number; y: number; text: string };
+export type GameBadge = { x: number; y: number; id: string; label: string; color: string };
+
+export type Creature = {
+  id: string;
+  name: string;
+  type: string;
+  power: number;
+  color: string;
+  shape: "blob" | "spark" | "rhino" | "bird" | "cat" | "wisp" | "lynx" | "core";
+  description: string;
+  from: string;
+};
+
+export type Skill = {
+  id: string;
+  name: string;
+  type: string;
+  power: number;
+  description: string;
+  from: string;
+};
+
+/** A single battle move — used both for Mermander's base kit and skill berries. */
+export type Move = {
+  id: string;
+  name: string;
+  type: string;
+  power: number;
+  pp: number;          // max uses per battle
+  accuracy: number;    // 0–100
+  category: "physical" | "special" | "status";
+  flavor: string;      // shown in battle log
+  effect?: "crit" | "drain" | "buff";
+};
+
+export type Gym = {
+  opponentName: string;
+  opponentTitle: string;
+  intro: string;
+  hp: number;
+  weakTo: string[];
+  resists: string[];
+  /** Full move set for the gym leader — 4 moves with real PP/power. */
+  moves: Move[];
+  victory: string;
+  leader: LeaderSprite;
+};
+
+export type CliffNotes = {
+  era: string;
+  did: string[];
+  learned: string[];
+  metrics: { label: string; value: string }[];
+};
+
+export type ZoneTheme = {
+  ground: "grass" | "sand" | "stone" | "neon" | "snow" | "dusk" | "night" | "mall" | "crypto" | "studio";
+  accent: string;
+  landmark: "bedroom" | "market" | "rentals" | "lab" | "tower" | "mall" | "trading" | "studio" | "agency" | "home";
+};
+
+export type Zone = {
+  id: string;
+  index: number;
+  name: string;
+  role: string;
+  org: string;
+  subtitle: string;
+  years: string;
+  outcome: string;
+  bullets: string[];
+  theme: ZoneTheme;
+  w: number; h: number;
+  ox: number; oy: number;
+  building: { x: number; y: number; w: number; h: number; doorX: number; color: string; roof: string };
+  sign: GameSign;
+  badge: GameBadge;
+  npcs: GameNpc[];
+  creature?: Creature;
+  skill?: Skill;
+  gym?: Gym;
+  cliff: CliffNotes;
+  spawn?: { x: number; y: number };
+};
+
+// ─── Zones ─────────────────────────────────────────────────────
+const Z: Omit<Zone, "ox" | "oy">[] = [
+  {
+    id: "home", index: 0, name: "Pallet Town", org: "Home", role: "The Beginning",
+    subtitle: "Home · The Prologue",
+    years: "Pre-2010",
+    outcome: "Where the curiosity began.",
+    bullets: ["Got Mermander from Professor", "Mom's blessing", "Walk south to begin"],
+    theme: { ground: "grass", accent: "#9ad6e8", landmark: "home" },
+    w: 22, h: 18,
+    building: { x: 8, y: 4, w: 6, h: 4, doorX: 10, color: "#d0d8e8", roof: "#b0382c" },
+    sign: { x: 4, y: 11, text: "PALLET TOWN\nA portfolio you can walk through.\n\nSCROLL/ARROWS to walk.\nTAP to walk there.\nSPACE or A to talk.\nMAP to fast-travel anywhere." },
+    badge: { x: 13, y: 11, id: "curiosity", label: "Starter Token", color: "#9ad6e8" },
+    spawn: { x: 10, y: 10 },
+    npcs: [
+      { x: 6, y: 11, name: "Mom", role: "Pallet Town", kind: "mom", beat: "did",
+        quote: "Take care out there, sweetheart. Fifteen years is a long road.\n\nRemember: shipping beats waiting. I love you.\n\nP.S. — Use the MAP to fast-travel anywhere. No need to walk the whole world." },
+      { x: 14, y: 11, name: "Prof. Iterate", role: "Pokémon Professor", kind: "professor", beat: "learned",
+        quote: "Welcome to PARAM QUEST!\n\nHere — take MERMANDER. He's small, but he grows. Every world drops a SKILL BERRY. Feed them to Mermander and he evolves.\n\nBeat 4 gyms → Mermalion. Beat 8 → Merlord. Now go.\n\nOh — tap MAP anytime to jump to any world. Non-linear exploration encouraged." },
+    ],
+    cliff: {
+      era: "Bedroom · Pre-2010",
+      did: ["Got starter creature Mermander", "Self-taught code, design, music"],
+      learned: ["Curiosity compounds", "Shipping beats waiting"],
+      metrics: [{ label: "AGE", value: "9→19" }, { label: "STACK", value: "code · design · music" }],
+    },
+  },
+  {
+    id: "origin", index: 1, name: "Origin Town", org: "Independent", role: "Builder · Designer · Musician",
+    subtitle: "Pune · Builder",
+    years: "Pre-2010",
+    outcome: "Self-taught code, design, music. Shipped early.",
+    bullets: ["First product at 19", "First company at 21", "Built before Indian tech had a scene"],
+    theme: { ground: "sand", accent: "#f5b78a", landmark: "bedroom" },
+    w: 22, h: 18,
+    building: { x: 8, y: 4, w: 6, h: 4, doorX: 10, color: "#e6c47a", roof: "#7a4d28" },
+    sign: { x: 4, y: 11, text: "ORIGIN TOWN\nBuilder. Designer. Music producer.\nThe story starts here." },
+    badge: { x: 13, y: 11, id: "vision", label: "Vision Badge", color: "#f5b78a" },
+    npcs: [
+      { x: 6, y: 11, name: "Param", role: "Builder · Designer · Director", kind: "trainer-m", beat: "did",
+        quote: "Builder, designer, creative director, music producer.\n\nFifteen years across e-commerce, real estate, AI, sneakers, music, and AI-led marketing." },
+      { x: 16, y: 11, name: "The throughline", role: "What ties it together", kind: "celeb", beat: "learned",
+        quote: "Every chapter compounds into the next.\nThe skills carry over.\n\nThe only constant is shipping." },
+    ],
+    creature: { id: "spark", name: "Sparkling", type: "Vision", power: 14, color: "#f5b78a", shape: "spark",
+      description: "The Blank Page's only minion. Born from doubt.", from: "origin" },
+    skill: { id: "ship", name: "Ship It", type: "Vision", power: 18,
+      description: "Turns ambiguity into a thing you can hold.", from: "origin" },
+    gym: {
+      opponentName: "The Blank Page",
+      opponentTitle: "Origin Gym Leader",
+      intro: "So you want to build. Prove it. Make something where nothing was.",
+      hp: 60,
+      weakTo: ["Vision", "Brand"],
+      resists: [],
+      moves: [
+        { id: "doubt", name: "Creeping Doubt", type: "Ghost", power: 12, pp: 20, accuracy: 95, category: "special", flavor: "The Blank Page fills your screen with uncertainty." },
+        { id: "procrastinate", name: "Procrastinate", type: "Normal", power: 8, pp: 30, accuracy: 100, category: "status", flavor: "'Just one more day of planning...'", effect: "buff" },
+        { id: "early", name: "Too Early", type: "Ghost", power: 18, pp: 15, accuracy: 90, category: "special", flavor: "Nobody's done this before. Maybe there's a reason." },
+        { id: "noone", name: "Nobody Cares", type: "Dark", power: 22, pp: 10, accuracy: 85, category: "special", flavor: "The market is indifferent. It always is, at first." },
+      ],
+      victory: "First shipped thing. The hardest one.",
+      leader: "blankpage",
+    },
+    cliff: {
+      era: "Pune · Pre-2010",
+      did: ["First product at 19", "First company at 21"],
+      learned: ["Build before there's a scene", "Hands-on across code, design, music"],
+      metrics: [{ label: "BUILT", value: "Solo" }, { label: "SCENE", value: "None yet" }],
+    },
+  },
+  {
+    id: "grp", index: 2, name: "GRP Market", org: "GetRightPrice", role: "Founding Team Member",
+    subtitle: "2010 · First Startup",
+    years: "2010",
+    outcome: "India's first price-comparison engine. Angel-backed.",
+    bullets: ["Founding team, in college", "Angel-backed by Sidharth Rao (Webchutney)", "Built catalog + crawl pipeline"],
+    theme: { ground: "grass", accent: "#a8d39a", landmark: "market" },
+    w: 22, h: 18,
+    building: { x: 8, y: 4, w: 6, h: 4, doorX: 10, color: "#a8d39a", roof: "#3f7a3a" },
+    sign: { x: 4, y: 11, text: "GRP MARKET\nIndia's first price-comparison engine.\nBuilt in college." },
+    badge: { x: 13, y: 11, id: "ship", label: "Search Badge", color: "#a8d39a" },
+    npcs: [
+      { x: 6, y: 11, name: "GetRightPrice", role: "Founding team · 2010", kind: "trainer-m", beat: "did",
+        quote: "Founding team of one of India's first price-comparison engines for electronics.\n\nAngel-backed by Sidharth Rao of Webchutney." },
+      { x: 16, y: 11, name: "First-mover lessons", role: "What it taught me", kind: "investor", beat: "learned",
+        quote: "Cataloguing, pricing logic, affiliate models, crawling inventory at scale.\n\nFirst proof I could ship." },
+    ],
+    creature: { id: "crawler", name: "Crawlix", type: "Search", power: 16, color: "#7ac46a", shape: "blob",
+      description: "Long Tail's web crawler. Indexes pennies.", from: "grp" },
+    skill: { id: "catalog", name: "Catalog Crawl", type: "Search", power: 22,
+      description: "Indexes a market overnight.", from: "grp" },
+    gym: {
+      opponentName: "The Long Tail",
+      opponentTitle: "GRP Gym Leader",
+      intro: "Millions of SKUs. Pennies of margin. Move.",
+      hp: 70,
+      weakTo: ["Search", "Vision"],
+      resists: ["Brand"],
+      moves: [
+        { id: "sku", name: "SKU Flood", type: "Normal", power: 15, pp: 25, accuracy: 100, category: "special", flavor: "Millions of products. Which one matters?" },
+        { id: "margin", name: "Thin Margins", type: "Steel", power: 20, pp: 15, accuracy: 95, category: "physical", flavor: "Affiliate economics squeeze hard." },
+        { id: "crawl", name: "Crawl Rate", type: "Bug", power: 25, pp: 10, accuracy: 90, category: "special", flavor: "The pipeline backs up. Inventory goes stale." },
+        { id: "affiliate", name: "Affiliate Zero", type: "Poison", power: 30, pp: 5, accuracy: 85, category: "special", flavor: "Commissions disappear overnight.", effect: "crit" },
+      ],
+      victory: "First product surfaced. First check cleared.",
+      leader: "longtail",
+    },
+    cliff: {
+      era: "College · 2010",
+      did: ["India's first price-comparison engine for electronics", "Angel-backed by Sidharth Rao (Webchutney)"],
+      learned: ["Cataloguing, pricing logic, crawl pipelines", "Affiliate model economics"],
+      metrics: [{ label: "ROLE", value: "Founding team" }, { label: "STAGE", value: "Angel" }],
+    },
+  },
+  {
+    id: "hab", index: 3, name: "Hab District", org: "Hab Housing", role: "Founder",
+    subtitle: "2012-13 · Real Estate",
+    years: "2012-13",
+    outcome: "₹1Cr revenue. Bootstrapped. Sold operations.",
+    bullets: ["Standardised budget rentals in Bengaluru", "₹1 crore revenue, zero external capital", "Same problem as OYO, no VC money"],
+    theme: { ground: "stone", accent: "#f6a268", landmark: "rentals" },
+    w: 22, h: 18,
+    building: { x: 8, y: 3, w: 6, h: 5, doorX: 10, color: "#c47833", roof: "#5a2c0c" },
+    sign: { x: 4, y: 11, text: "HAB DISTRICT\nBudget rentals. ₹1Cr revenue.\nZero VC money." },
+    badge: { x: 13, y: 11, id: "ops", label: "Operator Badge", color: "#f6a268" },
+    npcs: [
+      { x: 6, y: 11, name: "Hab Housing", role: "Founder · 2012", kind: "trainer-m", beat: "did",
+        quote: "Standardised budget rentals across Bengaluru — same problem OYO solved at the same time, without VC money.\n\nScaled to ₹1Cr revenue on operations alone." },
+      { x: 16, y: 11, name: "What ₹1Cr taught me", role: "Bootstrapping", kind: "tenant", beat: "learned",
+        quote: "Operations, unit economics, customer acquisition, retention — without a safety net.\n\nEvery decision is real when there's no VC money." },
+    ],
+    creature: { id: "rhino", name: "Opsros", type: "Ops", power: 20, color: "#c47833", shape: "rhino",
+      description: "Heavy. Reliable. Pays rent on time.", from: "hab" },
+    skill: { id: "unitecon", name: "Unit Economics", type: "Ops", power: 26,
+      description: "Makes every rupee earn its keep.", from: "hab" },
+    gym: {
+      opponentName: "Zero Runway",
+      opponentTitle: "Hab Gym Leader",
+      intro: "No fund. No safety net. Build a real business.",
+      hp: 80,
+      weakTo: ["Ops", "Search"],
+      resists: ["AI"],
+      moves: [
+        { id: "cashburn", name: "Cash Burn", type: "Fire", power: 18, pp: 20, accuracy: 100, category: "special", flavor: "Wait — there is no cash. But the burn still happens." },
+        { id: "tenant", name: "Tenant Left", type: "Ghost", power: 22, pp: 15, accuracy: 90, category: "physical", flavor: "Three units vacant. Rent day is tomorrow." },
+        { id: "margins", name: "Margin Squeeze", type: "Steel", power: 26, pp: 10, accuracy: 90, category: "special", flavor: "Real estate margins are unforgiving." },
+        { id: "runway", name: "Zero Runway", type: "Dark", power: 32, pp: 5, accuracy: 80, category: "special", flavor: "Build a real business or the lights go out.", effect: "crit" },
+      ],
+      victory: "₹1Cr in. Operations sold. Lesson kept.",
+      leader: "zerorunway",
+    },
+    cliff: {
+      era: "Bengaluru · 2012-13",
+      did: ["Standardised budget rentals across Bengaluru", "Scaled to ₹1Cr revenue", "Sold operations cleanly"],
+      learned: ["Unit economics in real time", "Acquisition + retention without a fund"],
+      metrics: [{ label: "REVENUE", value: "₹1Cr" }, { label: "CAPITAL", value: "Bootstrapped" }],
+    },
+  },
+  {
+    id: "ai", index: 4, name: "Quartic Lab", org: "Octo → Quartic.ai", role: "Founding Team · Director of Marketing",
+    subtitle: "2013-17 · AI before AI",
+    years: "2013-17",
+    outcome: "India's first AI chatbot in 2013. Octo acquired by Quartic.ai.",
+    bullets: ["Built one of India's first AI chatbots in 2013", "Co-built Octo with Akshaya Aron", "Director of Marketing post-acquisition"],
+    theme: { ground: "neon", accent: "#9fe8ff", landmark: "lab" },
+    w: 22, h: 18,
+    building: { x: 8, y: 3, w: 6, h: 5, doorX: 10, color: "#4a6e9a", roof: "#1f3548" },
+    sign: { x: 4, y: 11, text: "QUARTIC LAB\nBuilt AI before it was a category.\n2013 chatbot · Octo · Quartic.ai" },
+    badge: { x: 13, y: 11, id: "ai", label: "Conversation Badge", color: "#9fe8ff" },
+    npcs: [
+      { x: 6, y: 11, name: "Octo → Quartic", role: "Founding team · 2013", kind: "engineer", beat: "did",
+        quote: "In 2013 we built one of India's first AI chatbots — before the word was common. On top of that we built Octo, an AI marketing platform. Acquired by Quartic.ai.\n\nI led marketing as Director." },
+      { x: 16, y: 11, name: "Akshaya Aron", role: "Co-founder Octo · CEO Quartic.ai", kind: "trainer-f", beat: "did",
+        quote: "Akshaya and I built Octo together.\n\nA decade later, we're back together at Fere.ai." },
+    ],
+    creature: { id: "botto", name: "Bottoflux", type: "AI", power: 22, color: "#9fe8ff", shape: "spark",
+      description: "Pre-Hype's chatbot. Talks back.", from: "ai" },
+    skill: { id: "translate", name: "Translate Tech", type: "AI", power: 28,
+      description: "Turns engineering into something humans buy.", from: "ai" },
+    gym: {
+      opponentName: "Pre-Hype Market",
+      opponentTitle: "Quartic Gym Leader",
+      intro: "Nobody's heard of chatbots. Or AI. Or you. Sell it anyway.",
+      hp: 90,
+      weakTo: ["AI", "Vision"],
+      resists: ["Ops"],
+      moves: [
+        { id: "whatis", name: "What's a Chatbot?", type: "Normal", power: 15, pp: 25, accuracy: 100, category: "status", flavor: "Market confusion is real. Nobody searched for this." },
+        { id: "early2", name: "Too Early Again", type: "Psychic", power: 22, pp: 15, accuracy: 95, category: "special", flavor: "You're ahead of the curve. The curve doesn't care." },
+        { id: "nosearch", name: "Zero Search Volume", type: "Ghost", power: 28, pp: 10, accuracy: 90, category: "special", flavor: "No SEO. No ads. No playbook. Pure missionary." },
+        { id: "adoption", name: "Adoption Gap", type: "Ice", power: 35, pp: 5, accuracy: 85, category: "special", flavor: "Even great tech needs a bridge to humans.", effect: "crit" },
+      ],
+      victory: "Octo acquired. Direction set.",
+      leader: "prehype",
+    },
+    cliff: {
+      era: "2013-17 · AI before AI",
+      did: ["One of India's first chatbots in 2013", "Co-built Octo (acquired by Quartic.ai)", "Led marketing as Director"],
+      learned: ["Translating deep tech into adoption", "Closing the engineer ↔ buyer gap"],
+      metrics: [{ label: "EXIT", value: "Acquired" }, { label: "ROLE", value: "Director" }],
+    },
+  },
+  {
+    id: "investopad", index: 5, name: "Investopad Tower", org: "Investopad", role: "Partner — Growth & Tech",
+    subtitle: "Post-Octo · Family Office",
+    years: "Post-Octo",
+    outcome: "Helped build Fund I. Worked with Meesho, Entri, Simsim, Amazon, Forbes.",
+    bullets: [
+      "Partner for Growth & Tech",
+      "Helped build Fund I from scratch (sourcing, diligence, founder support)",
+      "Was alongside as most portfolio companies raised their rounds",
+    ],
+    theme: { ground: "dusk", accent: "#f0c4ff", landmark: "tower" },
+    w: 22, h: 18,
+    building: { x: 8, y: 3, w: 6, h: 5, doorX: 10, color: "#9a6fc4", roof: "#3f2266" },
+    sign: { x: 4, y: 11, text: "INVESTOPAD\nFamily office of Rohan & Arjun Malhotra.\nFund 0 from scratch." },
+    badge: { x: 13, y: 11, id: "fund", label: "Capital Badge", color: "#f0c4ff" },
+    npcs: [
+      { x: 6, y: 11, name: "Investopad", role: "Growth & Tech Partner · Fund 0", kind: "investor", beat: "did",
+        quote: "Partner for Growth and Technology.\n\nHelped build Fund I — deal sourcing, portfolio analysis, founder relationships, growth strategy. I didn't write the cheques, but I was in the room while most of our companies raised theirs." },
+      { x: 16, y: 11, name: "Portfolio", role: "Companies worked with", kind: "client", beat: "did",
+        quote: "Meesho, Entri, Simsim, Amazon, Forbes.\n\nAcross growth, brand, and product strategy." },
+    ],
+    creature: { id: "falcon", name: "Capitalcon", type: "Capital", power: 24, color: "#f0c4ff", shape: "bird",
+      description: "Term Sheet's falcon. Spots deals at a thousand decks.", from: "investopad" },
+    skill: { id: "dealflow", name: "Deal Flow", type: "Capital", power: 30,
+      description: "Reads cap tables the way others read tweets.", from: "investopad" },
+    gym: {
+      opponentName: "Term Sheet",
+      opponentTitle: "Investopad Gym Leader",
+      intro: "From the other side of the table now. Defend the thesis.",
+      hp: 100,
+      weakTo: ["Capital", "Ops"],
+      resists: ["Brand"],
+      moves: [
+        { id: "moat", name: "Where's the Moat?", type: "Steel", power: 20, pp: 20, accuracy: 100, category: "special", flavor: "Every investor's first question. Have your answer ready." },
+        { id: "whynow", name: "Why Now?", type: "Psychic", power: 25, pp: 15, accuracy: 95, category: "special", flavor: "Timing is everything. Prove yours." },
+        { id: "cohort", name: "Show the Cohort", type: "Water", power: 30, pp: 10, accuracy: 90, category: "special", flavor: "Retention curves don't lie. Neither do unit economics." },
+        { id: "dilution", name: "Dilution Threat", type: "Dark", power: 38, pp: 5, accuracy: 85, category: "special", flavor: "The cap table is a weapon in the wrong hands.", effect: "crit" },
+      ],
+      victory: "Fund 0 stood up. Reputation built.",
+      leader: "termsheet",
+    },
+    cliff: {
+      era: "Post-Octo · Venture",
+      did: ["Helped build Fund I from scratch", "Worked with Meesho, Entri, Simsim, Amazon, Forbes", "In the room while portfolio companies raised"],
+      learned: ["The other side of the cap table", "Partnership dynamics + early-stage evaluation"],
+      metrics: [{ label: "ROLE", value: "Partner" }, { label: "FUND", value: "I" }],
+    },
+  },
+  {
+    id: "sole", index: 6, name: "SoleSearch Mall", org: "SoleSearch", role: "Co-founder & CEO",
+    subtitle: "2020-24 · Sneakers & Streetwear",
+    years: "2020-24",
+    outcome: "$795K raised. 30+ events. ₹26cr+ sales. CNBC-TV18 feature.",
+    bullets: [
+      "Co-founded with Prabal Baghla; joined by Rannvijay Singha",
+      "$795K — Venture Catalysts, Anthill, Cornerstone",
+      "30+ live events · ₹26cr+ yearly sales · ₹1cr+ sponsorships",
+      "Retail in Mumbai & Hyderabad · CNBC-TV18",
+    ],
+    theme: { ground: "mall", accent: "#ff9fd4", landmark: "mall" },
+    w: 22, h: 18,
+    building: { x: 8, y: 3, w: 6, h: 5, doorX: 10, color: "#c0388c", roof: "#4a1240" },
+    sign: { x: 4, y: 11, text: "SOLESEARCH MALL\nIndia's sneaker & streetwear platform.\n$795K raised · CNBC-TV18." },
+    badge: { x: 13, y: 11, id: "ceo", label: "Culture Badge", color: "#ff9fd4" },
+    npcs: [
+      { x: 6, y: 11, name: "SoleSearch", role: "Co-founder & CEO · 2020-24", kind: "celeb", beat: "did",
+        quote: "Co-founded India's leading sneaker and streetwear platform with Prabal Baghla. Joined by Rannvijay Singha. Raised $795K.\n\nStores in Mumbai and Hyderabad. CNBC-TV18." },
+      { x: 16, y: 11, name: "📺 CNBC-TV18", role: "Press wall · Talk to trigger feature", kind: "fan", beat: "did",
+        quote: "CNBC-TV18 · Business of Fashion · Inc42 · Economic Times · YourStory\n\nIndia's sneaker culture — built, not borrowed.",
+        special: "press-trigger" },
+    ],
+    creature: { id: "lynx", name: "Sneakynx", type: "Brand", power: 26, color: "#ff9fd4", shape: "lynx",
+      description: "No Culture's hype creature.", from: "sole" },
+    skill: { id: "culture", name: "Build Culture", type: "Brand", power: 32,
+      description: "Manufactures want from scratch.", from: "sole" },
+    gym: {
+      opponentName: "No Sneaker Culture",
+      opponentTitle: "SoleSearch Gym Leader",
+      intro: "India doesn't have sneaker culture. Build one.",
+      hp: 110,
+      weakTo: ["Brand", "Capital"],
+      resists: ["Search"],
+      moves: [
+        { id: "whocare", name: "Who Cares About a Shoe?", type: "Normal", power: 18, pp: 25, accuracy: 100, category: "status", flavor: "The Indian market doesn't get hype culture. Yet." },
+        { id: "nopress", name: "Press Won't Show", type: "Ghost", power: 24, pp: 15, accuracy: 95, category: "special", flavor: "Media only covers what already has momentum." },
+        { id: "auth", name: "Authentication Nightmare", type: "Poison", power: 30, pp: 10, accuracy: 90, category: "physical", flavor: "Fakes flood the market. Trust is everything." },
+        { id: "hype", name: "Hype Dies", type: "Dark", power: 40, pp: 5, accuracy: 85, category: "special", flavor: "Culture is fragile. Build something real underneath.", effect: "crit" },
+      ],
+      victory: "₹26cr+ sold. CNBC on the wall. Culture built.",
+      leader: "noculture",
+    },
+    cliff: {
+      era: "2020-24 · Sneakers + Streetwear",
+      did: ["$795K raised", "30+ live events", "₹26cr+ yearly sales", "Retail in Mumbai & Hyderabad"],
+      learned: ["How to manufacture cultural demand", "Press, ops, retail, drops — at once"],
+      metrics: [{ label: "RAISED", value: "$795K" }, { label: "SALES", value: "₹26cr+" }, { label: "FEAT", value: "CNBC" }],
+    },
+  },
+  {
+    id: "fere", index: 7, name: "Fere District", org: "Fere.ai", role: "Head of Growth & Marketing",
+    subtitle: "2024-25 · AI × Crypto",
+    years: "2024-25",
+    outcome: "Autonomous AI agents for crypto. Supported the $1.3M raise.",
+    bullets: [
+      "Rejoined Akshaya Aron a decade later",
+      "Built growth & marketing for Fere.ai",
+      "Supported the $1.3M raise led by Ethereal Ventures",
+      "10M+ agent actions at launch",
+    ],
+    theme: { ground: "crypto", accent: "#00e8a0", landmark: "trading" },
+    w: 22, h: 18,
+    building: { x: 8, y: 3, w: 6, h: 5, doorX: 10, color: "#1a8c6e", roof: "#053d2c" },
+    sign: { x: 4, y: 11, text: "FERE DISTRICT\nAutonomous AI agents.\n$1.3M raised." },
+    badge: { x: 13, y: 11, id: "agent", label: "Autonomy Badge", color: "#00e8a0" },
+    npcs: [
+      { x: 6, y: 11, name: "Fere.ai", role: "AI × Crypto · 2024-25", kind: "engineer", beat: "did",
+        quote: "A year-long project with Akshaya Aron — a decade after Octo.\n\nAutonomous AI agents for financial markets. Starting with crypto." },
+      { x: 16, y: 11, name: "Full circle", role: "What Fere taught me", kind: "investor", beat: "learned",
+        quote: "When agents act autonomously, you're not selling a product.\n\nYou're building trust in something invisible." },
+    ],
+    creature: { id: "wisp", name: "Agentwisp", type: "Autonomy", power: 28, color: "#00e8a0", shape: "wisp",
+      description: "Black Box's agent. Acts on its own.", from: "fere" },
+    skill: { id: "trust", name: "Build Trust", type: "Autonomy", power: 34,
+      description: "Sells the invisible.", from: "fere" },
+    gym: {
+      opponentName: "The Black Box",
+      opponentTitle: "Fere Gym Leader",
+      intro: "Your product acts on its own. People can't see it. Sell it.",
+      hp: 120,
+      weakTo: ["Autonomy", "AI"],
+      resists: ["Ops"],
+      moves: [
+        { id: "dashboard", name: "Show the Dashboard", type: "Electric", power: 20, pp: 25, accuracy: 100, category: "special", flavor: "Users demand visibility. The black box gives none." },
+        { id: "trustagent", name: "Trust an Agent?", type: "Ghost", power: 28, pp: 15, accuracy: 95, category: "special", flavor: "Giving control to AI is a leap of faith most won't make." },
+        { id: "cryptoloud", name: "Crypto is Loud", type: "Sound", power: 34, pp: 10, accuracy: 90, category: "special", flavor: "Every scam makes the real work harder to see." },
+        { id: "invisible", name: "The Invisible Product", type: "Psychic", power: 42, pp: 5, accuracy: 85, category: "special", flavor: "Marketing something nobody can touch.", effect: "crit" },
+      ],
+      victory: "$1.3M raised. 10M+ actions live.",
+      leader: "blackbox",
+    },
+    cliff: {
+      era: "2024-25 · AI × Crypto",
+      did: ["Supported the $1.3M raise (Ethereal Ventures-led)", "10M+ autonomous actions at launch", "Full-circle with Akshaya"],
+      learned: ["Marketing invisible/autonomous products", "Trust > demo"],
+      metrics: [{ label: "RAISED", value: "$1.3M*" }, { label: "ACTIONS", value: "10M+" }],
+    },
+  },
+  {
+    id: "ccd", index: 8, name: "Cats Can Dance", org: "Cats Can Dance", role: "Founder · Music + Pet Brand",
+    subtitle: "Now · Music · Pet Culture",
+    years: "Now",
+    outcome: "Music label + pet brand. Where creativity lives without a brief.",
+    bullets: ["Original music releases", "Pet-forward brand world", "Live events + creative IP"],
+    theme: { ground: "studio", accent: "#ffd29a", landmark: "studio" },
+    w: 22, h: 18,
+    building: { x: 8, y: 3, w: 6, h: 5, doorX: 10, color: "#c47844", roof: "#5a2c10" },
+    sign: { x: 4, y: 11, text: "CATS CAN DANCE\nMusic label · Pet-forward brand.\nNo brief. No client." },
+    badge: { x: 13, y: 11, id: "soul", label: "Soul Badge", color: "#ffd29a" },
+    npcs: [
+      { x: 6, y: 11, name: "Cats Can Dance", role: "Music label · Pet brand", kind: "client", beat: "did",
+        quote: "A music label and pet-forward brand. Original music, brand world, live events.\n\nNo brief. No client. The work that exists because it has to." },
+      { x: 16, y: 11, name: "A cat", role: "Studio resident", kind: "fan", beat: "did",
+        quote: "Mrrrp." },
+    ],
+    creature: { id: "cat", name: "Discocat", type: "Soul", power: 22, color: "#ffd29a", shape: "cat",
+      description: "No Brief's loyal cat. Dances unprompted.", from: "ccd" },
+    skill: { id: "taste", name: "Taste", type: "Soul", power: 30,
+      description: "Knows what's good before the data does.", from: "ccd" },
+    gym: {
+      opponentName: "No Brief",
+      opponentTitle: "CCD Gym Leader",
+      intro: "No client. No deck. Make something that has to exist.",
+      hp: 90,
+      weakTo: ["Soul", "Brand"],
+      resists: ["Capital"],
+      moves: [
+        { id: "kpi", name: "What's the KPI?", type: "Normal", power: 15, pp: 25, accuracy: 100, category: "status", flavor: "Creative work that can't be measured makes clients nervous." },
+        { id: "whofor", name: "Who's It For?", type: "Psychic", power: 22, pp: 15, accuracy: 95, category: "special", flavor: "The eternal question for non-commercial work." },
+        { id: "roi", name: "What's the ROI?", type: "Steel", power: 28, pp: 10, accuracy: 90, category: "special", flavor: "Some things exist because they have to. No spreadsheet required." },
+        { id: "brief", name: "No Brief Accepted", type: "Ghost", power: 35, pp: 5, accuracy: 85, category: "special", flavor: "The hardest boss: creating without permission.", effect: "crit" },
+      ],
+      victory: "The work exists. That's the point.",
+      leader: "nobrief",
+    },
+    cliff: {
+      era: "Now · Non-commercial home",
+      did: ["Original music", "Pet-forward brand world", "Live events + creative IP"],
+      learned: ["Every commercial career needs a non-commercial home", "Soul work compounds"],
+      metrics: [{ label: "BRIEF", value: "None" }, { label: "WHY", value: "Has to exist" }],
+    },
+  },
+  {
+    id: "iterate", index: 9, name: "Iterate HQ", org: "Iterate", role: "Founder · AI-native Agency",
+    subtitle: "Now · AI-native Marketing",
+    years: "Now",
+    outcome: "AI-native marketing agency. The full stack pointed at one target.",
+    bullets: ["AI workflows for brand & growth", "Strategy + creative + tech in one room", "Built on 15 years of operator instinct"],
+    theme: { ground: "night", accent: "#7ce0ff", landmark: "agency" },
+    w: 22, h: 18,
+    building: { x: 8, y: 3, w: 6, h: 5, doorX: 10, color: "#4a8cc4", roof: "#1a3858" },
+    sign: { x: 4, y: 11, text: "ITERATE HQ\nAI-native marketing agency.\nFifteen years pointed at one target." },
+    badge: { x: 13, y: 11, id: "champion", label: "Champion Badge", color: "#7ce0ff" },
+    npcs: [
+      { x: 6, y: 11, name: "Iterate", role: "Founder · AI-native agency", kind: "engineer", beat: "did",
+        quote: "An AI-native marketing agency built on 15 years of operating across brand, technology, and growth.\n\nStrategy, creative, and technology in one room — moving at the speed of AI." },
+      { x: 16, y: 11, name: "Work with us", role: "Founder partners only", kind: "trainer-m", beat: "did",
+        quote: "We take a small number of founder partners per quarter.\n\nTalk to me: param@catscandance.com",
+        special: "contact" },
+    ],
+    creature: { id: "core", name: "Iteratron", type: "Stack", power: 40, color: "#7ce0ff", shape: "core",
+      description: "Status Quo's last defense. The system itself.", from: "iterate" },
+    skill: { id: "stack", name: "Full Stack", type: "Stack", power: 50,
+      description: "Brand · Growth · Tech · Taste, deployed at once.", from: "iterate" },
+    gym: {
+      opponentName: "The Status Quo",
+      opponentTitle: "Champion",
+      intro: "The final boss. Every chapter compounds into this one. Use everything.",
+      hp: 180,
+      weakTo: ["Stack", "Soul", "Brand", "AI", "Autonomy", "Capital", "Ops", "Search", "Vision"],
+      resists: [],
+      moves: [
+        { id: "pickone", name: "Pick One Lane", type: "Normal", power: 25, pp: 20, accuracy: 100, category: "status", flavor: "Specialists beat generalists. Or do they?" },
+        { id: "notboth", name: "Strategy OR Execution", type: "Fighting", power: 35, pp: 15, accuracy: 95, category: "physical", flavor: "You can't do both. Choose." },
+        { id: "agencies", name: "Agencies Don't Move Fast", type: "Ice", power: 45, pp: 10, accuracy: 90, category: "special", flavor: "The industry playbook says slow down. Ignore it." },
+        { id: "statusquo", name: "Status Quo", type: "Dark", power: 60, pp: 5, accuracy: 85, category: "special", flavor: "The hardest opponent: the way things are.", effect: "crit" },
+      ],
+      victory: "Champion. Quest complete. Now bring me your project.",
+      leader: "statusquo",
+    },
+    cliff: {
+      era: "Now · The Boss Fight",
+      did: ["AI-native agency built on 15 years of operating", "Strategy + creative + tech in one room"],
+      learned: ["The full stack as competitive advantage", "Speed × taste compounds"],
+      metrics: [{ label: "STACK", value: "Full" }, { label: "PARTNERS", value: "Few/qtr" }],
+    },
+  },
+];
+
+// ─── Layout ────────────────────────────────────────────────────
+const ROUTE_GAP = 4;
+let cursorY = 0;
+export const ZONES: Zone[] = Z.map((z, i) => {
+  const oy = cursorY;
+  cursorY += z.h + (i < Z.length - 1 ? ROUTE_GAP : 0);
+  return { ...z, ox: 0, oy };
+});
+
+export const WORLD_W = 22;
+export const WORLD_H = cursorY + 2;
+
+export const CONTACT = {
+  email: "param@catscandance.com",
+  site: "https://catscandance.com",
+  linkedin: "https://www.linkedin.com/in/paramminhas/",
+  twitter: "https://twitter.com/paramminhas",
+  spotify: "https://open.spotify.com/artist/catscandance",
+};
+
+export const PRESS: { outlet: string; title: string; url: string }[] = [
+  { outlet: "CNBC-TV18", title: "SoleSearch: Building India's sneaker culture from the ground up",
+    url: "https://www.cnbctv18.com/business/companies/solesearch-sneaker-streetwear-india-param-minhas-rannvijay-singha-funding-19324691.htm" },
+  { outlet: "Business of Fashion", title: "India's streetwear scene: Param Minhas, SoleSearch",
+    url: "https://www.businessoffashion.com/articles/retail/india-streetwear-sneakers-solesearch-param-minhas/" },
+  { outlet: "Inc42", title: "SoleSearch raises $795K to scale India's first sneaker marketplace",
+    url: "https://inc42.com/buzz/sneaker-marketplace-solesearch-raises-795k-from-venture-catalysts-others/" },
+  { outlet: "Economic Times", title: "Rannvijay Singha backs SoleSearch",
+    url: "https://economictimes.indiatimes.com/tech/funding/rannvijay-singha-backs-sneaker-startup-solesearch/articleshow/103267218.cms" },
+  { outlet: "YourStory", title: "From Bengaluru to boardroom: Param Minhas on 15 years of building",
+    url: "https://yourstory.com/2023/09/solesearch-sneaker-streetwear-marketplace-rannvijay-singha-param-minhas" },
+];
+
+// ─── Starter creature + base moves ────────────────────────────
+export type StarterStage = {
+  id: "mermander" | "mermalion" | "merlord";
+  name: string;
+  tag: string;
+  minBadges: number;
+  color: string;
+  accent: string;
+  hp: number;
+  baseMoves: Move[];
+};
+
+export const STARTER_STAGES: StarterStage[] = [
+  {
+    id: "mermander", name: "Mermander", tag: "Builder · Stage 1", minBadges: 0,
+    color: "#7ce0ff", accent: "#3a78d8", hp: 60,
+    baseMoves: [
+      { id: "tackle", name: "Ship It", type: "Vision", power: 20, pp: 35, accuracy: 100, category: "physical", flavor: "Just ship it. The simplest and hardest move." },
+      { id: "watergun", name: "Water Gun", type: "Search", power: 28, pp: 25, accuracy: 100, category: "special", flavor: "Classic. Reliable. Mermander's bread and butter." },
+      { id: "quickstrike", name: "First Mover", type: "Vision", power: 18, pp: 30, accuracy: 100, category: "physical", flavor: "Speed is a moat." },
+      { id: "curiosity", name: "Curious Strike", type: "Normal", power: 15, pp: 40, accuracy: 100, category: "status", flavor: "What if we tried...?" },
+    ],
+  },
+  {
+    id: "mermalion", name: "Mermalion", tag: "Operator · Stage 2", minBadges: 4,
+    color: "#f0c4ff", accent: "#9a6fc4", hp: 110,
+    baseMoves: [
+      { id: "ops", name: "Ops Crush", type: "Ops", power: 40, pp: 20, accuracy: 100, category: "physical", flavor: "Real operations, no safety net." },
+      { id: "brand", name: "Brand Wave", type: "Brand", power: 45, pp: 15, accuracy: 100, category: "special", flavor: "Culture manufactured from scratch." },
+      { id: "captial", name: "Capital Call", type: "Capital", power: 35, pp: 20, accuracy: 95, category: "special", flavor: "Defend the thesis." },
+      { id: "surge", name: "Operator Surge", type: "Ops", power: 50, pp: 10, accuracy: 90, category: "physical", flavor: "Fifteen years of operator instinct deployed at once.", effect: "crit" },
+    ],
+  },
+  {
+    id: "merlord", name: "Merlord", tag: "Champion · Stage 3", minBadges: 8,
+    color: "#ffd24a", accent: "#e8852a", hp: 180,
+    baseMoves: [
+      { id: "fullstack", name: "Full Stack", type: "Stack", power: 70, pp: 15, accuracy: 100, category: "special", flavor: "Brand · Growth · Tech · Taste, deployed at once." },
+      { id: "autonomous", name: "Autonomous Agent", type: "Autonomy", power: 65, pp: 10, accuracy: 100, category: "special", flavor: "The product moves on its own." },
+      { id: "soulwork", name: "Soul Work", type: "Soul", power: 60, pp: 15, accuracy: 100, category: "special", flavor: "What exists because it has to." },
+      { id: "champion", name: "Champion's Roar", type: "Stack", power: 90, pp: 5, accuracy: 90, category: "special", flavor: "Every chapter compounds.", effect: "crit" },
+    ],
+  },
+];
+
+export function stageForBadges(badges: number): StarterStage {
+  let s = STARTER_STAGES[0];
+  for (const stage of STARTER_STAGES) if (badges >= stage.minBadges) s = stage;
+  return s;
+}
+
+export const PLAYER_SPAWN = {
+  x: ZONES[0].ox + (ZONES[0].spawn?.x ?? 10),
+  y: ZONES[0].oy + (ZONES[0].spawn?.y ?? 10),
+  dir: "down" as Dir,
+};
+
+export type InteractiveKind = "npc" | "sign" | "badge" | "door" | "mat" | "wild";
+export type Interactive =
+  | { kind: "npc"; zone: Zone; npc: GameNpc; x: number; y: number }
+  | { kind: "sign"; zone: Zone; sign: GameSign; x: number; y: number }
+  | { kind: "badge"; zone: Zone; badge: GameBadge; x: number; y: number }
+  | { kind: "door"; zone: Zone; x: number; y: number }
+  | { kind: "mat"; zone: Zone; x: number; y: number }
+  | { kind: "wild"; zone: Zone; creature: Creature; x: number; y: number };
+
+export function wildPositionFor(zone: Zone): { x: number; y: number } {
+  const x = zone.ox + Math.min(zone.w - 4, zone.building.x + zone.building.w + 1);
+  const y = zone.oy + Math.min(zone.h - 2, zone.building.y + zone.building.h + 2);
+  return { x, y };
+}
+
+export function allInteractives(): Interactive[] {
+  const list: Interactive[] = [];
+  for (const zone of ZONES) {
+    for (const npc of zone.npcs) {
+      list.push({ kind: "npc", zone, npc, x: zone.ox + npc.x, y: zone.oy + npc.y });
+    }
+    list.push({ kind: "sign", zone, sign: zone.sign, x: zone.ox + zone.sign.x, y: zone.oy + zone.sign.y });
+    list.push({ kind: "badge", zone, badge: zone.badge, x: zone.ox + zone.badge.x, y: zone.oy + zone.badge.y });
+    const dx = zone.ox + zone.building.doorX;
+    const dy = zone.oy + zone.building.y + zone.building.h - 1;
+    list.push({ kind: "door", zone, x: dx, y: dy });
+    list.push({ kind: "mat", zone, x: dx, y: dy + 1 });
+    if (zone.creature) {
+      const w = wildPositionFor(zone);
+      list.push({ kind: "wild", zone, creature: zone.creature, x: w.x, y: w.y });
+    }
+  }
+  return list;
+}
+
+export function zoneAt(wx: number, wy: number): Zone | null {
+  for (const z of ZONES) {
+    if (wy >= z.oy && wy < z.oy + z.h && wx >= z.ox && wx < z.ox + z.w) return z;
+  }
+  let near: Zone | null = null;
+  for (const z of ZONES) if (z.oy <= wy) near = z;
+  return near;
+}
+
+/** All gyms are accessible — no sequential lock. Player can tackle any order. */
+export function gymUnlocked(_zoneId: string, _badges: Set<string>): boolean {
+  return true;
+}
