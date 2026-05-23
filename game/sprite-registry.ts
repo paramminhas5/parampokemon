@@ -29,6 +29,12 @@ export const CREATURE_URL: Record<string, string> = {
 
 export const PLAYER_BACK_URL = "/sprites/player/param_back.png";
 
+export const STARTER_BACK_URL: Record<string, string> = {
+  mermander: "/sprites/player/mermander_back.png",
+  mermalion:  "/sprites/player/mermalion_back.png",
+  merlord:    "/sprites/player/merlord_back.png",
+};
+
 export const LANDMARK_URL: Record<string, string> = {
   home:       "/sprites/landmarks/home.png",
   origin:     "/sprites/landmarks/origin.png",
@@ -64,6 +70,7 @@ if (typeof window !== "undefined") {
   Object.values(LEADER_URL).forEach(getSprite);
   Object.values(CREATURE_URL).forEach(getSprite);
   Object.values(LANDMARK_URL).forEach(getSprite);
+  Object.values(STARTER_BACK_URL).forEach(getSprite);
   getSprite(POKEBALL_URL);
   getSprite(PLAYER_BACK_URL);
 }
@@ -73,6 +80,7 @@ export function preloadAllSprites(): Promise<void> {
     ...Object.values(LEADER_URL),
     ...Object.values(CREATURE_URL),
     ...Object.values(LANDMARK_URL),
+    ...Object.values(STARTER_BACK_URL),
     PLAYER_BACK_URL,
     POKEBALL_URL,
   ];

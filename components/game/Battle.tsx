@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import type { Zone, Move } from "@/game/data";
 import { ZONES, STARTER_STAGES, stageForBadges } from "@/game/data";
 import { drawStarter } from "@/game/sprites";
-import { CREATURE_URL, getSprite, isReady } from "@/game/sprite-registry";
+import { CREATURE_URL, STARTER_BACK_URL, getSprite, isReady } from "@/game/sprite-registry";
 import { playSound } from "@/lib/audio";
 
 const TYPE_COLORS: Record<string, string> = {
@@ -101,14 +101,22 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee }: {
   const oppCreatureUrl = CREATURE_URL[zone.id];
   const oppCreatureImg = oppCreatureUrl ? getSprite(oppCreatureUrl) : null;
 
+  // Get player back sprite (PNG if available, fallback to procedural)
+  const myBackImg = getSprite(STARTER_BACK_URL[stage.id] ?? STARTER_BACK_URL.mermander);
+
   useEffect(() => {
     const loop = (now: number) => {
-      // Player side: procedural Mermander back
+      // Player side: PNG back sprite with bob, fallback to procedural
       if (meRef.current) {
         const c = meRef.current.getContext("2d")!;
         c.imageSmoothingEnabled = false;
         c.clearRect(0, 0, 128, 128);
-        drawStarter(c, stage.id, "back", 8, 8, 2.8, now / 100);
+        if (isReady(myBackImg)) {
+          const bob = Math.sin(now / 350) * 3;
+          c.drawImage(myBackImg, 4, 4 + bob, 120, 120);
+        } else {
+          drawStarter(c, stage.id, "back", 8, 8, 2.8, now / 100);
+        }
       }
       // Opponent creature sprite
       if (oppCreatureRef.current) {
@@ -124,7 +132,7 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee }: {
     };
     rafRef.current = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [stage.id, oppCreatureImg]);
+  }, [stage.id, oppCreatureImg, myBackImg]);
 
   useEffect(() => { logEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [log]);
 
