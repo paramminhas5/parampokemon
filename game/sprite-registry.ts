@@ -27,12 +27,25 @@ export const CREATURE_URL: Record<string, string> = {
   iterate:    "/sprites/creatures/iterate.png",
 };
 
-export const PLAYER_BACK_URL = "/sprites/player/param_back.png";
-
-export const STARTER_BACK_URL: Record<string, string> = {
+export const PLAYER_SPRITE_URL: Record<string, string> = {
+  mermander: "/sprites/player/mermander_front.png",
+  mermalion:  "/sprites/player/mermalion_front.png",
+  merlord:    "/sprites/player/merlord_front.png",
+};
+export const PLAYER_BACK_URL: Record<string, string> = {
   mermander: "/sprites/player/mermander_back.png",
   mermalion:  "/sprites/player/mermalion_back.png",
   merlord:    "/sprites/player/merlord_back.png",
+};
+export const PLAYER_LEFT_URL: Record<string, string> = {
+  mermander: "/sprites/player/mermander_left.png",
+  mermalion:  "/sprites/player/mermalion_left.png",
+  merlord:    "/sprites/player/merlord_left.png",
+};
+export const PLAYER_RIGHT_URL: Record<string, string> = {
+  mermander: "/sprites/player/mermander_right.png",
+  mermalion:  "/sprites/player/mermalion_right.png",
+  merlord:    "/sprites/player/merlord_right.png",
 };
 
 export const LANDMARK_URL: Record<string, string> = {
@@ -70,9 +83,11 @@ if (typeof window !== "undefined") {
   Object.values(LEADER_URL).forEach(getSprite);
   Object.values(CREATURE_URL).forEach(getSprite);
   Object.values(LANDMARK_URL).forEach(getSprite);
-  Object.values(STARTER_BACK_URL).forEach(getSprite);
+  Object.values(PLAYER_SPRITE_URL).forEach(getSprite);
+  Object.values(PLAYER_BACK_URL).forEach(getSprite);
+  Object.values(PLAYER_LEFT_URL).forEach(getSprite);
+  Object.values(PLAYER_RIGHT_URL).forEach(getSprite);
   getSprite(POKEBALL_URL);
-  getSprite(PLAYER_BACK_URL);
 }
 
 export function preloadAllSprites(): Promise<void> {
@@ -80,8 +95,10 @@ export function preloadAllSprites(): Promise<void> {
     ...Object.values(LEADER_URL),
     ...Object.values(CREATURE_URL),
     ...Object.values(LANDMARK_URL),
-    ...Object.values(STARTER_BACK_URL),
-    PLAYER_BACK_URL,
+    ...Object.values(PLAYER_SPRITE_URL),
+    ...Object.values(PLAYER_BACK_URL),
+    ...Object.values(PLAYER_LEFT_URL),
+    ...Object.values(PLAYER_RIGHT_URL),
     POKEBALL_URL,
   ];
   return new Promise((resolve) => {

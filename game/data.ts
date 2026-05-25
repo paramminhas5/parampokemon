@@ -556,17 +556,60 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
   },
 ];
 
-// ─── Layout ────────────────────────────────────────────────────
-const ROUTE_GAP = 4;
+// ─── Horizontal zone layout ──────────────────────────────────────
+// Non-linear 3-column zigzag world:
+//   Col A (left x=3-13): home→origin→grp→fere→iterate
+//   Col B (center x=23-33): origin route→ai→sole→ccd → iterate
+//   Col C (right x=43-53): grp→investopad→sole→ccd → iterate
+// Corridors connect adjacent columns at the zone boundary.
+//
+//   y=0..17  HOME (col A, ox=3)
+//   y=19..38  ORIGIN (col A, ox=3)  -- east corridor → col B at world y=19..38
+//   y=40..59  GRP (col A, ox=3)     -- east corridor → col B+col C at y=40..59
+//   y=0..18   B-ROUTE-ORIGIN (col B, ox=23, placeholder)
+//   y=19..38  AI (col B, ox=23)     -- west → col A at y=19..38; east → col C at y=19..38
+//   y=40..59  B-ROUTE-SOLE (col B, ox=23, placeholder)
+//   y=60..79  SOLE (col B, ox=23)   -- west → col A at y=60..79 (connects Fere)
+//   y=81..100 CCD (col B, ox=23)    -- west → col A at y=81..100 (connects Iterate)
+//   y=19..38  C-ROUTE-GRP (col C, ox=43, placeholder)
+//   y=40..59  INVESTOPAD (col C, ox=43)  -- west → col B at y=40..59
+//   y=60..79  C-ROUTE-SOLE (col C, ox=43, placeholder)
+//   y=19..38  A-ROUTE-GRP (col A, ox=3, placeholder reuses GRP world y)
+//   y=40..59  A-ROUTE-FERE (col A, ox=3, placeholder)
+//   y=60..79  SOLE (col A, ox=3, connects with col B Sole)
+//   y=81..100 FERE (col A, ox=3)
+//   y=102..121 ITERATE (col A, ox=3)  -- east corridor → col B at y=102..121
+
+const ZONE_LAYOUT: Record<string, { ox: number; oy: number }> = {
+  // Col A (left, x=3..25): main south spine
+  home:      { ox: 3,  oy: 0   },
+  origin:    { ox: 3,  oy: 19 },
+  grp:       { ox: 3,  oy: 40 },
+  fere:      { ox: 3,  oy: 102 },
+  iterate:   { ox: 3,  oy: 140 },
+  // Col B (center, x=17..39): ai + sole + ccd (staggered to avoid grp conflict)
+  ai:        { ox: 17, oy: 62 },
+  sole:      { ox: 17, oy: 84 },
+  ccd:       { ox: 17, oy: 122 },
+  // Col C (right, x=34..56): investopad + hab
+  investopad:{ ox: 34, oy: 19 },
+  hab:       { ox: 34, oy: 84 },
+};
+
+const ROUTE_GAP = 2;
 let cursorY = 0;
 export const ZONES: Zone[] = Z.map((z, i) => {
-  const oy = cursorY;
-  cursorY += z.h + (i < Z.length - 1 ? ROUTE_GAP : 0);
-  return { ...z, ox: 0, oy };
+  const pos = ZONE_LAYOUT[z.id];
+  const ox = pos?.ox ?? 0;
+  const oy = pos?.oy ?? cursorY;
+  if (!pos) {
+    cursorY += z.h + (i < Z.length - 1 ? ROUTE_GAP : 0);
+  }
+  return { ...z, ox, oy };
 });
 
-export const WORLD_W = 22;
-export const WORLD_H = cursorY + 2;
+export const WORLD_W = 60;
+export const WORLD_H = 160;
 
 export const CONTACT = {
   email: "param@catscandance.com",

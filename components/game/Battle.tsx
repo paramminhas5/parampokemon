@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import type { Zone, Move } from "@/game/data";
 import { ZONES, STARTER_STAGES, stageForBadges } from "@/game/data";
 import { drawStarter } from "@/game/sprites";
-import { CREATURE_URL, STARTER_BACK_URL, getSprite, isReady } from "@/game/sprite-registry";
+import { CREATURE_URL, PLAYER_BACK_URL, getSprite, isReady } from "@/game/sprite-registry";
 import { playSound } from "@/lib/audio";
 
 const TYPE_COLORS: Record<string, string> = {
@@ -102,7 +102,7 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee }: {
   const oppCreatureImg = oppCreatureUrl ? getSprite(oppCreatureUrl) : null;
 
   // Get player back sprite (PNG if available, fallback to procedural)
-  const myBackImg = getSprite(STARTER_BACK_URL[stage.id] ?? STARTER_BACK_URL.mermander);
+  const myBackImg = getSprite(PLAYER_BACK_URL[stage.id] ?? PLAYER_BACK_URL.mermander);
 
   useEffect(() => {
     const loop = (now: number) => {

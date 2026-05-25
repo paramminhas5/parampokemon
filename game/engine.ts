@@ -6,11 +6,12 @@ import {
 } from "./data";
 import { buildWorld } from "./world";
 import {
+  CREATURE_URL, LANDMARK_URL, getSprite, isReady,
+  PLAYER_SPRITE_URL, PLAYER_BACK_URL, PLAYER_LEFT_URL, PLAYER_RIGHT_URL,
+} from "./sprite-registry";
+import {
   TILE, SOLID, T, drawTile, drawBadge, drawCharacter, drawRoof,
 } from "./tiles";
-import { drawLandmark } from "./landmarks";
-import { findPath } from "./pathfind";
-import { CREATURE_URL, getSprite, isReady } from "./sprite-registry";
 
 const DEFAULT_VIEW_TILES_X = 20;
 const DEFAULT_VIEW_TILES_Y = 14;
@@ -31,6 +32,7 @@ export type GameState = {
   visitedZones: Set<string>;
   paused: boolean;
   path: { x: number; y: number }[];
+  playerStage: string;
 };
 
 type InputName = "up" | "down" | "left" | "right" | "action" | "menu";
@@ -79,6 +81,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
     visitedZones: new Set([ZONES[0].id]),
     paused: false,
     path: [],
+    playerStage: "mermander",
   };
 
   const input: Input = { up: false, down: false, left: false, right: false, action: false, menu: false };
@@ -501,8 +504,23 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
     }
 
     // Player on top
-    drawCharacter(ctx, "player", state.dir, state.frame,
-      Math.round(state.px * TILE) + offX, Math.round(state.py * TILE) + offY);
+    {
+      const pbx = Math.round(state.px * TILE) + offX;
+      const pby = Math.round(state.py * TILE) + offY;
+      let url: string | undefined;
+      if (state.dir === "down") url = PLAYER_SPRITE_URL[state.playerStage];
+      else if (state.dir === "up") url = PLAYER_BACK_URL[state.playerStage];
+      else if (state.dir === "left") url = PLAYER_LEFT_URL[state.playerStage];
+      else if (state.dir === "right") url = PLAYER_RIGHT_URL[state.playerStage];
+      const img = url ? getSprite(url) : null;
+      if (img && isReady(img)) {
+        const size = Math.round(TILE * 1.5);
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(img, pbx + (TILE - size) / 2, pby + (TILE - size) / 2, size, size);
+      } else {
+        drawCharacter(ctx, "player", state.dir, state.frame, pbx, pby);
+      }
+    }
 
     // Path breadcrumbs (subtle dots along queued path)
     if (state.path.length) {
@@ -573,6 +591,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       window.removeEventListener("orientationchange", resize);
       window.removeEventListener("resize", resize);
     },
+    setPlayerStage(stage: string) { state.playerStage = stage; },
     get VIEW_TILES_X() { return VIEW_TILES_X; },
     get VIEW_TILES_Y() { return VIEW_TILES_Y; },
     TILE_PX: TILE,

@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { createEngine, TILE } from "@/game/engine";
-import { ZONES, type Interactive, type Zone, PLAYER_SPAWN } from "@/game/data";
+import { ZONES, type Interactive, type Zone, PLAYER_SPAWN, stageForBadges } from "@/game/data";
 import { DialogBox } from "./DialogBox";
 import { StartMenu } from "./StartMenu";
 import { Bag } from "./Bag";
@@ -132,6 +132,9 @@ export function Game() {
     engineRef.current = engine;
     setEngineReady(true);
 
+    // Sync player stage to current badge progression
+    engine.setPlayerStage(stageForBadges(badges.size).id);
+
     // Restore engine state
     try {
       const raw = localStorage.getItem("pq_save");
@@ -187,22 +190,67 @@ export function Game() {
       background: "#020509",
       overflow: "hidden",
     }}>
-      {/* Parallax starfield behind the boxed game */}
+      {/* Animated nebula + particle background — replaces flat black */}
       <div style={{
-        position: "absolute", inset: 0,
-        background: "radial-gradient(ellipse at 50% 30%, #0a1a35 0%, #030810 60%, #020509 100%)",
-        overflow: "hidden", zIndex: 0,
+        position: "absolute", inset: 0, zIndex: 0,
+        background: "linear-gradient(135deg, #0a0620 0%, #060d28 25%, #04121f 50%, #060a1a 75%, #0a0618 100%)",
+        overflow: "hidden",
       }}>
-        {[...Array(80)].map((_, i) => (
+        {/* Deep nebula blobs */}
+        <div style={{
+          position: "absolute", top: "-20%", left: "-10%",
+          width: "60%", height: "80%",
+          background: "radial-gradient(ellipse at center, rgba(124,100,255,0.18) 0%, transparent 70%)",
+          filter: "blur(40px)", animation: "nebula-drift 18s ease-in-out infinite alternate",
+        }} />
+        <div style={{
+          position: "absolute", bottom: "-10%", right: "-5%",
+          width: "55%", height: "70%",
+          background: "radial-gradient(ellipse at center, rgba(0,232,160,0.12) 0%, transparent 65%)",
+          filter: "blur(50px)", animation: "nebula-drift 22s ease-in-out infinite alternate-reverse",
+        }} />
+        <div style={{
+          position: "absolute", top: "30%", left: "40%",
+          width: "40%", height: "50%",
+          background: "radial-gradient(ellipse at center, rgba(232,100,180,0.08) 0%, transparent 70%)",
+          filter: "blur(60px)", animation: "nebula-drift 15s ease-in-out infinite alternate",
+        }} />
+        {/* Animated grid lines */}
+        <div style={{
+          position: "absolute", inset: 0,
+          backgroundImage: `
+            linear-gradient(rgba(124,224,255,0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(124,224,255,0.03) 1px, transparent 1px)
+          `,
+          backgroundSize: "60px 60px",
+          animation: "grid-scroll 30s linear infinite",
+        }} />
+        {/* Stars */}
+        {[...Array(120)].map((_, i) => (
           <div key={i} style={{
             position: "absolute",
-            left: `${(i * 43.7) % 100}%`,
-            top: `${(i * 31.3) % 100}%`,
-            width: i % 8 === 0 ? 3 : i % 4 === 0 ? 2 : 1,
-            height: i % 8 === 0 ? 3 : i % 4 === 0 ? 2 : 1,
-            background: i % 6 === 0 ? "#7ce0ff" : i % 3 === 0 ? "#ffd24a" : "#fff",
-            opacity: 0.05 + (i % 5) * 0.04,
+            left: `${(i * 37.1 + 5) % 100}%`,
+            top: `${(i * 53.3 + 7) % 100}%`,
+            width: i % 9 === 0 ? 3 : i % 4 === 0 ? 2 : 1,
+            height: i % 9 === 0 ? 3 : i % 4 === 0 ? 2 : 1,
+            background: i % 7 === 0 ? "#7ce0ff" : i % 5 === 0 ? "#c89af0" : i % 3 === 0 ? "#ffd24a" : "#fff",
             borderRadius: "50%",
+            opacity: 0.08 + (i % 6) * 0.05,
+            animation: `star-twinkle ${2 + (i % 4)}s ease-in-out ${(i % 5) * 0.4}s infinite alternate`,
+          }} />
+        ))}
+        {/* Floating particles */}
+        {[...Array(20)].map((_, i) => (
+          <div key={`p${i}`} style={{
+            position: "absolute",
+            left: `${(i * 61.3) % 100}%`,
+            top: `${(i * 41.7) % 100}%`,
+            width: 4, height: 4,
+            background: i % 3 === 0 ? "#7ce0ff" : i % 2 === 0 ? "#00e8a0" : "#c89af0",
+            borderRadius: "50%",
+            opacity: 0.15 + (i % 4) * 0.04,
+            animation: `particle-float ${6 + (i % 6)}s ease-in-out ${(i % 4) * 0.5}s infinite alternate`,
+            boxShadow: i % 3 === 0 ? `0 0 8px #7ce0ff` : i % 2 === 0 ? `0 0 8px #00e8a0` : `0 0 8px #c89af0`,
           }} />
         ))}
       </div>

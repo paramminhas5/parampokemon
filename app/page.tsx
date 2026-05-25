@@ -51,7 +51,7 @@ export default function Home() {
         }}>PARAM<br />MINHAS</h1>
 
         <p style={{
-          fontFamily: "var(--font-vt)", fontSize: 22,
+          fontFamily: "var(--font-mono)", fontSize: 22,
           color: "#8aa0c0", maxWidth: 500, margin: "16px auto",
           lineHeight: 1.5,
         }}>
@@ -68,43 +68,6 @@ export default function Home() {
           fontFamily: "var(--font-pixel)", fontSize: 7, color: "#2a3a50",
           marginTop: 14, letterSpacing: "0.15em",
         }}>ARROWS · WASD · TAP · SWIPE · SPACE</div>
-      </section>
-
-      {/* GYM LEADERS STRIP */}
-      <section style={{ padding: "0 0 32px", overflow: "hidden" }}>
-        <div style={{
-          fontFamily: "var(--font-pixel)", fontSize: 8, color: "#2a3a50",
-          textAlign: "center", letterSpacing: "0.2em", marginBottom: 16,
-        }}>★ THE GYM LEADERS</div>
-        <div style={{
-          display: "flex", gap: 0,
-          overflowX: "auto", padding: "0 20px 8px",
-          WebkitOverflowScrolling: "touch" as const,
-          scrollbarWidth: "none",
-        }}>
-          {careerZones.filter(z => z.gym).map(z => (
-            <div key={z.id} style={{ flexShrink: 0, textAlign: "center", padding: "0 8px" }}>
-              <div style={{
-                width: 88, height: 88,
-                border: `2px solid ${z.theme.accent}40`,
-                background: `${z.theme.accent}08`,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                position: "relative",
-              }}>
-                <img
-                  src={`/sprites/leaders/${z.gym!.leader}.png`}
-                  alt={z.gym!.opponentName}
-                  style={{ width: 80, height: 80, imageRendering: "pixelated" }}
-                />
-              </div>
-              <div style={{
-                fontFamily: "var(--font-pixel)", fontSize: 6,
-                color: z.theme.accent, marginTop: 6, maxWidth: 88,
-                lineHeight: 1.4,
-              }}>{z.gym!.opponentName}</div>
-            </div>
-          ))}
-        </div>
       </section>
 
       {/* SNAPSHOT */}
@@ -171,10 +134,10 @@ export default function Home() {
                       fontFamily: "var(--font-pixel)", fontSize: 7, color: "#3a5070",
                     }}>{z.years}</span>
                   </div>
-                  <div style={{ fontFamily: "var(--font-vt)", fontSize: 18, color: "#a0b8d0", lineHeight: 1.3 }}>
+                  <div style={{ fontFamily: "var(--font-mono)", fontSize: 18, color: "#a0b8d0", lineHeight: 1.3 }}>
                     {z.role}
                   </div>
-                  <div style={{ fontFamily: "var(--font-vt)", fontSize: 16, color: "#5570a0", marginTop: 4, lineHeight: 1.4 }}>
+                  <div style={{ fontFamily: "var(--font-mono)", fontSize: 16, color: "#5570a0", marginTop: 4, lineHeight: 1.4 }}>
                     {z.outcome}
                   </div>
                 </div>
@@ -200,6 +163,45 @@ export default function Home() {
         </div>
       </section>
 
+      {/* GYM LEADERS STRIP — bottom, centered on desktop */}
+      <section style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 32px" }}>
+        <div style={{
+          fontFamily: "var(--font-pixel)", fontSize: 8, color: "#2a3a50",
+          textAlign: "center", letterSpacing: "0.2em", marginBottom: 16,
+        }}>★ THE GYM LEADERS</div>
+        <div style={{
+          display: "flex", gap: 0,
+          justifyContent: "center",
+          flexWrap: "wrap",
+          overflowX: "auto", padding: "0 0 8px",
+          WebkitOverflowScrolling: "touch" as const,
+          scrollbarWidth: "none",
+        }}>
+          {careerZones.filter(z => z.gym).map(z => (
+            <div key={z.id} style={{ flexShrink: 0, textAlign: "center", padding: "0 8px" }}>
+              <div style={{
+                width: 88, height: 88,
+                border: `2px solid ${z.theme.accent}40`,
+                background: `${z.theme.accent}08`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                position: "relative",
+              }}>
+                <img
+                  src={`/sprites/leaders/${z.gym!.leader}.png`}
+                  alt={z.gym!.opponentName}
+                  style={{ width: 80, height: 80, imageRendering: "pixelated" }}
+                />
+              </div>
+              <div style={{
+                fontFamily: "var(--font-pixel)", fontSize: 6,
+                color: z.theme.accent, marginTop: 6, maxWidth: 88,
+                lineHeight: 1.4,
+              }}>{z.gym!.opponentName}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* HOW TO PLAY */}
       <section style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 32px" }}>
         <div className="pq-panel">
@@ -207,7 +209,7 @@ export default function Home() {
             <div style={{ fontFamily: "var(--font-pixel)", fontSize: 8, color: "#3a5070", marginBottom: 12 }}>
               ★ HOW TO PLAY
             </div>
-            <div style={{ fontFamily: "var(--font-vt)", fontSize: 19, lineHeight: 1.6, color: "#8aa0c0" }}>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 19, lineHeight: 1.6, color: "#8aa0c0" }}>
               This is <strong style={{ color: "#c8d8f0" }}>PARAM QUEST</strong> — fifteen years of building told as an RPG.
               Walk through 10 worlds. Talk to the people. Fight the bosses. Collect the badges.
               Each gym leader is a <strong style={{ color: "#c8d8f0" }}>real challenge I actually faced</strong>.
@@ -224,7 +226,7 @@ export default function Home() {
               ].map(([k, v]) => (
                 <div key={k} style={{ display: "flex", gap: 8, padding: "3px 0" }}>
                   <span style={{ fontFamily: "var(--font-pixel)", fontSize: 7, color: "#7ce0ff", flexShrink: 0, minWidth: 80 }}>{k}</span>
-                  <span style={{ fontFamily: "var(--font-vt)", fontSize: 16, color: "#5570a0" }}>{v}</span>
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: 16, color: "#5570a0" }}>{v}</span>
                 </div>
               ))}
             </div>
@@ -255,7 +257,7 @@ export default function Home() {
                 }}>{p.outlet}</span>
                 <a href={p.url} target="_blank" rel="noopener noreferrer"
                   style={{
-                    fontFamily: "var(--font-vt)", fontSize: 18,
+                    fontFamily: "var(--font-mono)", fontSize: 18,
                     color: "#7ce0ff", textDecoration: "none",
                     lineHeight: 1.4,
                   }}

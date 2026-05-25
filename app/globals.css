@@ -92,6 +92,10 @@ body.play-mode {
 @keyframes pq-star-drift { 0%{transform:translateY(0)} 100%{transform:translateY(-100px)} }
 @keyframes pq-world-select-in { from{opacity:0;transform:scale(0.92) translateY(20px)} to{opacity:1;transform:scale(1) translateY(0)} }
 @keyframes pq-slide-in { from{opacity:0;transform:translateX(-16px)} to{opacity:1;transform:translateX(0)} }
+@keyframes nebula-drift { from{transform:translate(0,0) scale(1)} to{transform:translate(20px,-15px) scale(1.05)} }
+@keyframes grid-scroll { from{transform:translate(0,0)} to{transform:translate(60px,60px)} }
+@keyframes star-twinkle { from{opacity:0.04} to{opacity:0.5} }
+@keyframes particle-float { from{transform:translate(0,0)} to{transform:translate(8px,-12px)} }
 
 .pq-blink { animation: pq-blink 0.9s step-end infinite; }
 .animate-fade-in { animation: animate-fade-in 0.3s ease-out both; }
