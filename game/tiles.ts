@@ -84,7 +84,7 @@ function px(ctx: Ctx, x: number, y: number, color: string) {
   ctx.fillStyle = color; ctx.fillRect(x, y, 1, 1);
 }
 
-export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: number, py0: number) {
+export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: number, py0: number, now: number = 0) {
   const r = n(wx, wy);
   switch (code) {
     case T.GRASS: {
@@ -155,7 +155,7 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
       break;
     }
     case T.WATER: {
-      const t = performance.now() / 400;
+      const t = now / 400;
       const wave = Math.floor(t) % 4;
       fillRect(ctx, px0, py0, TILE, TILE, "#2960a8");
       // Animated shimmer rows
@@ -174,7 +174,7 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
     }
     case T.FLOWER_R:
     case T.FLOWER_Y: {
-      drawTile(ctx, T.GRASS, wx, wy, px0, py0);
+      drawTile(ctx, T.GRASS, wx, wy, px0, py0, now);
       const c = code === T.FLOWER_R ? "#e85e5e" : "#f5d24a";
       px(ctx, px0 + 7, py0 + 7, c); px(ctx, px0 + 8, py0 + 7, c);
       px(ctx, px0 + 7, py0 + 8, c); px(ctx, px0 + 8, py0 + 8, c);
@@ -182,7 +182,7 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
       break;
     }
     case T.TREE: {
-      drawTile(ctx, T.GRASS, wx, wy, px0, py0);
+      drawTile(ctx, T.GRASS, wx, wy, px0, py0, now);
       // Trunk with shading
       fillRect(ctx, px0 + 6, py0 + 11, 4, 5, "#5a3a1c");
       fillRect(ctx, px0 + 6, py0 + 11, 1, 5, "#3a2010");  // shadow side
@@ -208,7 +208,7 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
       break;
     }
     case T.FENCE: {
-      drawTile(ctx, T.GRASS, wx, wy, px0, py0);
+      drawTile(ctx, T.GRASS, wx, wy, px0, py0, now);
       fillRect(ctx, px0, py0 + 7, TILE, 2, "#d8c098");
       fillRect(ctx, px0 + 3, py0 + 4, 2, 8, "#a88858");
       fillRect(ctx, px0 + 11, py0 + 4, 2, 8, "#a88858");
@@ -258,7 +258,7 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
     }
     case T.SIGN: {
       // Sign always sits on whatever ground is below (use route grass as neutral base)
-      drawTile(ctx, T.ROUTE_GRASS, wx, wy, px0, py0);
+      drawTile(ctx, T.ROUTE_GRASS, wx, wy, px0, py0, now);
       // Post
       fillRect(ctx, px0 + 7, py0 + 9, 2, 7, "#4a2e14");
       fillRect(ctx, px0 + 8, py0 + 9, 1, 7, "#2e1c0a");
@@ -299,7 +299,7 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
         fillRect(ctx, tx3, py0 + 3, 1, 9, "#3a78d8");
       }
       // Blinking node
-      const nodeOn = Math.floor(performance.now() / 500 + wx * 3 + wy) % 7 === 0;
+      const nodeOn = Math.floor(now / 500 + wx * 3 + wy) % 7 === 0;
       if (r > 0.9 && nodeOn) {
         px(ctx, px0 + Math.floor(r * 12) + 2, py0 + Math.floor(r * 12) + 2, "#00ffcc");
       }
@@ -369,7 +369,7 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
       ctx.fillRect(px0 + 11, py0 + 4, 2, 2);
       ctx.fillRect(px0 + 3, py0 + 12, 2, 2);
       // Animated signal pulse
-      const pulsePos = Math.floor(performance.now() / 80 + wx * 5 + wy * 3) % 10;
+      const pulsePos = Math.floor(now / 80 + wx * 5 + wy * 3) % 10;
       px(ctx, px0 + 3 + pulsePos, py0 + 4, "#9fffd0");
       // Silkscreen label blobs
       if (r > 0.85) {
@@ -415,7 +415,7 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
     case T.ARCH_M:
     case T.ARCH_R: {
       // Base: route grass ground
-      drawTile(ctx, T.ROUTE_GRASS, wx, wy, px0, py0);
+      drawTile(ctx, T.ROUTE_GRASS, wx, wy, px0, py0, now);
       if (code === T.ARCH_L) {
         // Left pillar — dark stone with highlight edge
         fillRect(ctx, px0 + 4, py0, 8, TILE, "#2a2440");
@@ -456,7 +456,7 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
       break;
     }
     case T.PROP_SERVER: {
-      drawTile(ctx, T.NEON_FLOOR, wx, wy, px0, py0);
+      drawTile(ctx, T.NEON_FLOOR, wx, wy, px0, py0, now);
       fillRect(ctx, px0 + 2, py0 + 1, 12, 14, "#1a2a3a");
       fillRect(ctx, px0 + 2, py0 + 1, 12, 1, "#3a78d8");
       // blinkenlights
@@ -468,7 +468,7 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
       break;
     }
     case T.PROP_RACK: {
-      drawTile(ctx, T.MALL_FLOOR, wx, wy, px0, py0);
+      drawTile(ctx, T.MALL_FLOOR, wx, wy, px0, py0, now);
       // shoe rack
       fillRect(ctx, px0 + 1, py0 + 4, 14, 1, "#5a1d40");
       fillRect(ctx, px0 + 1, py0 + 10, 14, 1, "#5a1d40");
@@ -482,7 +482,7 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
       break;
     }
     case T.PROP_SPEAKER: {
-      drawTile(ctx, T.STUDIO_FLOOR, wx, wy, px0, py0);
+      drawTile(ctx, T.STUDIO_FLOOR, wx, wy, px0, py0, now);
       fillRect(ctx, px0 + 2, py0 + 1, 12, 14, "#1a0a06");
       ctx.fillStyle = "#3a1c14";
       ctx.beginPath(); ctx.arc(px0 + 8, py0 + 5, 3, 0, Math.PI * 2); ctx.fill();
@@ -491,7 +491,7 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
       break;
     }
     case T.PROP_PRICETAG: {
-      drawTile(ctx, T.GRASS, wx, wy, px0, py0);
+      drawTile(ctx, T.GRASS, wx, wy, px0, py0, now);
       // pole
       fillRect(ctx, px0 + 7, py0 + 6, 2, 10, "#5a3a1c");
       // tag
@@ -503,7 +503,7 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
       break;
     }
     case T.PROP_BRICK_PLANT: {
-      drawTile(ctx, T.STONE, wx, wy, px0, py0);
+      drawTile(ctx, T.STONE, wx, wy, px0, py0, now);
       // planter
       fillRect(ctx, px0 + 3, py0 + 9, 10, 6, "#5a2c0c");
       fillRect(ctx, px0 + 3, py0 + 9, 10, 1, "#3a1808");
@@ -514,13 +514,13 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
       break;
     }
     case T.PROP_NEON_PYLON: {
-      drawTile(ctx, T.NEON_FLOOR, wx, wy, px0, py0);
+      drawTile(ctx, T.NEON_FLOOR, wx, wy, px0, py0, now);
       // Pylon housing
       fillRect(ctx, px0 + 5, py0, 6, TILE, "#162030");
       fillRect(ctx, px0 + 5, py0, 1, TILE, "#0a1520");  // left shadow
       fillRect(ctx, px0 + 10, py0, 1, TILE, "#2a3848"); // right highlight
       // Glowing energy strip
-      const phase2 = performance.now() / 300 + wx * 0.8 + wy * 0.5;
+      const phase2 = now / 300 + wx * 0.8 + wy * 0.5;
       const pulseH = Math.floor(Math.sin(phase2) * 3 + 10);
       const col1 = Math.sin(phase2) > 0 ? "#00ffcc" : "#9fe8ff";
       const col2 = Math.sin(phase2) > 0 ? "#00e8a0" : "#3a78d8";
@@ -532,14 +532,14 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
       break;
     }
     case T.PROP_CANDLESTICK: {
-      drawTile(ctx, T.CRYPTO_FLOOR, wx, wy, px0, py0);
+      drawTile(ctx, T.CRYPTO_FLOOR, wx, wy, px0, py0, now);
       const up = (wx + wy) % 2 === 0;
       fillRect(ctx, px0 + 7, py0 + 1, 2, 14, "#0a3d2c");
       fillRect(ctx, px0 + 5, py0 + 3, 6, 9, up ? "#00e8a0" : "#e83a3a");
       break;
     }
     case T.PROP_TROPHY: {
-      drawTile(ctx, T.NIGHT_FLOOR, wx, wy, px0, py0);
+      drawTile(ctx, T.NIGHT_FLOOR, wx, wy, px0, py0, now);
       // pedestal
       fillRect(ctx, px0 + 4, py0 + 12, 8, 3, "#5a3a1c");
       fillRect(ctx, px0 + 3, py0 + 11, 10, 1, "#3a1c10");
@@ -551,7 +551,7 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
       break;
     }
     case T.PROP_CART: {
-      drawTile(ctx, T.GRASS, wx, wy, px0, py0);
+      drawTile(ctx, T.GRASS, wx, wy, px0, py0, now);
       fillRect(ctx, px0 + 2, py0 + 5, 12, 6, "#c0a878");
       fillRect(ctx, px0 + 2, py0 + 5, 12, 1, "#7a5028");
       // wheels
@@ -564,7 +564,7 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
       break;
     }
     case T.PROP_DECKCHAIR: {
-      drawTile(ctx, T.SAND, wx, wy, px0, py0);
+      drawTile(ctx, T.SAND, wx, wy, px0, py0, now);
       fillRect(ctx, px0 + 3, py0 + 4, 10, 8, "#e85a3a");
       fillRect(ctx, px0 + 3, py0 + 11, 10, 1, "#5a2418");
       fillRect(ctx, px0 + 3, py0 + 12, 1, 3, "#5a2418");
@@ -649,7 +649,7 @@ export function drawBadge(ctx: Ctx, px0: number, py0: number, color: string, pha
 type Palette = { hair: string; skin: string; shirt: string; shirtAlt: string; pants: string; shoes: string };
 
 const PALETTES: Record<NpcKind | "player", Palette> = {
-  player:     { hair: "#3a2010", skin: "#f0c9a0", shirt: "#e83a3a", shirtAlt: "#a01818", pants: "#2a4078", shoes: "#1a1a1a" },
+  player:     { hair: "#1a0e08", skin: "#c8956a", shirt: "#1a1a2e", shirtAlt: "#0a0a1a", pants: "#2a3a5a", shoes: "#0a0808" },
   "trainer-m":{ hair: "#2a1810", skin: "#f0c9a0", shirt: "#3a78d8", shirtAlt: "#1f4a98", pants: "#2a2a2a", shoes: "#101010" },
   "trainer-f":{ hair: "#7a3a2a", skin: "#f0c9a0", shirt: "#d83a78", shirtAlt: "#981f4a", pants: "#3a2a4a", shoes: "#101010" },
   investor:   { hair: "#1a1a1a", skin: "#e8c098", shirt: "#202028", shirtAlt: "#0a0a10", pants: "#101018", shoes: "#3a3a3a" },
@@ -672,6 +672,56 @@ export function drawCharacter(
   py0: number,
 ) {
   const p = PALETTES[kind];
+
+  // Special: Param (player) — taller, slimmer, South Asian appearance
+  if (kind === "player") {
+    // Shadow
+    ctx.fillStyle = "rgba(0,0,0,0.3)";
+    ctx.beginPath();
+    ctx.ellipse(px0 + 8, py0 + 15, 4, 1.2, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Legs with walk animation
+    const stepL = frame === 1 ? -2 : 0;
+    const stepR = frame === 2 ? -2 : 0;
+    fillRect(ctx, px0 + 5, py0 + 11 + stepL, 2, 4, p.pants);
+    fillRect(ctx, px0 + 9, py0 + 11 + stepR, 2, 4, p.pants);
+    // Shoes
+    fillRect(ctx, px0 + 5, py0 + 14, 2, 1, p.shoes);
+    fillRect(ctx, px0 + 9, py0 + 14, 2, 1, p.shoes);
+
+    // Torso — slim dark outfit
+    fillRect(ctx, px0 + 5, py0 + 6, 6, 6, p.shirt);
+    fillRect(ctx, px0 + 4, py0 + 7, 1, 4, p.shirt); // left arm
+    fillRect(ctx, px0 + 11, py0 + 7, 1, 4, p.shirt); // right arm
+    // Shirt collar detail
+    fillRect(ctx, px0 + 6, py0 + 6, 4, 1, p.shirtAlt);
+
+    // Head — slightly taller oval, South Asian skin tone
+    fillRect(ctx, px0 + 5, py0 + 1, 6, 5, p.skin);
+    // Hair — dark, short
+    fillRect(ctx, px0 + 5, py0 + 1, 6, 2, p.hair);
+    fillRect(ctx, px0 + 4, py0 + 2, 1, 2, p.hair);
+    fillRect(ctx, px0 + 11, py0 + 2, 1, 2, p.hair);
+
+    // Face features by direction
+    if (dir === "down") {
+      px(ctx, px0 + 6, py0 + 4, "#0a0a0a");
+      px(ctx, px0 + 9, py0 + 4, "#0a0a0a");
+      fillRect(ctx, px0 + 7, py0 + 5, 2, 1, "#8a3a2a"); // mouth
+    } else if (dir === "up") {
+      fillRect(ctx, px0 + 5, py0 + 1, 6, 2, p.hair);
+      fillRect(ctx, px0 + 5, py0 + 3, 6, 1, p.hair);
+    } else if (dir === "left") {
+      px(ctx, px0 + 5, py0 + 4, "#0a0a0a");
+      fillRect(ctx, px0 + 4, py0 + 2, 1, 2, p.hair);
+    } else {
+      px(ctx, px0 + 10, py0 + 4, "#0a0a0a");
+      fillRect(ctx, px0 + 11, py0 + 2, 1, 2, p.hair);
+    }
+    return;
+  }
+
   ctx.fillStyle = "rgba(0,0,0,0.35)";
   ctx.beginPath();
   ctx.ellipse(px0 + 8, py0 + 15, 5, 1.5, 0, 0, Math.PI * 2);
