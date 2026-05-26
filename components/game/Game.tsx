@@ -21,6 +21,7 @@ import { TitleScreen } from "./TitleScreen";
 import { VictoryMoment } from "./VictoryMoment";
 import { SkillLearnOverlay } from "./SkillLearnOverlay";
 import { TouchControls } from "./TouchControls";
+import { ChampionCard } from "./ChampionCard";
 import { playSound, playZoneBGM, playBattleBGM, stopBattleBGM, stopBGM, setMuted, isMuted, loadMutePref } from "@/lib/audio";
 
 const INIT_W = 20 * TILE;
@@ -60,6 +61,8 @@ export function Game() {
   const [isFirstVisit, setIsFirstVisit] = useState(false);
   const [victoryZone, setVictoryZone] = useState<Zone | null>(null);
   const [skillLearnZone, setSkillLearnZone] = useState<{ zone: Zone; npcName: string } | null>(null);
+  // Phase 5: champion card
+  const [championOpen, setChampionOpen] = useState(false);
 
   const [badges, setBadges] = useState<Set<string>>(new Set());
   const [creatures, setCreatures] = useState<Set<string>>(new Set());
@@ -113,7 +116,7 @@ export function Game() {
     toastTimer.current = setTimeout(() => setToast(null), 2800);
   }, []);
 
-  const isModalOpen = !!(dialog || menuOpen || bagOpen || cliffOpen || mapOpen || worldSelectOpen || battle || battleIntro || catchModal || contactOpen || pressOpen || evolution || victoryZone || skillLearnZone || !titleDone);
+  const isModalOpen = !!(dialog || menuOpen || bagOpen || cliffOpen || mapOpen || worldSelectOpen || battle || battleIntro || catchModal || contactOpen || pressOpen || evolution || victoryZone || skillLearnZone || !titleDone || championOpen);
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -226,14 +229,29 @@ export function Game() {
     setVictoryZone(null);
     engineRef.current?.markGymDefeated(zone.id, zone.badge.id);
     const prevBadgeCount = badges.size;
+    const newBadgeCount = prevBadgeCount + 1;
     setBadges(prev => { const n = new Set(prev); n.add(zone.badge.id); return n; });
     setDefeated(prev => { const n = new Set(prev); n.add(zone.id); return n; });
     setGotBadge({ label: zone.badge.label, color: zone.badge.color });
     playSound("badge");
     // Resume zone BGM
     playZoneBGM(zone.theme.ground as Parameters<typeof playZoneBGM>[0]);
+    // Champion card if this is the final gym (iterate = last zone with gym)
+    const gymZones = ZONES.filter(z => z.gym);
+    const isLastGym = zone.id === gymZones[gymZones.length - 1]?.id;
+    if (isLastGym) {
+      setTimeout(() => {
+        setGotBadge(null);
+        setChampionOpen(true);
+        engineRef.current?.setPaused(true);
+      }, 1500);
+      setTimeout(() => setGotBadge(null), 1400);
+      engineRef.current?.setPaused(false);
+      showToast(`★ CHAMPION! ${zone.badge.label.toUpperCase()}`, "Quest complete.");
+      return;
+    }
     // Check for evolution
-    const evo = checkEvolution(prevBadgeCount, prevBadgeCount + 1);
+    const evo = checkEvolution(prevBadgeCount, newBadgeCount);
     if (evo) {
       setTimeout(() => {
         setGotBadge(null);
@@ -576,6 +594,16 @@ export function Game() {
               setSkillLearnZone(null);
               showToast(`✦ ${skillLearnZone.zone.skill!.name.toUpperCase()} READY`, "Use it in battle");
             }}
+          />
+        )}
+
+        {/* Champion card — shown after beating the final gym */}
+        {championOpen && (
+          <ChampionCard
+            badges={badges}
+            defeated={defeated}
+            creatures={creatures}
+            onClose={() => { setChampionOpen(false); engineRef.current?.setPaused(false); }}
           />
         )}
 
