@@ -20,6 +20,7 @@ import { ZoneAmbience } from "./ZoneAmbience";
 import { TitleScreen } from "./TitleScreen";
 import { VictoryMoment } from "./VictoryMoment";
 import { SkillLearnOverlay } from "./SkillLearnOverlay";
+import { TouchControls } from "./TouchControls";
 import { playSound, setMuted, isMuted, loadMutePref } from "@/lib/audio";
 
 const INIT_W = 20 * TILE;
@@ -377,7 +378,21 @@ export function Game() {
             <div style={{ fontFamily: "var(--font-pixel)", fontSize: 10, color: "#ffd24a" }}>★ {defeated.size}/{totalGyms}</div>
           </div>
 
-          {/* WORLD SELECT */}
+          {/* WORLD SELECT / MAP buttons */}
+          <button
+            onClick={() => { setMapOpen(true); playSound("menu"); }}
+            style={{
+              background: "rgba(4,8,20,0.88)",
+              border: "2px solid #1a2a4a",
+              color: "#4a6080", padding: "5px 10px",
+              fontFamily: "var(--font-pixel)", fontSize: 8,
+              cursor: "pointer", pointerEvents: "auto",
+              backdropFilter: "blur(4px)",
+              transition: "all 0.12s",
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#7ce0ff55"; (e.currentTarget as HTMLButtonElement).style.color = "#7ce0ff"; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#1a2a4a"; (e.currentTarget as HTMLButtonElement).style.color = "#4a6080"; }}
+          >MAP</button>
           <button
             onClick={() => { setWorldSelectOpen(true); playSound("menu"); }}
             style={{
@@ -554,6 +569,23 @@ export function Game() {
 
         {/* Screen transition overlay — always on top */}
         <TransitionOverlay trigger={transition} />
+
+        {/* Touch D-pad — only visible on touch devices, hidden on desktop via CSS */}
+        {!isModalOpen && (
+          <>
+            <style>{`
+              .pq-touch-controls { display: flex; }
+              @media (hover: hover) and (pointer: fine) { .pq-touch-controls { display: none; } }
+            `}</style>
+            <div className="pq-touch-controls">
+              <TouchControls
+                onDir={(dir, down) => engineRef.current?.setTouch(dir, down)}
+                onAction={() => engineRef.current?.setTouch("action", true)}
+                onMenu={() => { setMenuOpen(true); playSound("menu"); }}
+              />
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
