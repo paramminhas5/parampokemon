@@ -182,6 +182,7 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee }: {
   const [flash, setFlash] = useState<{ color: string; dir: "left" | "right" } | null>(null);
   const [done, setDone] = useState(false);
   const [ppUsed, setPpUsed] = useState<Record<string, number>>({});
+  const [defeatQuote, setDefeatQuote] = useState<string | null>(null);
   const logEndRef = useRef<HTMLDivElement>(null);
   const meRef = useRef<HTMLCanvasElement>(null);
   const oppRef = useRef<HTMLCanvasElement>(null);
@@ -281,7 +282,10 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee }: {
         if (nextMyHp === 0) {
           addLog(`${stage.name} fainted… HP restored.`, "notso");
           playSound("faint");
-          setTimeout(() => { setMyHp(stage.hp); setAnimating(false); }, 1200);
+          // Show gym leader gloat quote
+          const gloatMove = leaderMove;
+          setDefeatQuote(`${gym.opponentName}: "${gloatMove.flavor}"\n\nYour ${stage.name} fainted. HP restored — try again.`);
+          setTimeout(() => { setMyHp(stage.hp); setDefeatQuote(null); setAnimating(false); }, 2800);
         } else setAnimating(false);
       }, 900);
     }, 600);
@@ -391,6 +395,37 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee }: {
           onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#0d1a2a"; (e.currentTarget as HTMLButtonElement).style.color = "#1a2a3a"; }}
         >↩ FLEE</button>
       </div>
+
+      {/* Defeat quote overlay */}
+      {defeatQuote && (
+        <div style={{
+          position: "absolute", inset: 0, zIndex: 60,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          background: "rgba(2,4,12,0.88)",
+          padding: 20,
+          animation: "sprite-enter-right 0.3s ease-out",
+        }}>
+          <div style={{
+            maxWidth: 320, width: "100%",
+            background: "#050c18",
+            border: `2px solid ${accent}40`,
+            boxShadow: `0 0 30px ${accent}20`,
+            padding: "18px 20px",
+            textAlign: "center",
+          }}>
+            <div style={{ fontFamily: "var(--font-pixel)", fontSize: 6, color: accent, letterSpacing: "0.15em", marginBottom: 10 }}>
+              ✗ DEFEATED
+            </div>
+            <div style={{
+              fontFamily: "var(--font-mono)", fontSize: 14,
+              color: "#c8d8f0", lineHeight: 1.6,
+              whiteSpace: "pre-wrap",
+            }}>
+              {defeatQuote}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
