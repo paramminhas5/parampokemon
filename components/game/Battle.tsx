@@ -1,347 +1,329 @@
 "use client";
 import { useEffect, useRef, useState, useCallback } from "react";
 import type { Zone, Move } from "@/game/data";
-import { ZONES, STARTER_STAGES, stageForBadges } from "@/game/data";
+import { ZONES, stageForBadges } from "@/game/data";
 import { drawStarter } from "@/game/sprites";
 import { CREATURE_URL, PLAYER_BACK_URL, getSprite, isReady } from "@/game/sprite-registry";
 import { playSound } from "@/lib/audio";
 
 const TYPE_COLORS: Record<string, string> = {
-  Vision: "#f5b78a", Search: "#a8d39a", Ops: "#f6a268", AI: "#9fe8ff",
-  Capital: "#f0c4ff", Brand: "#ff9fd4", Autonomy: "#00e8a0", Soul: "#ffd29a",
-  Stack: "#7ce0ff", Ghost: "#8b6f9e", Dark: "#4a3a5a", Normal: "#8a8a8a",
-  Fire: "#ff6b35", Steel: "#a8b8c8", Water: "#4a90d9", Bug: "#88b030",
-  Poison: "#a040b0", Ice: "#98d8d8", Electric: "#f8d030", Psychic: "#f85888",
-  Fighting: "#c03028", Sound: "#ff9fd4",
+  Vision:"#f5b78a",Search:"#a8d39a",Ops:"#f6a268",AI:"#9fe8ff",
+  Capital:"#f0c4ff",Brand:"#ff9fd4",Autonomy:"#00e8a0",Soul:"#ffd29a",
+  Stack:"#7ce0ff",Ghost:"#8b6f9e",Dark:"#4a3a5a",Normal:"#8a8a8a",
+  Fire:"#ff6b35",Steel:"#a8b8c8",Water:"#4a90d9",Bug:"#88b030",
+  Poison:"#a040b0",Ice:"#98d8d8",Electric:"#f8d030",Psychic:"#f85888",
+  Fighting:"#c03028",Sound:"#ff9fd4",
 };
 
-function HPBar({ current, max, label, color }: { current: number; max: number; label: string; color: string }) {
+const ARENA_BG: Record<string, string> = {
+  grass: "radial-gradient(ellipse at 50% 85%, #1a3d1a 0%, #2d6b2d 45%, #0a1a0a 100%)",
+  sand:  "radial-gradient(ellipse at 50% 85%, #3d2a0a 0%, #6b4a1a 45%, #1a0f05 100%)",
+  stone: "radial-gradient(ellipse at 50% 85%, #2a1808 0%, #5a2c0c 45%, #120a04 100%)",
+  neon:  "radial-gradient(ellipse at 50% 85%, #050e1f 0%, #0f2040 45%, #020810 100%)",
+  dusk:  "radial-gradient(ellipse at 50% 85%, #120820 0%, #2a1245 45%, #080412 100%)",
+  night: "radial-gradient(ellipse at 50% 85%, #020612 0%, #061228 45%, #010308 100%)",
+  mall:  "radial-gradient(ellipse at 50% 85%, #150620 0%, #26103a 45%, #0a0314 100%)",
+  crypto:"radial-gradient(ellipse at 50% 85%, #011008 0%, #022a15 45%, #010805 100%)",
+  studio:"radial-gradient(ellipse at 50% 85%, #160806 0%, #2d1510 45%, #0b0503 100%)",
+  snow:  "radial-gradient(ellipse at 50% 85%, #0d1825 0%, #1a3050 45%, #070d14 100%)",
+};
+
+const BATTLE_STYLES = `
+@keyframes attack-slash {
+  0%   { opacity:0.9; clip-path:polygon(0 0,100% 0,100% 100%,0 100%); }
+  100% { opacity:0;   clip-path:polygon(60% 0,100% 0,40% 100%,0 100%); }
+}
+@keyframes enemy-slash {
+  0%   { opacity:0.9; clip-path:polygon(0 0,100% 0,100% 100%,0 100%); }
+  100% { opacity:0;   clip-path:polygon(0 0,40% 0,100% 100%,60% 100%); }
+}
+@keyframes sprite-enter-right {
+  0%   { transform:translateX(60px) scale(0.85); opacity:0; }
+  100% { transform:translateX(0) scale(1);       opacity:1; }
+}
+@keyframes sprite-enter-left {
+  0%   { transform:translateX(-60px) scale(0.85); opacity:0; }
+  100% { transform:translateX(0) scale(1);        opacity:1; }
+}
+@keyframes log-super { 0%,100%{text-shadow:0 0 8px currentColor} 50%{text-shadow:0 0 22px currentColor,0 0 44px currentColor} }
+@keyframes hp-crit-flash { 0%,100%{opacity:1} 50%{opacity:0.35} }
+@keyframes battle-header-glow { 0%,100%{opacity:0.7} 50%{opacity:1} }
+`;
+
+
+function HPBar({ current, max, label, color }: { current:number; max:number; label:string; color:string }) {
   const pct = Math.max(0, current / max);
   const barColor = pct > 0.5 ? "#4ade80" : pct > 0.25 ? "#facc15" : "#ef4444";
   return (
     <div>
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
-        <span style={{ fontFamily: "var(--font-pixel)", fontSize: 8, color }}>{label}</span>
-        <span style={{ fontFamily: "var(--font-pixel)", fontSize: 7, color: "#3a5070" }}>{current}/{max}</span>
+      <div style={{ display:"flex", justifyContent:"space-between", marginBottom:4 }}>
+        <span style={{ fontFamily:"var(--font-pixel)", fontSize:9, color, letterSpacing:"0.05em" }}>{label}</span>
+        <span style={{ fontFamily:"var(--font-pixel)", fontSize:7, color:"#3a5070" }}>{current}/{max}</span>
       </div>
-      <div style={{ height: 6, background: "#0d1527", border: "1px solid rgba(255,255,255,0.1)", overflow: "hidden" }}>
+      <div style={{ height:8, background:"#060e1c", border:"1px solid #1a2a40", overflow:"hidden", borderRadius:3 }}>
         <div style={{
-          height: "100%", width: `${pct * 100}%`,
-          background: barColor, transition: "width 0.5s cubic-bezier(0.4,0,0.2,1)",
-          boxShadow: `0 0 6px ${barColor}80`,
+          height:"100%", width:`${pct*100}%`,
+          background:`linear-gradient(90deg, ${barColor}bb, ${barColor})`,
+          transition:"width 0.5s cubic-bezier(0.4,0,0.2,1)",
+          boxShadow:`0 0 10px ${barColor}80`, borderRadius:3,
+          animation: pct<=0.25 ? "hp-crit-flash 0.6s ease-in-out infinite" : "none",
         }} />
       </div>
     </div>
   );
 }
 
-function MoveButton({ move, disabled, ppLeft, onClick }: {
-  move: Move; disabled: boolean; ppLeft: number; onClick: () => void;
-}) {
+function MoveButton({ move, disabled, ppLeft, onClick }: { move:Move; disabled:boolean; ppLeft:number; onClick:()=>void }) {
+  const [hov, setHov] = useState(false);
   const color = TYPE_COLORS[move.type] ?? "#7ce0ff";
   const out = ppLeft === 0;
+  const off = disabled || out;
   return (
-    <button onClick={onClick} disabled={disabled || out} style={{
-      background: (disabled || out) ? "#060c18" : `linear-gradient(135deg, ${color}14 0%, ${color}06 100%)`,
-      border: `1px solid ${(disabled || out) ? "#1a2040" : color + "50"}`,
-      color: (disabled || out) ? "#2a3a50" : "var(--color-dialog)",
-      padding: "8px 10px", cursor: (disabled || out) ? "not-allowed" : "pointer",
-      textAlign: "left", transition: "all 0.12s", position: "relative",
-    }}>
-      <div style={{ fontFamily: "var(--font-pixel)", fontSize: 8, color: (disabled || out) ? "#2a3a50" : color, marginBottom: 3 }}>
+    <button onClick={onClick} disabled={off}
+      onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
+      style={{
+        background: off ? "#05080f" : hov ? `linear-gradient(135deg,${color}28 0%,${color}0e 100%)` : `linear-gradient(135deg,${color}16 0%,${color}06 100%)`,
+        border:`1px solid ${off?"#111d30":hov?color+"80":color+"45"}`,
+        color: off ? "#1f2e40" : "var(--color-dialog)",
+        padding:"10px 12px", cursor:off?"not-allowed":"pointer",
+        textAlign:"left", transition:"all 0.12s", borderRadius:3,
+        boxShadow:(!off&&hov)?`0 0 14px ${color}35,inset 0 0 8px ${color}10`:"none",
+      }}
+    >
+      <div style={{ fontFamily:"var(--font-pixel)", fontSize:8, color:off?"#1f2e40":color, marginBottom:5, letterSpacing:"0.06em" }}>
         {move.name.toUpperCase()}
       </div>
-      <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-        <span style={{
-          fontFamily: "var(--font-pixel)", fontSize: 6,
-          background: color + "18", border: `1px solid ${color}30`,
-          padding: "1px 4px", color: (disabled || out) ? "#2a3a50" : color,
-        }}>{move.type}</span>
-        <span style={{ fontFamily: "var(--font-pixel)", fontSize: 6, color: "#2a3a50" }}>
-          PWR {move.power}
-        </span>
-        <span style={{ fontFamily: "var(--font-pixel)", fontSize: 6, color: ppLeft < 3 ? "#ef4444" : "#2a3a50", marginLeft: "auto" }}>
-          PP {ppLeft}/{move.pp}
-        </span>
+      <div style={{ display:"flex", gap:5, alignItems:"center" }}>
+        <span style={{ fontFamily:"var(--font-pixel)", fontSize:6, background:off?"#0d1627":color+"20", border:`1px solid ${off?"#1a2040":color+"45"}`, padding:"2px 6px", color:off?"#1f2e40":color, borderRadius:99 }}>{move.type}</span>
+        <div style={{ flex:1, height:3, background:"#0a1525", borderRadius:2, overflow:"hidden" }}>
+          <div style={{ height:"100%", width:`${Math.min(100,move.power)}%`, background:off?"#1a2040":color, opacity:off?0.25:0.65, borderRadius:2 }} />
+        </div>
+        <span style={{ fontFamily:"var(--font-pixel)", fontSize:6, color:ppLeft<3?"#ef4444":"#2a3a50" }}>{ppLeft}/{move.pp}</span>
       </div>
     </button>
   );
 }
 
+function ArenaFloor({ accent }: { accent:string }) {
+  const id = "fg" + accent.replace(/[^a-zA-Z0-9]/g,"");
+  return (
+    <svg style={{ position:"absolute", bottom:0, left:0, right:0, height:70, pointerEvents:"none" }} viewBox="0 0 400 70" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={accent} stopOpacity="0" />
+          <stop offset="100%" stopColor={accent} stopOpacity="0.14" />
+        </linearGradient>
+      </defs>
+      <rect x="0" y="0" width="400" height="70" fill={`url(#${id})`} />
+      {[0,1,2,3,4,5].map(i=>(
+        <line key={i} x1={i*80} y1={0} x2={i*80-120} y2={70} stroke={accent} strokeOpacity={0.1} strokeWidth={0.8}/>
+      ))}
+      {[20,40,60].map(y=>(
+        <line key={y} x1={0} y1={y} x2={400} y2={y} stroke={accent} strokeOpacity={0.06} strokeWidth={0.5}/>
+      ))}
+    </svg>
+  );
+}
+
+type LogKind = "normal"|"super"|"notso"|"crit"|"info";
+const LOG_COLORS:Record<LogKind,string> = { normal:"var(--color-dialog)", super:"#4ade80", notso:"#f87171", crit:"#ffd24a", info:"#7ce0ff" };
+
+
 export function Battle({ zone, ownedSkills, badges, onWin, onFlee }: {
-  zone: Zone;
-  ownedSkills: Set<string>;
-  badges: Set<string>;
-  onWin: () => void;
-  onFlee: () => void;
+  zone:Zone; ownedSkills:Set<string>; badges:Set<string>; onWin:()=>void; onFlee:()=>void;
 }) {
   const gym = zone.gym!;
   const stage = stageForBadges(badges.size);
+  const accent = zone.theme.accent;
+  const arenaBg = ARENA_BG[zone.theme.ground] ?? ARENA_BG.night;
+
   const [oppHp, setOppHp] = useState(gym.hp);
-  const [myHp, setMyHp] = useState(stage.hp);
-  const [log, setLog] = useState<{ text: string; kind: "normal" | "super" | "notso" | "crit" | "info" }[]>([
-    { text: gym.intro, kind: "info" },
-  ]);
+  const [myHp,  setMyHp]  = useState(stage.hp);
+  const [log, setLog] = useState<{text:string;kind:LogKind;type?:string}[]>([{text:gym.intro,kind:"info"}]);
   const [turn, setTurn] = useState(0);
   const [animating, setAnimating] = useState(false);
   const [oppShake, setOppShake] = useState(false);
-  const [meShake, setMeShake] = useState(false);
-  const [flash, setFlash] = useState<string | null>(null);
+  const [meShake,  setMeShake]  = useState(false);
+  const [flash, setFlash] = useState<{color:string;dir:"left"|"right"}|null>(null);
   const [done, setDone] = useState(false);
-  const [ppUsed, setPpUsed] = useState<Record<string, number>>({});
-  const [oppBob, setOppBob] = useState(0);
+  const [ppUsed, setPpUsed] = useState<Record<string,number>>({});
   const logEndRef = useRef<HTMLDivElement>(null);
-
-  // Creature sprite refs
-  const meRef = useRef<HTMLCanvasElement>(null);
-  const oppCreatureRef = useRef<HTMLCanvasElement>(null);
+  const meRef  = useRef<HTMLCanvasElement>(null);
+  const oppRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef(0);
 
-  // Get opponent's creature sprite (the zone's creature)
   const oppCreatureUrl = CREATURE_URL[zone.id];
   const oppCreatureImg = oppCreatureUrl ? getSprite(oppCreatureUrl) : null;
-
-  // Get player back sprite (PNG if available, fallback to procedural)
   const myBackImg = getSprite(PLAYER_BACK_URL[stage.id] ?? PLAYER_BACK_URL.mermander);
 
   useEffect(() => {
-    const loop = (now: number) => {
-      // Player side: PNG back sprite with bob, fallback to procedural
+    const loop = (now:number) => {
       if (meRef.current) {
         const c = meRef.current.getContext("2d")!;
-        c.imageSmoothingEnabled = false;
-        c.clearRect(0, 0, 128, 128);
-        if (isReady(myBackImg)) {
-          const bob = Math.sin(now / 350) * 3;
-          c.drawImage(myBackImg, 4, 4 + bob, 120, 120);
-        } else {
-          drawStarter(c, stage.id, "back", 8, 8, 2.8, now / 100);
-        }
+        c.imageSmoothingEnabled = false; c.clearRect(0,0,128,128);
+        if (isReady(myBackImg)) { const bob=Math.sin(now/350)*3; c.drawImage(myBackImg,4,4+bob,120,120); }
+        else drawStarter(c,stage.id,"back",8,8,2.8,now/100);
       }
-      // Opponent creature sprite
-      if (oppCreatureRef.current) {
-        const c = oppCreatureRef.current.getContext("2d")!;
-        c.imageSmoothingEnabled = false;
-        c.clearRect(0, 0, 160, 160);
-        if (oppCreatureImg && isReady(oppCreatureImg)) {
-          const bob = Math.sin(now / 420) * 3;
-          c.drawImage(oppCreatureImg, 8, 8 + bob, 144, 144);
-        }
+      if (oppRef.current) {
+        const c = oppRef.current.getContext("2d")!;
+        c.imageSmoothingEnabled = false; c.clearRect(0,0,160,160);
+        if (oppCreatureImg&&isReady(oppCreatureImg)) { const bob=Math.sin(now/420)*3; c.drawImage(oppCreatureImg,8,8+bob,144,144); }
       }
       rafRef.current = requestAnimationFrame(loop);
     };
     rafRef.current = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [stage.id, oppCreatureImg, myBackImg]);
+    return ()=>cancelAnimationFrame(rafRef.current);
+  }, [stage.id,oppCreatureImg,myBackImg]);
 
-  useEffect(() => { logEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [log]);
+  useEffect(()=>{ logEndRef.current?.scrollIntoView({behavior:"smooth"}); },[log]);
 
   const allMoves: Move[] = [
     ...stage.baseMoves,
-    ...ZONES.filter(z => z.skill && ownedSkills.has(z.skill.id)).map(z => ({
-      id: z.skill!.id, name: z.skill!.name, type: z.skill!.type,
-      power: z.skill!.power, pp: 15, accuracy: 100,
-      category: "special" as const, flavor: z.skill!.description,
+    ...ZONES.filter(z=>z.skill&&ownedSkills.has(z.skill.id)).map(z=>({
+      id:z.skill!.id, name:z.skill!.name, type:z.skill!.type,
+      power:z.skill!.power, pp:15, accuracy:100, category:"special" as const, flavor:z.skill!.description,
     })),
   ];
 
-  const addLog = useCallback((text: string, kind: "normal" | "super" | "notso" | "crit" | "info" = "normal") => {
-    setLog(l => [...l.slice(-9), { text, kind }]);
-  }, []);
+  const addLog = useCallback((text:string, kind:LogKind="normal", type?:string)=>{
+    setLog(l=>[...l.slice(-9),{text,kind,type}]);
+  },[]);
 
-  const useMove = useCallback((move: Move) => {
-    if (animating || done) return;
-    const ppNow = ppUsed[move.id] ?? 0;
-    if (ppNow >= move.pp) { addLog(`${move.name} has no PP left!`, "info"); return; }
+  const useMove = useCallback((move:Move)=>{
+    if (animating||done) return;
+    const ppNow = ppUsed[move.id]??0;
+    if (ppNow>=move.pp) { addLog(`${move.name} has no PP left!`,"info"); return; }
     setAnimating(true);
-    setPpUsed(p => ({ ...p, [move.id]: ppNow + 1 }));
+    setPpUsed(p=>({...p,[move.id]:ppNow+1}));
 
-    const isSuper = gym.weakTo.includes(move.type);
-    const isNotSo = gym.resists.includes(move.type);
-    const isCrit = move.effect === "crit" && Math.random() < 0.18;
-    const miss = Math.random() * 100 > move.accuracy;
+    const isSuper=gym.weakTo.includes(move.type), isNotSo=gym.resists.includes(move.type);
+    const isCrit=move.effect==="crit"&&Math.random()<0.18;
+    const miss=Math.random()*100>move.accuracy;
+    let dmg=move.power;
+    if (isSuper) dmg=Math.round(dmg*2);
+    if (isNotSo) dmg=Math.round(dmg*0.5);
+    if (isCrit)  dmg=Math.round(dmg*1.5);
+    if (miss)    dmg=0;
 
-    let dmg = move.power;
-    if (isSuper) dmg = Math.round(dmg * 2);
-    if (isNotSo) dmg = Math.round(dmg * 0.5);
-    if (isCrit) dmg = Math.round(dmg * 1.5);
-    if (miss) dmg = 0;
+    const typeColor=TYPE_COLORS[move.type]??"#7ce0ff";
+    setFlash({color:typeColor+"28",dir:"left"});
+    setTimeout(()=>setFlash(null),320);
+    setTimeout(()=>setOppShake(true),120);
+    setTimeout(()=>setOppShake(false),520);
+    playSound(isSuper?"super":isCrit?"crit":"hit");
 
-    const typeColor = TYPE_COLORS[move.type] ?? "#7ce0ff";
-    setFlash(typeColor + "30");
-    setTimeout(() => setFlash(null), 200);
-    setTimeout(() => setOppShake(true), 120);
-    setTimeout(() => setOppShake(false), 520);
-    playSound(isSuper ? "super" : isCrit ? "crit" : "hit");
-
-    if (miss) {
-      addLog(`${stage.name} used ${move.name}… missed!`, "info");
-    } else {
-      addLog(`${stage.name} used ${move.name}!`, "normal");
-      if (isCrit) addLog("⚡ CRITICAL HIT!", "crit");
-      else if (isSuper) addLog("★ SUPER EFFECTIVE!", "super");
-      else if (isNotSo) addLog("Not very effective…", "notso");
-      addLog(`Dealt ${dmg} damage.`, "normal");
+    if (miss) addLog(`${stage.name} used ${move.name}… missed!`,"info");
+    else {
+      addLog(`${stage.name} used ${move.name}!`,"normal",move.type);
+      if (isCrit) addLog("⚡ CRITICAL HIT!","crit");
+      else if (isSuper) addLog("★ SUPER EFFECTIVE!","super");
+      else if (isNotSo) addLog("Not very effective…","notso");
+      addLog(`Dealt ${dmg} damage.`,"normal");
     }
 
-    const nextOppHp = Math.max(0, oppHp - dmg);
-    setTimeout(() => {
+    const nextOppHp=Math.max(0,oppHp-dmg);
+    setTimeout(()=>{
       setOppHp(nextOppHp);
-      if (nextOppHp === 0) {
-        addLog(`${gym.opponentName} was defeated!`, "super");
-        addLog(gym.victory, "info");
-        setDone(true);
-        playSound("victory");
-        setTimeout(onWin, 2000);
-        setAnimating(false);
-        return;
+      if (nextOppHp===0) {
+        addLog(`${gym.opponentName} was defeated!`,"super");
+        addLog(gym.victory,"info");
+        setDone(true); playSound("victory");
+        setTimeout(onWin,2000); setAnimating(false); return;
       }
-      // Counter
-      const leaderMove = gym.moves[turn % gym.moves.length];
-      setTimeout(() => {
-        const counterDmg = Math.max(4, Math.round(leaderMove.power * 0.55));
-        const nextMyHp = Math.max(0, myHp - counterDmg);
-        setMeShake(true);
-        setTimeout(() => setMeShake(false), 400);
+      const leaderMove=gym.moves[turn%gym.moves.length];
+      setTimeout(()=>{
+        const cd=Math.max(4,Math.round(leaderMove.power*0.55));
+        const nextMyHp=Math.max(0,myHp-cd);
+        setFlash({color:"#ef444428",dir:"right"});
+        setTimeout(()=>setFlash(null),320);
+        setMeShake(true); setTimeout(()=>setMeShake(false),400);
         playSound("hit");
-        addLog(`${gym.opponentName}: "${leaderMove.name}"`, "normal");
-        addLog(leaderMove.flavor, "info");
-        addLog(`You take ${counterDmg} damage.`, "normal");
-        setMyHp(nextMyHp);
-        setTurn(t => t + 1);
-        if (nextMyHp === 0) {
-          addLog(`${stage.name} fainted… Full HP restored.`, "notso");
+        addLog(`${gym.opponentName}: "${leaderMove.name}"`,"normal");
+        addLog(leaderMove.flavor,"info");
+        addLog(`You take ${cd} damage.`,"normal");
+        setMyHp(nextMyHp); setTurn(t=>t+1);
+        if (nextMyHp===0) {
+          addLog(`${stage.name} fainted… HP restored.`,"notso");
           playSound("faint");
-          setTimeout(() => { setMyHp(stage.hp); setAnimating(false); }, 1200);
-        } else {
-          setAnimating(false);
-        }
-      }, 900);
-    }, 600);
-  }, [animating, done, gym, stage, oppHp, myHp, turn, ppUsed, addLog, onWin]);
+          setTimeout(()=>{setMyHp(stage.hp);setAnimating(false);},1200);
+        } else setAnimating(false);
+      },900);
+    },600);
+  },[animating,done,gym,stage,oppHp,myHp,turn,ppUsed,addLog,onWin]);
 
-  const logColors = { normal: "var(--color-dialog)", super: "#4ade80", notso: "#f87171", crit: "#ffd24a", info: "#7ce0ff" };
 
   return (
-    <div style={{
-      position: "absolute", inset: 0, zIndex: 50,
-      display: "flex", flexDirection: "column",
-      background: `linear-gradient(180deg, ${zone.theme.accent}08 0%, #05091a 25%, #040810 100%)`,
-      fontFamily: "var(--font-pixel)",
-      overflow: "hidden",
-    }}>
-      {/* Flash */}
-      {flash && <div style={{ position: "absolute", inset: 0, background: flash, zIndex: 60, pointerEvents: "none" }} />}
+    <div style={{ position:"absolute",inset:0,zIndex:50,display:"flex",flexDirection:"column",background:`linear-gradient(180deg,${accent}0a 0%,#04080f 30%,#020508 100%)`,fontFamily:"var(--font-pixel)",overflow:"hidden" }}>
+      <style>{BATTLE_STYLES}</style>
 
-      {/* BATTLE ARENA - top half */}
-      <div style={{
-        display: "grid", gridTemplateColumns: "1fr 1fr",
-        gap: 0, flexShrink: 0,
-        background: `linear-gradient(135deg, ${zone.theme.accent}06 0%, #030810 100%)`,
-        borderBottom: `2px solid ${zone.theme.accent}30`,
-        minHeight: 200,
-        position: "relative",
-        overflow: "hidden",
-      }}>
-        {/* Arena floor lines */}
-        <div style={{
-          position: "absolute", bottom: 0, left: 0, right: 0, height: 40,
-          background: `linear-gradient(180deg, transparent 0%, ${zone.theme.accent}10 100%)`,
-          pointerEvents: "none",
+      {/* Attack flash overlay */}
+      {flash && (
+        <div style={{ position:"absolute",inset:0,zIndex:58,pointerEvents:"none",
+          background:`linear-gradient(${flash.dir==="left"?"135deg":"225deg"},${flash.color} 0%,transparent 55%)`,
+          animation:flash.dir==="left"?"attack-slash 0.32s ease-out forwards":"enemy-slash 0.32s ease-out forwards",
         }} />
+      )}
 
-        {/* PLAYER SIDE - bottom left */}
-        <div style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: "8px 12px 0 16px" }}>
-          {/* HP card */}
-          <div style={{
-            background: "rgba(4,8,20,0.9)", border: "2px solid #1a2a4a",
-            padding: "8px 10px", marginBottom: 4,
-          }}>
+      {/* Zone header bar */}
+      <div style={{ flexShrink:0,padding:"5px 14px",background:`linear-gradient(90deg,${accent}20 0%,transparent 70%)`,borderBottom:`1px solid ${accent}28`,display:"flex",justifyContent:"space-between",alignItems:"center" }}>
+        <span style={{ fontFamily:"var(--font-pixel)",fontSize:7,color:accent,letterSpacing:"0.12em",animation:"battle-header-glow 2s ease-in-out infinite" }}>⚔ {zone.name.toUpperCase()}</span>
+        <span style={{ fontFamily:"var(--font-pixel)",fontSize:6,color:accent,opacity:0.55,letterSpacing:"0.08em" }}>{gym.opponentTitle.toUpperCase()}</span>
+      </div>
+
+      {/* Arena */}
+      <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr",flexShrink:0,background:arenaBg,borderBottom:`2px solid ${accent}35`,minHeight:210,position:"relative",overflow:"hidden" }}>
+        <ArenaFloor accent={accent} />
+
+        {/* Player side */}
+        <div style={{ display:"flex",flexDirection:"column",justifyContent:"flex-end",padding:"8px 12px 0 16px" }}>
+          <div style={{ background:"rgba(3,7,18,0.9)",border:"2px solid #1a2a4a",padding:"8px 10px",marginBottom:4,backdropFilter:"blur(4px)",borderRadius:3 }}>
             <HPBar current={myHp} max={stage.hp} label={stage.name} color={stage.color} />
-            <div style={{ fontFamily: "var(--font-pixel)", fontSize: 6, color: "#2a3a50", marginTop: 4 }}>
-              {stage.tag} · {badges.size} BADGES
-            </div>
+            <div style={{ fontFamily:"var(--font-pixel)",fontSize:6,color:"#2a3a50",marginTop:4 }}>{stage.tag} · {badges.size} BADGES</div>
           </div>
-          {/* Mermander sprite */}
-          <div style={{
-            alignSelf: "flex-end",
-            transform: meShake ? "translateX(-8px)" : "translateX(0)",
-            transition: "transform 0.08s",
-            filter: `drop-shadow(0 4px 0 rgba(0,0,0,0.5))`,
-          }}>
-            <canvas ref={meRef} width={128} height={128}
-              style={{ imageRendering: "pixelated", width: 112, height: 112 }} />
+          <div style={{ alignSelf:"flex-end",transform:meShake?"translateX(-9px)":"translateX(0)",transition:"transform 0.08s",filter:"drop-shadow(0 6px 0 rgba(0,0,0,0.5))",animation:"sprite-enter-left 0.45s cubic-bezier(0.2,0.8,0.4,1)" }}>
+            <canvas ref={meRef} width={128} height={128} style={{ imageRendering:"pixelated",width:112,height:112 }} />
           </div>
         </div>
 
-        {/* OPPONENT SIDE - top right */}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", padding: "0 16px 8px 12px", justifyContent: "flex-start" }}>
-          {/* Creature sprite */}
-          <div style={{
-            transform: oppShake ? "translateX(8px) rotate(3deg)" : "translateX(0)",
-            transition: "transform 0.08s",
-            filter: `drop-shadow(0 0 16px ${zone.theme.accent}50)`,
-          }}>
-            <canvas ref={oppCreatureRef} width={160} height={160}
-              style={{ imageRendering: "pixelated", width: 140, height: 140 }} />
+        {/* Opponent side */}
+        <div style={{ display:"flex",flexDirection:"column",alignItems:"flex-end",padding:"0 16px 8px 12px",justifyContent:"flex-start" }}>
+          <div style={{ transform:oppShake?"translateX(9px) rotate(4deg)":"translateX(0)",transition:"transform 0.08s",filter:`drop-shadow(0 0 20px ${accent}70)`,animation:"sprite-enter-right 0.45s cubic-bezier(0.2,0.8,0.4,1)" }}>
+            <canvas ref={oppRef} width={160} height={160} style={{ imageRendering:"pixelated",width:148,height:148 }} />
           </div>
-          {/* HP card */}
-          <div style={{
-            background: "rgba(4,8,20,0.9)", border: `2px solid ${zone.theme.accent}40`,
-            padding: "8px 10px", width: "100%",
-          }}>
-            <div style={{ fontFamily: "var(--font-pixel)", fontSize: 6, color: "#3a5070", marginBottom: 4 }}>
-              {gym.opponentTitle.toUpperCase()}
-            </div>
-            <HPBar current={oppHp} max={gym.hp} label={gym.opponentName} color={zone.theme.accent} />
-            <div style={{ fontFamily: "var(--font-pixel)", fontSize: 6, color: "#2a3a50", marginTop: 4 }}>
-              WEAK: {gym.weakTo.slice(0, 2).join(", ")}
-            </div>
+          <div style={{ background:"rgba(3,7,18,0.9)",border:`2px solid ${accent}45`,padding:"8px 10px",width:"100%",backdropFilter:"blur(4px)",borderRadius:3 }}>
+            <div style={{ fontFamily:"var(--font-pixel)",fontSize:6,color:"#3a5070",marginBottom:4 }}>{gym.opponentTitle.toUpperCase()}</div>
+            <HPBar current={oppHp} max={gym.hp} label={gym.opponentName} color={accent} />
+            <div style={{ fontFamily:"var(--font-pixel)",fontSize:6,color:"#2a3a50",marginTop:4 }}>WEAK: {gym.weakTo.slice(0,2).join(", ")}</div>
           </div>
         </div>
       </div>
 
-      {/* BATTLE LOG */}
-      <div style={{
-        height: 100, overflowY: "auto", padding: "6px 14px",
-        borderBottom: "2px solid #0d1a2a",
-        background: "rgba(3,6,14,0.95)",
-        flexShrink: 0,
-      }}>
-        {log.map((l, i) => (
-          <div key={i} style={{
-            fontSize: 9, lineHeight: 1.7,
-            color: logColors[l.kind],
-            fontWeight: (l.kind === "super" || l.kind === "crit") ? "bold" : "normal",
-            textShadow: l.kind === "crit" ? "0 0 8px #ffd24a" : l.kind === "super" ? "0 0 8px #4ade80" : "none",
-          }}>
-            {l.kind === "crit" ? "⚡ " : l.kind === "super" ? "★ " : l.kind === "info" ? "  " : "▸ "}{l.text}
+      {/* Battle log */}
+      <div style={{ height:110,overflowY:"auto",padding:"6px 14px",borderBottom:"2px solid #0a1525",background:"rgba(2,5,12,0.88)",backdropFilter:"blur(6px)",flexShrink:0 }}>
+        {log.map((l,i)=>(
+          <div key={i} style={{ fontSize:l.kind==="super"||l.kind==="crit"?11:10,lineHeight:1.65,color:LOG_COLORS[l.kind],fontWeight:l.kind==="super"||l.kind==="crit"?"bold":"normal",animation:l.kind==="super"||l.kind==="crit"?"log-super 1.4s ease-in-out infinite":"none",display:"flex",alignItems:"center",gap:5 }}>
+            <span>{l.kind==="crit"?"⚡ ":l.kind==="super"?"★ ":l.kind==="info"?"  ":"▸ "}{l.text}</span>
+            {l.type&&<span style={{ fontSize:7,background:(TYPE_COLORS[l.type]??"#7ce0ff")+"20",border:`1px solid ${(TYPE_COLORS[l.type]??"#7ce0ff")}45`,color:TYPE_COLORS[l.type]??"#7ce0ff",padding:"1px 5px",borderRadius:99,flexShrink:0 }}>{l.type}</span>}
           </div>
         ))}
         <div ref={logEndRef} />
       </div>
 
-      {/* MOVES */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "8px 10px 10px", background: "#030810", overflow: "hidden" }}>
-        <div style={{ fontSize: 7, color: "#1a2a40", marginBottom: 6 }}>
-          {done ? "— VICTORY —" : animating ? "— OPPONENT TURN —" : `▸ CHOOSE A MOVE · TURN ${turn + 1}`}
+      {/* Moves */}
+      <div style={{ flex:1,display:"flex",flexDirection:"column",padding:"8px 10px 10px",background:"#020508",overflow:"hidden" }}>
+        <div style={{ fontSize:7,color:done?accent:animating?"#2a3a50":"#162030",marginBottom:6,letterSpacing:"0.08em" }}>
+          {done?`— VICTORY · ${zone.name.toUpperCase()} —`:animating?"— OPPONENT TURN —":`▸ CHOOSE A MOVE · TURN ${turn+1}`}
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 5, flex: 1, alignContent: "start" }}>
-          {allMoves.slice(0, 6).map(move => (
-            <MoveButton
-              key={move.id} move={move}
-              disabled={animating || done}
-              ppLeft={(move.pp) - (ppUsed[move.id] ?? 0)}
-              onClick={() => useMove(move)}
-            />
+        <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr",gap:5,flex:1,alignContent:"start" }}>
+          {allMoves.slice(0,6).map(move=>(
+            <MoveButton key={move.id} move={move} disabled={animating||done} ppLeft={(move.pp)-(ppUsed[move.id]??0)} onClick={()=>useMove(move)} />
           ))}
         </div>
-        <button onClick={onFlee} style={{
-          marginTop: 8, alignSelf: "flex-end",
-          background: "transparent", border: "1px solid #1a2a3a",
-          color: "#2a3a50", padding: "6px 14px",
-          fontFamily: "var(--font-pixel)", fontSize: 7, cursor: "pointer",
-        }}>↩ FLEE</button>
+        <button onClick={onFlee}
+          style={{ marginTop:8,alignSelf:"flex-end",background:"transparent",border:"1px solid #0d1a2a",color:"#1a2a3a",padding:"6px 18px",fontFamily:"var(--font-pixel)",fontSize:7,cursor:"pointer",borderRadius:3,transition:"all 0.12s" }}
+          onMouseEnter={e=>{ (e.currentTarget as HTMLButtonElement).style.borderColor="#ef444450"; (e.currentTarget as HTMLButtonElement).style.color="#ef4444"; }}
+          onMouseLeave={e=>{ (e.currentTarget as HTMLButtonElement).style.borderColor="#0d1a2a"; (e.currentTarget as HTMLButtonElement).style.color="#1a2a3a"; }}
+        >↩ FLEE</button>
       </div>
     </div>
   );

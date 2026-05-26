@@ -6,16 +6,23 @@ import {
 } from "./data";
 import { buildWorld } from "./world";
 import {
-  CREATURE_URL, LANDMARK_URL, getSprite, isReady,
+  CREATURE_URL, getSprite, isReady,
   PLAYER_SPRITE_URL, PLAYER_BACK_URL, PLAYER_LEFT_URL, PLAYER_RIGHT_URL,
 } from "./sprite-registry";
 import {
   TILE, SOLID, T, drawTile, drawBadge, drawCharacter, drawRoof,
 } from "./tiles";
+import { drawLandmark } from "./landmarks";
+import { findPath } from "./pathfind";
 
 const DEFAULT_VIEW_TILES_X = 20;
 const DEFAULT_VIEW_TILES_Y = 14;
-const WALK_DURATION_MS = 180;
+const WALK_DURATION_MS = 140;
+
+// ─── Smooth camera lerp state ────────────────────────────────
+let camXSmooth = 0;
+let camYSmooth = 0;
+let camInitialized = false;
 
 export type GameState = {
   px: number; py: number;
@@ -331,8 +338,8 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         // MAT auto-trigger: stepping on a gym mat enters the battle
         if (world[state.ty]?.[state.tx] === T.MAT) {
           const matZone = ZONES.find((zz) => {
-            const mx = zz.ox + zz.building.doorX;
-            const my = zz.oy + zz.building.y + zz.building.h; // door is at h-1; mat is h (one south)
+            const mx = zz.ox + zz.building.x + zz.building.doorX;
+            const my = zz.oy + zz.building.y + zz.building.h; // mat is one south of door
             return mx === state.tx && my === state.ty;
           });
           if (matZone && matZone.gym && !state.defeatedGyms.has(matZone.id)) {
@@ -389,14 +396,22 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
   }
 
   function render(now: number) {
-    // camera
+    // camera — raw position used for click-to-walk tile math
     let cx = state.px - VIEW_TILES_X / 2 + 0.5;
     let cy = state.py - VIEW_TILES_Y / 2 + 0.5;
     cx = Math.max(0, Math.min(Math.max(0, worldW - VIEW_TILES_X), cx));
     cy = Math.max(0, Math.min(Math.max(0, worldH - VIEW_TILES_Y), cy));
     camX = cx; camY = cy;
-    const offX = Math.round(-cx * TILE);
-    const offY = Math.round(-cy * TILE);
+
+    // Smooth cinematic camera lerp
+    if (!camInitialized) {
+      camXSmooth = cx; camYSmooth = cy; camInitialized = true;
+    } else {
+      camXSmooth += (cx - camXSmooth) * 0.12;
+      camYSmooth += (cy - camYSmooth) * 0.12;
+    }
+    const offX = Math.round(-camXSmooth * TILE);
+    const offY = Math.round(-camYSmooth * TILE);
 
     ctx.fillStyle = "#08101a";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -432,21 +447,45 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       }
     }
 
-    // badges
+    // badges — with orbiting sparkle particles
     const phase = now / 250;
     for (const i of interactives) {
       if (i.kind !== "badge") continue;
       if (state.collectedBadges.has(i.zone.badge.id)) continue;
       if (i.x < tx0 - 1 || i.x > tx1 + 1 || i.y < ty0 - 1 || i.y > ty1 + 1) continue;
       drawBadge(ctx, i.x * TILE + offX, i.y * TILE + offY, i.zone.badge.color, phase + i.x);
+      // Orbiting sparkle particles
+      for (let sp = 0; sp < 4; sp++) {
+        const sparkAngle = (sp / 4) * Math.PI * 2 + now / 600;
+        const sparkR = TILE * 0.85 + Math.sin(now / 300 + sp) * 2;
+        const sparkX = i.x * TILE + offX + TILE / 2 + Math.cos(sparkAngle) * sparkR;
+        const sparkY = i.y * TILE + offY + TILE / 2 + Math.sin(sparkAngle) * sparkR;
+        ctx.fillStyle = i.zone.badge.color + "cc";
+        ctx.fillRect(Math.round(sparkX) - 1, Math.round(sparkY) - 1, 2, 2);
+      }
     }
 
-    // NPCs
+    // NPCs — with idle bob animation
     for (const i of interactives) {
       if (i.kind !== "npc") continue;
       if (i.x < tx0 - 1 || i.x > tx1 + 1 || i.y < ty0 - 1 || i.y > ty1 + 1) continue;
       const f = (Math.floor(now / 600 + i.x * 0.3) % 8 === 0 ? 1 : 0) as 0 | 1;
-      drawCharacter(ctx, i.npc.kind, "down", f, i.x * TILE + offX, i.y * TILE + offY);
+      const npcBob = Math.round(Math.sin(now / 800 + i.x * 1.3) * 1.5);
+      drawCharacter(ctx, i.npc.kind, "down", f, i.x * TILE + offX, i.y * TILE + offY + npcBob);
+    }
+
+    // Zone ambient particles — floating accent-colored dots per zone
+    for (const z of ZONES) {
+      if (z.oy + z.h < ty0 - 2 || z.oy > ty1 + 2) continue;
+      for (let pi = 0; pi < 3; pi++) {
+        const seed = z.id.charCodeAt(0) * 7 + z.id.charCodeAt(1) * 13 + pi * 31;
+        const px2 = z.ox + 2 + (seed * 17 % (z.w - 4));
+        const py2 = z.oy + 2 + ((seed * 11 + Math.floor(now / 3000)) % (z.h - 4));
+        const floatY = Math.sin(now / 1200 + pi * 2.1 + seed) * 3;
+        const alpha = 0.15 + Math.sin(now / 700 + pi * 1.7) * 0.1;
+        ctx.fillStyle = z.theme.accent + Math.round(alpha * 255).toString(16).padStart(2, "0");
+        ctx.fillRect(px2 * TILE + offX + 6, Math.round(py2 * TILE + offY + floatY), 2, 2);
+      }
     }
 
     // Wild creatures — visible, bobbing, with a "!" marker so the player
@@ -507,6 +546,17 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
     {
       const pbx = Math.round(state.px * TILE) + offX;
       const pby = Math.round(state.py * TILE) + offY;
+
+      // Zone accent glow under player (drawn before sprite)
+      const playerZone = zoneAt(state.tx, state.ty);
+      if (playerZone && playerZone.id !== "home") {
+        const glowAlpha = 0.18 + Math.sin(now / 400) * 0.06;
+        ctx.fillStyle = playerZone.theme.accent + Math.round(glowAlpha * 255).toString(16).padStart(2, "0");
+        ctx.beginPath();
+        ctx.ellipse(Math.round(state.px * TILE) + offX + TILE / 2, Math.round(state.py * TILE) + offY + TILE - 2, TILE * 0.6, 3, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
       let url: string | undefined;
       if (state.dir === "down") url = PLAYER_SPRITE_URL[state.playerStage];
       else if (state.dir === "up") url = PLAYER_BACK_URL[state.playerStage];

@@ -12,10 +12,10 @@ function r(ctx: Ctx, x: number, y: number, w: number, h: number, c: string) {
 }
 
 /** Draw a landmark for a zone at the zone's pixel origin (top-left of zone). */
-export function drawLandmark(ctx: Ctx, zone: Zone, ox: number, oy: number, now: number) {
-  // Anchor: just above the building, centred
-  const cx = ox + (zone.building.x + zone.building.w / 2) * TILE;
-  const baseY = oy + (zone.building.y - 1) * TILE;
+export function drawLandmark(ctx: Ctx, zone: Zone, offX: number, offY: number, now: number) {
+  // Anchor: above the building, centred in world pixel space
+  const cx = zone.ox * TILE + offX + (zone.building.x + zone.building.w / 2) * TILE;
+  const baseY = zone.oy * TILE + offY + (zone.building.y - 1) * TILE;
 
   // Prefer the high-fidelity PNG landmark when loaded; fall back to the
   // procedural pixel illustration so nothing pops in/out empty.

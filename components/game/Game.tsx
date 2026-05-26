@@ -13,6 +13,7 @@ import { WorldMap } from "./WorldMap";
 import { WorldSelect } from "./WorldSelect";
 import { ContactModal } from "./ContactModal";
 import { PressModal } from "./PressModal";
+import { EvolutionCutscene, checkEvolution } from "./EvolutionCutscene";
 import { playSound, setMuted, isMuted, loadMutePref } from "@/lib/audio";
 
 const INIT_W = 20 * TILE;
@@ -35,6 +36,7 @@ export function Game() {
   const [mapOpen, setMapOpen] = useState(false);
   const [worldSelectOpen, setWorldSelectOpen] = useState(true); // open on launch
   const [battle, setBattle] = useState<Zone | null>(null);
+  const [evolution, setEvolution] = useState<{ from: ReturnType<typeof stageForBadges>; to: ReturnType<typeof stageForBadges> } | null>(null);
   const [catchModal, setCatchModal] = useState<Zone | null>(null);
   const [contactOpen, setContactOpen] = useState(false);
   const [pressOpen, setPressOpen] = useState(false);
@@ -85,7 +87,7 @@ export function Game() {
     toastTimer.current = setTimeout(() => setToast(null), 2800);
   }, []);
 
-  const isModalOpen = !!(dialog || menuOpen || bagOpen || cliffOpen || mapOpen || worldSelectOpen || battle || catchModal || contactOpen || pressOpen);
+  const isModalOpen = !!(dialog || menuOpen || bagOpen || cliffOpen || mapOpen || worldSelectOpen || battle || catchModal || contactOpen || pressOpen || evolution);
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -171,10 +173,20 @@ export function Game() {
   function handleBattleWin(zone: Zone) {
     setBattle(null);
     engineRef.current?.markGymDefeated(zone.id, zone.badge.id);
+    const prevBadgeCount = badges.size;
     setBadges(prev => { const n = new Set(prev); n.add(zone.badge.id); return n; });
     setDefeated(prev => { const n = new Set(prev); n.add(zone.id); return n; });
     setGotBadge({ label: zone.badge.label, color: zone.badge.color });
     playSound("badge");
+    // Check for evolution
+    const evo = checkEvolution(prevBadgeCount, prevBadgeCount + 1);
+    if (evo) {
+      setTimeout(() => {
+        setGotBadge(null);
+        setEvolution(evo);
+        engineRef.current?.setPaused(true);
+      }, 1800);
+    }
     setTimeout(() => setGotBadge(null), 3500);
     engineRef.current?.setPaused(false);
     showToast(`★ ${zone.badge.label.toUpperCase()} EARNED`, zone.gym?.victory);
@@ -281,46 +293,57 @@ export function Game() {
           paddingTop: "calc(env(safe-area-inset-top) + 8px)",
           pointerEvents: "none", zIndex: 20,
         }}>
+          {/* Zone name card — accent-colored */}
           <div style={{
             flex: 1, minWidth: 0,
-            background: "rgba(4,8,20,0.9)", border: "2px solid #1a2a4a",
+            background: `linear-gradient(135deg, ${currentZone.theme.accent}18 0%, rgba(4,8,20,0.88) 100%)`,
+            border: `2px solid ${currentZone.theme.accent}35`,
             padding: "5px 10px", pointerEvents: "auto",
+            backdropFilter: "blur(4px)",
+            transition: "border-color 0.4s, background 0.4s",
           }}>
-            <div style={{ fontFamily: "var(--font-pixel)", fontSize: 6, color: "#2a3a50" }}>NOW IN</div>
+            <div style={{ fontFamily: "var(--font-pixel)", fontSize: 6, color: currentZone.theme.accent, opacity: 0.7, letterSpacing: "0.1em" }}>NOW IN</div>
             <div style={{ fontFamily: "var(--font-pixel)", fontSize: 10, color: "#c8d8f0", lineHeight: 1, marginTop: 2 }}
                  className="truncate">{currentZone.name.toUpperCase()}</div>
           </div>
+
+          {/* Badge counter */}
           <div style={{
-            background: "rgba(4,8,20,0.9)", border: "2px solid #1a2a4a",
+            background: `linear-gradient(135deg, rgba(255,210,74,0.12) 0%, rgba(4,8,20,0.88) 100%)`,
+            border: "2px solid rgba(255,210,74,0.25)",
             padding: "5px 10px", pointerEvents: "auto",
+            backdropFilter: "blur(4px)",
           }}>
             <div style={{ fontFamily: "var(--font-pixel)", fontSize: 10, color: "#ffd24a" }}>★ {defeated.size}/{totalGyms}</div>
           </div>
 
-          {/* WORLD SELECT - prominent */}
+          {/* WORLD SELECT */}
           <button
             onClick={() => { setWorldSelectOpen(true); playSound("menu"); }}
             style={{
               background: "linear-gradient(135deg, rgba(124,224,255,0.15) 0%, rgba(58,120,216,0.08) 100%)",
-              border: "2px solid #7ce0ff60",
+              border: "2px solid #7ce0ff55",
               color: "#7ce0ff", padding: "5px 10px",
               fontFamily: "var(--font-pixel)", fontSize: 8,
               cursor: "pointer", pointerEvents: "auto",
-              animation: worldSelectOpen ? "none" : undefined,
+              backdropFilter: "blur(4px)",
+              transition: "all 0.12s",
             }}
-          >⚡ WORLD SELECT</button>
+          >⚡ WARP</button>
 
           <button onClick={() => { const m = !muted; setMuted(m); setMutedState(m); }} style={{
-            background: "rgba(4,8,20,0.9)", border: "2px solid #1a2a4a",
+            background: "rgba(4,8,20,0.88)", border: "2px solid #1a2a4a",
             padding: "5px 8px", color: muted ? "#2a3a50" : "#5580aa",
             fontFamily: "var(--font-pixel)", fontSize: 11,
             cursor: "pointer", pointerEvents: "auto",
+            backdropFilter: "blur(4px)",
           }}>{muted ? "🔇" : "🔊"}</button>
 
           <Link href="/" style={{
-            background: "rgba(4,8,20,0.9)", border: "2px solid #1a2a4a",
+            background: "rgba(4,8,20,0.88)", border: "2px solid #1a2a4a",
             padding: "5px 8px", fontFamily: "var(--font-pixel)", fontSize: 8,
             color: "#3a5070", textDecoration: "none", pointerEvents: "auto",
+            backdropFilter: "blur(4px)",
           }}>✕</Link>
         </div>
 
@@ -333,15 +356,20 @@ export function Game() {
         }}>
           {[
             { label: "NOTES", action: () => { setCliffOpen(currentZone); playSound("menu"); } },
-            { label: "BAG", action: () => { setBagOpen(true); playSound("menu"); } },
-            { label: "☰", action: () => { setMenuOpen(true); playSound("menu"); } },
+            { label: "BAG",   action: () => { setBagOpen(true);          playSound("menu"); } },
+            { label: "☰",    action: () => { setMenuOpen(true);         playSound("menu"); } },
           ].map(btn => (
             <button key={btn.label} onClick={btn.action} style={{
-              background: "rgba(4,8,20,0.9)", border: "2px solid #1a2a4a",
+              background: "rgba(4,8,20,0.88)", border: "2px solid #1a2a4a",
               color: "#4a6080", padding: "9px 11px",
               fontFamily: "var(--font-pixel)", fontSize: 9,
               cursor: "pointer", minHeight: 38,
-            }}>{btn.label}</button>
+              backdropFilter: "blur(4px)",
+              transition: "all 0.12s",
+            }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = currentZone.theme.accent + "60"; (e.currentTarget as HTMLButtonElement).style.color = currentZone.theme.accent; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#1a2a4a"; (e.currentTarget as HTMLButtonElement).style.color = "#4a6080"; }}
+            >{btn.label}</button>
           ))}
         </div>
 
@@ -425,6 +453,17 @@ export function Game() {
         )}
         {contactOpen && <ContactModal onClose={() => { setContactOpen(false); engineRef.current?.setPaused(false); }} />}
         {pressOpen && <PressModal onClose={() => { setPressOpen(false); engineRef.current?.setPaused(false); }} />}
+        {evolution && (
+          <EvolutionCutscene
+            fromStage={evolution.from}
+            toStage={evolution.to}
+            onComplete={() => {
+              setEvolution(null);
+              engineRef.current?.setPaused(false);
+              engineRef.current?.setPlayerStage(evolution.to.id);
+            }}
+          />
+        )}
       </div>
     </div>
   );
