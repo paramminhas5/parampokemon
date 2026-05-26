@@ -1,70 +1,67 @@
 // Sprite registry — all paths resolve to /public/sprites/ in Next.js.
-// Replace any PNG at the same path; no code change required.
+// Now uses generated PNGs from FAL.ai (SDXL pixel art) instead of SVGs.
 
 import type { LeaderSprite } from "./data";
 
-// SVG sprites: scalable, crisp at any resolution, no generation required.
-// PNG fallbacks remain in place — browser will use SVG if it loads first.
-
 export const LEADER_URL: Record<LeaderSprite, string> = {
-  blankpage:  "/sprites/leaders/blankpage.svg",
-  longtail:   "/sprites/leaders/longtail.svg",
-  zerorunway: "/sprites/leaders/zerorunway.svg",
-  prehype:    "/sprites/leaders/prehype.svg",
-  termsheet:  "/sprites/leaders/termsheet.svg",
-  noculture:  "/sprites/leaders/noculture.svg",
-  blackbox:   "/sprites/leaders/blackbox.svg",
-  nobrief:    "/sprites/leaders/nobrief.svg",
-  statusquo:  "/sprites/leaders/statusquo.svg",
+  blankpage:  "/sprites/leaders/blankpage.png",
+  longtail:   "/sprites/leaders/longtail.png",
+  zerorunway: "/sprites/leaders/zerorunway.png",
+  prehype:    "/sprites/leaders/prehype.png",
+  termsheet:  "/sprites/leaders/termsheet.png",
+  noculture:  "/sprites/leaders/noculture.png",
+  blackbox:   "/sprites/leaders/blackbox.png",
+  nobrief:    "/sprites/leaders/nobrief.png",
+  statusquo:  "/sprites/leaders/statusquo.png",
 };
 
 export const CREATURE_URL: Record<string, string> = {
-  origin:     "/sprites/creatures/origin.svg",
-  grp:        "/sprites/creatures/grp.svg",
-  hab:        "/sprites/creatures/hab.svg",
-  ai:         "/sprites/creatures/ai.svg",
-  investopad: "/sprites/creatures/investopad.svg",
-  sole:       "/sprites/creatures/sole.svg",
-  fere:       "/sprites/creatures/fere.svg",
-  ccd:        "/sprites/creatures/ccd.svg",
-  iterate:    "/sprites/creatures/iterate.svg",
+  origin:     "/sprites/creatures/origin.png",
+  grp:        "/sprites/creatures/grp.png",
+  hab:        "/sprites/creatures/hab.png",
+  ai:         "/sprites/creatures/ai.png",
+  investopad: "/sprites/creatures/investopad.png",
+  sole:       "/sprites/creatures/sole.png",
+  fere:       "/sprites/creatures/fere.png",
+  ccd:        "/sprites/creatures/ccd.png",
+  iterate:    "/sprites/creatures/iterate.png",
 };
 
 export const PLAYER_SPRITE_URL: Record<string, string> = {
-  mermander: "/sprites/player/mermander_front.svg",
-  mermalion:  "/sprites/player/mermalion_front.svg",
-  merlord:    "/sprites/player/merlord_front.svg",
+  mermander: "/sprites/player/mermander_front.png",
+  mermalion: "/sprites/player/mermalion_front.png",
+  merlord:   "/sprites/player/merlord_front.png",
 };
 export const PLAYER_BACK_URL: Record<string, string> = {
-  mermander: "/sprites/player/mermander_back.svg",
-  mermalion:  "/sprites/player/mermalion_back.svg",
-  merlord:    "/sprites/player/merlord_back.svg",
+  mermander: "/sprites/player/mermander_back.png",
+  mermalion: "/sprites/player/mermalion_back.png",
+  merlord:   "/sprites/player/merlord_back.png",
 };
 export const PLAYER_LEFT_URL: Record<string, string> = {
-  mermander: "/sprites/player/mermander_left.svg",
-  mermalion:  "/sprites/player/mermalion_left.svg",
-  merlord:    "/sprites/player/merlord_left.svg",
+  mermander: "/sprites/player/mermander_left.png",
+  mermalion: "/sprites/player/mermalion_left.png",
+  merlord:   "/sprites/player/merlord_left.png",
 };
 export const PLAYER_RIGHT_URL: Record<string, string> = {
-  mermander: "/sprites/player/mermander_right.svg",
-  mermalion:  "/sprites/player/mermalion_right.svg",
-  merlord:    "/sprites/player/merlord_right.svg",
+  mermander: "/sprites/player/mermander_right.png",
+  mermalion: "/sprites/player/mermalion_right.png",
+  merlord:   "/sprites/player/merlord_right.png",
 };
 
 export const LANDMARK_URL: Record<string, string> = {
-  home:       "/sprites/landmarks/home.svg",
-  origin:     "/sprites/landmarks/origin.svg",
-  grp:        "/sprites/landmarks/grp.svg",
-  hab:        "/sprites/landmarks/hab.svg",
-  ai:         "/sprites/landmarks/ai.svg",
-  investopad: "/sprites/landmarks/investopad.svg",
-  sole:       "/sprites/landmarks/sole.svg",
-  fere:       "/sprites/landmarks/fere.svg",
-  ccd:        "/sprites/landmarks/ccd.svg",
-  iterate:    "/sprites/landmarks/iterate.svg",
+  home:       "/sprites/landmarks/home.png",
+  origin:     "/sprites/landmarks/origin.png",
+  grp:        "/sprites/landmarks/grp.png",
+  hab:        "/sprites/landmarks/hab.png",
+  ai:         "/sprites/landmarks/ai.png",
+  investopad: "/sprites/landmarks/investopad.png",
+  sole:       "/sprites/landmarks/sole.png",
+  fere:       "/sprites/landmarks/fere.png",
+  ccd:        "/sprites/landmarks/ccd.png",
+  iterate:    "/sprites/landmarks/iterate.png",
 };
 
-export const POKEBALL_URL = "/sprites/ui/pokeball.svg";
+export const POKEBALL_URL = "/sprites/ui/pokeball.png";
 
 // ─── Image loader cache ───────────────────────────────────────
 const cache = new Map<string, HTMLImageElement>();
@@ -116,6 +113,6 @@ export function preloadAllSprites(): Promise<void> {
         img.addEventListener("error", done, { once: true });
       }
     }
-    setTimeout(resolve, 4000);
+    setTimeout(resolve, 5000);
   });
 }

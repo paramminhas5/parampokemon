@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ZONES, CONTACT, PRESS } from "@/game/data";
 import type { Metadata } from "next";
+import { ExperienceEntry } from "@/components/resume/ExperienceEntry";
 
 export const metadata: Metadata = {
   title: "CV — Param Minhas",
@@ -109,81 +110,7 @@ export default function ResumePage() {
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
             {careerZones.map((z, i) => (
-              <div key={z.id} style={{ display: "flex", alignItems: "stretch", position: "relative" }}>
-                {/* Timeline bar */}
-                <div style={{ width: 32, flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center" }}>
-                  {i > 0 && <div style={{ width: 2, height: 16, background: "#1a2a4a" }} />}
-                  <div style={{
-                    width: 12, height: 12, borderRadius: "50%",
-                    background: z.theme.accent,
-                    border: `2px solid ${z.theme.accent}80`,
-                    boxShadow: `0 0 6px ${z.theme.accent}60`,
-                    flexShrink: 0, zIndex: 1,
-                    marginTop: i === 0 ? 16 : 0,
-                  }} />
-                  {i < careerZones.length - 1 && <div style={{ width: 2, flex: 1, background: "#1a2a4a", minHeight: 16 }} />}
-                </div>
-
-                {/* Card */}
-                <div
-                  className="pq-panel"
-                  style={{
-                    flex: 1, marginLeft: 8,
-                    marginTop: i === 0 ? 10 : 6,
-                    marginBottom: 6,
-                    borderColor: `${z.theme.accent}30`,
-                  }}
-                >
-                  <div className="pq-panel-inner">
-                    <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-                      {/* Creature sprite */}
-                      {z.creature && (
-                        <div style={{
-                          width: 52, height: 52, flexShrink: 0,
-                          background: `${z.theme.accent}12`,
-                          border: `2px solid ${z.theme.accent}30`,
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                          borderRadius: 4,
-                        }}>
-                          <img
-                            src={`/sprites/creatures/${z.id}.png`}
-                            alt={z.creature.name}
-                            width={44} height={44}
-                            style={{ imageRendering: "pixelated", width: 44, height: 44, objectFit: "contain" }}
-                          />
-                        </div>
-                      )}
-
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, flexWrap: "wrap", marginBottom: 4 }}>
-                          <div style={{ fontFamily: "var(--font-pixel)", fontSize: 9, color: z.theme.accent }}>{z.org}</div>
-                          <div style={{ fontFamily: "var(--font-pixel)", fontSize: 7, color: "#3a5070", flexShrink: 0 }}>{z.years}</div>
-                        </div>
-                        <div style={{ fontFamily: "var(--font-mono)", fontSize: 17, color: "#c8d8f0", lineHeight: 1.3, marginBottom: 8 }}>{z.role}</div>
-                        <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
-                          {z.bullets.map((b, bi) => (
-                            <li key={bi} style={{ fontFamily: "var(--font-mono)", fontSize: 15, color: "#7a90b0", marginTop: 3, lineHeight: 1.4 }}>▸ {b}</li>
-                          ))}
-                        </ul>
-                        {/* Gym leader */}
-                        {z.gym && (
-                          <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 8 }}>
-                            <img
-                              src={`/sprites/leaders/${z.gym.leader}.png`}
-                              alt={z.gym.opponentName}
-                              width={28} height={28}
-                              style={{ imageRendering: "pixelated", width: 28, height: 28, border: `1px solid ${z.theme.accent}40`, borderRadius: 2 }}
-                            />
-                            <div style={{ fontFamily: "var(--font-pixel)", fontSize: 6, color: "#3a5070" }}>
-                              GYM: <span style={{ color: z.theme.accent }}>{z.gym.opponentName}</span>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <ExperienceEntry key={z.id} z={z} i={i} isLast={i === careerZones.length - 1} />
             ))}
           </div>
         </section>

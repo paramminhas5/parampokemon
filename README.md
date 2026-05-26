@@ -5,7 +5,7 @@
 Walk through 10 worlds. Talk to the people. Fight the gym leaders. Collect the badges.  
 Each boss is a **real challenge Param actually faced**. Defeat them to earn the badge and read what he learned.
 
-**Live at:** [paramminhas.com](https://paramminhas.com) · **Stack:** Next.js 15 · TypeScript · Canvas 2D · FAL.ai
+**Stack:** Next.js 15 · TypeScript · Canvas 2D · FAL.ai (SDXL sprites)
 
 ---
 
@@ -28,31 +28,197 @@ Each boss is a **real challenge Param actually faced**. Defeat them to earn the 
 
 ## 🐉 Mermander Line (Starter Pokémon)
 
-The player's starter — a merman creature that evolves as Param earns more badges.
+| Stage | Name | Badges | HP | Colour |
+|-------|------|--------|----|--------|
+| 1 | **Mermander** | 0 | 60 | Aqua `#7ce0ff` |
+| 2 | **Mermalion** | 4 | 110 | Violet `#c89af0` |
+| 3 | **Merlord** | 8 | 180 | Gold `#ffd24a` |
 
-| Stage | Name | Badges Required | HP | Palette |
-|-------|------|----------------|----|---------|
-| Stage 1 | **Mermander** | 0 | 60 | Aqua cyan `#7ce0ff` |
-| Stage 2 | **Mermalion** | 4 | 110 | Violet lavender `#c89af0` |
-| Stage 3 | **Merlord** | 8 | 180 | Champion gold `#ffd24a` |
-
-**In the overworld:** Param (a human character) walks the map; Mermander/Mermalion/Merlord follows one tile behind.  
-**In battle:** You fight *as* Mermander — the creature is the RPG stand-in for Param's career power.
+Param walks the overworld as a human. Mermander follows one tile behind.  
+In battle you fight *as* Mermander — the creature is the RPG stand-in for Param's career power.
 
 ---
 
-## 🎮 How to Play
+## 🎮 Controls
 
-| Control | Action |
-|---------|--------|
+| Input | Action |
+|-------|--------|
 | `ARROWS` / `WASD` | Walk |
-| `TAP` / `CLICK` | Walk to + auto-talk |
-| `SPACE` / `Z` / `ENTER` | Talk to NPCs |
+| `TAP` / `CLICK` | Walk-to + auto-talk |
+| `SPACE` / `Z` / `ENTER` | Talk / action |
 | `ESC` / `X` | Menu |
-| `MAP` button | Fast travel |
-| `⚡ WARP` button | World Select |
-| **GYM MAT** tile | Enter gym battle |
-| **BAG** button | View creatures, moves, badges |
+| `MAP` | Fast travel |
+| `⚡ WARP` | World select |
+| **GYM MAT** | Enter gym battle |
+| **BAG** | Inventory |
+
+---
+
+## 🚀 Running Locally
+
+```bash
+npm install
+npm run dev        # → http://localhost:3000
+```
+
+---
+
+## 🎨 Sprite Generation
+
+All sprites are AI-generated via **FAL.ai** (SDXL pixel art model).
+
+```bash
+# Generate all 40 sprites in 4 batches
+FAL_KEY=your_key node generate_sprites_v2.mjs
+
+# One batch at a time (recommended — verify before continuing)
+FAL_KEY=your_key node generate_sprites_v2.mjs --batch=creatures --model=sdxl
+FAL_KEY=your_key node generate_sprites_v2.mjs --batch=leaders   --model=sdxl
+FAL_KEY=your_key node generate_sprites_v2.mjs --batch=player    --model=sdxl
+FAL_KEY=your_key node generate_sprites_v2.mjs --batch=landmarks --model=sdxl
+
+# Regenerate specific sprites
+FAL_KEY=your_key node generate_sprites_v2.mjs --batch=creatures --only=grp,fere --model=sdxl
+
+# Models: sdxl (default, best pixel art) | sd15 (true pixel, slower) | flux (high quality)
+```
+
+**Fallback:** if any PNG fails to load, the engine renders procedural canvas pixel art from `game/sprites.ts` / `game/tiles.ts` — no blank spaces ever.
+
+---
+
+## ✅ What's Been Built
+
+### Core game
+- [x] Full overworld: 10 zones, themed route corridors, 80×300 tile world
+- [x] Smooth tile movement — WASD, click-to-walk (A\*), touch swipe, D-pad
+- [x] Cinematic camera lerp — **jitter-free** (Math.floor, single timestamp per frame)
+- [x] 38 unique tile types — animated water, neon, crypto, pylon tiles (flicker-free)
+- [x] Turn-based battle — type effectiveness, crits, miss, PP tracking
+- [x] 3-stage evolution (Mermander → Mermalion → Merlord) with cutscene
+- [x] Wild creature catch system
+- [x] Skill berry system (NPCs teach battle moves)
+- [x] Full NPC dialog with typewriter effect
+- [x] Building doors — facing a door greets you with the zone's first NPC
+- [x] Zone BGM (Web Audio API procedural), battle BGM + SFX
+- [x] Save/load via localStorage
+
+### UI / overlays
+- [x] Title screen with Prof. Iterate intro
+- [x] World Select + Warp transitions
+- [x] Bag inventory (creatures, moves, badges)
+- [x] World Map fast-travel
+- [x] Zone cliff notes overlay
+- [x] Battle intro cinematic + Victory moment
+- [x] Evolution cutscene
+- [x] Skill learn overlay
+- [x] Champion card (final gym win)
+- [x] Press wall, Contact modal
+- [x] Touch D-pad (mobile)
+
+### Sprites
+- [x] 9 zone creatures (SDXL pixel art PNGs)
+- [x] 9 gym leaders (SDXL pixel art PNGs)
+- [x] 12 player sprites — Mermander/Mermalion/Merlord × 4 directions (SDXL PNGs)
+- [x] 10 landmark sprites (SDXL PNGs)
+- [x] Param player character — South Asian skin tone, dark hair, slim navy outfit
+
+### Homepage & Resume
+- [x] Homepage career zone cards — **expand on click** (cliff notes, metrics, gym boss, creature)
+- [x] Resume experience entries — **expand on click** (extra bullets, learned quotes, metrics, gym leader)
+- [x] Gym leaders strip
+- [x] Selected press section
+
+### World feel
+- [x] One sign rule — only Pallet Town has a tutorial sign; all other zones use NPCs
+- [x] 9 route themes (meadow, forest, stream, boulders, neon, mall, crypto, garden, skyline)
+- [x] Zone-entry arch gates
+- [x] Thematic props per zone (servers, racks, speakers, pylons, candlesticks, trophies)
+- [x] Zone ambient particles, NPC idle bob, wild creature bob + "!" marker
+
+---
+
+## 🔜 Next Steps
+
+### 🔴 High priority
+
+#### 1. Building interiors
+Right now doors greet you with the first NPC's dialog. The real fix is **actual interior rooms** — small 8×6 tile maps per building with walkable floor, desks, props, and an exit door.
+
+```
+Engine change: add currentInterior: string | null to GameState
+New component: components/game/Interior.tsx
+Transition: black fade in/out on door cross
+```
+
+| Zone | Interior theme |
+|------|---------------|
+| home | Cozy bedroom — CRT TV, guitar, records |
+| origin | Workshop — drafting table, sketchbook |
+| grp | Market office — price boards, catalog shelves |
+| hab | Property office — lease papers, key hooks |
+| ai | Server room — racks, AI terminal |
+| investopad | Boardroom — long table, whiteboard |
+| sole | Store back room — shoe boxes, racks |
+| fere | Trading floor — crypto screens, agent terminals |
+| ccd | Recording studio — mixing desk, mic stand, cat |
+| iterate | Agency HQ — strategy boards, trophy wall |
+
+#### 2. Richer zone layouts
+- Increase zone width from 26 → 32 tiles (more room to breathe)
+- Add a second building per zone (annex, shop, or house)
+- Zone-specific ground details: river in Hab, neon roads in AI, vinyl circles in CCD
+- Route NPCs mid-corridor saying one thematic line
+- Route height 10 → 14 tiles (less cramped between zones)
+
+#### 3. Sprite quality pass
+The SDXL sprites are good but some lack the crisp GBA silhouette. Options:
+- Re-run with `fal-ai/flux-lora` + `sWizad/pokemon-trainer-sprite-pixelart` LoRA (trigger: `pkspr`) — this is trained specifically on GBA sprites
+- Post-process: downscale to 96×96 then upscale 4× with nearest-neighbour to force true pixel grid
+- Hand-polish specific creatures in any pixel editor (Aseprite) — creatures, leaders are 512px so there's room
+
+---
+
+### 🟠 Medium priority
+
+#### 4. Battle polish
+- HP bar drain animation — currently snaps instantly, should drain over 500ms
+- Show type badge + creature name above opponent HP bar
+- Screen shake on SUPER EFFECTIVE hits (`transform: translateX` on the arena)
+- Win fanfare: particle burst over the victory screen
+
+#### 5. Pokédex in Bag
+- In-game Pokédex tab inside the Bag overlay
+- Shows caught creatures: sprite, name, type, power, description, zone found
+- "???" for uncaught — gives the player a reason to explore
+
+#### 6. Mobile controls polish
+- D-pad redesign: larger hit targets, semi-transparent, thumb-zone positioning
+- `navigator.vibrate(20)` haptic on each walk step
+- Prevent accidental pinch-to-zoom during swipe-to-walk (`touch-action: none` on canvas)
+
+---
+
+### 🟡 Lower priority
+
+#### 7. More NPC variety
+- 3–4 NPCs per zone instead of 2
+- Route trainer NPCs between zones (walk up to them, they say one line)
+- Home zone: add a rival character (kid who challenges you as you leave Pallet Town)
+
+#### 8. Audio depth
+- Per-zone melody layer on top of existing bass/rhythm procedural BGM
+- Tempo variation: early zones = slow, Iterate HQ = fast
+- Distinct battle intro SFX per gym leader type
+
+#### 9. Post-champion content
+- After beating all 9 gyms: unlock a "Champion Route" north of Pallet Town
+- Final NPC = Param himself, talking about what he's working on now
+- Champion NPC opens ContactModal directly
+
+#### 10. Homepage creature strip
+- Hero background creatures: opacity 6% → 15%, add slow drift animation
+- Each creature drifts at its own speed/phase using CSS animation
 
 ---
 
@@ -61,326 +227,73 @@ The player's starter — a merman creature that evolves as Param earns more badg
 ```
 parampokemon/
 ├── app/
-│   ├── page.tsx              # Homepage (marketing, career zones, press)
-│   ├── play/page.tsx         # Game entry (GameBoot → Game)
-│   └── resume/page.tsx       # Printable CV
-├── components/game/
-│   ├── Game.tsx              # Root game component — modal/state orchestration
-│   ├── Battle.tsx            # Turn-based battle system
-│   ├── BattleIntro.tsx       # Cinematic battle opener
-│   ├── Bag.tsx               # Items / creatures / badges inventory
-│   ├── CliffNotes.tsx        # Zone cliff notes overlay
-│   ├── CatchModal.tsx        # Wild creature encounter
-│   ├── ChampionCard.tsx      # Final victory screen
-│   ├── ContactModal.tsx      # Contact form overlay
-│   ├── DialogBox.tsx         # NPC / sign dialog
-│   ├── EvolutionCutscene.tsx # Evolution animation
-│   ├── GameBoot.tsx          # Sprite preloader + boot screen
-│   ├── PressModal.tsx        # Press wall overlay
-│   ├── SkillLearnOverlay.tsx # Skill berry discovery
-│   ├── StartMenu.tsx         # Pause menu
-│   ├── TitleScreen.tsx       # Opening title + Prof. Iterate intro
-│   ├── TouchControls.tsx     # On-screen D-pad (mobile)
-│   ├── TransitionOverlay.tsx # Zone warp / battle fade
-│   ├── VictoryMoment.tsx     # Gym win celebration
-│   ├── WorldMap.tsx          # Fast-travel timeline map
-│   ├── WorldSelect.tsx       # Zone selection screen
-│   └── ZoneAmbience.tsx      # Per-zone ambient overlay
+│   ├── page.tsx                          # Homepage (Server Component)
+│   ├── play/page.tsx                     # Game entry → GameBoot → Game
+│   └── resume/page.tsx                   # CV (Server Component)
+├── components/
+│   ├── home/CareerCard.tsx               # ★ Expand-on-click career card (client)
+│   ├── resume/ExperienceEntry.tsx        # ★ Expand-on-click resume entry (client)
+│   └── game/                             # All game overlays (client)
+│       ├── Game.tsx                      # Root — state + modal orchestration
+│       ├── Battle.tsx                    # Turn-based battle system
+│       ├── BattleIntro.tsx / VictoryMoment.tsx
+│       ├── Bag.tsx / StartMenu.tsx / WorldMap.tsx / WorldSelect.tsx
+│       ├── CliffNotes.tsx / CatchModal.tsx / ContactModal.tsx / PressModal.tsx
+│       ├── EvolutionCutscene.tsx / SkillLearnOverlay.tsx / ChampionCard.tsx
+│       ├── TitleScreen.tsx / GameBoot.tsx
+│       ├── TouchControls.tsx / TransitionOverlay.tsx / ZoneAmbience.tsx
+│       └── DialogBox.tsx
 ├── game/
-│   ├── data.ts               # ALL game content: zones, creatures, gyms, moves, NPCs
-│   ├── engine.ts             # Core game loop: input, movement, camera, render
-│   ├── landmarks.ts          # Landmark sprite renderer per zone
-│   ├── pathfind.ts           # A* click-to-walk pathfinding
-│   ├── sprite-registry.ts    # Image cache + URL maps for all sprites
-│   ├── sprites.ts            # Procedural pixel art: Mermander line + gym leaders
-│   ├── tiles.ts              # Procedural tile drawing: 38 tile types + characters
-│   └── world.ts              # Tile grid builder: zones, routes, buildings, props
-├── lib/
-│   └── audio.ts              # Web Audio API: BGM, SFX, zone music
-└── public/sprites/
-    ├── creatures/            # 9 zone creatures (PNG + SVG)
-    ├── leaders/              # 9 gym leaders (PNG + SVG)
-    ├── landmarks/            # 10 zone landmarks (PNG + SVG)
-    ├── player/               # Mermander/Mermalion/Merlord × 4 dirs (PNG + SVG)
-    └── ui/                   # Pokéball, UI elements
+│   ├── data.ts           # ALL content: zones, creatures, gyms, moves, NPCs
+│   ├── engine.ts         # Game loop: input, movement, camera, render
+│   ├── tiles.ts          # 38 tile types + character sprites (procedural canvas)
+│   ├── sprites.ts        # Mermander line + gym leaders (procedural canvas)
+│   ├── landmarks.ts      # Landmark image renderer per zone
+│   ├── world.ts          # Tile grid builder
+│   ├── pathfind.ts       # A* click-to-walk
+│   └── sprite-registry.ts # Image cache + PNG URL maps
+├── lib/audio.ts          # Web Audio API: BGM + SFX
+├── public/sprites/
+│   ├── creatures/        # 9 zone creatures (SDXL PNG)
+│   ├── leaders/          # 9 gym leaders (SDXL PNG)
+│   ├── player/           # Mermander × Mermalion × Merlord × 4 dirs (SDXL PNG)
+│   ├── landmarks/        # 10 zone building icons (SDXL PNG)
+│   └── ui/               # Pokéball + UI
+└── generate_sprites_v2.mjs  # FAL.ai batch sprite generator
 ```
 
-### Key Data Flow
-
+### Data flow
 ```
-game/data.ts  →  ZONES[]  →  game/world.ts  →  TileCode[][]
-                          →  game/engine.ts  →  canvas render
-                          →  allInteractives()  →  NPCs, signs, badges, doors
-```
-
----
-
-## 🎨 Sprite Pipeline
-
-All sprites are generated via **FAL.ai** using `fal-ai/flux-lora` with a dedicated Pokémon pixel art LoRA.
-
-### Regenerate sprites
-
-```bash
-FAL_KEY=your_key node generate_sprites_v2.mjs
-```
-
-The script generates:
-- **9 creature sprites** — zone-specific wild Pokémon  
-- **9 gym leader sprites** — boss characters  
-- **12 player sprites** — Mermander/Mermalion/Merlord × 4 directions  
-- **10 landmark sprites** — zone building overworld icons  
-- **1 Pokéball UI sprite**
-
-**Model:** `fal-ai/flux-lora` with `fal-ai/flux-lora/trained` LoRA weights tuned for GBA-era Pokémon sprites (96×96 pixel art, transparent background, crisp outlines).
-
-### Sprite fallback system
-
-If a sprite fails to load, the engine falls back to **procedural canvas art** defined in `game/sprites.ts` and `game/tiles.ts`. This means the game always looks complete even without FAL-generated assets.
-
----
-
-## 🚀 Running Locally
-
-```bash
-npm install
-npm run dev
-# → http://localhost:3000
-```
-
-**Requirements:** Node 18+, Next.js 15
-
----
-
-## 📋 Current State — What Works
-
-- [x] Full overworld: 10 zones, routes between them, 80×300 tile world
-- [x] Smooth tile-based movement (WASD, click-to-walk, touch swipe, D-pad)
-- [x] A* pathfinding for click-to-walk
-- [x] Camera lerp (cinematic smooth follow)
-- [x] 38 unique tile types with procedural pixel art
-- [x] 9 zone-specific route themes (meadow, forest, stream, boulders, neon, mall, crypto, garden, skyline)
-- [x] Zone-entry arch gates
-- [x] Thematic props per zone (servers, racks, speakers, pylons, candlesticks, trophies)
-- [x] Buildings with roof colors, door, gym mat
-- [x] Turn-based battle system (type effectiveness, crits, miss, PP)
-- [x] 3-stage evolution (Mermander → Mermalion → Merlord)
-- [x] Evolution cutscene animation
-- [x] Battle intro cinematic
-- [x] Victory moment overlay
-- [x] Wild creature catch system
-- [x] Skill berry system (zone NPCs teach moves)
-- [x] Full NPC dialog with typewriter effect
-- [x] Start menu, Bag inventory, World Map fast-travel
-- [x] Zone cliff notes (era, did, learned, metrics)
-- [x] Champion card (final gym win)
-- [x] Press wall overlay
-- [x] Contact modal
-- [x] localStorage save/load
-- [x] Zone BGM system (Web Audio API procedural)
-- [x] Battle BGM + SFX
-- [x] Touch controls (D-pad overlay)
-- [x] Responsive (mobile, tablet, desktop)
-- [x] Title screen with Prof. Iterate intro
-- [x] World Select + Warp transitions
-- [x] Homepage with career zones, gym leaders strip, press
-- [x] Resume/CV page
-
----
-
-## 🔧 Known Issues
-
-| Issue | Severity | Root Cause |
-|-------|----------|-----------|
-| **Screen jitter** | High | Double `Math.round()` on camera lerp + player pixel pos — independent rounding causes 1px jumps each frame |
-| **SVG sprites look bad** | High | FAL schnell model generated with weak pixel art prompts; new `flux-lora` + pixel LoRA needed |
-| **Buildings not enterable** | Medium | Door tile triggers gym battle only; no interior room system |
-| **Too many signs** | Medium | Every zone has an auto-trigger sign; should be one sign in starting town only |
-| **Worlds feel sparse** | Medium | Zone dimensions and prop density need tuning |
-| **Resume not interactive** | Low | Career cards are static; no expand/collapse |
-
----
-
-## 🗺️ Planned Improvements — Next Steps
-
-### 🔴 Priority 1 — Fix Core Bugs
-
-#### 1.1 Jitter Fix (`game/engine.ts`, `game/tiles.ts`)
-- **Problem:** `offX = Math.round(-camXSmooth * TILE)` and `pbx = Math.round(state.px * TILE) + offX` both round independently → 1px staircase jitter every frame
-- **Fix:** Compute one `subPixelOffX/Y` float, then render all world elements with `Math.floor()` consistently. Player position uses `state.px * TILE + offX` without extra rounding
-- **Impact:** Entire game becomes butter-smooth
-
-#### 1.2 Water/Neon Tile Flicker (`game/tiles.ts`)
-- **Problem:** Animated tiles call `performance.now()` mid-draw; each tile gets a different timestamp in the same frame
-- **Fix:** Pass `now` as a parameter to `drawTile()`, computed once per frame before the tile loop
-
----
-
-### 🟠 Priority 2 — Interior Buildings
-
-#### 2.1 Building Interiors (`game/engine.ts`, new `components/game/Interior.tsx`)
-- Each building gets a small interior tile map (8×6 tiles)
-- Interior contains: desk/props relevant to zone, 1–2 NPCs, walkable floor, exit door at south
-- Transition: black fade in/out when entering/exiting
-- Engine tracks `currentInterior: string | null` state
-- Gym buildings keep their existing battle trigger via mat tile *outside*
-- Non-gym buildings currently do nothing on door approach — interiors fix this
-
-#### Interior layouts per zone
-| Zone | Interior Theme | Props |
-|------|---------------|-------|
-| home | Cozy bedroom | CRT TV, bed, guitar |
-| origin | Workshop | Desk, drafting table, sketchbook |
-| grp | Market office | Price boards, catalog shelves |
-| hab | Property office | Lease papers, key hooks, calendar |
-| ai | Server room | Racks, screens, AI terminal |
-| investopad | Boardroom | Long table, chairs, whiteboard |
-| sole | Store back room | Shoe boxes, display racks, hangers |
-| fere | Trading floor | Crypto screens, agent terminals |
-| ccd | Recording studio | Mixing desk, mic stand, cat beds |
-| iterate | Agency HQ | Strategy boards, macbooks, trophy |
-
----
-
-### 🟡 Priority 3 — Richer World Design
-
-#### 3.1 One Sign Rule
-- Remove auto-trigger signs from all zones except `home`
-- Home sign: brief intro to controls only
-- NPCs carry all narrative weight — they already have rich dialog
-
-#### 3.2 Denser Zone Layouts
-- Increase zone width from 26 to 32 tiles
-- Add second building per zone (a secondary structure — shop, annex, house)
-- More prop variety: benches, lampposts, market stalls, vending machines
-- Zone-specific ground details: water ponds in Hab, neon roads in AI, vinyl circles on ground in CCD
-
-#### 3.3 Better Route Corridors
-- Increase route height from 10 to 14 tiles
-- Route NPCs (trainers who say something relevant)
-- Rest benches mid-route
-- Seasonal tone: early zones feel warm/day, later zones feel night/cold
-
----
-
-### 🟢 Priority 4 — Sprite Quality
-
-#### 4.1 Better FAL Generation (this sprint)
-- Switch from `fal-ai/flux/schnell` to `fal-ai/flux-lora` + Pokémon pixel art LoRA
-- LoRA: `https://huggingface.co/sWizad/pokemon-trainer-sprite-pixelart` (trained on 96×96 GBA sprites)
-- Size: 256×256 (optimal for pixel art — large enough for detail, keeps true pixel feel)
-- All sprites regenerated with new prompts calibrated to the LoRA trigger words
-
-#### 4.2 Param as Human Overworld Character
-- `drawCharacter("player")` redesigned: dark hair, Param's signature red/black outfit
-- Proper 4-direction walk cycle (2 frames per direction)
-- Param sprite: human. Mermander: the Pokémon follower behind him
-- Battle: fight as Mermander (back view). Overworld: walk as Param (human front)
-
-#### 4.3 Mermander Line Redesign
-- Better proportions at 16px overworld scale
-- More recognisably Pokémon — chubby silhouette, large eyes, clear colour blocks
-- Merlord should feel like a final-form champion (bigger, more detail, intimidating)
-
----
-
-### 🔵 Priority 5 — Homepage & Resume Polish
-
-#### 5.1 Expand-on-Click Career Cards
-- Each career zone card on homepage becomes interactive
-- Collapsed: org name, role, years, one-line outcome
-- Expanded (click to toggle): bullet points, cliff notes ("what I learned"), metrics, creature sprite, gym leader thumbnail
-- Smooth CSS `max-height` transition
-- Needs `"use client"` wrapper component
-
-#### 5.2 Resume Expand-on-Click (same treatment)
-- Mirror the homepage card behaviour on `/resume`
-
-#### 5.3 Homepage Creature Strip
-- Currently 6% opacity ghost sprites in hero background
-- Increase to 15% and animate: slow horizontal drift
-- Each creature has its own drift speed/phase
-
----
-
-### ⚪ Priority 6 — Audio & Polish
-
-#### 6.1 Better Zone BGM
-- Current Web Audio API procedural music is functional but thin
-- Add per-zone melody layers (lead synth on top of existing bass/rhythm)
-- Different tempo per zone: home = slow pastoral, iterate = fast driving
-
-#### 6.2 Battle Polish
-- Show opponent's creature name + type badge above HP bar
-- HP bar drain animation (current transition is instant)
-- Screen shake on SUPER EFFECTIVE hits (CSS transform on arena)
-- Win fanfare: brief confetti particle burst over victory screen
-
-#### 6.3 Mobile Controls
-- D-pad redesign: larger, more transparent, positioned better for thumb reach
-- Haptic feedback on walk step (navigator.vibrate)
-- Pinch-to-zoom disabled (prevent accidental zoom during swipe-to-walk)
-
----
-
-### ⚫ Priority 7 — Content & Narrative
-
-#### 7.1 More NPC Variety
-- Each zone currently has 2 NPCs — increase to 3–4
-- Add "trainer" NPCs mid-route who say one relevant quote
-- Home zone: add a rival character
-
-#### 7.2 Pokédex / Creature Dex
-- In-game Pokédex accessible from Bag
-- Each caught creature shows: sprite, name, type, power, description, zone found
-- "Flavour text" from `creature.description` field
-
-#### 7.3 Post-Champion Content
-- After beating all 9 gyms: unlock "Champion Route" north of home town
-- Param's current project as the final NPC conversation
-- Champion NPC offers to contact Param directly (opens ContactModal)
-
----
-
-## 🛠️ Development Notes
-
-### Adding a new Zone
-1. Add zone object to `Z[]` in `game/data.ts` with all required fields
-2. Add zone to `ZONE_IDS_IN_ORDER` array
-3. Add creature sprite to `public/sprites/creatures/{id}.png`
-4. Add landmark sprite to `public/sprites/landmarks/{id}.png`
-5. Add creature URL to `CREATURE_URL` in `game/sprite-registry.ts`
-6. Add landmark URL to `LANDMARK_URL` in `game/sprite-registry.ts`
-7. If gym leader: add leader sprite + entry to `LEADER_URL`
-
-### Adding a new Tile Type
-1. Add constant to `T` object in `game/tiles.ts`
-2. Add draw case to `drawTile()` switch
-3. If solid: add to `SOLID` set
-4. Place via `game/world.ts` in appropriate builder function
-
-### Sprite Fallback Chain
-```
-1. Load PNG/SVG from /public/sprites/{category}/{id}.png
-2. If !isReady(img) → use procedural canvas art from game/sprites.ts or game/tiles.ts
-3. Procedural art always renders — no blank spaces ever
+game/data.ts  →  ZONES[]  →  game/world.ts     →  TileCode[][]  →  engine render
+                           →  allInteractives() →  NPCs / signs / badges / doors
+                           →  game/engine.ts    →  canvas 2D game loop
 ```
 
 ---
 
-## 🏆 Credits
+## 🛠️ Dev Notes
 
-- **Param Minhas** — concept, content, game design, career data
-- **Next.js + Vercel** — hosting & framework
-- **FAL.ai** — AI sprite generation (`fal-ai/flux-lora`)
-- **sWizad/pokemon-trainer-sprite-pixelart** — pixel art LoRA weights
-- **Canvas 2D API** — procedural tile/sprite rendering fallback
-- Web Audio API — generative music system
+### Adding a zone
+1. Add to `Z[]` in `game/data.ts`
+2. Add to `ZONE_IDS_IN_ORDER`
+3. Drop `public/sprites/creatures/{id}.png` + `public/sprites/landmarks/{id}.png`
+4. Add URLs to `CREATURE_URL` + `LANDMARK_URL` in `game/sprite-registry.ts`
+
+### Adding a tile type
+1. Add to `T` in `game/tiles.ts`
+2. Add `case T.MY_TILE:` to `drawTile()` — remember to accept and pass `now` for animations
+3. Add to `SOLID` set if impassable
+4. Place it in `game/world.ts`
+
+### Sprite fallback chain
+```
+PNG from /public/sprites → if not loaded → procedural canvas art (always renders)
+```
 
 ---
 
 ## 📬 Contact
 
-**param@catscandance.com** · [LinkedIn](https://www.linkedin.com/in/paramminhas/) · [catscandance.com](https://catscandance.com)
+**param@catscandance.com** · [LinkedIn](https://linkedin.com/in/paramminhas) · [catscandance.com](https://catscandance.com)
 
 > *"Fifteen years of building. One game to show for it."*

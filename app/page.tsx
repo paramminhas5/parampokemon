@@ -1,6 +1,6 @@
 import Link from "next/link";
-import Image from "next/image";
 import { ZONES, CONTACT, PRESS } from "@/game/data";
+import { CareerCard } from "@/components/home/CareerCard";
 
 const SNAPSHOT = [
   { label: "YEARS", value: "15+" },
@@ -99,66 +99,7 @@ export default function Home() {
 
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {careerZones.map((z, i) => (
-            <div
-              key={z.id}
-              className="pq-panel animate-fade-in"
-              style={{
-                animationDelay: `${i * 60}ms`,
-                borderColor: `${z.theme.accent}30`,
-              }}
-            >
-              <div className="pq-panel-inner" style={{ display: "flex", gap: 16, alignItems: "center", padding: "14px 16px" }}>
-                {/* Creature sprite */}
-                {z.creature && (
-                  <div style={{
-                    width: 64, height: 64, flexShrink: 0,
-                    background: `${z.theme.accent}12`,
-                    border: `2px solid ${z.theme.accent}30`,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                  }}>
-                    <img
-                      src={`/sprites/creatures/${z.id}.png`}
-                      alt={z.creature.name}
-                      style={{ width: 56, height: 56, imageRendering: "pixelated" }}
-                    />
-                  </div>
-                )}
-                {/* Info */}
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap", marginBottom: 4 }}>
-                    <span style={{
-                      fontFamily: "var(--font-pixel)", fontSize: 10,
-                      color: z.theme.accent,
-                    }}>{z.org}</span>
-                    <span style={{
-                      fontFamily: "var(--font-pixel)", fontSize: 7, color: "#3a5070",
-                    }}>{z.years}</span>
-                  </div>
-                  <div style={{ fontFamily: "var(--font-mono)", fontSize: 18, color: "#a0b8d0", lineHeight: 1.3 }}>
-                    {z.role}
-                  </div>
-                  <div style={{ fontFamily: "var(--font-mono)", fontSize: 16, color: "#5570a0", marginTop: 4, lineHeight: 1.4 }}>
-                    {z.outcome}
-                  </div>
-                </div>
-                {/* Badge + gym */}
-                <div style={{ flexShrink: 0, textAlign: "center" }}>
-                  <div style={{
-                    width: 36, height: 36, borderRadius: "50%",
-                    background: `${z.theme.accent}20`,
-                    border: `2px solid ${z.theme.accent}50`,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    fontFamily: "var(--font-pixel)", fontSize: 14,
-                    color: z.theme.accent, margin: "0 auto 6px",
-                  }}>★</div>
-                  {z.gym && (
-                    <div style={{
-                      fontFamily: "var(--font-pixel)", fontSize: 6, color: "#2a3a50",
-                    }}>{z.gym.opponentName}</div>
-                  )}
-                </div>
-              </div>
-            </div>
+            <CareerCard key={z.id} z={z} i={i} />
           ))}
         </div>
       </section>
