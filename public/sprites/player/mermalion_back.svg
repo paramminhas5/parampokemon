@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 64" width="48" height="64" shape-rendering="crispEdges">
+  <!-- Transparent background -->
+  <rect width="48" height="64" fill="none"/>
+  <!-- MERMALION back view -->
+  <!-- Large tail fin spread from behind -->
+  <rect x="4" y="52" width="16" height="8" fill="#8a60c8"/>
+  <rect x="28" y="52" width="16" height="8" fill="#8a60c8"/>
+  <rect x="2" y="54" width="10" height="8" fill="#7050b8"/>
+  <rect x="36" y="54" width="10" height="8" fill="#7050b8"/>
+  <rect x="0" y="57" width="6" height="4" fill="#5a3aa0"/>
+  <rect x="42" y="57" width="6" height="4" fill="#5a3aa0"/>
+  <!-- Center tail notch from behind -->
+  <rect x="18" y="58" width="12" height="4" fill="#7050b8"/>
+  <!-- Tail highlights -->
+  <rect x="6" y="53" width="8" height="2" fill="#b890e8" opacity="0.7"/>
+  <rect x="32" y="53" width="8" height="2" fill="#b890e8" opacity="0.7"/>
+  <!-- Tail body back -->
+  <rect x="12" y="46" width="24" height="10" fill="#9a70d8"/>
+  <rect x="14" y="40" width="20" height="8" fill="#9a70d8"/>
+  <!-- Prominent dorsal fin from back -->
+  <rect x="18" y="36" width="12" height="14" fill="#7050b8"/>
+  <rect x="19" y="30" width="10" height="10" fill="#8060c0"/>
+  <rect x="20" y="24" width="8" height="10" fill="#9070c8"/>
+  <rect x="21" y="18" width="6" height="8" fill="#a080d0"/>
+  <rect x="22" y="14" width="4" height="6" fill="#b890e8"/>
+  <!-- Dorsal fin edge -->
+  <rect x="18" y="36" width="2" height="14" fill="#c89af0" opacity="0.7"/>
+  <!-- Tail scales back -->
+  <rect x="14" y="46" width="4" height="3" fill="#8a60c8"/>
+  <rect x="20" y="48" width="4" height="3" fill="#8a60c8"/>
+  <rect x="26" y="46" width="4" height="3" fill="#8a60c8"/>
+  <!-- Body back view -->
+  <rect x="12" y="24" width="24" height="20" fill="#b888e8"/>
+  <rect x="12" y="24" width="3" height="20" fill="#a878d8"/>
+  <rect x="33" y="24" width="3" height="20" fill="#a878d8"/>
+  <!-- Back center line -->
+  <rect x="23" y="24" width="2" height="20" fill="#9068c0" opacity="0.5"/>
+  <!-- Flowing mane from back - wider/more dramatic -->
+  <rect x="4" y="14" width="14" height="16" fill="#5030a0"/>
+  <rect x="2" y="16" width="10" height="14" fill="#4020a0"/>
+  <rect x="30" y="14" width="14" height="16" fill="#5030a0"/>
+  <rect x="36" y="16" width="10" height="14" fill="#4020a0"/>
+  <!-- Mane detail -->
+  <rect x="4" y="14" width="3" height="16" fill="#6040a8" opacity="0.7"/>
+  <rect x="41" y="14" width="3" height="16" fill="#6040a8" opacity="0.7"/>
+  <!-- Side fins from back -->
+  <rect x="6" y="28" width="8" height="10" fill="#9a70d8"/>
+  <rect x="34" y="28" width="8" height="10" fill="#9a70d8"/>
+  <!-- Head back view -->
+  <rect x="11" y="6" width="26" height="18" fill="#b888e8"/>
+  <rect x="11" y="6" width="2" height="18" fill="#a878d8"/>
+  <rect x="35" y="6" width="2" height="18" fill="#a878d8"/>
+  <!-- Back of head top -->
+  <rect x="13" y="4" width="22" height="4" fill="#a878d8"/>
+  <!-- Dark mane on back of head -->
+  <rect x="9" y="4" width="8" height="14" fill="#5030a0"/>
+  <rect x="31" y="4" width="8" height="14" fill="#5030a0"/>
+  <rect x="7" y="6" width="6" height="10" fill="#4020a0"/>
+  <rect x="35" y="6" width="6" height="10" fill="#4020a0"/>
+  <!-- Mane top back -->
+  <rect x="11" y="2" width="26" height="4" fill="#6040a8"/>
+  <rect x="13" y="0" width="22" height="4" fill="#7050b8"/>
+  <!-- Head highlight from back -->
+  <rect x="13" y="6" width="8" height="4" fill="#d8aaff" opacity="0.3"/>
+  <!-- Back ear fins -->
+  <rect x="10" y="10" width="4" height="6" fill="#9a70d8"/>
+  <rect x="34" y="10" width="4" height="6" fill="#9a70d8"/>
+</svg>
