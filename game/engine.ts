@@ -155,7 +155,15 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       if (door.zone.gym && !state.defeatedGyms.has(door.zone.id)) {
         if (gymUnlocked(door.zone.id, state.collectedBadges)) cb.onGymEnter(door.zone);
         else cb.onInteract({ kind: "sign", zone: door.zone, sign: { x: f.x, y: f.y, text: `${door.zone.name.toUpperCase()}\n\nThis gym is sealed.\nDefeat the previous champions first.` }, x: f.x, y: f.y });
-      } else cb.onInteract({ kind: "sign", zone: door.zone, sign: { x: f.x, y: f.y, text: `${door.zone.name.toUpperCase()}\n\n${door.zone.gym?.victory ?? "Gym defeated."}` }, x: f.x, y: f.y });
+      } else {
+        // Non-gym building or defeated gym: greet with first NPC's dialog
+        const greeter = door.zone.npcs[0];
+        if (greeter) {
+          cb.onInteract({ kind: "npc", zone: door.zone, npc: greeter, x: f.x, y: f.y });
+        } else {
+          cb.onInteract({ kind: "sign", zone: door.zone, sign: { x: f.x, y: f.y, text: `${door.zone.name.toUpperCase()}\n\n${door.zone.gym?.victory ?? "Welcome."}` }, x: f.x, y: f.y });
+        }
+      }
       return;
     }
     for (const i of interactives) {
@@ -413,8 +421,8 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       camXSmooth += (cx - camXSmooth) * 0.12;
       camYSmooth += (cy - camYSmooth) * 0.12;
     }
-    const offX = Math.round(-camXSmooth * TILE);
-    const offY = Math.round(-camYSmooth * TILE);
+    const offX = Math.floor(-camXSmooth * TILE);
+    const offY = Math.floor(-camYSmooth * TILE);
 
     ctx.fillStyle = "#08101a";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -426,7 +434,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
 
     for (let y = ty0; y < ty1; y++) {
       for (let x = tx0; x < tx1; x++) {
-        drawTile(ctx, world[y][x], x, y, x * TILE + offX, y * TILE + offY);
+        drawTile(ctx, world[y][x], x, y, x * TILE + offX, y * TILE + offY, now);
       }
     }
 
@@ -473,7 +481,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       if (i.kind !== "npc") continue;
       if (i.x < tx0 - 1 || i.x > tx1 + 1 || i.y < ty0 - 1 || i.y > ty1 + 1) continue;
       const f = (Math.floor(now / 600 + i.x * 0.3) % 8 === 0 ? 1 : 0) as 0 | 1;
-      const npcBob = Math.round(Math.sin(now / 800 + i.x * 1.3) * 1.5);
+      const npcBob = Math.sin(now / 800 + i.x * 1.3) * 1.5;
       drawCharacter(ctx, i.npc.kind, "down", f, i.x * TILE + offX, i.y * TILE + offY + npcBob);
     }
 
@@ -547,8 +555,8 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
 
     // Player on top
     {
-      const pbx = Math.round(state.px * TILE) + offX;
-      const pby = Math.round(state.py * TILE) + offY;
+      const pbx = Math.floor(state.px * TILE) + offX;
+      const pby = Math.floor(state.py * TILE) + offY;
 
       // Zone accent glow under player (drawn before sprite)
       const playerZone = zoneAt(state.tx, state.ty);
@@ -556,7 +564,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         const glowAlpha = 0.18 + Math.sin(now / 400) * 0.06;
         ctx.fillStyle = playerZone.theme.accent + Math.round(glowAlpha * 255).toString(16).padStart(2, "0");
         ctx.beginPath();
-        ctx.ellipse(Math.round(state.px * TILE) + offX + TILE / 2, Math.round(state.py * TILE) + offY + TILE - 2, TILE * 0.6, 3, 0, 0, Math.PI * 2);
+        ctx.ellipse(Math.floor(state.px * TILE) + offX + TILE / 2, Math.floor(state.py * TILE) + offY + TILE - 2, TILE * 0.6, 3, 0, 0, Math.PI * 2);
         ctx.fill();
       }
 
@@ -587,8 +595,8 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
     {
       const followerX = state.walkFrom.x;
       const followerY = state.walkFrom.y;
-      const fbx = Math.round(followerX * TILE) + offX;
-      const fby = Math.round(followerY * TILE) + offY;
+      const fbx = Math.floor(followerX * TILE) + offX;
+      const fby = Math.floor(followerY * TILE) + offY;
       // Only draw follower if it's not on the exact same tile as player
       if (followerX !== state.px || followerY !== state.py) {
         const followerFrame = (state.stepCount % 2 === 0 ? 1 : 0) as 0 | 1 | 2;

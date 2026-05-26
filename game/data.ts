@@ -144,7 +144,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     w: 26, h: 20,
     // Workshop sprawling left side, open workshop feel
     building: { x: 2, y: 3, w: 10, h: 7, doorX: 5, color: "#e6c47a", roof: "#7a4d28" },
-    sign: { x: 20, y: 5, text: "ORIGIN TOWN\nBuilder. Designer. Music producer.\nThe story starts here." },
+    sign: { x: -99, y: -99, text: "ORIGIN TOWN\nBuilder. Designer. Music producer.\nThe story starts here." },
     badge: { x: 22, y: 15, id: "vision", label: "Vision Badge", color: "#f5b78a" },
     npcs: [
       { x: 4, y: 16, name: "Param", role: "Builder · Designer · Director", kind: "trainer-m", beat: "did",
@@ -189,7 +189,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     w: 26, h: 20,
     // Market building top-right, stalls and price tags left side
     building: { x: 15, y: 1, w: 9, h: 7, doorX: 4, color: "#a8d39a", roof: "#3f7a3a" },
-    sign: { x: 2, y: 4, text: "GRP MARKET\nIndia's first price-comparison engine.\nBuilt in college." },
+    sign: { x: -99, y: -99, text: "GRP MARKET\nIndia's first price-comparison engine.\nBuilt in college." },
     badge: { x: 3, y: 15, id: "ship", label: "Search Badge", color: "#a8d39a" },
     npcs: [
       { x: 8, y: 16, name: "GetRightPrice", role: "Founding team · 2010", kind: "trainer-m", beat: "did",
@@ -234,7 +234,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     w: 26, h: 20,
     // Apartment block center-right, brick plants + fences left side
     building: { x: 16, y: 3, w: 8, h: 8, doorX: 3, color: "#c47833", roof: "#5a2c0c" },
-    sign: { x: 2, y: 7, text: "HAB DISTRICT\nBudget rentals. ₹1Cr revenue.\nZero VC money." },
+    sign: { x: -99, y: -99, text: "HAB DISTRICT\nBudget rentals. ₹1Cr revenue.\nZero VC money." },
     badge: { x: 3, y: 16, id: "ops", label: "Operator Badge", color: "#f6a268" },
     npcs: [
       { x: 7, y: 17, name: "Hab Housing", role: "Founder · 2012", kind: "trainer-m", beat: "did",
@@ -279,7 +279,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     w: 26, h: 20,
     // Server room far-left, neon pylon grid fills center; entry from right
     building: { x: 1, y: 1, w: 10, h: 8, doorX: 5, color: "#4a6e9a", roof: "#1f3548" },
-    sign: { x: 20, y: 16, text: "QUARTIC LAB\nBuilt AI before it was a category.\n2013 chatbot · Octo · Quartic.ai" },
+    sign: { x: -99, y: -99, text: "QUARTIC LAB\nBuilt AI before it was a category.\n2013 chatbot · Octo · Quartic.ai" },
     badge: { x: 22, y: 7, id: "ai", label: "Conversation Badge", color: "#9fe8ff" },
     npcs: [
       { x: 5, y: 16, name: "Octo → Quartic", role: "Founding team · 2013", kind: "engineer", beat: "did",
@@ -328,7 +328,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     w: 26, h: 20,
     // Tower center, trophy room right, marble floor left
     building: { x: 8, y: 1, w: 8, h: 10, doorX: 3, color: "#9a6fc4", roof: "#3f2266" },
-    sign: { x: 2, y: 6, text: "INVESTOPAD\nFamily office of Rohan & Arjun Malhotra.\nFund 0 from scratch." },
+    sign: { x: -99, y: -99, text: "INVESTOPAD\nFamily office of Rohan & Arjun Malhotra.\nFund 0 from scratch." },
     badge: { x: 23, y: 16, id: "fund", label: "Capital Badge", color: "#f0c4ff" },
     npcs: [
       { x: 3, y: 15, name: "Investopad", role: "Growth & Tech Partner · Fund 0", kind: "investor", beat: "did",
@@ -378,7 +378,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     w: 26, h: 20,
     // Mall building center-wide, neon arches flank; sneaker racks behind sign
     building: { x: 7, y: 2, w: 12, h: 6, doorX: 5, color: "#c0388c", roof: "#4a1240" },
-    sign: { x: 2, y: 14, text: "SOLESEARCH MALL\nIndia's sneaker & streetwear platform.\n$795K raised · CNBC-TV18." },
+    sign: { x: -99, y: -99, text: "SOLESEARCH MALL\nIndia's sneaker & streetwear platform.\n$795K raised · CNBC-TV18." },
     badge: { x: 23, y: 10, id: "ceo", label: "Culture Badge", color: "#ff9fd4" },
     npcs: [
       { x: 4, y: 17, name: "SoleSearch", role: "Co-founder & CEO · 2020-24", kind: "celeb", beat: "did",
@@ -429,7 +429,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     w: 26, h: 20,
     // Trading floor right side; candlestick forest left; sign bottom-center
     building: { x: 16, y: 2, w: 9, h: 7, doorX: 4, color: "#1a8c6e", roof: "#053d2c" },
-    sign: { x: 3, y: 17, text: "FERE DISTRICT\nAutonomous AI agents.\n$1.3M raised." },
+    sign: { x: -99, y: -99, text: "FERE DISTRICT\nAutonomous AI agents.\n$1.3M raised." },
     badge: { x: 5, y: 9, id: "agent", label: "Autonomy Badge", color: "#00e8a0" },
     npcs: [
       { x: 8, y: 17, name: "Fere.ai", role: "AI × Crypto · 2024-25", kind: "engineer", beat: "did",
@@ -474,7 +474,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     w: 26, h: 20,
     // Studio building top-left, speakers and record player scattered right
     building: { x: 1, y: 1, w: 9, h: 7, doorX: 4, color: "#c47844", roof: "#5a2c10" },
-    sign: { x: 19, y: 3, text: "CATS CAN DANCE\nMusic label · Pet-forward brand.\nNo brief. No client." },
+    sign: { x: -99, y: -99, text: "CATS CAN DANCE\nMusic label · Pet-forward brand.\nNo brief. No client." },
     badge: { x: 22, y: 15, id: "soul", label: "Soul Badge", color: "#ffd29a" },
     npcs: [
       { x: 3, y: 16, name: "Cats Can Dance", role: "Music label · Pet brand", kind: "client", beat: "did",
@@ -519,7 +519,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     w: 26, h: 20,
     // HQ building top-right with trophy wall; champion archway center; contact left
     building: { x: 15, y: 1, w: 10, h: 8, doorX: 4, color: "#4a8cc4", roof: "#1a3858" },
-    sign: { x: 2, y: 5, text: "ITERATE HQ\nAI-native marketing agency.\nFifteen years pointed at one target." },
+    sign: { x: -99, y: -99, text: "ITERATE HQ\nAI-native marketing agency.\nFifteen years pointed at one target." },
     badge: { x: 4, y: 15, id: "champion", label: "Champion Badge", color: "#7ce0ff" },
     npcs: [
       { x: 6, y: 17, name: "Iterate", role: "Founder · AI-native agency", kind: "engineer", beat: "did",
