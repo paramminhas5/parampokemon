@@ -6,6 +6,7 @@ import { drawStarter } from "@/game/sprites";
 import { CREATURE_URL, PLAYER_BACK_URL, getSprite, isReady } from "@/game/sprite-registry";
 import { playSound } from "@/lib/audio";
 
+// ─── Type colours ───────────────────────────────────────────────
 const TYPE_COLORS: Record<string, string> = {
   Vision:"#f5b78a",Search:"#a8d39a",Ops:"#f6a268",AI:"#9fe8ff",
   Capital:"#f0c4ff",Brand:"#ff9fd4",Autonomy:"#00e8a0",Soul:"#ffd29a",
@@ -15,43 +16,51 @@ const TYPE_COLORS: Record<string, string> = {
   Fighting:"#c03028",Sound:"#ff9fd4",
 };
 
+
+// ─── Zone-ground → arena background gradient ────────────────────
 const ARENA_BG: Record<string, string> = {
-  grass: "radial-gradient(ellipse at 50% 85%, #1a3d1a 0%, #2d6b2d 45%, #0a1a0a 100%)",
-  sand:  "radial-gradient(ellipse at 50% 85%, #3d2a0a 0%, #6b4a1a 45%, #1a0f05 100%)",
-  stone: "radial-gradient(ellipse at 50% 85%, #2a1808 0%, #5a2c0c 45%, #120a04 100%)",
-  neon:  "radial-gradient(ellipse at 50% 85%, #050e1f 0%, #0f2040 45%, #020810 100%)",
-  dusk:  "radial-gradient(ellipse at 50% 85%, #120820 0%, #2a1245 45%, #080412 100%)",
-  night: "radial-gradient(ellipse at 50% 85%, #020612 0%, #061228 45%, #010308 100%)",
-  mall:  "radial-gradient(ellipse at 50% 85%, #150620 0%, #26103a 45%, #0a0314 100%)",
-  crypto:"radial-gradient(ellipse at 50% 85%, #011008 0%, #022a15 45%, #010805 100%)",
-  studio:"radial-gradient(ellipse at 50% 85%, #160806 0%, #2d1510 45%, #0b0503 100%)",
-  snow:  "radial-gradient(ellipse at 50% 85%, #0d1825 0%, #1a3050 45%, #070d14 100%)",
+  grass:  "radial-gradient(ellipse at 50% 85%, #3d7a3a 0%, #5fb255 40%, #7ce0ff22 100%)",
+  sand:   "radial-gradient(ellipse at 50% 85%, #3d7a3a 0%, #5fb255 40%, #7ce0ff22 100%)",
+  stone:  "radial-gradient(ellipse at 50% 85%, #5a2c0c 0%, #a67855 40%, #f6a26822 100%)",
+  neon:   "radial-gradient(ellipse at 50% 85%, #0a1428 0%, #1f3548 40%, #9fe8ff22 100%)",
+  dusk:   "radial-gradient(ellipse at 50% 85%, #1a0a2a 0%, #3a2456 40%, #f0c4ff22 100%)",
+  night:  "radial-gradient(ellipse at 50% 85%, #020814 0%, #0b1830 40%, #7ce0ff22 100%)",
+  mall:   "radial-gradient(ellipse at 50% 85%, #1a0828 0%, #2a1238 40%, #ff9fd422 100%)",
+  crypto: "radial-gradient(ellipse at 50% 85%, #010f06 0%, #03331f 40%, #00e8a022 100%)",
+  studio: "radial-gradient(ellipse at 50% 85%, #1a0808 0%, #3a1c10 40%, #ffd29a22 100%)",
+  snow:   "radial-gradient(ellipse at 50% 85%, #0d1a2a 0%, #1e3048 40%, #98d8d822 100%)",
 };
 
+
+// ─── CSS keyframes (injected once) ─────────────────────────────
 const BATTLE_STYLES = `
 @keyframes attack-slash {
-  0%   { opacity:0.9; clip-path:polygon(0 0,100% 0,100% 100%,0 100%); }
-  100% { opacity:0;   clip-path:polygon(60% 0,100% 0,40% 100%,0 100%); }
-}
-@keyframes enemy-slash {
-  0%   { opacity:0.9; clip-path:polygon(0 0,100% 0,100% 100%,0 100%); }
-  100% { opacity:0;   clip-path:polygon(0 0,40% 0,100% 100%,60% 100%); }
+  0%   { opacity: 1; transform: scaleX(1.2); }
+  100% { opacity: 0; transform: scaleX(0.8); }
 }
 @keyframes sprite-enter-right {
-  0%   { transform:translateX(60px) scale(0.85); opacity:0; }
-  100% { transform:translateX(0) scale(1);       opacity:1; }
+  0%   { transform: translateX(80px); opacity: 0; }
+  100% { transform: translateX(0);    opacity: 1; }
 }
 @keyframes sprite-enter-left {
-  0%   { transform:translateX(-60px) scale(0.85); opacity:0; }
-  100% { transform:translateX(0) scale(1);        opacity:1; }
+  0%   { transform: translateX(-80px); opacity: 0; }
+  100% { transform: translateX(0);     opacity: 1; }
 }
-@keyframes log-super { 0%,100%{text-shadow:0 0 8px currentColor} 50%{text-shadow:0 0 22px currentColor,0 0 44px currentColor} }
-@keyframes hp-crit-flash { 0%,100%{opacity:1} 50%{opacity:0.35} }
-@keyframes battle-header-glow { 0%,100%{opacity:0.7} 50%{opacity:1} }
+@keyframes log-pulse {
+  0%, 100% { text-shadow: 0 0 6px currentColor; }
+  50%       { text-shadow: 0 0 14px currentColor, 0 0 28px currentColor; }
+}
+@keyframes move-btn-hover-glow {
+  0%   { opacity: 0.6; }
+  100% { opacity: 1; }
+}
 `;
 
 
-function HPBar({ current, max, label, color }: { current:number; max:number; label:string; color:string }) {
+// ─── HP Bar ─────────────────────────────────────────────────────
+function HPBar({ current, max, label, color }: {
+  current: number; max: number; label: string; color: string;
+}) {
   const pct = Math.max(0, current / max);
   const barColor = pct > 0.5 ? "#4ade80" : pct > 0.25 ? "#facc15" : "#ef4444";
   return (
@@ -67,6 +76,23 @@ function HPBar({ current, max, label, color }: { current:number; max:number; lab
           transition:"width 0.5s cubic-bezier(0.4,0,0.2,1)",
           boxShadow:`0 0 10px ${barColor}80`, borderRadius:3,
           animation: pct<=0.25 ? "hp-crit-flash 0.6s ease-in-out infinite" : "none",
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
+        <span style={{ fontFamily: "var(--font-pixel)", fontSize: 8, color }}>{label}</span>
+        <span style={{ fontFamily: "var(--font-pixel)", fontSize: 7, color: "#3a5070" }}>
+          {current}/{max}
+        </span>
+      </div>
+      <div style={{
+        height: 7, background: "#0d1527",
+        border: "1px solid rgba(255,255,255,0.1)", overflow: "hidden",
+        borderRadius: 2,
+      }}>
+        <div style={{
+          height: "100%", width: `${pct * 100}%`,
+          background: `linear-gradient(90deg, ${barColor}cc, ${barColor})`,
+          transition: "width 0.5s cubic-bezier(0.4,0,0.2,1)",
+          boxShadow: `0 0 8px ${barColor}90`,
+          borderRadius: 2,
         }} />
       </div>
     </div>
@@ -99,28 +125,115 @@ function MoveButton({ move, disabled, ppLeft, onClick }: { move:Move; disabled:b
           <div style={{ height:"100%", width:`${Math.min(100,move.power)}%`, background:off?"#1a2040":color, opacity:off?0.25:0.65, borderRadius:2 }} />
         </div>
         <span style={{ fontFamily:"var(--font-pixel)", fontSize:6, color:ppLeft<3?"#ef4444":"#2a3a50" }}>{ppLeft}/{move.pp}</span>
+
+// ─── Move Button ─────────────────────────────────────────────────
+function MoveButton({ move, disabled, ppLeft, onClick }: {
+  move: Move; disabled: boolean; ppLeft: number; onClick: () => void;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const color = TYPE_COLORS[move.type] ?? "#7ce0ff";
+  const out = ppLeft === 0;
+  const inactive = disabled || out;
+  const powerPct = Math.min(100, move.power) / 100;
+
+  return (
+    <button
+      onClick={onClick}
+      disabled={inactive}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        background: inactive
+          ? "#060c18"
+          : hovered
+            ? `linear-gradient(135deg, ${color}22 0%, ${color}0a 100%)`
+            : `linear-gradient(135deg, ${color}14 0%, ${color}06 100%)`,
+        border: `1px solid ${inactive ? "#1a2040" : hovered ? color + "90" : color + "50"}`,
+        color: inactive ? "#2a3a50" : "var(--color-dialog)",
+        padding: "10px 12px",
+        cursor: inactive ? "not-allowed" : "pointer",
+        textAlign: "left",
+        transition: "all 0.12s",
+        position: "relative",
+        boxShadow: (!inactive && hovered) ? `0 0 12px ${color}40` : "none",
+        borderRadius: 3,
+      }}
+    >
+      {/* Move name */}
+      <div style={{
+        fontFamily: "var(--font-pixel)", fontSize: 8,
+        color: inactive ? "#2a3a50" : color,
+        marginBottom: 4,
+        letterSpacing: "0.05em",
+      }}>
+        {move.name.toUpperCase()}
+      </div>
+      {/* Type pill + power bar row */}
+      <div style={{ display: "flex", gap: 5, alignItems: "center" }}>
+        {/* Type badge pill */}
+        <span style={{
+          fontFamily: "var(--font-pixel)", fontSize: 6,
+          background: inactive ? "#1a2040" : color + "22",
+          border: `1px solid ${inactive ? "#1a2040" : color + "50"}`,
+          padding: "2px 5px",
+          color: inactive ? "#2a3a50" : color,
+          borderRadius: 99,
+          letterSpacing: "0.04em",
+        }}>{move.type}</span>
+        {/* Power mini-bar */}
+        <div style={{ flex: 1, height: 3, background: "#0d1527", borderRadius: 2, overflow: "hidden" }}>
+          <div style={{
+            height: "100%", width: `${powerPct * 100}%`,
+            background: inactive ? "#1a2040" : color,
+            opacity: inactive ? 0.3 : 0.7,
+            borderRadius: 2,
+          }} />
+        </div>
+        <span style={{
+          fontFamily: "var(--font-pixel)", fontSize: 6,
+          color: ppLeft < 3 ? "#ef4444" : "#2a3a50",
+          marginLeft: 2,
+        }}>
+          {ppLeft}/{move.pp}
+        </span>
       </div>
     </button>
   );
 }
 
-function ArenaFloor({ accent }: { accent:string }) {
-  const id = "fg" + accent.replace(/[^a-zA-Z0-9]/g,"");
+
+// ─── Arena Floor SVG ─────────────────────────────────────────────
+function ArenaFloor({ accent }: { accent: string }) {
   return (
-    <svg style={{ position:"absolute", bottom:0, left:0, right:0, height:70, pointerEvents:"none" }} viewBox="0 0 400 70" preserveAspectRatio="none">
+    <svg
+      style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 60, pointerEvents: "none" }}
+      viewBox="0 0 400 60"
+      preserveAspectRatio="none"
+    >
+      {/* Diagonal perspective lines */}
+      {[0, 1, 2, 3, 4].map(i => (
+        <line key={i}
+          x1={i * 100} y1={0}
+          x2={i * 100 - 100} y2={60}
+          stroke={accent} strokeOpacity={0.12} strokeWidth={1}
+        />
+      ))}
+      {/* Horizontal depth lines */}
+      {[0, 1, 2, 3].map(i => (
+        <line key={`h${i}`}
+          x1={0} y1={i * 20}
+          x2={400} y2={i * 20}
+          stroke={accent} strokeOpacity={0.08} strokeWidth={0.5}
+        />
+      ))}
+      {/* Ground fade */}
       <defs>
-        <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id="floorFade" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={accent} stopOpacity="0" />
-          <stop offset="100%" stopColor={accent} stopOpacity="0.14" />
+          <stop offset="100%" stopColor={accent} stopOpacity="0.07" />
         </linearGradient>
       </defs>
-      <rect x="0" y="0" width="400" height="70" fill={`url(#${id})`} />
-      {[0,1,2,3,4,5].map(i=>(
-        <line key={i} x1={i*80} y1={0} x2={i*80-120} y2={70} stroke={accent} strokeOpacity={0.1} strokeWidth={0.8}/>
-      ))}
-      {[20,40,60].map(y=>(
-        <line key={y} x1={0} y1={y} x2={400} y2={y} stroke={accent} strokeOpacity={0.06} strokeWidth={0.5}/>
-      ))}
+      <rect x="0" y="0" width="400" height="60" fill="url(#floorFade)" />
     </svg>
   );
 }
@@ -156,6 +269,7 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee }: {
   const oppCreatureImg = oppCreatureUrl ? getSprite(oppCreatureUrl) : null;
   const myBackImg = getSprite(PLAYER_BACK_URL[stage.id] ?? PLAYER_BACK_URL.mermander);
 
+  // ─── Sprite animation loop ──────────────────────────────────────
   useEffect(() => {
     const loop = (now:number) => {
       if (meRef.current) {
@@ -177,6 +291,7 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee }: {
 
   useEffect(()=>{ logEndRef.current?.scrollIntoView({behavior:"smooth"}); },[log]);
 
+  // ─── Build move list ────────────────────────────────────────────
   const allMoves: Move[] = [
     ...stage.baseMoves,
     ...ZONES.filter(z=>z.skill&&ownedSkills.has(z.skill.id)).map(z=>({
@@ -252,6 +367,7 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee }: {
   },[animating,done,gym,stage,oppHp,myHp,turn,ppUsed,addLog,onWin]);
 
 
+  // ─── Render ─────────────────────────────────────────────────────
   return (
     <div style={{ position:"absolute",inset:0,zIndex:50,display:"flex",flexDirection:"column",background:`linear-gradient(180deg,${accent}0a 0%,#04080f 30%,#020508 100%)`,fontFamily:"var(--font-pixel)",overflow:"hidden" }}>
       <style>{BATTLE_STYLES}</style>
