@@ -17,6 +17,9 @@ import { PressModal } from "./PressModal";
 import { EvolutionCutscene, checkEvolution } from "./EvolutionCutscene";
 import { TransitionOverlay, type TransitionKind } from "./TransitionOverlay";
 import { ZoneAmbience } from "./ZoneAmbience";
+import { TitleScreen } from "./TitleScreen";
+import { VictoryMoment } from "./VictoryMoment";
+import { SkillLearnOverlay } from "./SkillLearnOverlay";
 import { playSound, setMuted, isMuted, loadMutePref } from "@/lib/audio";
 
 const INIT_W = 20 * TILE;
@@ -51,6 +54,12 @@ export function Game() {
   const [transition, setTransition] = useState<{ kind: TransitionKind; color: string; key: number } | null>(null);
   const transKeyRef = useRef(0);
 
+  // Phase 2: narrative state
+  const [titleDone, setTitleDone] = useState(false);
+  const [isFirstVisit, setIsFirstVisit] = useState(false);
+  const [victoryZone, setVictoryZone] = useState<Zone | null>(null);
+  const [skillLearnZone, setSkillLearnZone] = useState<{ zone: Zone; npcName: string } | null>(null);
+
   const [badges, setBadges] = useState<Set<string>>(new Set());
   const [creatures, setCreatures] = useState<Set<string>>(new Set());
   const [skills, setSkills] = useState<Set<string>>(new Set());
@@ -72,8 +81,18 @@ export function Game() {
         if (s.skills) setSkills(new Set(s.skills));
         if (s.defeated) setDefeated(new Set(s.defeated));
         if (s.visited) setVisited(new Set(s.visited));
+        // If they have a save, not a first visit
+        setIsFirstVisit(false);
+        setTitleDone(false); // still show title but skip professor
+      } else {
+        // Truly first visit — show full title + professor intro
+        setIsFirstVisit(true);
+        setTitleDone(false);
       }
-    } catch {}
+    } catch {
+      setIsFirstVisit(true);
+      setTitleDone(false);
+    }
   }, []);
 
   // Save on change
@@ -93,7 +112,7 @@ export function Game() {
     toastTimer.current = setTimeout(() => setToast(null), 2800);
   }, []);
 
-  const isModalOpen = !!(dialog || menuOpen || bagOpen || cliffOpen || mapOpen || worldSelectOpen || battle || battleIntro || catchModal || contactOpen || pressOpen || evolution);
+  const isModalOpen = !!(dialog || menuOpen || bagOpen || cliffOpen || mapOpen || worldSelectOpen || battle || battleIntro || catchModal || contactOpen || pressOpen || evolution || victoryZone || skillLearnZone || !titleDone);
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -111,7 +130,8 @@ export function Game() {
               if (prev.has(i.zone.skill!.id)) return prev;
               const n = new Set(prev); n.add(i.zone.skill!.id);
               engine.addSkill(i.zone.skill!.id);
-              showToast(`✦ LEARNED ${i.zone.skill!.name.toUpperCase()}`, i.zone.skill!.description);
+              // Show rich skill learn overlay instead of just a toast
+              setSkillLearnZone({ zone: i.zone, npcName: i.npc.name });
               return n;
             });
           }
@@ -190,6 +210,13 @@ export function Game() {
 
   function handleBattleWin(zone: Zone) {
     setBattle(null);
+    // Show victory moment overlay FIRST, then award badge after player clicks continue
+    setVictoryZone(zone);
+    engineRef.current?.setPaused(true);
+  }
+
+  function handleVictoryContinue(zone: Zone) {
+    setVictoryZone(null);
     engineRef.current?.markGymDefeated(zone.id, zone.badge.id);
     const prevBadgeCount = badges.size;
     setBadges(prev => { const n = new Set(prev); n.add(zone.badge.id); return n; });
@@ -305,6 +332,18 @@ export function Game() {
 
         {/* Zone ambient overlay */}
         <ZoneAmbience ground={currentZone.theme.ground} accent={currentZone.theme.accent} />
+
+        {/* Title screen — shown first, gates WorldSelect */}
+        {!titleDone && (
+          <TitleScreen
+            isFirstVisit={isFirstVisit}
+            onComplete={() => {
+              setTitleDone(true);
+              // After title, always open WorldSelect
+              setWorldSelectOpen(true);
+            }}
+          />
+        )}
 
         {/* HUD — TOP */}
         <div style={{
@@ -440,7 +479,7 @@ export function Game() {
         )}
 
         {/* Overlays */}
-        {worldSelectOpen && (
+        {titleDone && worldSelectOpen && (
           <WorldSelect
             onSelect={handleWarp}
             onClose={() => { setWorldSelectOpen(false); engineRef.current?.setPaused(false); }}
@@ -489,6 +528,26 @@ export function Game() {
               setEvolution(null);
               engineRef.current?.setPaused(false);
               engineRef.current?.setPlayerStage(evolution.to.id);
+            }}
+          />
+        )}
+
+        {/* Victory moment — shown after gym win, before badge award */}
+        {victoryZone && (
+          <VictoryMoment
+            zone={victoryZone}
+            onContinue={() => handleVictoryContinue(victoryZone)}
+          />
+        )}
+
+        {/* Skill learn overlay — replaces toast for skill berry discovery */}
+        {skillLearnZone && (
+          <SkillLearnOverlay
+            zone={skillLearnZone.zone}
+            npcName={skillLearnZone.npcName}
+            onClose={() => {
+              setSkillLearnZone(null);
+              showToast(`✦ ${skillLearnZone.zone.skill!.name.toUpperCase()} READY`, "Use it in battle");
             }}
           />
         )}
