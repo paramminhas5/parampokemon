@@ -1,5 +1,13 @@
 #!/usr/bin/env python3
-"""Batch sprite generator for Param Quest — regenerate all creatures + leaders via Fal AI."""
+"""
+Generate all creature + gym leader sprites for Param Quest via Fal AI.
+
+Uses fal-ai/flux/dev (highest quality).
+All sprites are Pokémon-style pixel art battle sprites.
+
+Usage:
+  FAL_KEY=your_key python3 generate_all_sprites.py
+"""
 import os, sys, subprocess, fal_client
 
 SPRITE_DIR = os.path.expanduser("~/parampokemon/public/sprites")
@@ -13,178 +21,213 @@ os.environ["FAL_KEY"] = key
 def dl(url, path):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     subprocess.run(["curl", "-s", "-o", path, url], check=True)
-    return os.path.getsize(path)
+    size = os.path.getsize(path)
+    print(f"  ✅ {size:,} bytes → {path}")
+    return size
 
 def on_queue_update(update):
     if isinstance(update, fal_client.InProgress):
         for log in update.logs:
-            print(f"  [fal] {log['message'].strip()}")
+            msg = log.get("message", "").strip()
+            if msg:
+                print(f"  [fal] {msg}")
 
-def gen(prompt: str, out_path: str):
-    print(f"\n🎨 {os.path.basename(out_path)}")
-    result = fal_client.subscribe(
-        "fal-ai/nano-banana-2",
-        arguments={"prompt": prompt},
-        with_logs=True,
-        on_queue_update=on_queue_update,
-    )
-    url = result["images"][0]["url"]
-    size = dl(url, out_path)
-    print(f"  ✅ saved {size:,} bytes → {out_path}")
+def gen(label, prompt, out_path):
+    print(f"\n🎨 {label}")
+    try:
+        result = fal_client.subscribe(
+            "fal-ai/flux/dev",
+            arguments={
+                "prompt": prompt,
+                "image_size": "square_hd",
+                "num_inference_steps": 28,
+                "guidance_scale": 3.5,
+                "num_images": 1,
+                "enable_safety_checker": False,
+            },
+            with_logs=True,
+            on_queue_update=on_queue_update,
+        )
+        url = result["images"][0]["url"]
+        dl(url, out_path)
+    except Exception as e:
+        print(f"  ❌ flux/dev error: {e}. Trying nano-banana-2...")
+        try:
+            result = fal_client.subscribe(
+                "fal-ai/nano-banana-2",
+                arguments={"prompt": prompt},
+                with_logs=False,
+                on_queue_update=lambda u: None,
+            )
+            url = result["images"][0]["url"]
+            dl(url, out_path)
+        except Exception as e2:
+            print(f"  ❌ Fallback failed: {e2}")
+
+# ─── Shared style tags ───────────────────────────────────────────────────────
+CREATURE_STYLE = (
+    "Pokémon-style RPG creature battle sprite. "
+    "Classic 16-bit pixel art, crisp clean outlines, vibrant limited color palette, "
+    "cute stylized monster proportions, single creature centered on plain dark background, "
+    "no text, no UI, facing slightly left in classic Pokémon battle pose. "
+    "High contrast, clean pixel edges, expressive eyes."
+)
+
+LEADER_STYLE = (
+    "Pokémon-style RPG gym leader battle sprite, facing the viewer in battle stance. "
+    "Classic 16-bit pixel art, crisp clean outlines, vibrant limited color palette, "
+    "full human figure (head to feet), confident battle expression, "
+    "single character centered on plain dark background, no text, no UI, "
+    "high contrast, clean pixel edges. Pokémon FireRed/HeartGold art style."
+)
+
+NEG = (
+    "photo-realistic, blurry, noisy, watermark, text, low quality, "
+    "multiple characters, background details, UI elements, 3d render"
+)
 
 SPRITES = [
 
-  # ── CREATURES (9) ───────────────────────────────────────────────
+  # ── CREATURES (9 zones) ──────────────────────────────────────────────────────
+
   ("creatures/origin.png",
-   "Pixel art RPG creature sprite, a glowing flame-wisp spirit with a wispy flame body "
-   "in warm amber #f5b78a and bright yellow core, two large luminous eyes, small trailing flame tendrils, "
-   "floating above ground with heat radiating shimmer. Dark warm background. "
-   "Limited color palette: burnt orange, amber, golden yellow, dark brown shadow. "
-   "Clean pixel art outlines, RPG creature proportions."),
+   "Origin — Spark",
+   f"A glowing star-burst vision spirit creature. Warm golden amber body ({chr(35)}f5b78a) shaped like a "
+   f"cross/star with a bright white-yellow glowing core. Large luminous sparkle eyes. "
+   f"Radiating warmth and energy, four short pointed limbs, tiny flame wisps at tips. "
+   f"Name: Sparkling. Type: Vision. Dark warm background. {CREATURE_STYLE}"),
 
   ("creatures/grp.png",
-   "Pixel art RPG creature sprite, a giant multi-legged web crawler spider-robot in forest green #7ac46a "
-   "and dark green, six articulated legs, multiple compound glowing eyes, trailing affiliate tag legs, "
-   "an armored carapace marked with price tags and dollar signs in pixel detail. "
-   "Dark green background shadow. "
-   "Limited palette: bright green, dark green, yellow accents, dark shadow tones. "
-   "Clean pixel art outlines, RPG creature proportions."),
+   "GRP — Crawler",
+   f"A web-crawler spider-robot creature. Forest green ({chr(35)}7ac46a) armored carapace body, "
+   f"six articulated mechanical legs with data-cable tendril ends, "
+   f"six compound glowing yellow-green eyes, small price-tag icons embedded on shell, "
+   f"affiliate links dangling as extra antennae. Dark background. {CREATURE_STYLE}"),
 
   ("creatures/hab.png",
-   "Pixel art RPG creature sprite, a massive heavy rhinoceros-like construct made of stone bricks and mortar "
-   "in warm reddish-brown #c47833, sturdy four-legged stance, armored hide made of stacked bricks, "
-   "one small glowing gold HUD light on its chest representing rent payment, small glowing windows for eyes. "
-   "Dark stone ground background. "
-   "Limited palette: brick red-brown, gold, dark shadow, mortar grey. "
-   "Clean pixel art outlines, RPG creature proportions."),
+   "Hab — Opsros (Rhino)",
+   f"A heavy armored rhinoceros creature made of warm terracotta brick and mortar ({chr(35)}c47833). "
+   f"Stocky powerful four-legged stance, hide made of stacked bricks with mortar lines, "
+   f"a single glowing golden horn, small warm yellow windows for eyes. "
+   f"Operator vibe — reliable and sturdy. Dark stone background. {CREATURE_STYLE}"),
 
   ("creatures/ai.png",
-   "Pixel art RPG creature sprite, a sleek sentient AI chatbot bot in glowing electric cyan #9fe8ff "
-   "and deep navy blue, faceted glass head with a glowing chat window inside, circuit-trace body, "
-   "two floating holographic interface hands, standing pose on a subtle circuit-floor. "
-   "Dark navy background with subtle light glow. "
-   "Limited palette: electric cyan, deep navy, bright white highlights, subtle purple. "
-   "Clean pixel art outlines, RPG creature proportions."),
+   "AI — Bottoflux",
+   f"A sleek AI chatbot creature in electric cyan ({chr(35)}9fe8ff) and deep navy. "
+   f"Smooth faceted crystalline head with a glowing blue chat-message window inside, "
+   f"circuit-trace body with flowing energy lines, two floating holographic interface hands. "
+   f"Intelligent and futuristic. Dark navy background with circuit glow. {CREATURE_STYLE}"),
 
   ("creatures/investopad.png",
-   "Pixel art RPG creature sprite, a majestic financial growth-falcon made of polished dark navy #f0c4ff "
-   "and shimmering gold, wide wings spread showing deal-flow graphs and circuit patterns, "
-   "sharp intelligent eyes, talons gripping a glowing golden coin. "
-   "Dark dusk background with subtle purple aurora. "
-   "Limited palette: deep purple, gold, white highlights, dark shadow. "
-   "Clean pixel art outlines, RPG creature proportions."),
+   "Investopad — Capitalcon",
+   f"A majestic capital falcon bird creature in deep purple ({chr(35)}f0c4ff) and gold. "
+   f"Wide wings spread showing deal-flow bar chart patterns and deal memo lines, "
+   f"sharp intelligent eyes, gold-tipped feathers, talons gripping a glowing golden coin stack. "
+   f"Regal powerful venture energy. Dark purple dusk background. {CREATURE_STYLE}"),
 
   ("creatures/sole.png",
-   "Pixel art RPG creature sprite, a sleek streetwear lynx-sneaker beast, hot pink #ff9fd4 body "
-   "with white fur highlights, oversized exaggerated sneaker feet, sharp confident eyes, "
-   "stylized brand logo markings on chest and forehead, a chain necklace with a sneaker pendant. "
-   "Dark mall floor background. "
-   "Limited palette: hot pink, white, subtle purple, dark background. "
-   "Clean pixel art outlines, RPG creature proportions."),
+   "Sole — Sneakynx",
+   f"A streetwear lynx-cat creature, hot pink ({chr(35)}ff9fd4) body with white fur belly, "
+   f"oversized exaggerated sneaker feet and paws, sharp confident squinting eyes, "
+   f"brand logo markings on chest, hype culture energy. "
+   f"Cool and stylish. Dark mall floor background. {CREATURE_STYLE}"),
 
   ("creatures/fere.png",
-   "Pixel art RPG creature sprite, an autonomous AI agent wisp in glowing neon green #00e8a0 "
-   "and dark green, a translucent ethereal humanoid form made of flowing light and code, "
-   "a glowing terminal/code window on its chest, eyes like green data streams, "
-   "tiny orbiting data-symbols around it. "
-   "Dark crypto circuit-board background. "
-   "Limited palette: neon green, dark green, white highlights, deep black-green. "
-   "Clean pixel art outlines, RPG creature proportions."),
+   "Fere — Agentwisp",
+   f"An autonomous AI agent wisp creature in neon mint green ({chr(35)}00e8a0). "
+   f"Translucent ethereal humanoid form made of flowing light and scrolling code text, "
+   f"a glowing green terminal window on its chest, eyes like bright data-streams, "
+   f"tiny orbiting data symbols and crypto tokens around it. "
+   f"Dark crypto PCB board background. {CREATURE_STYLE}"),
 
   ("creatures/ccd.png",
-   "Pixel art RPG creature sprite, a smooth disc-wearing cat music producer in warm golden #ffd29a "
-   "and beige, sitting coolly with oversized DJ headphones, a vinyl record disc on its body, "
-   "half-open eyes, a tiny glowing speaker next to it. "
-   "Dark studio parquet floor background. "
-   "Limited palette: warm gold, beige, orange highlight, dark warm shadow. "
-   "Clean pixel art outlines, RPG creature proportions."),
+   "CCD — Discocat",
+   f"A cool cat creature wearing oversized DJ headphones, warm golden ({chr(35)}ffd29a) and beige, "
+   f"sitting coolly with a vinyl record disc incorporated in its body, "
+   f"half-lidded knowing eyes, tiny glowing speaker next to it, "
+   f"musical note tail curling up. Soul creative energy. Dark studio background. {CREATURE_STYLE}"),
 
   ("creatures/iterate.png",
-   "Pixel art RPG creature sprite, a digital iteration spirit fox made of flowing light数据和电路 patterns, "
-   "glowing cyan and electric blue core with white highlights, wispy tail of pure light, "
-   "sharp intelligent eyes, circuit-trace markings on its body. Floating slightly off the ground. "
-   "Dark navy background with subtle glow. "
-   "Limited palette: electric cyan, bright white, dark navy outlines, subtle purple accents. "
-   "Clean pixel art outlines, RPG creature proportions."),
+   "Iterate — Iteratron (Core)",
+   f"A digital iteration spirit fox, glowing electric cyan ({chr(35)}7ce0ff) and bright white, "
+   f"geometric faceted crystal body with flowing data-stream tails, "
+   f"circuit-trace markings, sharp intelligent eyes, floating slightly off ground, "
+   f"aura of stacked hexagon data-layers surrounding it. "
+   f"Champion energy — powerful and elegant. Dark navy background. {CREATURE_STYLE}"),
 
-  # ── GYM LEADERS (regenerate all 9 for consistency) ──────────────
+
+  # ── GYM LEADERS (9) ──────────────────────────────────────────────────────────
+
   ("leaders/blankpage.png",
-   "Pixel art RPG battle sprite, a ghostly pale figure with flowing translucent hair, "
-   "wearing a crimson beret and dark artist clothes, standing behind a large white blank canvas "
-   "held in front like a shield. Pale skin, dark shadowy cape, determined blank stare expression. "
-   "Standing pose facing viewer. Dark muted background. "
-   "Limited palette: ghost white, crimson red beret, charcoal dark clothes, shadow purple. "
-   "Clean pixel art outlines, RPG battle sprite proportions."),
+   "Leader: The Blank Page",
+   f"Gym leader: ghostly pale artist holding a blank white canvas shield. "
+   f"Dark moody artist outfit — flowing dark cape, crimson beret, pale skin, dark hollow eyes, "
+   f"expressive dramatic posture, holding the blank canvas in front. "
+   f"Eerie creative dread energy. Dark muted grey background. {LEADER_STYLE}"),
 
   ("leaders/longtail.png",
-   "Pixel art RPG battle sprite, a merchant with warm brown skin, styled brown hair, "
-   "wearing a bright green merchant apron over dark pants, a price-tag belt with glowing yellow tags, "
-   "holding a large golden ledger in one hand. Friendly but sharp-eyed expression. "
-   "Standing pose facing viewer. Warm market background. "
-   "Limited palette: bright green, golden yellow, warm brown skin, dark pants. "
-   "Clean pixel art outlines, RPG battle sprite proportions."),
+   "Leader: The Long Tail",
+   f"Gym leader: energetic young e-commerce merchant in bright green. "
+   f"Warm skin, styled hair, bright green merchant vest over white shirt, "
+   f"yellow price-tag belt with glowing tags, holding a golden ledger open, "
+   f"confident excited expression. Market energy. {LEADER_STYLE}"),
 
   ("leaders/zerorunway.png",
-   "Pixel art RPG battle sprite, a stern landlord figure with warm skin, short black hair, "
-   "wearing a dark warm brown suit with a black tie, holding a large set of golden keys hanging from one hand, "
-   "wearing a classic bowler hat. Serious authoritative expression. "
-   "Standing pose facing viewer. Office warm lighting background. "
-   "Limited palette: dark brown suit, black bowler hat, gold keys, warm skin. "
-   "Clean pixel art outlines, RPG battle sprite proportions."),
+   "Leader: Zero Runway",
+   f"Gym leader: stern bootstrapped founder in a dark warm brown suit. "
+   f"Short black hair, classic dark bowler hat, dark brown business suit, black tie, "
+   f"holding a large golden key ring in one hand, serious authoritative expression, "
+   f"real-estate operator energy. {LEADER_STYLE}"),
 
   ("leaders/prehype.png",
-   "Pixel art RPG battle sprite, a scientist in a crisp white lab coat with blue lapels, "
-   "dark hair, wearing glowing cyan swim-goggles pushed up on forehead like a headband, "
-   "a small blue bowtie, holding a glowing test tube in one hand. Confident eager expression. "
-   "Standing pose facing viewer. Lab tech background with faint circuits. "
-   "Limited palette: white coat, cyan goggles, dark hair, blue lapels, teal glow. "
-   "Clean pixel art outlines, RPG battle sprite proportions."),
+   "Leader: Pre-Hype Market",
+   f"Gym leader: an excited AI researcher in a white lab coat. "
+   f"Dark hair, glowing cyan goggle-glasses pushed up on forehead, blue lapels on coat, "
+   f"holding a glowing electric blue test tube, small blue bowtie, eager confident expression. "
+   f"Pre-AI-boom energy — early believer. {LEADER_STYLE}"),
 
   ("leaders/termsheet.png",
-   "Pixel art RPG battle sprite, a sharp-dressed VC in a dark navy nearly-black suit, "
-   "holding a large white term sheet document in one hand, wearing dark-framed glasses, "
-   "pink pocket square on chest, dark polished shoes. Cool calculating expression. "
-   "Standing pose facing viewer. Boardroom dark background. "
-   "Limited palette: dark navy, near-black suit, white document, pink accent, silver glasses. "
-   "Clean pixel art outlines, RPG battle sprite proportions."),
+   "Leader: Term Sheet",
+   f"Gym leader: sharp power-broker VC investor in dark navy almost-black suit. "
+   f"Dark-framed glasses, slicked-back hair, pink pocket square, "
+   f"holding a large white term sheet document, cool calculating expression, "
+   f"one eyebrow raised in challenge. Boardroom energy. {LEADER_STYLE}"),
 
   ("leaders/noculture.png",
-   "Pixel art RPG battle sprite, a streetwear skeptic with warm tan skin, "
-   "wearing a hot pink oversized hoodie with dark pants and white high sneakers, "
-   "a gold chain necklace visible, dark baseball cap pulled low, dark sunglasses. "
-   "Arms crossed confidently. Cool skeptical expression. "
-   "Standing pose facing viewer. Urban street dark background. "
-   "Limited palette: hot pink hoodie, dark pants, gold chain, white sneakers, tan skin. "
-   "Clean pixel art outlines, RPG battle sprite proportions."),
+   "Leader: No Sneaker Culture",
+   f"Gym leader: streetwear skeptic in an oversized hot pink hoodie. "
+   f"Warm tan skin, dark baseball cap pulled low, dark sunglasses, "
+   f"gold chain necklace, white high sneakers with dark pants, "
+   f"arms crossed confidently with a smirk. Hype-culture energy. {LEADER_STYLE}"),
 
   ("leaders/blackbox.png",
-   "Pixel art RPG battle sprite, a hooded faceless crypto-figure entirely wrapped in a dark navy hooded cloak, "
-   "face hidden in deep shadow, only two glowing bright green phosphor eyes visible in the void of the hood, "
-   "a small glowing green ticker-tape on the chest showing price data, hooded silhouette standing tall. "
-   "Standing pose facing viewer. Dark crypto grid background. "
-   "Limited palette: dark navy cloak, bright glowing green eyes, brighter green ticker, near-black shadow. "
-   "Clean pixel art outlines, RPG battle sprite proportions."),
+   "Leader: The Black Box",
+   f"Gym leader: mysterious faceless crypto figure in a dark hooded cloak. "
+   f"Entire figure cloaked in deep dark navy, face completely hidden in shadow, "
+   f"only two intensely bright glowing green phosphor-dot eyes visible in the void hood, "
+   f"a glowing green price ticker on the chest, tall ominous silhouette. "
+   f"Invisible autonomous AI energy. Dark background. {LEADER_STYLE}"),
 
   ("leaders/nobrief.png",
-   "Pixel art RPG battle sprite, a sleek corporate manager with warm skin, warm reddish-brown short hair, "
-   "wearing a crisp deep blue button-up shirt with red tie, holding a large tan clipboard against chest, "
-   "dark pants and black shoes. Angry determined expression with furrowed brow. "
-   "Standing pose facing viewer. Corporate office background. "
-   "Limited palette: deep blue shirt, red tie, tan clipboard, dark pants, warm skin. "
-   "Clean pixel art outlines, RPG battle sprite proportions."),
+   "Leader: No Brief",
+   f"Gym leader: frustrated corporate manager in a deep blue button shirt. "
+   f"Warm skin, neat reddish-brown hair, deep blue shirt with red tie, "
+   f"holding a large tan clipboard tight to their chest, "
+   f"angry furrowed brow expression, looking for a brief that doesn't exist. "
+   f"Creative/client energy. {LEADER_STYLE}"),
 
   ("leaders/statusquo.png",
-   "Pixel art RPG battle sprite, regal king warrior figure wearing ornate dark steel plate armor, "
-   "flowing deep crimson red cape, a three-spike golden crown on head, "
-   "holding an ornate golden scepter in left hand, right hand in power fist, "
-   "facing forward in wide combat stance. Angry brow, intense regal expression. "
-   "Dark steel armour, crimson cape, gold crown and scepter. "
-   "Limited palette: dark steel grey, crimson red cape, gold accents, flesh tone face. "
-   "Clean pixel art outlines, RPG battle sprite proportions."),
+   "Leader: The Status Quo (Champion)",
+   f"Final champion: regal armored king warrior in dark steel plate armor. "
+   f"Ornate dark steel full plate armor with engravings, flowing deep crimson cape, "
+   f"a gleaming three-spike golden crown, holding a ornate golden scepter, "
+   f"power fist raised, wide combat stance, intense regal expression. "
+   f"Final boss champion energy — imposing and powerful. {LEADER_STYLE}"),
 ]
 
-for path, prompt in SPRITES:
-    out = f"{SPRITE_DIR}/{path}"
-    gen(prompt, out)
+print(f"🚀 Generating {len(SPRITES)} sprites (fal-ai/flux/dev)...\n")
+for path, label, prompt in SPRITES:
+    gen(label, prompt, f"{SPRITE_DIR}/{path}")
 
-print(f"\n✅ All {len(SPRITES)} sprites generated!")
+print(f"\n✅ Done! {len(SPRITES)} sprites generated.")
+print(f"📁 Saved to: {SPRITE_DIR}/")

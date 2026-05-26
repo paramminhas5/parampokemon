@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" shape-rendering="crispEdges">
+  <!-- Pokeball - clean pixel art -->
+  <!-- Outer ring (dark border) -->
+  <rect x="10" y="1" width="12" height="2" fill="#2a2a2a"/>
+  <rect x="6" y="3" width="4" height="2" fill="#2a2a2a"/>
+  <rect x="22" y="3" width="4" height="2" fill="#2a2a2a"/>
+  <rect x="4" y="5" width="2" height="4" fill="#2a2a2a"/>
+  <rect x="26" y="5" width="2" height="4" fill="#2a2a2a"/>
+  <rect x="3" y="9" width="2" height="6" fill="#2a2a2a"/>
+  <rect x="27" y="9" width="2" height="6" fill="#2a2a2a"/>
+  <rect x="3" y="17" width="2" height="6" fill="#2a2a2a"/>
+  <rect x="27" y="17" width="2" height="6" fill="#2a2a2a"/>
+  <rect x="4" y="23" width="2" height="4" fill="#2a2a2a"/>
+  <rect x="26" y="23" width="2" height="4" fill="#2a2a2a"/>
+  <rect x="6" y="27" width="4" height="2" fill="#2a2a2a"/>
+  <rect x="22" y="27" width="4" height="2" fill="#2a2a2a"/>
+  <rect x="10" y="29" width="12" height="2" fill="#2a2a2a"/>
+  <!-- Top half - red -->
+  <rect x="10" y="3" width="12" height="2" fill="#e03030"/>
+  <rect x="6" y="5" width="20" height="2" fill="#e03030"/>
+  <rect x="5" y="7" width="22" height="2" fill="#e03030"/>
+  <rect x="5" y="9" width="22" height="6" fill="#e03030"/>
+  <!-- Red highlights (top-left) -->
+  <rect x="7" y="5" width="8" height="2" fill="#f05050"/>
+  <rect x="6" y="7" width="10" height="3" fill="#f05050"/>
+  <!-- Middle band - dark -->
+  <rect x="3" y="15" width="26" height="2" fill="#2a2a2a"/>
+  <!-- Bottom half - white -->
+  <rect x="5" y="17" width="22" height="6" fill="#f0f0f0"/>
+  <rect x="5" y="23" width="22" height="2" fill="#f0f0f0"/>
+  <rect x="6" y="25" width="20" height="2" fill="#f0f0f0"/>
+  <rect x="10" y="27" width="12" height="2" fill="#f0f0f0"/>
+  <!-- White shade (bottom-right) -->
+  <rect x="18" y="23" width="8" height="2" fill="#d8d8d8"/>
+  <rect x="20" y="19" width="6" height="4" fill="#d8d8d8"/>
+  <!-- Center button ring (dark) -->
+  <rect x="12" y="14" width="8" height="4" fill="#2a2a2a"/>
+  <rect x="11" y="15" width="10" height="2" fill="#2a2a2a"/>
+  <!-- Center button (white) -->
+  <rect x="13" y="14" width="6" height="4" fill="#e8e8e8"/>
+  <rect x="12" y="15" width="8" height="2" fill="#e8e8e8"/>
+  <!-- Center button highlight -->
+  <rect x="13" y="14" width="3" height="2" fill="#ffffff"/>
+</svg>

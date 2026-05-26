@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" shape-rendering="crispEdges">
+  <!-- Warm golden hour sky -->
+  <rect width="64" height="64" fill="#f0a840"/>
+  <rect width="64" height="20" fill="#e08030"/>
+  <!-- Ground - warm parquet -->
+  <rect x="0" y="54" width="64" height="10" fill="#5a2c14"/>
+  <rect x="0" y="54" width="64" height="2" fill="#6a3a20"/>
+  <rect x="0" y="58" width="64" height="1" fill="#3a1808"/>
+  <!-- Studio building -->
+  <rect x="6" y="22" width="40" height="34" fill="#c47844"/>
+  <!-- Wood paneling lines -->
+  <rect x="6" y="28" width="40" height="1" fill="#a06030" opacity="0.4"/>
+  <rect x="6" y="34" width="40" height="1" fill="#a06030" opacity="0.4"/>
+  <rect x="6" y="40" width="40" height="1" fill="#a06030" opacity="0.4"/>
+  <rect x="6" y="46" width="40" height="1" fill="#a06030" opacity="0.4"/>
+  <!-- Roof -->
+  <rect x="4" y="16" width="44" height="8" fill="#7a3818"/>
+  <rect x="4" y="16" width="44" height="2" fill="#5a2810"/>
+  <!-- Chimney / stovepipe -->
+  <rect x="34" y="10" width="5" height="8" fill="#6a3010"/>
+  <!-- String lights across eave -->
+  <rect x="4" y="17" width="44" height="1" fill="#888" opacity="0.5"/>
+  <circle cx="8"  cy="17" r="1.5" fill="#fffcaa" opacity="0.95"/>
+  <circle cx="14" cy="17" r="1.5" fill="#ffb8c8" opacity="0.95"/>
+  <circle cx="20" cy="17" r="1.5" fill="#fffcaa" opacity="0.95"/>
+  <circle cx="26" cy="17" r="1.5" fill="#b8ffb8" opacity="0.95"/>
+  <circle cx="32" cy="17" r="1.5" fill="#fffcaa" opacity="0.95"/>
+  <circle cx="38" cy="17" r="1.5" fill="#ffb8c8" opacity="0.95"/>
+  <circle cx="44" cy="17" r="1.5" fill="#fffcaa" opacity="0.95"/>
+  <!-- Studio window: warm glow -->
+  <rect x="9" y="26" width="16" height="12" fill="#1a0a06"/>
+  <rect x="10" y="27" width="14" height="10" fill="#f5a830" opacity="0.7"/>
+  <rect x="10" y="27" width="14" height="10" fill="#ffe090" opacity="0.3"/>
+  <!-- Record vinyl in window -->
+  <circle cx="17" cy="32" r="5" fill="#0a0a0a"/>
+  <circle cx="17" cy="32" r="2" fill="#ffd29a"/>
+  <circle cx="17" cy="32" r="1" fill="#0a0a0a"/>
+  <!-- Music note sign -->
+  <rect x="30" y="26" width="12" height="8" fill="#3a1808"/>
+  <rect x="30" y="26" width="12" height="1" fill="#ffd29a"/>
+  <rect x="31" y="27" width="10" height="6" fill="#2a1008"/>
+  <!-- ♪ pixel note -->
+  <rect x="34" y="28" width="1" height="4" fill="#ffd29a"/>
+  <rect x="34" y="28" width="3" height="1" fill="#ffd29a"/>
+  <rect x="36" y="28" width="1" height="3" fill="#ffd29a"/>
+  <!-- Door with cat -->
+  <rect x="20" y="44" width="10" height="12" fill="#5a2810"/>
+  <rect x="21" y="45" width="8" height="10" fill="#3a1808"/>
+  <circle cx="28" cy="51" r="1" fill="#f5d24a"/>
+  <!-- Sleeping cat on mat -->
+  <rect x="16" y="54" width="12" height="5" fill="#ffd29a"/>
+  <rect x="16" y="52" width="3" height="3" fill="#ffd29a"/>
+  <rect x="24" y="52" width="3" height="3" fill="#ffd29a"/>
+  <rect x="18" y="54" width="1" height="1" fill="#0a0a0a"/>
+  <rect x="23" y="54" width="1" height="1" fill="#0a0a0a"/>
+  <!-- Speaker on right side -->
+  <rect x="48" y="28" width="12" height="18" fill="#1a0a06"/>
+  <rect x="48" y="28" width="12" height="1" fill="#ffd29a"/>
+  <circle cx="54" cy="34" r="4" fill="#2a1008"/>
+  <circle cx="54" cy="34" r="2" fill="#0a0a0a"/>
+  <circle cx="54" cy="42" r="2" fill="#0a0a0a"/>
+  <!-- Warm floor glow -->
+  <ellipse cx="26" cy="56" rx="18" ry="2" fill="#f5d24a" opacity="0.12"/>
+</svg>

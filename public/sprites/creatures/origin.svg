@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" shape-rendering="crispEdges">
+  <!-- Sparkling — Vision spirit, warm amber star shape -->
+  <!-- Glow aura -->
+  <circle cx="24" cy="24" r="18" fill="#f5b78a" opacity="0.15"/>
+  <circle cx="24" cy="24" r="12" fill="#f5d24a" opacity="0.12"/>
+  <!-- Shadow -->
+  <ellipse cx="24" cy="42" rx="10" ry="2" fill="#000" opacity="0.25"/>
+  <!-- Star body - cross shape -->
+  <rect x="20" y="10" width="8" height="28" fill="#f5b78a"/>
+  <rect x="10" y="20" width="28" height="8" fill="#f5b78a"/>
+  <!-- Diagonal arms -->
+  <rect x="14" y="14" width="6" height="6" fill="#f5b78a"/>
+  <rect x="28" y="14" width="6" height="6" fill="#f5b78a"/>
+  <rect x="14" y="28" width="6" height="6" fill="#f5b78a"/>
+  <rect x="28" y="28" width="6" height="6" fill="#f5b78a"/>
+  <!-- Core glow center -->
+  <rect x="18" y="18" width="12" height="12" fill="#ffe090"/>
+  <rect x="20" y="20" width="8" height="8" fill="#fff8e0"/>
+  <!-- Eyes -->
+  <rect x="20" y="21" width="3" height="3" fill="#3a2010"/>
+  <rect x="25" y="21" width="3" height="3" fill="#3a2010"/>
+  <rect x="21" y="21" width="1" height="1" fill="#fff"/>
+  <rect x="26" y="21" width="1" height="1" fill="#fff"/>
+  <!-- Sparkle tips -->
+  <rect x="23" y="7" width="2" height="3" fill="#ffd24a"/>
+  <rect x="23" y="38" width="2" height="3" fill="#ffd24a"/>
+  <rect x="7" y="23" width="3" height="2" fill="#ffd24a"/>
+  <rect x="38" y="23" width="3" height="2" fill="#ffd24a"/>
+  <!-- Tiny sparkles orbiting -->
+  <rect x="13" y="10" width="2" height="2" fill="#fff8a0"/>
+  <rect x="33" y="10" width="2" height="2" fill="#fff8a0"/>
+  <rect x="10" y="33" width="2" height="2" fill="#ffe090"/>
+  <rect x="36" y="33" width="2" height="2" fill="#ffe090"/>
+</svg>

@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" shape-rendering="crispEdges">
+  <!-- Iteratron — champion fox/core, electric cyan, geometric -->
+  <!-- Outer glow rings -->
+  <circle cx="24" cy="24" r="20" fill="#7ce0ff" opacity="0.06"/>
+  <circle cx="24" cy="24" r="14" fill="#7ce0ff" opacity="0.08"/>
+  <ellipse cx="24" cy="44" rx="8" ry="2" fill="#000" opacity="0.25"/>
+  <!-- Floating hex data layers (orbiting) -->
+  <rect x="4" y="18" width="5" height="5" fill="#7ce0ff" opacity="0.5"/>
+  <rect x="5" y="19" width="3" height="3" fill="#3a78d8" opacity="0.8"/>
+  <rect x="39" y="10" width="5" height="5" fill="#7ce0ff" opacity="0.5"/>
+  <rect x="40" y="11" width="3" height="3" fill="#3a78d8" opacity="0.8"/>
+  <rect x="8" y="34" width="4" height="4" fill="#7ce0ff" opacity="0.4"/>
+  <rect x="36" y="32" width="4" height="4" fill="#00e8a0" opacity="0.5"/>
+  <!-- Tail of pure light -->
+  <rect x="2" y="26" width="14" height="4" fill="#7ce0ff" opacity="0.7"/>
+  <rect x="2" y="24" width="10" height="4" fill="#7ce0ff" opacity="0.5"/>
+  <rect x="2" y="22" width="6" height="4" fill="#7ce0ff" opacity="0.3"/>
+  <!-- Body - geometric faceted crystal fox -->
+  <rect x="14" y="22" width="20" height="18" fill="#1a2a4a"/>
+  <!-- Circuit trace markings on body -->
+  <rect x="14" y="25" width="20" height="1" fill="#7ce0ff" opacity="0.6"/>
+  <rect x="14" y="30" width="20" height="1" fill="#7ce0ff" opacity="0.5"/>
+  <rect x="14" y="35" width="20" height="1" fill="#7ce0ff" opacity="0.4"/>
+  <rect x="22" y="22" width="1" height="18" fill="#3a78d8" opacity="0.4"/>
+  <!-- Champion glow core on chest -->
+  <rect x="18" y="26" width="12" height="8" fill="#7ce0ff" opacity="0.2"/>
+  <rect x="20" y="28" width="8" height="4" fill="#7ce0ff" opacity="0.4"/>
+  <circle cx="24" cy="30" r="3" fill="#7ce0ff" opacity="0.8"/>
+  <circle cx="24" cy="30" r="1" fill="#fff"/>
+  <!-- Hind legs -->
+  <rect x="15" y="38" width="6" height="8" fill="#1a2a4a"/>
+  <rect x="27" y="38" width="6" height="8" fill="#1a2a4a"/>
+  <rect x="14" y="44" width="8" height="2" fill="#7ce0ff" opacity="0.6"/>
+  <rect x="26" y="44" width="8" height="2" fill="#7ce0ff" opacity="0.6"/>
+  <!-- Head - faceted angular fox head -->
+  <rect x="16" y="10" width="16" height="14" fill="#243a5a"/>
+  <!-- Head facets -->
+  <rect x="16" y="10" width="16" height="1" fill="#7ce0ff"/>
+  <rect x="16" y="10" width="1" height="14" fill="#3a78d8" opacity="0.5"/>
+  <rect x="31" y="10" width="1" height="14" fill="#3a78d8" opacity="0.5"/>
+  <!-- Fox ears - pointed with cyan tips -->
+  <rect x="16" y="4" width="5" height="8" fill="#1a2a4a"/>
+  <rect x="17" y="5" width="3" height="5" fill="#7ce0ff" opacity="0.7"/>
+  <rect x="27" y="4" width="5" height="8" fill="#1a2a4a"/>
+  <rect x="28" y="5" width="3" height="5" fill="#7ce0ff" opacity="0.7"/>
+  <!-- Eyes - intelligent cyan glow -->
+  <rect x="18" y="14" width="5" height="5" fill="#7ce0ff"/>
+  <rect x="19" y="15" width="3" height="3" fill="#1a2a4a"/>
+  <rect x="19" y="15" width="1" height="1" fill="#fff"/>
+  <rect x="25" y="14" width="5" height="5" fill="#7ce0ff"/>
+  <rect x="26" y="15" width="3" height="3" fill="#1a2a4a"/>
+  <rect x="26" y="15" width="1" height="1" fill="#fff"/>
+  <!-- Snout -->
+  <rect x="21" y="21" width="6" height="3" fill="#3a78d8" opacity="0.8"/>
+  <rect x="23" y="22" width="2" height="2" fill="#1a2a4a"/>
+</svg>

@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" shape-rendering="crispEdges">
+  <!-- Night urban sky -->
+  <rect width="64" height="64" fill="#120820"/>
+  <!-- Ground - dark checker -->
+  <rect x="0" y="54" width="64" height="10" fill="#1e0c30"/>
+  <rect x="0" y="54" width="32" height="5" fill="#2a1440"/>
+  <rect x="32" y="59" width="32" height="5" fill="#2a1440"/>
+  <!-- Store front -->
+  <rect x="4" y="22" width="56" height="34" fill="#1a0828"/>
+  <!-- SOLE neon sign - big pink bar -->
+  <rect x="4" y="14" width="56" height="10" fill="#3a0c28"/>
+  <rect x="4" y="14" width="56" height="2" fill="#ff9fd4"/>
+  <rect x="4" y="23" width="56" height="1" fill="#aa3070"/>
+  <!-- SOLE text in neon (pixel font style) -->
+  <!-- S -->
+  <rect x="12" y="16" width="6" height="1" fill="#ff9fd4"/>
+  <rect x="12" y="16" width="1" height="3" fill="#ff9fd4"/>
+  <rect x="12" y="19" width="6" height="1" fill="#ff9fd4"/>
+  <rect x="17" y="19" width="1" height="3" fill="#ff9fd4"/>
+  <rect x="12" y="22" width="6" height="1" fill="#ff9fd4"/>
+  <!-- O -->
+  <rect x="20" y="16" width="6" height="1" fill="#ff9fd4"/>
+  <rect x="20" y="22" width="6" height="1" fill="#ff9fd4"/>
+  <rect x="20" y="16" width="1" height="7" fill="#ff9fd4"/>
+  <rect x="25" y="16" width="1" height="7" fill="#ff9fd4"/>
+  <!-- L -->
+  <rect x="28" y="16" width="1" height="7" fill="#ff9fd4"/>
+  <rect x="28" y="22" width="6" height="1" fill="#ff9fd4"/>
+  <!-- E -->
+  <rect x="36" y="16" width="6" height="1" fill="#ff9fd4"/>
+  <rect x="36" y="19" width="5" height="1" fill="#ff9fd4"/>
+  <rect x="36" y="22" width="6" height="1" fill="#ff9fd4"/>
+  <rect x="36" y="16" width="1" height="7" fill="#ff9fd4"/>
+  <!-- Display windows -->
+  <rect x="6" y="26" width="24" height="16" fill="#0a0414"/>
+  <rect x="34" y="26" width="24" height="16" fill="#0a0414"/>
+  <rect x="6" y="26" width="24" height="1" fill="#ff9fd4" opacity="0.5"/>
+  <rect x="34" y="26" width="24" height="1" fill="#ff9fd4" opacity="0.5"/>
+  <!-- Sneakers on display (left window) -->
+  <rect x="8" y="30" width="10" height="5" fill="#ffffff"/>
+  <rect x="8" y="34" width="10" height="2" fill="#1a1a1a"/>
+  <rect x="20" y="28" width="8" height="4" fill="#ff9fd4"/>
+  <rect x="20" y="31" width="8" height="2" fill="#1a1a1a"/>
+  <!-- Sneakers on display (right window) -->
+  <rect x="36" y="28" width="10" height="5" fill="#7ce0ff"/>
+  <rect x="36" y="32" width="10" height="2" fill="#1a1a1a"/>
+  <rect x="48" y="30" width="8" height="4" fill="#f5d24a"/>
+  <rect x="48" y="33" width="8" height="2" fill="#1a1a1a"/>
+  <!-- Sneaker logo above door -->
+  <rect x="26" y="44" width="12" height="4" fill="#ff9fd4" opacity="0.8"/>
+  <!-- Door -->
+  <rect x="24" y="44" width="16" height="12" fill="#0a0414"/>
+  <rect x="25" y="45" width="14" height="10" fill="#14062a"/>
+  <!-- Pink welcome mat -->
+  <rect x="24" y="54" width="16" height="4" fill="#ff9fd4" opacity="0.6"/>
+  <!-- Corner neon pylons -->
+  <rect x="2" y="22" width="3" height="34" fill="#2a0820"/>
+  <rect x="3" y="22" width="1" height="34" fill="#ff9fd4" opacity="0.5"/>
+  <rect x="59" y="22" width="3" height="34" fill="#2a0820"/>
+  <rect x="59" y="22" width="1" height="34" fill="#ff9fd4" opacity="0.5"/>
+  <!-- Floor glow -->
+  <ellipse cx="32" cy="56" rx="28" ry="2" fill="#ff9fd4" opacity="0.1"/>
+</svg>
