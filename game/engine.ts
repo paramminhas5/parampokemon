@@ -13,6 +13,8 @@ import {
   TILE, SOLID, T, drawTile, drawBadge, drawCharacter, drawRoof,
 } from "./tiles";
 import { drawLandmark } from "./landmarks";
+import { drawFollower } from "./sprites";
+import { playSound } from "../lib/audio";
 import { findPath } from "./pathfind";
 
 const DEFAULT_VIEW_TILES_X = 20;
@@ -125,6 +127,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
     state.walkStart = performance.now();
     state.stepCount++;
     state.frame = (state.stepCount % 2 === 0 ? 1 : 2) as 1 | 2;
+    if (state.stepCount % 2 === 0) playSound("step");
   }
 
   function stepPath() {
@@ -577,6 +580,19 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       ctx.fillStyle = "rgba(255,255,255,0.55)";
       for (const p of state.path) {
         ctx.fillRect(p.x * TILE + offX + 7, p.y * TILE + offY + 7, 2, 2);
+      }
+    }
+
+    // Follower sprite (trails 1 tile behind player in the walk-from direction)
+    {
+      const followerX = state.walkFrom.x;
+      const followerY = state.walkFrom.y;
+      const fbx = Math.round(followerX * TILE) + offX;
+      const fby = Math.round(followerY * TILE) + offY;
+      // Only draw follower if it's not on the exact same tile as player
+      if (followerX !== state.px || followerY !== state.py) {
+        const followerFrame = (state.stepCount % 2 === 0 ? 1 : 0) as 0 | 1 | 2;
+        drawFollower(ctx, state.playerStage as "mermander" | "mermalion" | "merlord", fbx, fby, followerFrame);
       }
     }
   }

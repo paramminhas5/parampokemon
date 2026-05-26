@@ -2,25 +2,28 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { createEngine, TILE } from "@/game/engine";
-import { ZONES, type Interactive, type Zone, PLAYER_SPAWN, stageForBadges } from "@/game/data";
+import { ZONES, type Interactive, type Zone, type NpcKind, PLAYER_SPAWN, stageForBadges } from "@/game/data";
 import { DialogBox } from "./DialogBox";
 import { StartMenu } from "./StartMenu";
 import { Bag } from "./Bag";
 import { CliffNotes } from "./CliffNotes";
 import { Battle } from "./Battle";
+import { BattleIntro } from "./BattleIntro";
 import { CatchModal } from "./CatchModal";
 import { WorldMap } from "./WorldMap";
 import { WorldSelect } from "./WorldSelect";
 import { ContactModal } from "./ContactModal";
 import { PressModal } from "./PressModal";
 import { EvolutionCutscene, checkEvolution } from "./EvolutionCutscene";
+import { TransitionOverlay, type TransitionKind } from "./TransitionOverlay";
+import { ZoneAmbience } from "./ZoneAmbience";
 import { playSound, setMuted, isMuted, loadMutePref } from "@/lib/audio";
 
 const INIT_W = 20 * TILE;
 const INIT_H = 14 * TILE;
 
 export type GameDialog =
-  | { type: "npc"; name: string; role: string; quote: string }
+  | { type: "npc"; name: string; role: string; quote: string; kind?: NpcKind }
   | { type: "sign"; text: string }
   | { type: "badge"; label: string; outcome: string }
   | null;
@@ -36,6 +39,7 @@ export function Game() {
   const [mapOpen, setMapOpen] = useState(false);
   const [worldSelectOpen, setWorldSelectOpen] = useState(true); // open on launch
   const [battle, setBattle] = useState<Zone | null>(null);
+  const [battleIntro, setBattleIntro] = useState<Zone | null>(null);
   const [evolution, setEvolution] = useState<{ from: ReturnType<typeof stageForBadges>; to: ReturnType<typeof stageForBadges> } | null>(null);
   const [catchModal, setCatchModal] = useState<Zone | null>(null);
   const [contactOpen, setContactOpen] = useState(false);
@@ -44,6 +48,8 @@ export function Game() {
   const [gotBadge, setGotBadge] = useState<{ label: string; color: string } | null>(null);
   const [muted, setMutedState] = useState(false);
   const [engineReady, setEngineReady] = useState(false);
+  const [transition, setTransition] = useState<{ kind: TransitionKind; color: string; key: number } | null>(null);
+  const transKeyRef = useRef(0);
 
   const [badges, setBadges] = useState<Set<string>>(new Set());
   const [creatures, setCreatures] = useState<Set<string>>(new Set());
@@ -87,7 +93,7 @@ export function Game() {
     toastTimer.current = setTimeout(() => setToast(null), 2800);
   }, []);
 
-  const isModalOpen = !!(dialog || menuOpen || bagOpen || cliffOpen || mapOpen || worldSelectOpen || battle || catchModal || contactOpen || pressOpen || evolution);
+  const isModalOpen = !!(dialog || menuOpen || bagOpen || cliffOpen || mapOpen || worldSelectOpen || battle || battleIntro || catchModal || contactOpen || pressOpen || evolution);
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -95,7 +101,7 @@ export function Game() {
       onInteract: (i: Interactive) => {
         if (i.kind === "npc") {
           if (i.npc.special === "contact") { setContactOpen(true); engine.setPaused(true); return; }
-          setDialog({ type: "npc", name: i.npc.name, role: i.npc.role, quote: i.npc.quote });
+          setDialog({ type: "npc", name: i.npc.name, role: i.npc.role, quote: i.npc.quote, kind: i.npc.kind });
           engine.setPaused(true);
           if (i.npc.beat === "did" && i.zone.creature && !caughtRef.current.has(i.zone.creature.id)) {
             setTimeout(() => setCatchModal(i.zone), 400);
@@ -122,13 +128,20 @@ export function Game() {
         setCurrentZoneId(z.id);
         setVisited(prev => { const n = new Set(prev); n.add(z.id); return n; });
         showToast(z.name.toUpperCase(), z.subtitle);
+        // Fire zone transition
+        transKeyRef.current += 1;
+        setTransition({ kind: "zone", color: z.theme.accent, key: transKeyRef.current });
         if (z.id !== "home") { setCliffOpen(z); engine.setPaused(true); }
       },
       onMenu: () => { setMenuOpen(true); engine.setPaused(true); },
       onBadge: (badgeId: string) => {
         setBadges(prev => { const n = new Set(prev); n.add(badgeId); return n; });
       },
-      onGymEnter: (z: Zone) => { setBattle(z); engine.setPaused(true); },
+      onGymEnter: (z: Zone) => {
+        // Show battle intro first, then real battle
+        setBattleIntro(z);
+        engine.setPaused(true);
+      },
       onWild: (z: Zone) => { setCatchModal(z); engine.setPaused(true); },
     });
     engineRef.current = engine;
@@ -159,10 +172,15 @@ export function Game() {
   function handleWarp(zoneId: string) {
     setWorldSelectOpen(false);
     setMapOpen(false);
-    engineRef.current?.warpTo(zoneId);
-    engineRef.current?.setPaused(false);
-    playSound("warp");
+    // Fire warp transition
+    transKeyRef.current += 1;
     const z = ZONES.find(x => x.id === zoneId);
+    setTransition({ kind: "warp", color: z?.theme.accent ?? "#7ce0ff", key: transKeyRef.current });
+    setTimeout(() => {
+      engineRef.current?.warpTo(zoneId);
+      engineRef.current?.setPaused(false);
+    }, 260);
+    playSound("warp");
     if (z) {
       setCurrentZoneId(zoneId);
       setVisited(prev => { const n = new Set(prev); n.add(zoneId); return n; });
@@ -284,6 +302,9 @@ export function Game() {
           height={INIT_H}
           style={{ width: "100%", height: "100%", imageRendering: "pixelated", display: "block" }}
         />
+
+        {/* Zone ambient overlay */}
+        <ZoneAmbience ground={currentZone.theme.ground} accent={currentZone.theme.accent} />
 
         {/* HUD — TOP */}
         <div style={{
@@ -433,6 +454,13 @@ export function Game() {
         {menuOpen && <StartMenu badges={badges} creatures={creatures} skills={skills} onClose={() => setMenuOpen(false)} />}
         {bagOpen && <Bag creatures={creatures} skills={skills} badges={badges} onClose={() => setBagOpen(false)} />}
         {cliffOpen && <CliffNotes zone={cliffOpen} onClose={() => setCliffOpen(null)} />}
+        {/* Battle intro plays first, then real battle */}
+        {battleIntro && (
+          <BattleIntro
+            zone={battleIntro}
+            onComplete={() => { setBattleIntro(null); setBattle(battleIntro); }}
+          />
+        )}
         {battle && (
           <Battle zone={battle} ownedSkills={skills} badges={badges}
             onWin={() => handleBattleWin(battle)}
@@ -464,6 +492,9 @@ export function Game() {
             }}
           />
         )}
+
+        {/* Screen transition overlay — always on top */}
+        <TransitionOverlay trigger={transition} />
       </div>
     </div>
   );
