@@ -155,12 +155,21 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
       break;
     }
     case T.WATER: {
-      const t = Math.floor(performance.now() / 400) % 2;
-      fillRect(ctx, px0, py0, TILE, TILE, "#3b7fc4");
-      for (let i = 0; i < TILE; i += 4) {
-        px(ctx, px0 + ((i + t * 2) % TILE), py0 + (i % TILE), "#7fb3e6");
+      const t = performance.now() / 400;
+      const wave = Math.floor(t) % 4;
+      fillRect(ctx, px0, py0, TILE, TILE, "#2960a8");
+      // Animated shimmer rows
+      fillRect(ctx, px0, py0 + ((wave * 4) % TILE), TILE, 2, "#3b7fc4");
+      fillRect(ctx, px0, py0 + ((wave * 4 + 8) % TILE), TILE, 1, "#4a90d4");
+      // Sparkle highlights
+      const sf = Math.sin(t * 0.7 + wx * 0.5) > 0.7;
+      if (sf) {
+        px(ctx, px0 + (Math.floor(t * 3 + wx) % 14), py0 + 5, "#a8d8f8");
+        px(ctx, px0 + (Math.floor(t * 2 + wy) % 12) + 2, py0 + 11, "#c8e8ff");
       }
-      fillRect(ctx, px0, py0, TILE, 1, "#2a5e9c");
+      // Deep water darkening at edges
+      fillRect(ctx, px0, py0, TILE, 1, "#1a3a78");
+      fillRect(ctx, px0, py0, 1, TILE, "#1a3a78");
       break;
     }
     case T.FLOWER_R:
@@ -174,13 +183,28 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
     }
     case T.TREE: {
       drawTile(ctx, T.GRASS, wx, wy, px0, py0);
-      fillRect(ctx, px0 + 7, py0 + 11, 2, 5, "#5a3a1c");
-      fillRect(ctx, px0 + 3, py0 + 2, 10, 10, "#2e6a2a");
-      fillRect(ctx, px0 + 4, py0 + 1, 8, 1, "#2e6a2a");
-      fillRect(ctx, px0 + 2, py0 + 4, 1, 6, "#2e6a2a");
-      fillRect(ctx, px0 + 13, py0 + 4, 1, 6, "#2e6a2a");
-      fillRect(ctx, px0 + 5, py0 + 3, 3, 2, "#4f9a48");
-      fillRect(ctx, px0 + 9, py0 + 5, 2, 2, "#4f9a48");
+      // Trunk with shading
+      fillRect(ctx, px0 + 6, py0 + 11, 4, 5, "#5a3a1c");
+      fillRect(ctx, px0 + 6, py0 + 11, 1, 5, "#3a2010");  // shadow side
+      fillRect(ctx, px0 + 9, py0 + 11, 1, 5, "#7a5030");  // light side
+      // Roots
+      fillRect(ctx, px0 + 4, py0 + 14, 2, 2, "#5a3a1c");
+      fillRect(ctx, px0 + 10, py0 + 14, 2, 2, "#5a3a1c");
+      // Main foliage — layered for depth
+      fillRect(ctx, px0 + 2, py0 + 4, 12, 8, "#2e6a2a");   // base
+      fillRect(ctx, px0 + 3, py0 + 2, 10, 4, "#358030");   // mid layer
+      fillRect(ctx, px0 + 5, py0 + 1, 6, 3, "#3a8a34");    // top cap
+      // Highlight blobs (lighter green)
+      fillRect(ctx, px0 + 4, py0 + 3, 3, 2, "#5ab850");
+      fillRect(ctx, px0 + 9, py0 + 5, 3, 2, "#4ea845");
+      fillRect(ctx, px0 + 6, py0 + 2, 2, 2, "#6ac858");
+      // Shadow underside
+      fillRect(ctx, px0 + 2, py0 + 11, 12, 1, "#1e4a1c");
+      // Outline top pixels
+      if (r > 0.6) {
+        px(ctx, px0 + 2, py0 + 6, "#4fa844");
+        px(ctx, px0 + 13, py0 + 8, "#4fa844");
+      }
       break;
     }
     case T.FENCE: {
@@ -233,79 +257,148 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
       break;
     }
     case T.SIGN: {
-      drawTile(ctx, T.GRASS, wx, wy, px0, py0);
-      fillRect(ctx, px0 + 7, py0 + 9, 2, 6, "#5a3a1c");
-      fillRect(ctx, px0 + 2, py0 + 2, 12, 8, "#c89a5a");
-      fillRect(ctx, px0 + 2, py0 + 2, 12, 1, "#e6b878");
-      fillRect(ctx, px0 + 2, py0 + 9, 12, 1, "#7a5028");
-      fillRect(ctx, px0 + 4, py0 + 4, 8, 1, "#3a2010");
-      fillRect(ctx, px0 + 4, py0 + 6, 6, 1, "#3a2010");
+      // Sign always sits on whatever ground is below (use route grass as neutral base)
+      drawTile(ctx, T.ROUTE_GRASS, wx, wy, px0, py0);
+      // Post
+      fillRect(ctx, px0 + 7, py0 + 9, 2, 7, "#4a2e14");
+      fillRect(ctx, px0 + 8, py0 + 9, 1, 7, "#2e1c0a");
+      // Board body
+      fillRect(ctx, px0 + 1, py0 + 1, 14, 9, "#c8924a");
+      fillRect(ctx, px0 + 1, py0 + 1, 14, 1, "#e6b060");  // top highlight
+      fillRect(ctx, px0 + 1, py0 + 9, 14, 1, "#7a4a20");  // bottom shadow
+      fillRect(ctx, px0 + 1, py0 + 1, 1, 9, "#7a4a20");   // left shadow
+      fillRect(ctx, px0 + 14, py0 + 1, 1, 9, "#7a4a20");  // right shadow
+      // Text lines
+      fillRect(ctx, px0 + 3, py0 + 3, 10, 1, "#3a2010");
+      fillRect(ctx, px0 + 3, py0 + 5, 8, 1, "#3a2010");
+      fillRect(ctx, px0 + 3, py0 + 7, 6, 1, "#3a2010");
+      // Corner nail heads
+      px(ctx, px0 + 2, py0 + 2, "#e0a840");
+      px(ctx, px0 + 13, py0 + 2, "#e0a840");
+      px(ctx, px0 + 2, py0 + 8, "#e0a840");
+      px(ctx, px0 + 13, py0 + 8, "#e0a840");
       break;
     }
     case T.NEON_FLOOR: {
-      fillRect(ctx, px0, py0, TILE, TILE, "#1f2c4a");
-      if ((wx + wy) % 2 === 0) fillRect(ctx, px0, py0, TILE, TILE, "#28365a");
-      fillRect(ctx, px0, py0, TILE, 1, "#3a5a8a");
-      fillRect(ctx, px0, py0, 1, TILE, "#3a5a8a");
-      // circuit traces
-      if (r > 0.7) {
-        fillRect(ctx, px0 + 4, py0 + 8, 8, 1, "#9fe8ff");
-        px(ctx, px0 + 12, py0 + 8, "#00e8a0");
+      // Dark tech floor with animated circuit traces
+      const base2 = ((wx + wy) % 2 === 0) ? "#1e2c4c" : "#243558";
+      fillRect(ctx, px0, py0, TILE, TILE, base2);
+      // Grid seams
+      fillRect(ctx, px0, py0, TILE, 1, "#2a3a5a");
+      fillRect(ctx, px0, py0, 1, TILE, "#2a3a5a");
+      // Circuit traces (seeded per tile)
+      if (r > 0.65) {
+        // Horizontal trace
+        const ty3 = py0 + (Math.floor(r * 12) % 12) + 2;
+        fillRect(ctx, px0 + 2, ty3, 12, 1, "#9fe8ff");
+        px(ctx, px0 + 13, ty3, "#00e8a0");
+      }
+      if (r > 0.82) {
+        // Vertical trace
+        const tx3 = px0 + (Math.floor(r * 9) % 9) + 3;
+        fillRect(ctx, tx3, py0 + 3, 1, 9, "#3a78d8");
+      }
+      // Blinking node
+      const nodeOn = Math.floor(performance.now() / 500 + wx * 3 + wy) % 7 === 0;
+      if (r > 0.9 && nodeOn) {
+        px(ctx, px0 + Math.floor(r * 12) + 2, py0 + Math.floor(r * 12) + 2, "#00ffcc");
       }
       break;
     }
     case T.DUSK_FLOOR: {
-      // marble lobby floor for venture tower
-      fillRect(ctx, px0, py0, TILE, TILE, "#3a2456");
-      if ((wx + wy) % 2 === 0) fillRect(ctx, px0, py0, TILE, TILE, "#4a306a");
-      // marble veining
-      fillRect(ctx, px0 + 2, py0 + 5, 6, 1, "#7c5a98");
-      fillRect(ctx, px0 + 10, py0 + 11, 4, 1, "#7c5a98");
-      px(ctx, px0 + 8, py0 + 2, "#a888c8");
+      // Rich marble lobby — deep purple with veining
+      const mc = ((wx + wy) % 2 === 0) ? "#30205a" : "#3c2868";
+      fillRect(ctx, px0, py0, TILE, TILE, mc);
+      // Marble veining (diagonal streaks)
+      fillRect(ctx, px0, py0 + 4, TILE, 1, "#6040a0");
+      fillRect(ctx, px0 + 4, py0, 1, TILE, "#6040a0");
+      // Cross highlight at vein intersections
+      if (r > 0.75) {
+        px(ctx, px0 + 4, py0 + 4, "#c8a0f0");
+        px(ctx, px0 + 5, py0 + 5, "#9070c8");
+      }
+      // Reflective sheen
+      fillRect(ctx, px0, py0, TILE, 1, "#5040a0");
+      if (r > 0.88) fillRect(ctx, px0 + 6, py0 + 7, 4, 1, "#a080e0");
       break;
     }
     case T.NIGHT_FLOOR: {
-      // glassy lobby for Iterate HQ
-      fillRect(ctx, px0, py0, TILE, TILE, "#0b1830");
-      if ((wx + wy) % 2 === 0) fillRect(ctx, px0, py0, TILE, TILE, "#173255");
-      // glowing seam
-      if (wy % 2 === 0) fillRect(ctx, px0, py0, TILE, 1, "#3a78d8");
-      if (r > 0.92) px(ctx, px0 + Math.floor(r * TILE), py0 + Math.floor(r * TILE), "#7ce0ff");
+      // Glassy tech lobby for Iterate HQ
+      const nc = ((wx + wy) % 2 === 0) ? "#081428" : "#0d1e38";
+      fillRect(ctx, px0, py0, TILE, TILE, nc);
+      // Illuminated seams every 2 rows
+      if (wy % 2 === 0) fillRect(ctx, px0, py0, TILE, 1, "#1a4088");
+      if (wx % 2 === 0) fillRect(ctx, px0, py0, 1, TILE, "#1a3060");
+      // Reflective sparkles
+      if (r > 0.90) {
+        px(ctx, px0 + Math.floor(r * TILE), py0 + Math.floor(r * TILE), "#7ce0ff");
+      }
+      // Blue glow patches
+      if (r > 0.78 && r < 0.82) {
+        ctx.fillStyle = "rgba(60,120,220,0.2)";
+        ctx.fillRect(px0, py0, TILE, TILE);
+      }
       break;
     }
     case T.MALL_FLOOR: {
-      // checker mall floor
-      const a = "#2a1238", b = "#3a1a48";
-      fillRect(ctx, px0, py0, TILE, TILE, a);
-      fillRect(ctx, px0, py0, 8, 8, b);
-      fillRect(ctx, px0 + 8, py0 + 8, 8, 8, b);
-      // pink seam
-      fillRect(ctx, px0, py0 + 8, TILE, 1, "#c0388c");
-      fillRect(ctx, px0 + 8, py0, 1, TILE, "#c0388c");
+      // Upscale checker mall floor with pink neon grid
+      const isA = (Math.floor(wx / 2) + Math.floor(wy / 2)) % 2 === 0;
+      fillRect(ctx, px0, py0, TILE, TILE, isA ? "#1e0c30" : "#2a1440");
+      // Neon grid lines (every 2 tiles aligning)
+      if (wx % 2 === 0) fillRect(ctx, px0, py0, 1, TILE, "#ff9fd430");
+      if (wy % 2 === 0) fillRect(ctx, px0, py0, TILE, 1, "#ff9fd430");
+      // Gloss highlight corner
+      if (r > 0.88) {
+        ctx.fillStyle = "rgba(255,200,230,0.12)";
+        ctx.fillRect(px0, py0, TILE, TILE);
+      }
       break;
     }
     case T.CRYPTO_FLOOR: {
-      // circuit board
-      fillRect(ctx, px0, py0, TILE, TILE, "#03331f");
-      fillRect(ctx, px0, py0, TILE, 1, "#054a2a");
-      fillRect(ctx, px0, py0, 1, TILE, "#054a2a");
+      // Animated PCB circuit board
+      fillRect(ctx, px0, py0, TILE, TILE, "#021a10");
+      // Board grid
+      fillRect(ctx, px0, py0, TILE, 1, "#043a20");
+      fillRect(ctx, px0, py0, 1, TILE, "#043a20");
       // PCB traces
-      fillRect(ctx, px0 + 4, py0 + 4, 8, 1, "#00e8a0");
-      fillRect(ctx, px0 + 4, py0 + 4, 1, 8, "#00e8a0");
-      px(ctx, px0 + 12, py0 + 4, "#9fffd0");
-      px(ctx, px0 + 4, py0 + 12, "#9fffd0");
+      fillRect(ctx, px0 + 3, py0 + 4, 9, 1, "#00e8a0");
+      fillRect(ctx, px0 + 3, py0 + 4, 1, 9, "#00e8a0");
+      // Via pads
+      ctx.fillStyle = "#00e8a0";
+      ctx.fillRect(px0 + 3, py0 + 4, 2, 2);
+      ctx.fillRect(px0 + 11, py0 + 4, 2, 2);
+      ctx.fillRect(px0 + 3, py0 + 12, 2, 2);
+      // Animated signal pulse
+      const pulsePos = Math.floor(performance.now() / 80 + wx * 5 + wy * 3) % 10;
+      px(ctx, px0 + 3 + pulsePos, py0 + 4, "#9fffd0");
+      // Silkscreen label blobs
+      if (r > 0.85) {
+        fillRect(ctx, px0 + 7, py0 + 9, 5, 2, "#034020");
+      }
       break;
     }
     case T.STUDIO_FLOOR: {
-      // parquet stage
-      fillRect(ctx, px0, py0, TILE, TILE, "#5a2c14");
-      const stripe = ((wx + wy) % 2 === 0) ? "#6a3a20" : "#7a4a28";
-      fillRect(ctx, px0, py0, TILE, 8, stripe);
-      fillRect(ctx, px0, py0 + 7, TILE, 1, "#3a1c10");
-      // spotlight bokeh
-      if (r > 0.93) {
-        ctx.fillStyle = "rgba(255,210,154,0.35)";
-        ctx.beginPath(); ctx.arc(px0 + 8, py0 + 8, 4, 0, Math.PI * 2); ctx.fill();
+      // Warm parquet hardwood stage
+      const plankDir = (wy % 2 === 0);
+      fillRect(ctx, px0, py0, TILE, TILE, "#4a2410");
+      const plankColor = plankDir ? "#5a3018" : "#623820";
+      fillRect(ctx, px0, py0, TILE, 8, plankColor);
+      // Wood grain lines
+      fillRect(ctx, px0, py0 + 7, TILE, 1, "#321608");
+      fillRect(ctx, px0, py0 + 15, TILE, 1, "#321608");
+      // Knot / grain detail
+      if (r > 0.88) {
+        ctx.fillStyle = "#382010";
+        ctx.beginPath();
+        ctx.ellipse(px0 + Math.floor(r * 10) + 3, py0 + 4, 2, 1, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      // Stage spotlight bokeh
+      if (r > 0.94) {
+        ctx.fillStyle = "rgba(255,210,120,0.3)";
+        ctx.beginPath();
+        ctx.arc(px0 + 8, py0 + 8, 5, 0, Math.PI * 2);
+        ctx.fill();
       }
       break;
     }
@@ -321,23 +414,44 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
     case T.ARCH_L:
     case T.ARCH_M:
     case T.ARCH_R: {
-      // base ground (route grass)
+      // Base: route grass ground
       drawTile(ctx, T.ROUTE_GRASS, wx, wy, px0, py0);
-      // pylon / banner
       if (code === T.ARCH_L) {
-        fillRect(ctx, px0 + 6, py0 + 2, 4, TILE - 2, "#2a2438");
-        fillRect(ctx, px0 + 5, py0 + 2, 6, 2, "#444058");
+        // Left pillar — dark stone with highlight edge
+        fillRect(ctx, px0 + 4, py0, 8, TILE, "#2a2440");
+        fillRect(ctx, px0 + 4, py0, 2, TILE, "#3a3458");   // left edge highlight
+        fillRect(ctx, px0 + 11, py0, 1, TILE, "#1a1830");  // right edge shadow
+        // Glowing accent strip on top
+        fillRect(ctx, px0 + 5, py0, 6, 2, "#5a4080");
+        // Bracket arm reaching right
+        fillRect(ctx, px0 + 12, py0 + 1, 4, 3, "#2a2440");
       } else if (code === T.ARCH_R) {
-        fillRect(ctx, px0 + 6, py0 + 2, 4, TILE - 2, "#2a2438");
-        fillRect(ctx, px0 + 5, py0 + 2, 6, 2, "#444058");
+        // Right pillar — mirror of left
+        fillRect(ctx, px0 + 4, py0, 8, TILE, "#2a2440");
+        fillRect(ctx, px0 + 10, py0, 2, TILE, "#3a3458");
+        fillRect(ctx, px0 + 4, py0, 1, TILE, "#1a1830");
+        fillRect(ctx, px0 + 5, py0, 6, 2, "#5a4080");
+        // Bracket arm reaching left
+        fillRect(ctx, px0, py0 + 1, 4, 3, "#2a2440");
       } else {
-        // ARCH_M: hanging banner
-        fillRect(ctx, px0, py0 + 1, TILE, 6, "#c0388c");
-        fillRect(ctx, px0, py0 + 1, TILE, 1, "#5a1240");
-        fillRect(ctx, px0, py0 + 6, TILE, 1, "#5a1240");
-        // dotted "GATE"
-        fillRect(ctx, px0 + 4, py0 + 3, 2, 2, "#ffe8b8");
-        fillRect(ctx, px0 + 8, py0 + 3, 2, 2, "#ffe8b8");
+        // ARCH_M: overhead banner spanning between pillars
+        // Support bar top
+        fillRect(ctx, px0, py0, TILE, 3, "#2a2440");
+        fillRect(ctx, px0, py0, TILE, 1, "#5a4080");
+        // Hanging banner (colored per zone via accent — using purple default)
+        fillRect(ctx, px0 + 1, py0 + 3, TILE - 2, 7, "#7a3090");
+        fillRect(ctx, px0 + 1, py0 + 3, TILE - 2, 1, "#aa50c0");
+        fillRect(ctx, px0 + 1, py0 + 9, TILE - 2, 1, "#3a1040");
+        // Decorative dots on banner
+        px(ctx, px0 + 4, py0 + 5, "#f0c4ff");
+        px(ctx, px0 + 8, py0 + 5, "#f0c4ff");
+        px(ctx, px0 + 12, py0 + 5, "#f0c4ff");
+        px(ctx, px0 + 6, py0 + 7, "#c880ff");
+        px(ctx, px0 + 10, py0 + 7, "#c880ff");
+        // Fringe tassels
+        for (let tx2 = 2; tx2 < TILE - 1; tx2 += 3) {
+          fillRect(ctx, px0 + tx2, py0 + 10, 1, 3, "#aa50c0");
+        }
       }
       break;
     }
@@ -401,10 +515,20 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
     }
     case T.PROP_NEON_PYLON: {
       drawTile(ctx, T.NEON_FLOOR, wx, wy, px0, py0);
-      fillRect(ctx, px0 + 6, py0 + 1, 4, 14, "#1f3548");
-      // glowing strip
-      const blink = Math.floor(performance.now() / 250 + wx) % 3 === 0;
-      fillRect(ctx, px0 + 7, py0 + 2, 2, 12, blink ? "#00e8a0" : "#9fe8ff");
+      // Pylon housing
+      fillRect(ctx, px0 + 5, py0, 6, TILE, "#162030");
+      fillRect(ctx, px0 + 5, py0, 1, TILE, "#0a1520");  // left shadow
+      fillRect(ctx, px0 + 10, py0, 1, TILE, "#2a3848"); // right highlight
+      // Glowing energy strip
+      const phase2 = performance.now() / 300 + wx * 0.8 + wy * 0.5;
+      const pulseH = Math.floor(Math.sin(phase2) * 3 + 10);
+      const col1 = Math.sin(phase2) > 0 ? "#00ffcc" : "#9fe8ff";
+      const col2 = Math.sin(phase2) > 0 ? "#00e8a0" : "#3a78d8";
+      fillRect(ctx, px0 + 7, py0 + 1, 2, TILE - 2, col2);
+      fillRect(ctx, px0 + 7, py0 + TILE / 2 - pulseH / 2, 2, pulseH, col1);
+      // Glow halo
+      ctx.fillStyle = `${col1}30`;
+      ctx.fillRect(px0 + 4, py0 + TILE / 2 - 5, 8, 10);
       break;
     }
     case T.PROP_CANDLESTICK: {
@@ -455,24 +579,69 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
 }
 
 export function drawRoof(ctx: Ctx, px0: number, py0: number, color: string, shade: string, kind: "left" | "mid" | "right" | "solo") {
+  // Rich tiled roof
   fillRect(ctx, px0, py0, TILE, TILE, color);
+  // Tile ridge lines
   for (let x = 0; x < TILE; x += 4) fillRect(ctx, px0 + x, py0, 1, TILE, shade);
+  // Top / bottom edges
   fillRect(ctx, px0, py0, TILE, 1, shade);
   fillRect(ctx, px0, py0 + TILE - 1, TILE, 1, shade);
-  if (kind === "left") fillRect(ctx, px0, py0, 1, TILE, shade);
-  if (kind === "right") fillRect(ctx, px0 + TILE - 1, py0, 1, TILE, shade);
+  // Highlight strip near top
+  fillRect(ctx, px0, py0 + 2, TILE, 1, lighten(color));
+  // Side borders
+  if (kind === "left" || kind === "solo") fillRect(ctx, px0, py0, 1, TILE, shade);
+  if (kind === "right" || kind === "solo") fillRect(ctx, px0 + TILE - 1, py0, 1, TILE, shade);
+}
+
+function lighten(hex: string): string {
+  const c = hex.replace("#", "");
+  const n = parseInt(c.length === 3 ? c.split("").map(x=>x+x).join("") : c, 16);
+  const r2 = Math.min(255, ((n >> 16) & 255) + 40);
+  const g2 = Math.min(255, ((n >> 8) & 255) + 40);
+  const b2 = Math.min(255, (n & 255) + 40);
+  return `#${((1<<24)+(r2<<16)+(g2<<8)+b2).toString(16).slice(1)}`;
 }
 
 export function drawBadge(ctx: Ctx, px0: number, py0: number, color: string, phase: number) {
-  const lift = Math.floor(Math.sin(phase) * 1.5);
-  fillRect(ctx, px0 + 4, py0 + 13, 8, 2, "rgba(0,0,0,0.35)");
-  fillRect(ctx, px0 + 5, py0 + 4 + lift, 6, 6, color);
-  fillRect(ctx, px0 + 4, py0 + 6 + lift, 8, 2, color);
-  fillRect(ctx, px0 + 6, py0 + 3 + lift, 4, 1, color);
-  fillRect(ctx, px0 + 6, py0 + 10 + lift, 4, 1, color);
-  fillRect(ctx, px0 + 6, py0 + 5 + lift, 2, 2, "#fff");
-  if (Math.floor(phase * 4) % 4 === 0) {
-    px(ctx, px0 + 13, py0 + 3, "#fff"); px(ctx, px0 + 2, py0 + 9, "#fff");
+  const lift = Math.sin(phase) * 2.5;
+  const liftI = Math.floor(lift);
+  // Drop shadow
+  ctx.fillStyle = "rgba(0,0,0,0.4)";
+  ctx.beginPath();
+  ctx.ellipse(px0 + 8, py0 + 14, 5, 1.5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Outer glow ring
+  ctx.fillStyle = color + "30";
+  ctx.beginPath();
+  ctx.arc(px0 + 8, py0 + 7 + liftI, 7, 0, Math.PI * 2);
+  ctx.fill();
+  // Gem body — diamond shape
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(px0 + 8, py0 + 2 + liftI);   // top
+  ctx.lineTo(px0 + 13, py0 + 7 + liftI);  // right
+  ctx.lineTo(px0 + 8, py0 + 13 + liftI);  // bottom
+  ctx.lineTo(px0 + 3, py0 + 7 + liftI);   // left
+  ctx.closePath();
+  ctx.fill();
+  // Inner facet highlight
+  ctx.fillStyle = color + "cc";
+  ctx.beginPath();
+  ctx.moveTo(px0 + 8, py0 + 3 + liftI);
+  ctx.lineTo(px0 + 11, py0 + 7 + liftI);
+  ctx.lineTo(px0 + 8, py0 + 8 + liftI);
+  ctx.lineTo(px0 + 5, py0 + 7 + liftI);
+  ctx.closePath();
+  ctx.fill();
+  // White sparkle
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(px0 + 7, py0 + 3 + liftI, 2, 1);
+  ctx.fillRect(px0 + 6, py0 + 4 + liftI, 1, 1);
+  // Twinkle star at peak of orbit
+  if (Math.floor(phase * 2) % 4 === 0) {
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(px0 + 14, py0 + 2 + liftI, 2, 2);
+    ctx.fillRect(px0 + 1, py0 + 9 + liftI, 2, 2);
   }
 }
 
