@@ -21,7 +21,7 @@ import { TitleScreen } from "./TitleScreen";
 import { VictoryMoment } from "./VictoryMoment";
 import { SkillLearnOverlay } from "./SkillLearnOverlay";
 import { TouchControls } from "./TouchControls";
-import { playSound, setMuted, isMuted, loadMutePref } from "@/lib/audio";
+import { playSound, playZoneBGM, playBattleBGM, stopBattleBGM, stopBGM, setMuted, isMuted, loadMutePref } from "@/lib/audio";
 
 const INIT_W = 20 * TILE;
 const INIT_H = 14 * TILE;
@@ -149,9 +149,10 @@ export function Game() {
         setCurrentZoneId(z.id);
         setVisited(prev => { const n = new Set(prev); n.add(z.id); return n; });
         showToast(z.name.toUpperCase(), z.subtitle);
-        // Fire zone transition
+        // Fire zone transition + BGM
         transKeyRef.current += 1;
         setTransition({ kind: "zone", color: z.theme.accent, key: transKeyRef.current });
+        playZoneBGM(z.theme.ground as Parameters<typeof playZoneBGM>[0]);
         if (z.id !== "home") { setCliffOpen(z); engine.setPaused(true); }
       },
       onMenu: () => { setMenuOpen(true); engine.setPaused(true); },
@@ -159,8 +160,9 @@ export function Game() {
         setBadges(prev => { const n = new Set(prev); n.add(badgeId); return n; });
       },
       onGymEnter: (z: Zone) => {
-        // Show battle intro first, then real battle
+        // Show battle intro first, then real battle + battle BGM
         setBattleIntro(z);
+        playBattleBGM();
         engine.setPaused(true);
       },
       onWild: (z: Zone) => { setCatchModal(z); engine.setPaused(true); },
@@ -206,11 +208,15 @@ export function Game() {
       setCurrentZoneId(zoneId);
       setVisited(prev => { const n = new Set(prev); n.add(zoneId); return n; });
       showToast(`⚡ ${z.name.toUpperCase()}`, z.subtitle);
+      // Start zone BGM after warp completes
+      setTimeout(() => playZoneBGM(z.theme.ground as Parameters<typeof playZoneBGM>[0]), 300);
     }
   }
 
   function handleBattleWin(zone: Zone) {
     setBattle(null);
+    // Stop battle BGM — victory moment plays its own fanfare
+    stopBattleBGM();
     // Show victory moment overlay FIRST, then award badge after player clicks continue
     setVictoryZone(zone);
     engineRef.current?.setPaused(true);
@@ -224,6 +230,8 @@ export function Game() {
     setDefeated(prev => { const n = new Set(prev); n.add(zone.id); return n; });
     setGotBadge({ label: zone.badge.label, color: zone.badge.color });
     playSound("badge");
+    // Resume zone BGM
+    playZoneBGM(zone.theme.ground as Parameters<typeof playZoneBGM>[0]);
     // Check for evolution
     const evo = checkEvolution(prevBadgeCount, prevBadgeCount + 1);
     if (evo) {
@@ -518,7 +526,11 @@ export function Game() {
         {battle && (
           <Battle zone={battle} ownedSkills={skills} badges={badges}
             onWin={() => handleBattleWin(battle)}
-            onFlee={() => { setBattle(null); engineRef.current?.setPaused(false); }} />
+            onFlee={() => {
+              setBattle(null);
+              stopBattleBGM(battle.theme.ground as Parameters<typeof playZoneBGM>[0]);
+              engineRef.current?.setPaused(false);
+            }} />
         )}
         {catchModal && (
           <CatchModal
