@@ -1,14 +1,21 @@
 #!/usr/bin/env python3
-"""Generate player + creature sprites for Param Quest via Fal AI.
-Cheapest model: fal-ai/flux/schnell (fast, cheap, great quality).
 """
-import os, subprocess, fal_client
+Generate player character sprites for Param Quest via Fal AI.
+
+Generates Mermander / Mermalion / Merlord in all 4 directions (12 sprites total).
+Uses fal-ai/flux/dev for highest quality.
+
+Usage:
+  FAL_KEY=your_key python3 generate_players.py
+"""
+import os, sys, subprocess, fal_client
 
 SPRITE_DIR = os.path.expanduser("~/parampokemon/public/sprites")
+
 key = os.environ.get("FAL_KEY") or ""
 if not key:
     print("ERROR: Set FAL_KEY env var (format: key_id:key_secret)")
-    exit(1)
+    sys.exit(1)
 os.environ["FAL_KEY"] = key
 
 def dl(url, path):
@@ -20,16 +27,23 @@ def dl(url, path):
 def on_queue_update(update):
     if isinstance(update, fal_client.InProgress):
         for log in update.logs:
-            msg = log["message"].strip()
+            msg = log.get("message", "").strip()
             if msg:
                 print(f"  [fal] {msg}")
 
-def gen(prompt, out_path):
-    print(f"\n🎨 {os.path.basename(out_path)}")
+def gen(label, prompt, out_path):
+    print(f"\n🎨 {label}")
     try:
         result = fal_client.subscribe(
-            "fal-ai/flux/schnell",
-            arguments={"prompt": prompt},
+            "fal-ai/flux/dev",
+            arguments={
+                "prompt": prompt,
+                "image_size": "square_hd",
+                "num_inference_steps": 28,
+                "guidance_scale": 3.5,
+                "num_images": 1,
+                "enable_safety_checker": False,
+            },
             with_logs=True,
             on_queue_update=on_queue_update,
         )
@@ -38,101 +52,87 @@ def gen(prompt, out_path):
     except Exception as e:
         print(f"  ❌ Error: {e}")
 
-# ─── Player sprites (mermander/mermalion/merlord × 4 directions) ─
-PLAYER_SPRITES = [
-    # Mermander - stage 1
-    ("player/mermander_front.png",
-     "Pixel art RPG game sprite, a cute aqua-blue mer-creature standing facing forward. "
-     "Small humanoid figure with a fish tail instead of legs, glowing cyan-blue skin, "
-     "a small crest fin on the head, big expressive cartoon eyes, arms at sides. "
-     "Clean pixel art on dark/transparent background. 64x64 sprite. "
-     "Bright aqua-blue (#7ce0ff), white belly, dark blue fin details. "
-     "Classic 16-bit RPG style like Pokémon. Standing pose, facing camera."),
+STYLE = (
+    "Pokémon-style overworld player character sprite, classic 16-bit pixel art, "
+    "clean crisp pixel outlines, limited color palette, cute chibi proportions, "
+    "single character centered, transparent or very dark background. "
+    "Top-down RPG game sprite. No text, no UI. High contrast clean pixels."
+)
 
-    ("player/mermander_back.png",
-     "Pixel art RPG game sprite, a cute aqua-blue mer-creature facing away (back view). "
-     "Small humanoid figure with a fish tail, glowing cyan-blue skin, a dorsal fin crest on the head. "
-     "Clean pixel art on dark/transparent background. 64x64 sprite. "
-     "Bright aqua-blue (#7ce0ff), darker blue back highlights. "
-     "Classic 16-bit RPG style like Pokémon. Back view showing tail and fin."),
+NEG = "blurry, noisy, photo-realistic, 3d, text, watermark, multiple characters, background"
 
-    ("player/mermander_left.png",
-     "Pixel art RPG game sprite, a cute aqua-blue mer-creature walking left. "
-     "Small humanoid figure with fish tail, glowing cyan-blue skin, profile view facing left, "
-     "one arm slightly forward, tail curving to the right behind. "
-     "Clean pixel art on dark/transparent background. 64x64 sprite. "
-     "Bright aqua-blue (#7ce0ff). Classic 16-bit RPG left-facing walk frame."),
+SPRITES = [
+  # ─── MERMANDER (Stage 1 — aqua blue mer-creature) ────────────────────────────
+  ("player/mermander_front.png", "Mermander front",
+   f"Cute small aqua-blue mer-creature RPG player sprite facing forward. "
+   f"Small chibi humanoid with a bright aqua-blue fish tail instead of legs ({chr(35)}7ce0ff), "
+   f"a small crest fin on top of the head, big expressive cartoon eyes, "
+   f"tiny arms at sides, white belly, simple clean design. {STYLE}"),
 
-    ("player/mermander_right.png",
-     "Pixel art RPG game sprite, a cute aqua-blue mer-creature walking right. "
-     "Small humanoid figure with fish tail, glowing cyan-blue skin, profile view facing right, "
-     "one arm slightly forward, tail curving to the left behind. "
-     "Clean pixel art on dark/transparent background. 64x64 sprite. "
-     "Bright aqua-blue (#7ce0ff). Classic 16-bit RPG right-facing walk frame."),
+  ("player/mermander_back.png", "Mermander back",
+   f"Cute small aqua-blue mer-creature RPG player sprite facing away (back view). "
+   f"Small chibi humanoid back view, bright aqua-blue fish tail ({chr(35)}7ce0ff), "
+   f"dorsal crest fin visible from behind, small frame, clean simple design. {STYLE}"),
 
-    # Mermalion - stage 2
-    ("player/mermalion_front.png",
-     "Pixel art RPG game sprite, an elegant purple-violet evolved mer-creature standing facing forward. "
-     "Medium-sized humanoid figure with a large fish tail, shimmering purple-violet scales, "
-     "a flowing mane of dark purple hair, elegant royal bearing, big eyes, arms at sides. "
-     "Clean pixel art on dark/transparent background. 64x64 sprite. "
-     "Rich purple (#c89af0), lavender belly, deep violet mane. "
-     "Classic 16-bit RPG style like Pokémon. Standing pose, facing camera."),
+  ("player/mermander_left.png", "Mermander left",
+   f"Cute small aqua-blue mer-creature RPG player sprite walking left (side view). "
+   f"Small chibi humanoid facing left, bright aqua-blue fish tail ({chr(35)}7ce0ff), "
+   f"one arm slightly raised, profile view, clean simple design. {STYLE}"),
 
-    ("player/mermalion_back.png",
-     "Pixel art RPG game sprite, an elegant purple-violet evolved mer-creature, back view. "
-     "Medium humanoid with large fish tail, shimmering purple-violet scales, flowing dark purple mane. "
-     "Clean pixel art on dark/transparent background. 64x64 sprite. "
-     "Rich purple (#c89af0), deep violet mane. "
-     "Classic 16-bit RPG back view showing royal cape-like mane and tail."),
+  ("player/mermander_right.png", "Mermander right",
+   f"Cute small aqua-blue mer-creature RPG player sprite walking right (side view). "
+   f"Small chibi humanoid facing right, bright aqua-blue fish tail ({chr(35)}7ce0ff), "
+   f"one arm slightly raised, profile view, clean simple design. {STYLE}"),
 
-    ("player/mermalion_left.png",
-     "Pixel art RPG game sprite, an elegant purple-violet evolved mer-creature walking left. "
-     "Medium humanoid with fish tail, shimmering purple-violet scales, profile facing left, "
-     "flowing mane, one arm forward, tail sweeping. "
-     "Clean pixel art on dark/transparent background. 64x64 sprite. "
-     "Rich purple (#c89af0). Classic 16-bit RPG left-facing walk frame."),
+  # ─── MERMALION (Stage 2 — purple evolved form) ───────────────────────────────
+  ("player/mermalion_front.png", "Mermalion front",
+   f"Elegant medium-sized purple mer-creature RPG player sprite facing forward. "
+   f"Medium chibi humanoid with a large shimmering lavender-purple fish tail ({chr(35)}c89af0), "
+   f"flowing dark purple mane/hair, larger more regal bearing than stage 1, "
+   f"bright expressive eyes, elegant pose. {STYLE}"),
 
-    ("player/mermalion_right.png",
-     "Pixel art RPG game sprite, an elegant purple-violet evolved mer-creature walking right. "
-     "Medium humanoid with fish tail, shimmering purple-violet scales, profile facing right, "
-     "flowing mane, one arm forward, tail sweeping. "
-     "Clean pixel art on dark/transparent background. 64x64 sprite. "
-     "Rich purple (#c89af0). Classic 16-bit RPG right-facing walk frame."),
+  ("player/mermalion_back.png", "Mermalion back",
+   f"Elegant medium-sized purple mer-creature RPG player sprite facing away. "
+   f"Back view of medium chibi with large purple tail ({chr(35)}c89af0), "
+   f"flowing dark purple mane visible from behind. {STYLE}"),
 
-    # Merlord - stage 3
-    ("player/merlord_front.png",
-     "Pixel art RPG game sprite, a majestic golden royal mer-creature standing facing forward. "
-     "Large imposing humanoid figure with a magnificent fish tail, glowing golden scales, "
-     "a flowing royal purple cape, a gleaming gold crown with 3 prongs, intense eyes, powerful stance. "
-     "Clean pixel art on dark/transparent background. 64x64 sprite. "
-     "Brilliant gold (#ffd24a), crimson cape (#e85a3a), royal purple cape. "
-     "Classic 16-bit RPG style like Pokémon champion sprites. Standing facing camera, regal pose."),
+  ("player/mermalion_left.png", "Mermalion left",
+   f"Elegant medium-sized purple mer-creature RPG player sprite walking left. "
+   f"Profile view facing left, large purple tail ({chr(35)}c89af0), flowing mane. {STYLE}"),
 
-    ("player/merlord_back.png",
-     "Pixel art RPG game sprite, a majestic golden royal mer-creature, back view. "
-     "Large humanoid with magnificent fish tail, gleaming gold scales, royal purple flowing cape, "
-     "gold crown with 3 prongs on head. "
-     "Clean pixel art on dark/transparent background. 64x64 sprite. "
-     "Brilliant gold (#ffd24a), royal purple cape. "
-     "Classic 16-bit RPG back view showing cape flowing and tail."),
+  ("player/mermalion_right.png", "Mermalion right",
+   f"Elegant medium-sized purple mer-creature RPG player sprite walking right. "
+   f"Profile view facing right, large purple tail ({chr(35)}c89af0), flowing mane. {STYLE}"),
 
-    ("player/merlord_left.png",
-     "Pixel art RPG game sprite, a majestic golden royal mer-creature walking left. "
-     "Large humanoid with fish tail, gleaming gold scales, royal purple cape billowing, "
-     "profile facing left, powerful arm raised slightly, crown gleaming. "
-     "Clean pixel art on dark/transparent background. 64x64 sprite. "
-     "Brilliant gold (#ffd24a). Classic 16-bit RPG left-facing walk frame."),
+  # ─── MERLORD (Stage 3 — gold champion form) ───────────────────────────────────
+  ("player/merlord_front.png", "Merlord front",
+   f"Majestic large golden royal mer-creature RPG player sprite facing forward. "
+   f"Large imposing chibi humanoid with a magnificent gleaming golden fish tail ({chr(35)}ffd24a), "
+   f"a flowing deep crimson-red royal cape, a gleaming 3-spike gold crown, "
+   f"powerful confident champion stance, intense bright eyes. "
+   f"Champion energy. {STYLE}"),
 
-    ("player/merlord_right.png",
-     "Pixel art RPG game sprite, a majestic golden royal mer-creature walking right. "
-     "Large humanoid with fish tail, gleaming gold scales, royal purple cape billowing, "
-     "profile facing right, powerful arm raised slightly, crown gleaming. "
-     "Clean pixel art on dark/transparent background. 64x64 sprite. "
-     "Brilliant gold (#ffd24a). Classic 16-bit RPG right-facing walk frame."),
+  ("player/merlord_back.png", "Merlord back",
+   f"Majestic large golden royal mer-creature RPG player sprite facing away. "
+   f"Back view showing large golden tail ({chr(35)}ffd24a), crimson cape flowing, "
+   f"gold crown with 3 spikes on head. Champion energy. {STYLE}"),
+
+  ("player/merlord_left.png", "Merlord left",
+   f"Majestic large golden royal mer-creature RPG player sprite walking left. "
+   f"Profile view facing left, golden tail ({chr(35)}ffd24a), crimson cape billowing, "
+   f"crown gleaming. Champion energy. {STYLE}"),
+
+  ("player/merlord_right.png", "Merlord right",
+   f"Majestic large golden royal mer-creature RPG player sprite walking right. "
+   f"Profile view facing right, golden tail ({chr(35)}ffd24a), crimson cape billowing, "
+   f"crown gleaming. Champion energy. {STYLE}"),
 ]
 
-for path, prompt in PLAYER_SPRITES:
-    gen(prompt, f"{SPRITE_DIR}/{path}")
+print(f"🚀 Generating {len(SPRITES)} player sprites (fal-ai/flux/dev)...\n")
+for path, label, prompt in SPRITES:
+    gen(label, prompt, f"{SPRITE_DIR}/{path}")
 
-print(f"\n✅ All {len(PLAYER_SPRITES)} player sprites generated!")
+print(f"\n✅ Done! {len(SPRITES)} player sprites generated.")
+print(f"📁 Saved to: {SPRITE_DIR}/player/")
+print(f"\nNote: Run this script with FAL_KEY set to regenerate sprites.")
+print(f"Higher quality requires more steps — increase num_inference_steps to 50 for best quality.")

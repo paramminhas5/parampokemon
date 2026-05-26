@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 64" width="48" height="64" shape-rendering="crispEdges">
+  <!-- Background -->
+  <rect width="48" height="64" fill="#c8b89a"/>
+  <!-- Shoes -->
+  <rect x="14" y="58" width="8" height="4" fill="#1a1a1a"/>
+  <rect x="26" y="58" width="8" height="4" fill="#1a1a1a"/>
+  <!-- Shoe shine -->
+  <rect x="15" y="58" width="3" height="1" fill="#3a3a3a"/>
+  <rect x="27" y="58" width="3" height="1" fill="#3a3a3a"/>
+  <!-- Pants - dark brown -->
+  <rect x="14" y="44" width="8" height="16" fill="#3a2010"/>
+  <rect x="26" y="44" width="8" height="16" fill="#3a2010"/>
+  <rect x="22" y="44" width="4" height="16" fill="#2a1808"/>
+  <!-- Pants highlight -->
+  <rect x="15" y="44" width="2" height="16" fill="#4a3020"/>
+  <!-- Suit jacket - dark brown -->
+  <rect x="12" y="24" width="24" height="22" fill="#5a3010"/>
+  <!-- Jacket shading -->
+  <rect x="12" y="24" width="2" height="22" fill="#6a4020"/>
+  <rect x="34" y="24" width="2" height="22" fill="#3a2008"/>
+  <!-- Lapels -->
+  <rect x="20" y="24" width="8" height="14" fill="#e8d8c0"/>
+  <rect x="18" y="24" width="4" height="10" fill="#5a3010"/>
+  <rect x="26" y="24" width="4" height="10" fill="#5a3010"/>
+  <!-- Tie - dark red-brown -->
+  <rect x="22" y="26" width="4" height="14" fill="#4a1810"/>
+  <rect x="23" y="26" width="2" height="14" fill="#5a2820"/>
+  <!-- Jacket buttons -->
+  <rect x="23" y="36" width="2" height="2" fill="#3a2010"/>
+  <rect x="23" y="40" width="2" height="2" fill="#3a2010"/>
+  <!-- Pocket square - subtle -->
+  <rect x="13" y="28" width="4" height="3" fill="#8a6040"/>
+  <!-- Left arm -->
+  <rect x="4" y="26" width="10" height="18" fill="#5a3010"/>
+  <rect x="4" y="44" width="10" height="8" fill="#d4a878"/>
+  <!-- Right arm - holding key ring -->
+  <rect x="34" y="26" width="10" height="18" fill="#5a3010"/>
+  <rect x="34" y="44" width="10" height="8" fill="#d4a878"/>
+  <!-- Gold key ring -->
+  <rect x="38" y="48" width="8" height="8" fill="#f0c030"/>
+  <rect x="39" y="49" width="6" height="6" fill="#c89000"/>
+  <rect x="40" y="50" width="4" height="4" fill="#f0c030"/>
+  <!-- Keys hanging -->
+  <rect x="40" y="54" width="2" height="6" fill="#d4a000"/>
+  <rect x="43" y="52" width="2" height="8" fill="#d4a000"/>
+  <rect x="37" y="53" width="2" height="6" fill="#d4a000"/>
+  <!-- Key teeth -->
+  <rect x="40" y="58" width="1" height="2" fill="#b88000"/>
+  <rect x="43" y="57" width="1" height="2" fill="#b88000"/>
+  <!-- Neck -->
+  <rect x="20" y="18" width="8" height="8" fill="#d4a878"/>
+  <!-- Head -->
+  <rect x="14" y="6" width="20" height="16" fill="#d4a878"/>
+  <!-- Head shading -->
+  <rect x="14" y="6" width="2" height="16" fill="#c49868"/>
+  <rect x="32" y="6" width="2" height="16" fill="#c49868"/>
+  <!-- Dark bowler hat -->
+  <rect x="12" y="2" width="24" height="8" fill="#1a1a1a"/>
+  <!-- Hat brim -->
+  <rect x="8" y="8" width="32" height="3" fill="#1a1a1a"/>
+  <!-- Hat highlight -->
+  <rect x="14" y="3" width="8" height="2" fill="#2a2a2a"/>
+  <!-- Hat band -->
+  <rect x="12" y="9" width="24" height="1" fill="#3a2a1a"/>
+  <!-- Eyes - stern, narrow -->
+  <rect x="17" y="13" width="5" height="3" fill="#ffffff"/>
+  <rect x="26" y="13" width="5" height="3" fill="#ffffff"/>
+  <rect x="18" y="13" width="3" height="3" fill="#2a1a0a"/>
+  <rect x="27" y="13" width="3" height="3" fill="#2a1a0a"/>
+  <rect x="19" y="14" width="1" height="1" fill="#ffffff"/>
+  <rect x="28" y="14" width="1" height="1" fill="#ffffff"/>
+  <!-- Stern furrowed brows -->
+  <rect x="16" y="11" width="7" height="2" fill="#3a2010"/>
+  <rect x="25" y="11" width="7" height="2" fill="#3a2010"/>
+  <rect x="16" y="12" width="2" height="1" fill="#5a3010"/>
+  <rect x="30" y="12" width="2" height="1" fill="#5a3010"/>
+  <!-- Serious thin mouth -->
+  <rect x="19" y="19" width="10" height="2" fill="#a07858"/>
+  <!-- Stubble shadow -->
+  <rect x="16" y="18" width="16" height="4" fill="#c09070" opacity="0.4"/>
+  <!-- Mustache -->
+  <rect x="19" y="17" width="10" height="2" fill="#3a2010"/>
+  <rect x="17" y="17" width="2" height="1" fill="#3a2010"/>
+  <rect x="29" y="17" width="2" height="1" fill="#3a2010"/>
+</svg>
