@@ -57,79 +57,55 @@ if (FAL_KEY) fal.config({ credentials: FAL_KEY });
 // ─── Model configs ────────────────────────────────────────────────────────────
 const MODELS = {
   // ── SD 1.5 — BEST for true GBA-style pixel art ────────────────────────────
-  // Uses fal-ai/lora which runs any SD1.5 model with LoRA weights.
-  // pixelsprite LoRA trained on 96x96 GBA Pokémon sprites: crisp, accurate.
+  // fal-ai/stable-diffusion-v15 is the fast hosted SD1.5 endpoint on fal.
   sd15: {
-    label:    "SD 1.5 + Pixel Art LoRA (recommended for sprites)",
-    endpoint: "fal-ai/lora",
+    label:    "SD 1.5 (fastest, true pixel art)",
+    endpoint: "fal-ai/stable-diffusion-v15",
     buildInput: (prompt, size) => ({
-      model_name:           "runwayml/stable-diffusion-v1-5",
-      prompt:               `pixel art sprite, ${prompt}`,
+      prompt:               `pixel art sprite, GBA style, bold outlines, transparent background, ${prompt}`,
       negative_prompt:      NEG,
       image_size:           size,
       num_inference_steps:  30,
       guidance_scale:       7.5,
       num_images:           1,
-      loras: [
-        // Pixel art style LoRA — gives true pixel structure
-        {
-          path:  "https://civitai.com/api/download/models/135931",
-          scale: 1.0,
-        },
-      ],
       enable_safety_checker: false,
     }),
-    spriteSize:   { width: 128, height: 128 },  // SD1.5 sweet spot for pixel art
-    landmarkSize: { width: 256, height: 256 },
+    spriteSize:   { width: 512, height: 512 },
+    landmarkSize: { width: 512, height: 512 },
   },
 
   // ── SDXL — more detail, still pixel-accurate ─────────────────────────────
   sdxl: {
-    label:    "SDXL + Pixel Art LoRA",
+    label:    "SDXL fast (more detail)",
     endpoint: "fal-ai/fast-sdxl",
     buildInput: (prompt, size) => ({
-      prompt:               `(pixel art:1.4), masterpiece pixel art sprite, ${prompt}`,
+      prompt:               `pixel art sprite, GBA Game Boy Advance style, bold black outlines, no anti-aliasing, crisp clean pixels, transparent background, ${prompt}`,
       negative_prompt:      NEG,
       image_size:           size,
-      num_inference_steps:  30,
+      num_inference_steps:  25,
       guidance_scale:       7.0,
       num_images:           1,
-      loras: [
-        {
-          // SDXL pixel art LoRA
-          path:  "https://huggingface.co/nerijs/pixel-art-xl/resolve/main/pixel-art-xl.safetensors",
-          scale: 1.1,
-        },
-      ],
       enable_safety_checker: false,
     }),
-    spriteSize:   { width: 256, height: 256 },
-    landmarkSize: { width: 320, height: 320 },
+    spriteSize:   { width: 512, height: 512 },
+    landmarkSize: { width: 512, height: 512 },
   },
 
-  // ── Flux-lora — highest quality, less pixel-accurate without strong LoRA ──
+  // ── Flux schnell — fast, good quality ─────────────────────────────────────
   flux: {
-    label:    "FLUX.1 dev + LoRA (high quality, may be painterly)",
-    endpoint: "fal-ai/flux-lora",
+    label:    "FLUX schnell (fast, high quality)",
+    endpoint: "fal-ai/flux/schnell",
     buildInput: (prompt, size) => ({
-      prompt:               `pkspr pixel art sprite, ${prompt}`,
+      prompt:               `pixel art sprite, GBA Pokemon style, bold black outlines, crisp clean pixels, no anti-aliasing, white background, ${prompt}`,
       negative_prompt:      NEG,
       image_size:           size,
-      num_inference_steps:  28,
-      guidance_scale:       3.0,
+      num_inference_steps:  4,
       num_images:           1,
-      loras: [
-        // Pokémon trainer sprite LoRA (GBA-style, trigger: pkspr)
-        {
-          path:  "https://huggingface.co/sWizad/pokemon-trainer-sprite-pixelart/resolve/main/pkspr_flux_v2f.safetensors",
-          scale: 1.2,
-        },
-      ],
       enable_safety_checker: false,
       output_format: "png",
     }),
-    spriteSize:   { width: 256, height: 256 },
-    landmarkSize: { width: 320, height: 320 },
+    spriteSize:   { width: 512, height: 512 },
+    landmarkSize: { width: 512, height: 512 },
   },
 };
 
