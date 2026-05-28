@@ -438,19 +438,24 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       }
     }
 
-    // roofs colored per zone
+    // roofs colored per zone (primary + optional second building)
     for (const z of ZONES) {
-      const b = z.building;
-      const ry = z.oy + b.y;
-      if (ry < ty0 - 1 || ry > ty1 + 1) continue;
-      for (let bx = 0; bx < b.w; bx++) {
-        const wx = b.x + bx + z.ox;
-        const kind: "left" | "mid" | "right" | "solo" =
-          b.w === 1 ? "solo" : bx === 0 ? "left" : bx === b.w - 1 ? "right" : "mid";
-        drawRoof(ctx, wx * TILE + offX, ry * TILE + offY, b.color, b.roof, kind);
-      }
-      ctx.fillStyle = b.color + "22";
-      ctx.fillRect((b.x + z.ox) * TILE + offX, (b.y + 1 + z.oy) * TILE + offY, b.w * TILE, (b.h - 1) * TILE);
+      // helper: draw one building's roof + wall tint
+      const drawBuildingRoof = (b: typeof z.building) => {
+        const ry = z.oy + b.y;
+        if (ry < ty0 - 1 || ry > ty1 + 1) return;
+        for (let bx = 0; bx < b.w; bx++) {
+          const wx = b.x + bx + z.ox;
+          const kind: "left" | "mid" | "right" | "solo" =
+            b.w === 1 ? "solo" : bx === 0 ? "left" : bx === b.w - 1 ? "right" : "mid";
+          drawRoof(ctx, wx * TILE + offX, ry * TILE + offY, b.color, b.roof, kind);
+        }
+        ctx.fillStyle = b.color + "22";
+        ctx.fillRect((b.x + z.ox) * TILE + offX, (b.y + 1 + z.oy) * TILE + offY, b.w * TILE, (b.h - 1) * TILE);
+      };
+
+      drawBuildingRoof(z.building);
+      if (z.building2) drawBuildingRoof(z.building2 as typeof z.building);
 
       // landmark for this zone (only when on-screen)
       if (z.oy + z.h >= ty0 - 4 && z.oy <= ty1 + 4) {

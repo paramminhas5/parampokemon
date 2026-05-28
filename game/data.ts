@@ -95,6 +95,8 @@ export type Zone = {
   w: number; h: number;
   ox: number; oy: number;
   building: { x: number; y: number; w: number; h: number; doorX: number; color: string; roof: string };
+  /** Optional second structure (lab, gym annex, second apartment block, etc.) */
+  building2?: { x: number; y: number; w: number; h: number; doorX?: number; color: string; roof: string };
   sign: GameSign;
   badge: GameBadge;
   npcs: GameNpc[];
@@ -116,10 +118,14 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     bullets: ["Got Mermander from Professor", "Mom's blessing", "Walk south to begin"],
     theme: { ground: "grass", accent: "#9ad6e8", landmark: "home" },
     w: 26, h: 20,
-    // Cozy cottage top-left with fenced garden; Prof lab top-right
-    building: { x: 1, y: 2, w: 9, h: 6, doorX: 4, color: "#d0d8e8", roof: "#b0382c" },
+    // Cosy white cottage top-left corner. Professor's lab is a separate
+    // wider brick building top-right. Fenced garden between them.
+    // door at local x=5 → world x=27+1+5=33  ✓ (off-path)
+    building: { x: 1, y: 1, w: 8, h: 5, doorX: 3, color: "#f0ece0", roof: "#c04030" },
+    // Professor's lab — wider brick building top-right, no door (enter via NPC)
+    building2: { x: 19, y: 1, w: 6, h: 6, color: "#c8b890", roof: "#6a4820" },
     sign: { x: 16, y: 16, text: "PALLET TOWN\nA portfolio you can walk through.\n\nSCROLL/ARROWS to walk.\nTAP to walk there.\nSPACE or A to talk.\nMAP to fast-travel anywhere." },
-    badge: { x: 22, y: 8, id: "curiosity", label: "Starter Token", color: "#9ad6e8" },
+    badge: { x: 22, y: 3, id: "curiosity", label: "Starter Token", color: "#9ad6e8" },
     spawn: { x: 13, y: 14 },
     npcs: [
       { x: 5, y: 15, name: "Mom", role: "Pallet Town", kind: "mom", beat: "did",
@@ -146,10 +152,12 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     bullets: ["First product at 19", "First company at 21", "Built before Indian tech had a scene"],
     theme: { ground: "sand", accent: "#f5b78a", landmark: "bedroom" },
     w: 26, h: 20,
-    // Workshop sprawling left side, open workshop feel
-    building: { x: 2, y: 3, w: 10, h: 7, doorX: 5, color: "#e6c47a", roof: "#7a4d28" },
+    // Solo bedroom-workshop: narrow tall building left side, open sandy
+    // floor to the right with scattered drafting props and record crates.
+    // door at local x=2+4=6 → world x=27+2+4=33  ✓
+    building: { x: 2, y: 1, w: 7, h: 5, doorX: 3, color: "#d4a85a", roof: "#7a4828" },
     sign: { x: -99, y: -99, text: "ORIGIN TOWN\nBuilder. Designer. Music producer.\nThe story starts here." },
-    badge: { x: 22, y: 15, id: "vision", label: "Vision Badge", color: "#f5b78a" },
+    badge: { x: 22, y: 16, id: "vision", label: "Vision Badge", color: "#f5b78a" },
     npcs: [
       { x: 4, y: 16, name: "Param", role: "Builder · Designer · Director", kind: "trainer-m", beat: "did",
         quote: "Builder, designer, creative director, music producer.\n\nFifteen years across e-commerce, real estate, AI, sneakers, music, and AI-led marketing." },
@@ -193,10 +201,14 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     bullets: ["Founding team, in college", "Angel-backed by Sidharth Rao (Webchutney)", "Built catalog + crawl pipeline"],
     theme: { ground: "grass", accent: "#a8d39a", landmark: "market" },
     w: 26, h: 20,
-    // Market building top-right, stalls and price tags left side
-    building: { x: 15, y: 1, w: 9, h: 7, doorX: 4, color: "#a8d39a", roof: "#3f7a3a" },
+    // Market office building right side — wide shopfront with green awning.
+    // Left half = open stall marketplace with price tag props.
+    // door at local x=17+3=20 → world x=27+17+3=47 ✓ (right of path)
+    building: { x: 17, y: 1, w: 8, h: 6, doorX: 2, color: "#b8e0a0", roof: "#386828" },
+    // Market stall row — open-front structure left side, no door
+    building2: { x: 1, y: 3, w: 10, h: 4, color: "#e8d878", roof: "#8a7020" },
     sign: { x: -99, y: -99, text: "GRP MARKET\nIndia's first price-comparison engine.\nBuilt in college." },
-    badge: { x: 3, y: 15, id: "ship", label: "Search Badge", color: "#a8d39a" },
+    badge: { x: 3, y: 16, id: "ship", label: "Search Badge", color: "#a8d39a" },
     npcs: [
       { x: 8, y: 16, name: "GetRightPrice", role: "Founding team · 2010", kind: "trainer-m", beat: "did",
         quote: "Founding team of one of India's first price-comparison engines for electronics.\n\nAngel-backed by Sidharth Rao of Webchutney." },
@@ -242,10 +254,15 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     bullets: ["Standardised budget rentals in Bengaluru", "₹1 crore revenue, zero external capital", "Same problem as OYO, no VC money"],
     theme: { ground: "stone", accent: "#f6a268", landmark: "rentals" },
     w: 26, h: 20,
-    // Apartment block center-right, brick plants + fences left side
-    building: { x: 16, y: 3, w: 8, h: 8, doorX: 3, color: "#c47833", roof: "#5a2c0c" },
+    // Two apartment blocks facing each other across a courtyard.
+    // Left block is the main building (narrow, tall); right wall is
+    // a second unit visible as a separate structure in world.ts.
+    // door at local x=1+3=4 → world x=27+1+3=31  ✓
+    building: { x: 1, y: 2, w: 7, h: 6, doorX: 3, color: "#c8784a", roof: "#5a2808" },
+    // Second apartment block right side — same height, different colour
+    building2: { x: 18, y: 2, w: 7, h: 6, color: "#a86030", roof: "#3a1808" },
     sign: { x: -99, y: -99, text: "HAB DISTRICT\nBudget rentals. ₹1Cr revenue.\nZero VC money." },
-    badge: { x: 3, y: 16, id: "ops", label: "Operator Badge", color: "#f6a268" },
+    badge: { x: 22, y: 16, id: "ops", label: "Operator Badge", color: "#f6a268" },
     npcs: [
       { x: 7, y: 17, name: "Hab Housing", role: "Founder · 2012", kind: "trainer-m", beat: "did",
         quote: "Standardised budget rentals across Bengaluru — same problem OYO solved at the same time, without VC money.\n\nScaled to ₹1Cr revenue on operations alone." },
@@ -289,10 +306,12 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     bullets: ["Built one of India's first AI chatbots in 2013", "Co-built Octo with Akshaya Aron", "Director of Marketing post-acquisition"],
     theme: { ground: "neon", accent: "#9fe8ff", landmark: "lab" },
     w: 26, h: 20,
-    // Server room far-left, neon pylon grid fills center; entry from right
-    building: { x: 1, y: 1, w: 10, h: 8, doorX: 5, color: "#4a6e9a", roof: "#1f3548" },
+    // L-shaped server room: main block fills the left 2/3 of the zone top.
+    // Neon pylons + server props fill the remaining open floor to the right.
+    // door at local x=1+4=5 → world x=27+1+4=32  ✓
+    building: { x: 1, y: 1, w: 9, h: 5, doorX: 4, color: "#2a4a6a", roof: "#0f2030" },
     sign: { x: -99, y: -99, text: "QUARTIC LAB\nBuilt AI before it was a category.\n2013 chatbot · Octo · Quartic.ai" },
-    badge: { x: 22, y: 7, id: "ai", label: "Conversation Badge", color: "#9fe8ff" },
+    badge: { x: 22, y: 6, id: "ai", label: "Conversation Badge", color: "#9fe8ff" },
     npcs: [
       { x: 5, y: 16, name: "Octo → Quartic", role: "Founding team · 2013", kind: "engineer", beat: "did",
         quote: "In 2013 we built one of India's first AI chatbots — before the word was common. On top of that we built Octo, an AI marketing platform. Acquired by Quartic.ai.\n\nI led marketing as Director." },
@@ -340,10 +359,15 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     ],
     theme: { ground: "dusk", accent: "#f0c4ff", landmark: "tower" },
     w: 26, h: 20,
-    // Tower center, trophy room right, marble floor left
-    building: { x: 5, y: 1, w: 8, h: 10, doorX: 2, color: "#9a6fc4", roof: "#3f2266" },
-    sign: { x: -99, y: -99, text: "INVESTOPAD\nFamily office of Rohan & Arjun Malhotra.\nFund 0 from scratch." },
-    badge: { x: 23, y: 16, id: "fund", label: "Capital Badge", color: "#f0c4ff" },
+    // Tall narrow tower dead-centre — the only building that dominates
+    // the skyline. Trophy wings flanking it are placed in world.ts as props.
+    // door at local x=10+2=12 → world x=27+10+2=39 — ON PATH. Fix: x=6
+    // door at local x=6+2=8 → world x=27+6+2=35  ✓
+    building: { x: 6, y: 1, w: 6, h: 6, doorX: 2, color: "#8050b0", roof: "#3a1860" },
+    // Side annex — low wide structure right, for trophy/portfolio display
+    building2: { x: 18, y: 4, w: 7, h: 5, color: "#604090", roof: "#280e50" },
+    sign: { x: -99, y: -99, text: "INVESTOPAD\nFamily office of Rohan & Arjun Malhotra.\nFund I from scratch." },
+    badge: { x: 22, y: 16, id: "fund", label: "Capital Badge", color: "#f0c4ff" },
     npcs: [
       { x: 3, y: 15, name: "Investopad", role: "Growth & Tech Partner · Fund 0", kind: "investor", beat: "did",
         quote: "Partner for Growth and Technology.\n\nHelped build Fund I — deal sourcing, portfolio analysis, founder relationships, growth strategy. I didn't write the cheques, but I was in the room while most of our companies raised theirs." },
@@ -392,10 +416,12 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     ],
     theme: { ground: "mall", accent: "#ff9fd4", landmark: "mall" },
     w: 26, h: 20,
-    // Mall building center-wide, neon arches flank; sneaker racks behind sign
-    building: { x: 3, y: 2, w: 12, h: 6, doorX: 3, color: "#c0388c", roof: "#4a1240" },
+    // Wide storefront spans the full top of the zone — like a real mall anchor.
+    // Sneaker racks and neon signs fill the open floor below.
+    // door at local x=1+3=4 → world x=27+1+3=31  ✓
+    building: { x: 1, y: 1, w: 14, h: 5, doorX: 3, color: "#c03890", roof: "#501040" },
     sign: { x: -99, y: -99, text: "SOLESEARCH MALL\nIndia's sneaker & streetwear platform.\n$795K raised · CNBC-TV18." },
-    badge: { x: 23, y: 10, id: "ceo", label: "Culture Badge", color: "#ff9fd4" },
+    badge: { x: 22, y: 10, id: "ceo", label: "Culture Badge", color: "#ff9fd4" },
     npcs: [
       { x: 4, y: 17, name: "SoleSearch", role: "Co-founder & CEO · 2020-24", kind: "celeb", beat: "did",
         quote: "Co-founded India's leading sneaker and streetwear platform with Prabal Baghla. Joined by Rannvijay Singha. Raised $795K.\n\nStores in Mumbai and Hyderabad. CNBC-TV18." },
@@ -447,10 +473,12 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     ],
     theme: { ground: "crypto", accent: "#00e8a0", landmark: "trading" },
     w: 26, h: 20,
-    // Trading floor right side; candlestick forest left; sign bottom-center
-    building: { x: 16, y: 2, w: 9, h: 7, doorX: 4, color: "#1a8c6e", roof: "#053d2c" },
+    // Trading floor: compact building right side, candlestick forest fills
+    // left and centre — the data is the landscape.
+    // door at local x=17+3=20 → world x=27+17+3=47  ✓
+    building: { x: 17, y: 1, w: 8, h: 5, doorX: 3, color: "#0e6b50", roof: "#03281e" },
     sign: { x: -99, y: -99, text: "FERE DISTRICT\nAutonomous AI agents.\n$1.3M raised." },
-    badge: { x: 5, y: 9, id: "agent", label: "Autonomy Badge", color: "#00e8a0" },
+    badge: { x: 3, y: 10, id: "agent", label: "Autonomy Badge", color: "#00e8a0" },
     npcs: [
       { x: 8, y: 17, name: "Fere.ai", role: "AI × Crypto · 2024-25", kind: "engineer", beat: "did",
         quote: "A year-long project with Akshaya Aron — a decade after Octo.\n\nAutonomous AI agents for financial markets. Starting with crypto." },
@@ -494,10 +522,12 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     bullets: ["Original music releases", "Pet-forward brand world", "Live events + creative IP"],
     theme: { ground: "studio", accent: "#ffd29a", landmark: "studio" },
     w: 26, h: 20,
-    // Studio building top-left, speakers and record player scattered right
-    building: { x: 1, y: 1, w: 9, h: 7, doorX: 4, color: "#c47844", roof: "#5a2c10" },
+    // Recording studio top-left corner — intimate, warm. Speakers and
+    // record crates scatter across the parquet floor to the right.
+    // door at local x=1+3=4 → world x=27+1+3=31  ✓
+    building: { x: 1, y: 1, w: 8, h: 6, doorX: 3, color: "#b86830", roof: "#502210" },
     sign: { x: -99, y: -99, text: "CATS CAN DANCE\nMusic label · Pet-forward brand.\nNo brief. No client." },
-    badge: { x: 22, y: 15, id: "soul", label: "Soul Badge", color: "#ffd29a" },
+    badge: { x: 22, y: 16, id: "soul", label: "Soul Badge", color: "#ffd29a" },
     npcs: [
       { x: 3, y: 16, name: "Cats Can Dance", role: "Music label · Pet brand", kind: "client", beat: "did",
         quote: "A music label and pet-forward brand. Original music, brand world, live events.\n\nNo brief. No client. The work that exists because it has to." },
@@ -541,10 +571,15 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     bullets: ["AI workflows for brand & growth", "Strategy + creative + tech in one room", "Built on 15 years of operator instinct"],
     theme: { ground: "night", accent: "#7ce0ff", landmark: "agency" },
     w: 26, h: 20,
-    // HQ building top-right with trophy wall; champion archway center; contact left
-    building: { x: 15, y: 1, w: 10, h: 8, doorX: 4, color: "#4a8cc4", roof: "#1a3858" },
+    // HQ building right side — sleek, dark, corporate. Trophy wall on the
+    // left is expressed as clustered PROP_TROPHY tiles in world.ts.
+    // Champion archway sits centre-stage before the exit.
+    // door at local x=17+3=20 → world x=27+17+3=47  ✓
+    building: { x: 17, y: 1, w: 8, h: 5, doorX: 3, color: "#2a5890", roof: "#0e2040" },
+    // Strategy/trophy wall — narrow structure left side
+    building2: { x: 1, y: 1, w: 6, h: 7, color: "#1a3060", roof: "#081828" },
     sign: { x: -99, y: -99, text: "ITERATE HQ\nAI-native marketing agency.\nFifteen years pointed at one target." },
-    badge: { x: 4, y: 15, id: "champion", label: "Champion Badge", color: "#7ce0ff" },
+    badge: { x: 3, y: 16, id: "champion", label: "Champion Badge", color: "#7ce0ff" },
     npcs: [
       { x: 6, y: 17, name: "Iterate", role: "Founder · AI-native agency", kind: "engineer", beat: "did",
         quote: "An AI-native marketing agency built on 15 years of operating across brand, technology, and growth.\n\nStrategy, creative, and technology in one room — moving at the speed of AI." },
