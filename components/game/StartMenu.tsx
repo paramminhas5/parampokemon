@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { ZONES, CONTACT, PRESS } from "@/game/data";
+import { ZONES, CONTACT, PRESS, STARTER_STAGES, stageForBadges } from "@/game/data";
+import { PLAYER_FRONT_URL, FOLLOWER_SPRITE_URL } from "@/game/sprite-registry";
 
 type Tab = "badges" | "trainer" | "people" | "contact";
 
@@ -8,7 +9,9 @@ export function StartMenu({ badges, creatures, skills, onClose }: {
 }) {
   const [tab, setTab] = useState<Tab>("trainer");
   const [selected, setSelected] = useState<string | null>(null);
-  const completed = ZONES.filter((z) => badges.has(z.badge.id)).length;
+  const gymZones = ZONES.filter((z) => z.gym);
+  const completed = gymZones.filter((z) => badges.has(z.badge.id)).length;
+  const stage = stageForBadges(badges.size);
 
   return (
     <div className="fixed inset-0 z-30 flex items-stretch justify-stretch p-2 sm:p-4" onClick={onClose}
@@ -23,7 +26,7 @@ export function StartMenu({ badges, creatures, skills, onClose }: {
         <div className="flex flex-nowrap overflow-x-auto gap-2 px-3 py-2" style={{ borderBottom: "2px solid var(--color-dialog-shadow)", WebkitOverflowScrolling: "touch" }}>
           {([
             ["trainer", "TRAINER"],
-            ["badges", `BADGES ${completed}/${ZONES.length}`],
+            ["badges", `BADGES ${completed}/${gymZones.length}`],
             ["people", "PEOPLE"],
             ["contact", "CONTACT"],
           ] as [Tab, string][]).map(([k, label]) => (
@@ -36,18 +39,41 @@ export function StartMenu({ badges, creatures, skills, onClose }: {
             <div className="pq-panel-inner">
               <div className="pq-label" style={{ color: "var(--color-dialog-shadow)" }}>TRAINER CARD</div>
               <div className="grid grid-cols-[80px_1fr] gap-3 mt-2 items-center">
-                <div style={{ width: 80, height: 80, background: "var(--color-primary)", border: "3px solid var(--color-dialog-border)" }} />
+                <div style={{ width: 80, height: 80, background: stage.color + "22", border: `3px solid ${stage.accent}60`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", position: "relative" }}>
+                  <img
+                    src={PLAYER_FRONT_URL[stage.id] ?? PLAYER_FRONT_URL.mermander}
+                    alt={stage.name}
+                    style={{ width: 72, height: 72, imageRendering: "pixelated", objectFit: "contain" }}
+                    onError={e => (e.currentTarget.style.display = "none")}
+                  />
+                </div>
                 <div>
                   <div style={{ fontFamily: "var(--font-pixel)", fontSize: 14 }}>PARAM MINHAS</div>
                   <div className="pq-text-sm" style={{ opacity: 0.75 }}>Builder · Designer · Director</div>
                   <div className="pq-text-sm" style={{ opacity: 0.75 }}>Pune → Bengaluru → Mumbai → now</div>
+                  <div style={{ display: "flex", gap: 6, marginTop: 6, alignItems: "center" }}>
+                    {STARTER_STAGES.map((s) => {
+                      const unlocked = badges.size >= s.minBadges;
+                      return (
+                        <div key={s.id} style={{ opacity: unlocked ? 1 : 0.3, textAlign: "center" }}>
+                          <img
+                            src={FOLLOWER_SPRITE_URL[s.id]}
+                            alt={s.name}
+                            style={{ width: 28, height: 28, imageRendering: "pixelated", border: `1px solid ${s.id === stage.id ? s.accent : "transparent"}`, borderRadius: 2 }}
+                            onError={e => (e.currentTarget.style.display = "none")}
+                          />
+                        </div>
+                      );
+                    })}
+                    <span style={{ fontFamily: "var(--font-pixel)", fontSize: 8, color: stage.accent, marginLeft: 4 }}>{stage.name}</span>
+                  </div>
                 </div>
               </div>
               <hr style={{ borderColor: "var(--color-dialog-border)", margin: "12px 0", borderWidth: 1 }} />
               <div className="grid grid-cols-4 gap-3 text-center">
                 <Stat label="YEARS" value="15+" />
                 <Stat label="WORLDS" value={`${ZONES.length}`} />
-                <Stat label="BADGES" value={`${completed}/${ZONES.length}`} />
+                <Stat label="BADGES" value={`${completed}/${gymZones.length}`} />
                 <Stat label="CREATURES" value={`${creatures.size}/${ZONES.filter(z=>z.creature).length}`} />
               </div>
               <hr style={{ borderColor: "var(--color-dialog-border)", margin: "12px 0", borderWidth: 1 }} />

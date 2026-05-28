@@ -113,6 +113,11 @@ export function Game() {
     } catch {}
   }, [badges, creatures, skills, defeated, visited]);
 
+  // Keep player stage in sync with badge count (fixes save-reload regression)
+  useEffect(() => {
+    engineRef.current?.setPlayerStage(stageForBadges(badges.size).id);
+  }, [badges]);
+
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const showToast = useCallback((title: string, sub?: string) => {
     setToast({ title, sub });
@@ -144,8 +149,7 @@ export function Game() {
             });
           }
         } else if (i.kind === "sign") {
-          // Check if this is a press wall sign
-          if ((i.sign as { pressWall?: boolean }).pressWall) {
+          if (i.sign.pressWall) {
             setPressOpen(true); engine.setPaused(true); return;
           }
           setDialog({ type: "sign", text: i.sign.text });
@@ -154,17 +158,19 @@ export function Game() {
       },
       onZoneEnter: (z: Zone) => {
         setCurrentZoneId(z.id);
+        const isFirstTime = !visited.has(z.id);
         setVisited(prev => { const n = new Set(prev); n.add(z.id); return n; });
         showToast(z.name.toUpperCase(), z.subtitle);
         // Fire zone transition + BGM
         transKeyRef.current += 1;
         setTransition({ kind: "zone", color: z.theme.accent, key: transKeyRef.current });
         playZoneBGM(z.theme.ground as Parameters<typeof playZoneBGM>[0], z.id);
-        if (z.id !== "home") {
+        // Only show arrival cinematic + CliffNotes on FIRST visit
+        if (z.id !== "home" && isFirstTime) {
           setZoneTitle(z);
           engine.setPaused(true);
         }
-        if (z.id !== "home") { setCliffOpen(z); }
+        if (z.id !== "home" && isFirstTime) { setCliffOpen(z); }
       },
       onMenu: () => { setMenuOpen(true); engine.setPaused(true); },
       onBadge: (badgeId: string) => {

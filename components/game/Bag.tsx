@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ZONES, STARTER_STAGES, stageForBadges } from "@/game/data";
 import { drawStarter } from "@/game/sprites";
-import { CREATURE_URL } from "@/game/sprite-registry";
+import { CREATURE_URL, PLAYER_FRONT_URL, FOLLOWER_SPRITE_URL } from "@/game/sprite-registry";
 
 type Tab = "mermander" | "creatures" | "berries" | "badges";
 
@@ -60,13 +60,35 @@ function MermanderTab({ badges, skills }: { badges: Set<string>; skills: Set<str
   }, [stage.id]);
 
   const knownMoves = ZONES.filter((z) => z.skill && skills.has(z.skill.id));
+  const pngSrc = PLAYER_FRONT_URL[stage.id] ?? PLAYER_FRONT_URL.mermander;
 
   return (
     <div className="grid sm:grid-cols-2 gap-3">
       <div className="pq-panel-inner text-center">
-        <canvas ref={ref} width={128} height={128}
-          style={{ width: 160, height: 160, imageRendering: "pixelated", background: stage.color + "22",
-                   border: "3px solid var(--color-dialog-border)", margin: "0 auto" }} />
+        {/* Try PNG first, fallback to canvas */}
+        <div style={{ position: "relative", width: 160, height: 160, margin: "0 auto" }}>
+          <img
+            src={pngSrc}
+            alt={stage.name}
+            style={{
+              width: 160, height: 160, imageRendering: "pixelated",
+              objectFit: "contain",
+              background: stage.color + "22",
+              border: "3px solid var(--color-dialog-border)",
+              filter: `drop-shadow(0 0 16px ${stage.accent}80)`,
+            }}
+            onError={(e: { currentTarget: HTMLImageElement }) => {
+              e.currentTarget.style.display = "none";
+              if (ref.current) ref.current.style.display = "block";
+            }}
+          />
+          <canvas ref={ref} width={128} height={128}
+            style={{ width: 160, height: 160, imageRendering: "pixelated",
+                     background: stage.color + "22",
+                     border: "3px solid var(--color-dialog-border)",
+                     position: "absolute", inset: 0,
+                     display: "none" }} />
+        </div>
         <div className="pq-label mt-2" style={{ color: "var(--color-dialog-shadow)" }}>{stage.tag}</div>
         <div style={{ fontFamily: "var(--font-pixel)", fontSize: 18, marginTop: 4 }}>{stage.name.toUpperCase()}</div>
         <div className="pq-text-sm" style={{ marginTop: 4, opacity: 0.7, fontSize: 13 }}>HP {stage.hp}</div>
@@ -80,12 +102,30 @@ function MermanderTab({ badges, skills }: { badges: Set<string>; skills: Set<str
             return (
               <div key={s.id} className="text-center" style={{ opacity: unlocked ? 1 : 0.35 }}>
                 <div style={{
-                  height: 56, background: s.color + "22",
+                  height: 72, background: s.color + "22",
                   border: `2px solid ${s.id === stage.id ? s.accent : "var(--color-dialog-border)"}`,
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  fontFamily: "var(--font-pixel)", fontSize: 9, color: "var(--color-dialog)",
-                }}>{unlocked ? s.name.toUpperCase() : "?????"}</div>
+                  overflow: "hidden", position: "relative",
+                  boxShadow: s.id === stage.id ? `0 0 12px ${s.accent}60` : "none",
+                }}>
+                  {unlocked ? (
+                    <img
+                      src={FOLLOWER_SPRITE_URL[s.id]}
+                      alt={s.name}
+                      style={{ width: 56, height: 56, imageRendering: "pixelated", objectFit: "contain" }}
+                      onError={e => (e.currentTarget.style.display = "none")}
+                    />
+                  ) : (
+                    <span style={{ fontFamily: "var(--font-pixel)", fontSize: 9, color: "var(--color-dialog)" }}>?????</span>
+                  )}
+                  {s.id === stage.id && (
+                    <div style={{ position: "absolute", bottom: 2, right: 2, width: 6, height: 6, borderRadius: "50%", background: s.accent }} />
+                  )}
+                </div>
                 <div className="pq-label" style={{ fontSize: 8, marginTop: 2 }}>
+                  {unlocked ? s.name.toUpperCase() : "?????"}
+                </div>
+                <div className="pq-label" style={{ fontSize: 7, opacity: 0.6 }}>
                   {s.minBadges === 0 ? "START" : `${s.minBadges} BADGES`}
                 </div>
               </div>

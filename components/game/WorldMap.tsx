@@ -1,5 +1,6 @@
 "use client";
 import { ZONES } from "@/game/data";
+import { LEADER_URL } from "@/game/sprite-registry";
 
 const WM_STYLES = `
 @keyframes wm-fade { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
@@ -143,19 +144,37 @@ export function WorldMap({ visited, defeated, currentId, onWarp, onClose }: {
                     display: "flex", alignItems: "center", justifyContent: "center",
                     position: "relative",
                   }}>
+                    {isDefeated && z.gym && LEADER_URL[z.gym.leader] && (
+                      <div style={{
+                        position: "absolute", inset: 0,
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        zIndex: 2,
+                      }}>
+                        <img
+                          src={LEADER_URL[z.gym.leader]}
+                          alt={z.gym.opponentName}
+                          style={{ width: 32, height: 32, imageRendering: "pixelated", filter: "grayscale(0.3)" }}
+                          onError={e => (e.currentTarget.style.display = "none")}
+                        />
+                      </div>
+                    )}
+                    {!isDefeated && (
+                      <img
+                        src={`/sprites/landmarks/${z.id}.png`}
+                        alt=""
+                        style={{ width: 32, height: 32, imageRendering: "pixelated" }}
+                        onError={e => (e.currentTarget.style.display = "none")}
+                      />
+                    )}
                     {isDefeated && (
                       <div style={{
-                        position: "absolute", inset: 0, background: `${z.theme.accent}20`,
+                        position: "absolute", bottom: 0, right: 0,
+                        width: 12, height: 12,
+                        background: z.theme.accent,
                         display: "flex", alignItems: "center", justifyContent: "center",
-                        zIndex: 2, fontSize: 12,
+                        fontSize: 7, zIndex: 3,
                       }}>★</div>
                     )}
-                    <img
-                      src={`/sprites/landmarks/${z.id}.png`}
-                      alt=""
-                      style={{ width: 32, height: 32, imageRendering: "pixelated" }}
-                      onError={e => (e.currentTarget.style.display = "none")}
-                    />
                   </div>
 
                   {/* Zone text */}

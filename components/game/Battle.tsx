@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import type { Zone, Move } from "@/game/data";
 import { ZONES, stageForBadges } from "@/game/data";
 import { drawStarter } from "@/game/sprites";
-import { CREATURE_URL, PLAYER_BACK_URL, BATTLE_BG_URL, LEADER_URL, getSprite, isReady } from "@/game/sprite-registry";
+import { CREATURE_URL, PLAYER_BACK_URL, PLAYER_FRONT_URL, BATTLE_BG_URL, LEADER_URL, getSprite, isReady } from "@/game/sprite-registry";
 import { playSound } from "@/lib/audio";
 
 // ─── Type colours ───────────────────────────────────────────────────────────
@@ -413,8 +413,17 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee }: {
         {/* Player side */}
         <div style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: "8px 12px 0 16px", position: "relative", zIndex: 2 }}>
           <div style={{ background: "rgba(3,7,18,0.92)", border: "2px solid #1a2a4a", padding: "8px 10px", marginBottom: 4, backdropFilter: "blur(4px)", borderRadius: 3 }}>
-            <HPBar current={myHp} max={stage.hp} label={stage.name} color={stage.color} shaking={myHpShake} />
-            <div style={{ fontSize: 6, color: "#2a3a50", marginTop: 4 }}>{stage.tag} · {badges.size} BADGES</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+              {/* Player pokemon PNG thumbnail in HP card */}
+              <img
+                src={PLAYER_FRONT_URL[stage.id] ?? PLAYER_FRONT_URL.mermander}
+                alt={stage.name}
+                style={{ width: 22, height: 22, imageRendering: "pixelated", border: "1px solid #1a2a4a", flexShrink: 0, borderRadius: 1 }}
+                onError={e => (e.currentTarget.style.display = "none")}
+              />
+              <HPBar current={myHp} max={stage.hp} label={stage.name} color={stage.color} shaking={myHpShake} />
+            </div>
+            <div style={{ fontSize: 6, color: "#2a3a50", marginTop: 2 }}>{stage.tag} · {badges.size} BADGES</div>
           </div>
           <div style={{ alignSelf: "flex-end", transform: meShake ? "translateX(-9px)" : "translateX(0)", transition: "transform 0.08s", filter: "drop-shadow(0 6px 0 rgba(0,0,0,0.5))", animation: "sprite-enter-left 0.45s cubic-bezier(0.2,0.8,0.4,1)" }}>
             <canvas ref={meRef} width={128} height={128} style={{ imageRendering: "pixelated", width: 112, height: 112 }} />
@@ -424,10 +433,31 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee }: {
         {/* Opponent side */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", padding: "0 16px 8px 12px", justifyContent: "flex-start", position: "relative", zIndex: 2 }}>
           <div style={{ transform: oppShake ? "translateX(9px) rotate(4deg)" : "translateX(0)", transition: "transform 0.08s", filter: `drop-shadow(0 0 24px ${accent}90)`, animation: "sprite-enter-right 0.45s cubic-bezier(0.2,0.8,0.4,1)" }}>
+            {/* Show gym leader PNG portrait above creature sprite */}
+            {leaderImg && isReady(leaderImg) && (
+              <img
+                src={LEADER_URL[gym.leader]}
+                alt={gym.opponentName}
+                style={{
+                  width: 40, height: 40,
+                  imageRendering: "pixelated",
+                  position: "absolute", top: 4, right: 4,
+                  border: `1px solid ${accent}55`,
+                  background: "rgba(2,5,14,0.7)",
+                  borderRadius: 2,
+                  zIndex: 3,
+                }}
+              />
+            )}
             <canvas ref={oppRef} width={160} height={160} style={{ imageRendering: "pixelated", width: 148, height: 148 }} />
           </div>
           <div style={{ background: "rgba(3,7,18,0.92)", border: `2px solid ${accent}45`, padding: "8px 10px", width: "100%", backdropFilter: "blur(4px)", borderRadius: 3 }}>
-            <div style={{ fontSize: 6, color: "#3a5070", marginBottom: 4 }}>{gym.opponentTitle.toUpperCase()}</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+              {leaderImg && isReady(leaderImg) && (
+                <img src={LEADER_URL[gym.leader]} alt="" style={{ width: 22, height: 22, imageRendering: "pixelated", border: `1px solid ${accent}40`, flexShrink: 0, borderRadius: 1 }} />
+              )}
+              <div style={{ fontSize: 6, color: "#3a5070" }}>{gym.opponentTitle.toUpperCase()}</div>
+            </div>
             <HPBar current={oppHp} max={gym.hp} label={gym.opponentName} color={accent} shaking={oppHpShake} />
             <div style={{ fontSize: 6, color: "#2a3a50", marginTop: 4 }}>WEAK: {gym.weakTo.slice(0, 2).join(", ")}</div>
           </div>
@@ -464,8 +494,8 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee }: {
         <div style={{ fontSize: 7, color: done ? accent : animating ? "#2a3a50" : "#162030", marginBottom: 6, letterSpacing: "0.08em" }}>
           {done ? `— VICTORY · ${zone.name.toUpperCase()} —` : animating ? "— OPPONENT TURN —" : `▸ CHOOSE A MOVE · TURN ${turn + 1}`}
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 5, flex: 1, alignContent: "start" }}>
-          {allMoves.slice(0, 6).map(move => (
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 5, flex: 1, alignContent: "start", overflowY: "auto" }}>
+          {allMoves.slice(0, 8).map(move => (
             <MoveButton key={move.id} move={move} disabled={animating || done} ppLeft={(move.pp) - (ppUsed[move.id] ?? 0)} onClick={() => useMove(move)} />
           ))}
         </div>
