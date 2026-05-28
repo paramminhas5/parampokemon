@@ -128,6 +128,8 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
         quote: "Welcome to PARAM QUEST!\n\nHere — take MERMANDER. He's small, but he grows. Every world drops a SKILL BERRY. Feed them to Mermander and he evolves.\n\nBeat 4 gyms → Mermalion. Beat 8 → Merlord.\n\nHit WORLD SELECT (top-right) to jump anywhere, anytime." },
       { x: 12, y: 17, name: "Rival", role: "Childhood Friend", kind: "rival", beat: "did",
         quote: "Wait — before you go.\n\nYou're really just going to walk out there and start building things?\n\nFine. But when you come back with badges, I want to see them.\n\nGo on then. The world's waiting." },
+      { x: 18, y: 14, name: "Neighbour Kid", role: "Pallet Town", kind: "fan", beat: "did",
+        quote: "I heard Param wrote his first line of code at 9.\n\nI can't even do maths.\n\nMaybe I should try." },
     ],
     cliff: {
       era: "Bedroom · Pre-2010",
@@ -153,6 +155,8 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
         quote: "Builder, designer, creative director, music producer.\n\nFifteen years across e-commerce, real estate, AI, sneakers, music, and AI-led marketing." },
       { x: 20, y: 12, name: "The throughline", role: "What ties it together", kind: "celeb", beat: "learned",
         quote: "Every chapter compounds into the next.\nThe skills carry over.\n\nThe only constant is shipping." },
+      { x: 14, y: 8, name: "Old Classmate", role: "Origin Town", kind: "trainer-f", beat: "did",
+        quote: "He was building websites and making music while the rest of us figured out what to study.\n\nNobody called it a career back then. He just called it Tuesday." },
     ],
     creature: { id: "spark", name: "Sparkling", type: "Vision", power: 14, color: "#f5b78a", shape: "spark",
       description: "The Blank Page's only minion. Born from doubt.", from: "origin" },
@@ -198,6 +202,10 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
         quote: "Founding team of one of India's first price-comparison engines for electronics.\n\nAngel-backed by Sidharth Rao of Webchutney." },
       { x: 23, y: 14, name: "First-mover lessons", role: "What it taught me", kind: "investor", beat: "learned",
         quote: "Cataloguing, pricing logic, affiliate models, crawling inventory at scale.\n\nFirst proof I could ship." },
+      { x: 5, y: 9, name: "Sidharth Rao", role: "Angel · Webchutney", kind: "investor", beat: "did",
+        quote: "I backed GetRightPrice because the team was already building before they had a cheque.\n\nThat's always the signal." },
+      { x: 17, y: 5, name: "College Batchmate", role: "GRP Market", kind: "fan", beat: "did",
+        quote: "We were in college when this launched.\n\nMost of us were figuring out internships.\n\nThese guys were building India's first price comparison engine." },
     ],
     creature: { id: "crawler", name: "Crawlix", type: "Search", power: 16, color: "#7ac46a", shape: "blob",
       description: "Long Tail's web crawler. Indexes pennies.", from: "grp" },
@@ -243,6 +251,8 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
         quote: "Standardised budget rentals across Bengaluru — same problem OYO solved at the same time, without VC money.\n\nScaled to ₹1Cr revenue on operations alone." },
       { x: 22, y: 8, name: "What ₹1Cr taught me", role: "Bootstrapping", kind: "tenant", beat: "learned",
         quote: "Operations, unit economics, customer acquisition, retention — without a safety net.\n\nEvery decision is real when there's no VC money." },
+      { x: 4, y: 9, name: "Former Tenant", role: "Hab District", kind: "tenant", beat: "did",
+        quote: "Hab was the only budget place in Bengaluru that felt professional.\n\nClean rooms. Fair pricing. No nonsense.\n\nI lived there for 18 months." },
     ],
     creature: { id: "rhino", name: "Opsros", type: "Ops", power: 20, color: "#c47833", shape: "rhino",
       description: "Heavy. Reliable. Pays rent on time.", from: "hab" },
@@ -288,6 +298,8 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
         quote: "In 2013 we built one of India's first AI chatbots — before the word was common. On top of that we built Octo, an AI marketing platform. Acquired by Quartic.ai.\n\nI led marketing as Director." },
       { x: 21, y: 10, name: "Akshaya Aron", role: "Co-founder Octo · CEO Quartic.ai", kind: "trainer-f", beat: "did",
         quote: "Akshaya and I built Octo together.\n\nA decade later, we're back together at Fere.ai." },
+      { x: 11, y: 5, name: "Early Beta User", role: "Quartic Lab · 2013", kind: "client", beat: "did",
+        quote: "The chatbot felt like magic in 2013.\n\nWe didn't have a word for conversational AI yet.\n\nThey just called it the interface of the future." },
     ],
     creature: { id: "botto", name: "Bottoflux", type: "AI", power: 22, color: "#9fe8ff", shape: "spark",
       description: "Pre-Hype's chatbot. Talks back.", from: "ai" },
@@ -337,6 +349,8 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
         quote: "Partner for Growth and Technology.\n\nHelped build Fund I — deal sourcing, portfolio analysis, founder relationships, growth strategy. I didn't write the cheques, but I was in the room while most of our companies raised theirs." },
       { x: 22, y: 12, name: "Portfolio", role: "Companies worked with", kind: "client", beat: "did",
         quote: "Meesho, Entri, Simsim, Amazon, Forbes.\n\nAcross growth, brand, and product strategy." },
+      { x: 13, y: 7, name: "Rohan Malhotra", role: "Investopad · Family Office", kind: "investor", beat: "learned",
+        quote: "The best growth partners don't just execute.\n\nThey think like founders.\n\nParam was in the room when it mattered." },
     ],
     creature: { id: "falcon", name: "Capitalcon", type: "Capital", power: 24, color: "#f0c4ff", shape: "bird",
       description: "Term Sheet's falcon. Spots deals at a thousand decks.", from: "investopad" },
@@ -387,6 +401,10 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
         quote: "Co-founded India's leading sneaker and streetwear platform with Prabal Baghla. Joined by Rannvijay Singha. Raised $795K.\n\nStores in Mumbai and Hyderabad. CNBC-TV18." },
       { x: 22, y: 16, name: "Prabal Baghla", role: "Co-founder · SoleSearch", kind: "trainer-m", beat: "learned",
         quote: "Built the operations and retail presence together.\n\nMumbai and Hyderabad stores, 30+ events, ₹26cr+ annual sales." },
+      { x: 12, y: 8, name: "Sneakerhead", role: "SoleSearch Mall", kind: "fan", beat: "did",
+        quote: "I've been to 12 SoleSearch events.\n\nThe first one was 40 people in a parking lot.\n\nThe last one had a queue around the block." },
+      { x: 18, y: 13, name: "Rannvijay Singha", role: "Brand Partner · SoleSearch", kind: "celeb", beat: "did",
+        quote: "I joined because it was real.\n\nNot another influencer deal — an actual platform building India's streetwear culture from the ground up." },
     ],
     pressWall: { x: 23, y: 14 },
     creature: { id: "lynx", name: "Sneakynx", type: "Brand", power: 26, color: "#ff9fd4", shape: "lynx",
@@ -438,6 +456,8 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
         quote: "A year-long project with Akshaya Aron — a decade after Octo.\n\nAutonomous AI agents for financial markets. Starting with crypto." },
       { x: 24, y: 15, name: "Full circle", role: "What Fere taught me", kind: "investor", beat: "learned",
         quote: "When agents act autonomously, you're not selling a product.\n\nYou're building trust in something invisible." },
+      { x: 4, y: 10, name: "Ethereal Ventures", role: "Lead Investor · Fere $1.3M", kind: "investor", beat: "did",
+        quote: "We led the $1.3M round because the thesis was clear and the team had done this before.\n\nSecond-time founders with the same core team. That's the rarest thing." },
     ],
     creature: { id: "wisp", name: "Agentwisp", type: "Autonomy", power: 28, color: "#00e8a0", shape: "wisp",
       description: "Black Box's agent. Acts on its own.", from: "fere" },
@@ -483,6 +503,8 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
         quote: "A music label and pet-forward brand. Original music, brand world, live events.\n\nNo brief. No client. The work that exists because it has to." },
       { x: 21, y: 11, name: "A cat", role: "Studio resident", kind: "fan", beat: "did",
         quote: "Mrrrp." },
+      { x: 14, y: 16, name: "Music Fan", role: "CCD Live Event", kind: "fan", beat: "did",
+        quote: "I discovered Cats Can Dance at a live show.\n\nThere's something about music made without a brief.\n\nIt sounds different. More honest." },
     ],
     creature: { id: "cat", name: "Discocat", type: "Soul", power: 22, color: "#ffd29a", shape: "cat",
       description: "No Brief's loyal cat. Dances unprompted.", from: "ccd" },
@@ -532,6 +554,8 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
       { x: 22, y: 9, name: "param@catscandance.com", role: "Email", kind: "celeb", beat: "did",
         quote: "Send me something interesting.\n\nparam@catscandance.com",
         special: "contact" },
+      { x: 10, y: 12, name: "Former Client", role: "Iterate Partner", kind: "client", beat: "did",
+        quote: "We hired Iterate for a three-month sprint.\n\nThey moved faster than our internal team and shipped things we'd been planning for a year.\n\nAI-native isn't a pitch. It's how they actually work." },
     ],
     creature: { id: "core", name: "Iteratron", type: "Stack", power: 40, color: "#7ce0ff", shape: "core",
       description: "Status Quo's last defense. The system itself.", from: "iterate" },
@@ -715,6 +739,67 @@ export function wildPositionFor(zone: Zone): { x: number; y: number } {
   return { x, y };
 }
 
+// ─── Route NPCs (one per corridor between zones) ──────────────
+// World coords: route mid-y = zone[i].oy + ZONE_H + ROUTE_H/2 = i*30 + 20 + 5 = i*30 + 25
+// x = 40 (middle of the 6-tile path, PATH_X1=37..PATH_X2=43)
+export type RouteNpc = { x: number; y: number; name: string; role: string; quote: string; kind: NpcKind };
+
+export const ROUTE_NPCS: RouteNpc[] = [
+  // Route 1: Home → Origin (y = 0*30 + 25 = 25)
+  { x: 40, y: 25,
+    name: "Wandering Kid", role: "Route 1 · Pallet → Origin",
+    kind: "fan",
+    quote: "You're leaving already?\n\nMost people stay home.\n\nThe ones who leave are the ones who build things." },
+
+  // Route 2: Origin → GRP (y = 1*30 + 25 = 55)
+  { x: 40, y: 55,
+    name: "Street Vendor", role: "Route 2 · Origin → GRP",
+    kind: "client",
+    quote: "I've been selling here for ten years.\n\nYou know what every good product has in common?\n\nSomebody had to believe in it before anyone else did." },
+
+  // Route 3: GRP → Hab (y = 2*30 + 25 = 85)
+  { x: 40, y: 85,
+    name: "Early Adopter", role: "Route 3 · GRP → Hab",
+    kind: "trainer-m",
+    quote: "I was the 12th user of GetRightPrice.\n\nI still remember comparing prices for a Nokia phone.\n\nFirst-mover energy is real. You can feel it." },
+
+  // Route 4: Hab → AI (y = 3*30 + 25 = 115)
+  { x: 40, y: 115,
+    name: "Bengaluru Tenant", role: "Route 4 · Hab → AI",
+    kind: "tenant",
+    quote: "Hab Housing was the only budget rental that didn't feel like a scam.\n\nStandardised. Clean. Reliable.\n\nSame problem as OYO. No VC money. Still worked." },
+
+  // Route 5: AI → Investopad (y = 4*30 + 25 = 145)
+  { x: 40, y: 145,
+    name: "Tech Journalist", role: "Route 5 · AI → Investopad",
+    kind: "celeb",
+    quote: "I wrote about chatbots in 2013 and nobody read it.\n\nNow everyone's an AI expert.\n\nThe people who were early rarely get the credit." },
+
+  // Route 6: Investopad → SoleSearch (y = 5*30 + 25 = 175)
+  { x: 40, y: 175,
+    name: "Angel Investor", role: "Route 6 · Investopad → Sole",
+    kind: "investor",
+    quote: "I've seen a thousand decks.\n\nThe ones that work all have the same thing:\n\nAn operator who's already done the hard thing once." },
+
+  // Route 7: SoleSearch → Fere (y = 6*30 + 25 = 205)
+  { x: 40, y: 205,
+    name: "Sneaker Collector", role: "Route 7 · Sole → Fere",
+    kind: "fan",
+    quote: "I bought my first pair at a SoleSearch event.\n\nThere were 40 people there. Maybe 50.\n\nNow everyone acts like they were always into sneakers." },
+
+  // Route 8: Fere → CCD (y = 7*30 + 25 = 235)
+  { x: 40, y: 235,
+    name: "Crypto Trader", role: "Route 8 · Fere → CCD",
+    kind: "engineer",
+    quote: "Autonomous agents are the next interface.\n\nMost people don't know what that means yet.\n\nFere figured it out early. That counts for something." },
+
+  // Route 9: CCD → Iterate (y = 8*30 + 25 = 265)
+  { x: 40, y: 265,
+    name: "Music Producer", role: "Route 9 · CCD → Iterate",
+    kind: "celeb",
+    quote: "Cats Can Dance is doing something real.\n\nOriginal music. Brand world. Events.\n\nNo brief. That's the hardest kind of work there is." },
+];
+
 export function allInteractives(): Interactive[] {
   const list: Interactive[] = [];
   for (const zone of ZONES) {
@@ -731,6 +816,19 @@ export function allInteractives(): Interactive[] {
       const w = wildPositionFor(zone);
       list.push({ kind: "wild", zone, creature: zone.creature, x: w.x, y: w.y });
     }
+  }
+  // Route NPCs — use home zone as the zone reference (nearest zone above each NPC)
+  for (const rn of ROUTE_NPCS) {
+    // Find the zone immediately above this route NPC
+    let nearestZone = ZONES[0];
+    for (const z of ZONES) { if (z.oy <= rn.y) nearestZone = z; }
+    const syntheticNpc: GameNpc = {
+      x: rn.x - nearestZone.ox,
+      y: rn.y - nearestZone.oy,
+      name: rn.name, role: rn.role, quote: rn.quote,
+      kind: rn.kind, beat: "did",
+    };
+    list.push({ kind: "npc", zone: nearestZone, npc: syntheticNpc, x: rn.x, y: rn.y });
   }
   return list;
 }

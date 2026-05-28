@@ -2,6 +2,7 @@
 
 import {
   ZONES, PLAYER_SPAWN, allInteractives, zoneAt, gymUnlocked,
+  ROUTE_NPCS,
   type Dir, type Interactive, type Zone,
 } from "./data";
 import { buildWorld } from "./world";
@@ -482,6 +483,14 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       const f = (Math.floor(now / 600 + i.x * 0.3) % 8 === 0 ? 1 : 0) as 0 | 1;
       const npcBob = Math.round(Math.sin(now / 800 + i.x * 1.3) * 1.5);
       drawCharacter(ctx, i.npc.kind, "down", f, i.x * TILE + offX, i.y * TILE + offY + npcBob);
+    }
+
+    // Route NPCs — rendered separately on the path between zones
+    for (const rn of ROUTE_NPCS) {
+      if (rn.x < tx0 - 1 || rn.x > tx1 + 1 || rn.y < ty0 - 1 || rn.y > ty1 + 1) continue;
+      const f = (Math.floor(now / 700 + rn.x * 0.4) % 8 === 0 ? 1 : 0) as 0 | 1;
+      const bob = Math.round(Math.sin(now / 900 + rn.x * 1.1) * 1.5);
+      drawCharacter(ctx, rn.kind, "down", f, rn.x * TILE + offX, rn.y * TILE + offY + bob);
     }
 
     // Zone ambient particles — floating accent-colored dots per zone
