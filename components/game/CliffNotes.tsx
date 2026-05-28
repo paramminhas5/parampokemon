@@ -1,10 +1,12 @@
+"use client";
 import type { Zone } from "@/game/data";
 import { useEffect, useRef, useState } from "react";
-import { CREATURE_URL, getSprite, isReady } from "@/game/sprite-registry";
+import { CREATURE_URL, LEADER_URL } from "@/game/sprite-registry";
 
 const SHEET_STYLES = `
-@keyframes pq-sheet-up { from { transform: translateY(24px); opacity: 0 } to { transform: none; opacity: 1 } }
+@keyframes pq-sheet-up { from { transform: translateY(32px); opacity: 0 } to { transform: none; opacity: 1 } }
 @keyframes pq-scroll-hint { 0%, 100% { transform: translateX(-50%) translateY(0) } 50% { transform: translateX(-50%) translateY(4px) } }
+@keyframes cn-metric-in { from { opacity:0; transform: scale(0.85) } to { opacity:1; transform: scale(1) } }
 `;
 
 export function CliffNotes({ zone, onClose }: { zone: Zone; onClose: () => void }) {
@@ -12,145 +14,350 @@ export function CliffNotes({ zone, onClose }: { zone: Zone; onClose: () => void 
   const scrollRef = useRef<HTMLDivElement>(null);
   const [scrolled, setScrolled] = useState(false);
   const [hasOverflow, setHasOverflow] = useState(false);
+  const accent = zone.theme.accent;
 
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
     const check = () => setHasOverflow(el.scrollHeight > el.clientHeight + 8);
     check();
-    const onScroll = () => {
-      if (el.scrollTop > 16) setScrolled(true);
-    };
+    const onScroll = () => { if (el.scrollTop > 16) setScrolled(true); };
     el.addEventListener("scroll", onScroll);
     const ro = new ResizeObserver(check);
     ro.observe(el);
     return () => { el.removeEventListener("scroll", onScroll); ro.disconnect(); };
   }, []);
 
+  // Close on backdrop click or Escape
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
   const creatureUrl = zone.creature ? CREATURE_URL[zone.id] : undefined;
-  const creatureImg = creatureUrl ? getSprite(creatureUrl) : null;
+  const leaderUrl   = zone.gym ? LEADER_URL[zone.gym.leader] : undefined;
 
   return (
     <div
-      className="fixed inset-0 z-30 flex items-end sm:items-center justify-center"
+      style={{
+        position: "fixed", inset: 0, zIndex: 30,
+        display: "flex", alignItems: "flex-end", justifyContent: "center",
+        background: "rgba(4,8,20,0.72)",
+        backdropFilter: "blur(3px)",
+      }}
       onClick={onClose}
-      style={{ background: "rgba(8,16,26,0.55)" }}
     >
+      <style>{SHEET_STYLES}</style>
       <div
-        className="pq-panel w-full sm:max-w-2xl flex flex-col"
-        onClick={(e) => e.stopPropagation()}
         style={{
-          maxHeight: "85dvh",
-          height: "85dvh",
-          borderBottomLeftRadius: 0,
-          borderBottomRightRadius: 0,
-          paddingBottom: "env(safe-area-inset-bottom)",
-          animation: "pq-sheet-up 220ms ease-out",
+          width: "100%", maxWidth: 680,
+          maxHeight: "88dvh", height: "88dvh",
+          display: "flex", flexDirection: "column",
+          background: "linear-gradient(180deg, #060e1c 0%, #04080f 100%)",
+          border: `1px solid ${accent}35`,
+          borderBottom: "none",
+          borderTopLeftRadius: 8, borderTopRightRadius: 8,
+          boxShadow: `0 -8px 40px rgba(0,0,0,0.6), 0 0 0 1px ${accent}18`,
+          animation: "pq-sheet-up 240ms cubic-bezier(0.2,0.8,0.4,1)",
+          overflow: "hidden",
           position: "relative",
         }}
+        onClick={e => e.stopPropagation()}
       >
-        <style>{SHEET_STYLES}</style>
+        {/* Accent top line */}
+        <div style={{
+          height: 3, flexShrink: 0,
+          background: `linear-gradient(90deg, transparent 0%, ${accent} 30%, ${accent} 70%, transparent 100%)`,
+        }} />
 
-        {/* Sticky header */}
-        <div style={{ flexShrink: 0 }}>
-          <div className="mx-auto my-1" style={{ width: 40, height: 4, background: "var(--color-dialog-shadow)", borderRadius: 2, opacity: 0.5 }} />
-          <div className="flex items-center justify-between px-3 py-2 gap-2" style={{ borderBottom: "2px solid var(--color-dialog-border)" }}>
-            <div style={{ minWidth: 0, flex: 1 }}>
-              <div className="pq-label" style={{ color: "var(--color-dialog-shadow)" }}>CLIFFNOTES · #{zone.index + 1}</div>
-              <div className="pq-text truncate" style={{ fontFamily: "var(--font-pixel)", fontSize: 14 }}>{zone.name.toUpperCase()}</div>
-              <div className="pq-text-sm truncate" style={{ opacity: 0.7, fontSize: 13 }}>{c.era}</div>
-            </div>
-            <button className="pq-btn" onClick={onClose} style={{ padding: "8px 12px", fontSize: 10, flexShrink: 0 }} aria-label="Close">✕ CLOSE</button>
+        {/* Drag handle */}
+        <div style={{ flexShrink: 0, display: "flex", justifyContent: "center", paddingTop: 8, paddingBottom: 4 }}>
+          <div style={{ width: 40, height: 4, background: accent + "40", borderRadius: 2 }} />
+        </div>
+
+        {/* Header */}
+        <div style={{
+          flexShrink: 0, padding: "0 16px 12px",
+          borderBottom: `1px solid ${accent}20`,
+          display: "flex", alignItems: "flex-start", gap: 14,
+        }}>
+          {/* Creature/leader thumb */}
+          <div style={{ flexShrink: 0 }}>
+            {creatureUrl ? (
+              <div style={{
+                width: 56, height: 56,
+                background: accent + "14",
+                border: `2px solid ${accent}40`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                borderRadius: 4,
+              }}>
+                <img src={creatureUrl} alt="" style={{ width: 48, height: 48, imageRendering: "pixelated" }} />
+              </div>
+            ) : leaderUrl ? (
+              <div style={{
+                width: 56, height: 56,
+                background: accent + "14",
+                border: `2px solid ${accent}40`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                borderRadius: 4,
+              }}>
+                <img src={leaderUrl} alt="" style={{ width: 48, height: 48, imageRendering: "pixelated" }} />
+              </div>
+            ) : (
+              <div style={{
+                width: 56, height: 56, borderRadius: 4,
+                background: accent + "14", border: `2px solid ${accent}30`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontFamily: "var(--font-pixel)", fontSize: 20, color: accent,
+              }}>★</div>
+            )}
           </div>
+
+          {/* Title info */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{
+              fontFamily: "var(--font-pixel)", fontSize: 6,
+              color: accent, letterSpacing: "0.2em", opacity: 0.8, marginBottom: 4,
+            }}>CLIFFNOTES #{zone.index + 1}</div>
+            <div style={{
+              fontFamily: "var(--font-pixel)", fontSize: 14,
+              color: "#d8eaf8", lineHeight: 1.1, marginBottom: 4,
+            }} className="truncate">{zone.name.toUpperCase()}</div>
+            <div style={{
+              fontFamily: "var(--font-pixel)", fontSize: 7,
+              color: "#3a5070",
+            }}>{c.era}</div>
+          </div>
+
+          {/* Close button — prominent */}
+          <button
+            onClick={onClose}
+            style={{
+              flexShrink: 0,
+              background: `linear-gradient(135deg, ${accent}18 0%, rgba(4,8,20,0.9) 100%)`,
+              border: `1px solid ${accent}50`,
+              color: accent,
+              padding: "8px 14px",
+              fontFamily: "var(--font-pixel)", fontSize: 9,
+              cursor: "pointer",
+              borderRadius: 4,
+              boxShadow: `0 0 12px ${accent}20`,
+              transition: "all 0.15s",
+              letterSpacing: "0.05em",
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.boxShadow = `0 0 20px ${accent}40`; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.boxShadow = `0 0 12px ${accent}20`; }}
+          >✕ EXIT</button>
         </div>
 
         {/* Scrollable body */}
         <div
           ref={scrollRef}
-          className="flex-1 overflow-y-auto p-3"
-          style={{ WebkitOverflowScrolling: "touch", minHeight: 0 }}
+          style={{
+            flex: 1, overflowY: "auto", padding: "14px 16px",
+            WebkitOverflowScrolling: "touch" as const, minHeight: 0,
+          }}
         >
-          <div className="pq-panel-inner mb-3">
-            <div className="pq-label" style={{ color: "var(--color-dialog-shadow)" }}>OUTCOME</div>
-            <div className="pq-text" style={{ marginTop: 4 }}>{zone.outcome}</div>
+          {/* Outcome banner */}
+          <div style={{
+            background: `linear-gradient(135deg, ${accent}12 0%, rgba(4,8,20,0.8) 100%)`,
+            border: `1px solid ${accent}28`,
+            padding: "10px 14px", marginBottom: 14,
+            borderRadius: 4,
+          }}>
+            <div style={{
+              fontFamily: "var(--font-pixel)", fontSize: 6,
+              color: accent, letterSpacing: "0.15em", marginBottom: 5,
+            }}>OUTCOME</div>
+            <div style={{
+              fontFamily: "var(--font-mono)", fontSize: 16,
+              color: "#c0d4ec", lineHeight: 1.5,
+            }}>{zone.outcome}</div>
           </div>
-          <div className="grid sm:grid-cols-2 gap-3">
-            <div className="pq-panel-inner">
-              <div className="pq-label" style={{ color: "var(--color-dialog-shadow)" }}>DID</div>
-              <ul style={{ listStyle: "none", padding: 0, marginTop: 6 }}>
-                {c.did.map((d, i) => <li key={i} className="pq-text-sm" style={{ marginTop: 4, fontSize: 15 }}>▸ {d}</li>)}
-              </ul>
+
+          {/* DID / LEARNED two-col */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
+            <div style={{
+              background: "rgba(4,8,20,0.7)", border: `1px solid ${accent}20`,
+              padding: "10px 12px", borderRadius: 4,
+            }}>
+              <div style={{
+                fontFamily: "var(--font-pixel)", fontSize: 6,
+                color: accent, letterSpacing: "0.15em", marginBottom: 8,
+              }}>★ WHAT I DID</div>
+              {c.did.map((d, i) => (
+                <div key={i} style={{
+                  fontFamily: "var(--font-mono)", fontSize: 14,
+                  color: "#8aa0c0", lineHeight: 1.5, marginBottom: 5,
+                  paddingLeft: 10, position: "relative",
+                }}>
+                  <span style={{
+                    position: "absolute", left: 0,
+                    color: accent, fontSize: 10,
+                  }}>▸</span>
+                  {d}
+                </div>
+              ))}
             </div>
-            <div className="pq-panel-inner">
-              <div className="pq-label" style={{ color: "var(--color-dialog-shadow)" }}>LEARNED</div>
-              <ul style={{ listStyle: "none", padding: 0, marginTop: 6 }}>
-                {c.learned.map((d, i) => <li key={i} className="pq-text-sm" style={{ marginTop: 4, fontSize: 15 }}>▸ {d}</li>)}
-              </ul>
+
+            <div style={{
+              background: "rgba(4,8,20,0.7)", border: `1px solid ${accent}20`,
+              padding: "10px 12px", borderRadius: 4,
+            }}>
+              <div style={{
+                fontFamily: "var(--font-pixel)", fontSize: 6,
+                color: accent, letterSpacing: "0.15em", marginBottom: 8,
+              }}>✦ WHAT I LEARNED</div>
+              {c.learned.map((l, i) => (
+                <div key={i} style={{
+                  fontFamily: "var(--font-mono)", fontSize: 14,
+                  color: "#6080a0", lineHeight: 1.5, marginBottom: 5,
+                  fontStyle: "italic",
+                  paddingLeft: 10, position: "relative",
+                }}>
+                  <span style={{
+                    position: "absolute", left: 0,
+                    color: accent + "80", fontSize: 10,
+                  }}>✦</span>
+                  "{l}"
+                </div>
+              ))}
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-2 mt-3">
+
+          {/* Metrics row */}
+          <div style={{
+            display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14,
+          }}>
             {c.metrics.map((m, i) => (
-              <div key={i} className="pq-panel-inner text-center">
-                <div className="pq-label" style={{ color: "var(--color-dialog-shadow)", fontSize: 9 }}>{m.label}</div>
-                <div className="pq-text" style={{ fontSize: 18, marginTop: 2 }}>{m.value}</div>
+              <div key={i} style={{
+                flex: 1, minWidth: 80,
+                background: `linear-gradient(135deg, ${accent}10 0%, rgba(4,8,20,0.8) 100%)`,
+                border: `1px solid ${accent}30`,
+                padding: "10px 12px", textAlign: "center", borderRadius: 4,
+                animation: `cn-metric-in 0.3s ease-out ${i * 0.08}s both`,
+              }}>
+                <div style={{
+                  fontFamily: "var(--font-pixel)", fontSize: 6,
+                  color: "#3a5070", letterSpacing: "0.1em", marginBottom: 5,
+                }}>{m.label}</div>
+                <div style={{
+                  fontFamily: "var(--font-pixel)", fontSize: 14,
+                  color: accent, lineHeight: 1,
+                }}>{m.value}</div>
               </div>
             ))}
           </div>
-          {zone.creature && (
-            <div className="pq-panel-inner mt-3 flex gap-3 items-center" style={{ borderColor: zone.theme.accent }}>
-              {creatureImg && creatureUrl && (
-                <img
-                  src={creatureUrl}
-                  alt={zone.creature.name}
-                  width={72}
-                  height={72}
-                  loading="lazy"
-                  style={{
-                    width: 72, height: 72, imageRendering: "pixelated",
-                    flexShrink: 0,
-                    background: zone.theme.accent + "22",
-                    border: `2px solid ${zone.theme.accent}`,
-                    borderRadius: 4,
-                    opacity: isReady(creatureImg) ? 1 : 0.6,
-                  }}
-                />
-              )}
+
+          {/* Creature card */}
+          {zone.creature && creatureUrl && (
+            <div style={{
+              display: "flex", gap: 12, alignItems: "center",
+              background: "rgba(4,8,20,0.7)", border: `1px solid ${accent}20`,
+              padding: "10px 12px", marginBottom: 10, borderRadius: 4,
+            }}>
+              <img
+                src={creatureUrl}
+                alt={zone.creature.name}
+                style={{
+                  width: 56, height: 56, imageRendering: "pixelated",
+                  flexShrink: 0, background: accent + "18",
+                  border: `2px solid ${accent}50`, borderRadius: 4,
+                }}
+              />
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div className="pq-label" style={{ color: "var(--color-dialog-shadow)" }}>CREATURE</div>
-                <div className="pq-text" style={{ marginTop: 4 }}>{zone.creature.name} <span style={{ opacity: 0.6, fontSize: 14 }}>({zone.creature.type})</span></div>
-                <div className="pq-text-sm" style={{ opacity: 0.7, fontSize: 14 }}>{zone.creature.description}</div>
+                <div style={{
+                  display: "flex", alignItems: "center", gap: 6, marginBottom: 4,
+                }}>
+                  <span style={{ fontFamily: "var(--font-pixel)", fontSize: 9, color: accent }}>{zone.creature.name}</span>
+                  <span style={{
+                    fontFamily: "var(--font-pixel)", fontSize: 6,
+                    background: accent + "18", border: `1px solid ${accent}40`,
+                    color: accent, padding: "2px 6px", borderRadius: 99,
+                  }}>{zone.creature.type}</span>
+                  <span style={{
+                    fontFamily: "var(--font-pixel)", fontSize: 6,
+                    background: "rgba(255,210,74,0.1)", border: "1px solid rgba(255,210,74,0.3)",
+                    color: "#ffd24a", padding: "2px 6px", borderRadius: 99,
+                  }}>PWR {zone.creature.power}</span>
+                </div>
+                <div style={{
+                  fontFamily: "var(--font-mono)", fontSize: 13,
+                  color: "#5070a0", fontStyle: "italic", lineHeight: 1.4,
+                }}>{zone.creature.description}</div>
               </div>
             </div>
           )}
+
+          {/* Skill card */}
           {zone.skill && (
-            <div className="pq-panel-inner mt-2">
-              <div className="pq-label" style={{ color: "var(--color-dialog-shadow)" }}>SKILL</div>
-              <div className="pq-text" style={{ marginTop: 4 }}>{zone.skill.name} <span style={{ opacity: 0.6, fontSize: 14 }}>· PWR {zone.skill.power}</span></div>
-              <div className="pq-text-sm" style={{ opacity: 0.7, fontSize: 14 }}>{zone.skill.description}</div>
+            <div style={{
+              background: "rgba(4,8,20,0.7)", border: `1px solid ${accent}20`,
+              padding: "10px 12px", marginBottom: 10, borderRadius: 4,
+            }}>
+              <div style={{
+                display: "flex", alignItems: "center", gap: 8, marginBottom: 4,
+              }}>
+                <div style={{ fontFamily: "var(--font-pixel)", fontSize: 6, color: "#3a5070", letterSpacing: "0.1em" }}>SKILL BERRY</div>
+                <span style={{ fontFamily: "var(--font-pixel)", fontSize: 9, color: accent }}>{zone.skill.name}</span>
+                <span style={{
+                  fontFamily: "var(--font-pixel)", fontSize: 6,
+                  background: "rgba(255,210,74,0.1)", border: "1px solid rgba(255,210,74,0.3)",
+                  color: "#ffd24a", padding: "2px 6px", borderRadius: 99,
+                }}>PWR {zone.skill.power}</span>
+              </div>
+              <div style={{
+                fontFamily: "var(--font-mono)", fontSize: 13,
+                color: "#5070a0", fontStyle: "italic",
+              }}>{zone.skill.description}</div>
             </div>
           )}
-          <div style={{ height: 28 }} />
+
+          {/* Gym boss */}
+          {zone.gym && leaderUrl && (
+            <div style={{
+              display: "flex", gap: 12, alignItems: "center",
+              background: `linear-gradient(135deg, ${accent}10 0%, rgba(4,8,20,0.8) 100%)`,
+              border: `1px solid ${accent}30`,
+              padding: "10px 12px", borderRadius: 4,
+            }}>
+              <img
+                src={leaderUrl}
+                alt={zone.gym.opponentName}
+                style={{
+                  width: 56, height: 56, imageRendering: "pixelated",
+                  flexShrink: 0, border: `2px solid ${accent}50`, borderRadius: 4,
+                }}
+              />
+              <div>
+                <div style={{ fontFamily: "var(--font-pixel)", fontSize: 6, color: "#3a5070", letterSpacing: "0.1em", marginBottom: 4 }}>⚔ GYM BOSS</div>
+                <div style={{ fontFamily: "var(--font-pixel)", fontSize: 10, color: accent, marginBottom: 4 }}>{zone.gym.opponentName}</div>
+                <div style={{
+                  fontFamily: "var(--font-mono)", fontSize: 13, color: "#5070a0",
+                  fontStyle: "italic", lineHeight: 1.4,
+                }}>"{zone.gym.victory}"</div>
+              </div>
+            </div>
+          )}
+
+          <div style={{ height: 24 }} />
         </div>
 
-        {/* Scroll hint affordance */}
+        {/* Scroll hint */}
         {hasOverflow && !scrolled && (
-          <div
-            className="pq-label"
-            style={{
-              position: "absolute",
-              left: "50%",
-              bottom: "calc(env(safe-area-inset-bottom) + 8px)",
-              transform: "translateX(-50%)",
-              padding: "4px 10px",
-              background: "var(--color-dialog-border)",
-              color: "var(--color-dialog-shadow)",
-              borderRadius: 12,
-              fontSize: 9,
-              pointerEvents: "none",
-              animation: "pq-scroll-hint 1.4s ease-in-out infinite",
-            }}
-          >
-            ↓ SCROLL FOR MORE
+          <div style={{
+            position: "absolute", left: "50%", bottom: 12,
+            transform: "translateX(-50%)",
+            padding: "4px 12px",
+            background: `${accent}22`, border: `1px solid ${accent}40`,
+            color: accent, borderRadius: 12,
+            fontFamily: "var(--font-pixel)", fontSize: 7,
+            pointerEvents: "none",
+            animation: "pq-scroll-hint 1.4s ease-in-out infinite",
+            backdropFilter: "blur(4px)",
+          }}>
+            ↓ SCROLL
           </div>
         )}
       </div>
