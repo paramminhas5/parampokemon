@@ -19,7 +19,7 @@ export type GameNpc = {
   beat: Beat;
   special?: "press-trigger" | "contact";
 };
-export type GameSign = { x: number; y: number; text: string };
+export type GameSign = { x: number; y: number; text: string; pressWall?: boolean };
 export type GameBadge = { x: number; y: number; id: string; label: string; color: string };
 
 export type Creature = {
@@ -126,7 +126,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
         quote: "Take care out there, sweetheart. Fifteen years is a long road.\n\nRemember: shipping beats waiting. I love you.\n\nP.S. — Use WORLD SELECT to jump to any zone. Non-linear is the point." },
       { x: 23, y: 4, name: "Prof. Iterate", role: "Pokémon Professor", kind: "professor", beat: "learned",
         quote: "Welcome to PARAM QUEST!\n\nHere — take MERMANDER. He's small, but he grows. Every world drops a SKILL BERRY. Feed them to Mermander and he evolves.\n\nBeat 4 gyms → Mermalion. Beat 8 → Merlord.\n\nHit WORLD SELECT (top-right) to jump anywhere, anytime." },
-      { x: 12, y: 17, name: "Rival", role: "Childhood Friend", kind: "rival", beat: "did",
+      { x: 9, y: 17, name: "Rival", role: "Childhood Friend", kind: "rival", beat: "did",
         quote: "Wait — before you go.\n\nYou're really just going to walk out there and start building things?\n\nFine. But when you come back with badges, I want to see them.\n\nGo on then. The world's waiting." },
       { x: 18, y: 14, name: "Neighbour Kid", role: "Pallet Town", kind: "fan", beat: "did",
         quote: "I heard Param wrote his first line of code at 9.\n\nI can't even do maths.\n\nMaybe I should try." },
@@ -155,7 +155,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
         quote: "Builder, designer, creative director, music producer.\n\nFifteen years across e-commerce, real estate, AI, sneakers, music, and AI-led marketing." },
       { x: 20, y: 12, name: "The throughline", role: "What ties it together", kind: "celeb", beat: "learned",
         quote: "Every chapter compounds into the next.\nThe skills carry over.\n\nThe only constant is shipping." },
-      { x: 14, y: 8, name: "Old Classmate", role: "Origin Town", kind: "trainer-f", beat: "did",
+      { x: 8, y: 8, name: "Old Classmate", role: "Origin Town", kind: "trainer-f", beat: "did",
         quote: "He was building websites and making music while the rest of us figured out what to study.\n\nNobody called it a career back then. He just called it Tuesday." },
     ],
     creature: { id: "spark", name: "Sparkling", type: "Vision", power: 14, color: "#f5b78a", shape: "spark",
@@ -298,7 +298,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
         quote: "In 2013 we built one of India's first AI chatbots — before the word was common. On top of that we built Octo, an AI marketing platform. Acquired by Quartic.ai.\n\nI led marketing as Director." },
       { x: 21, y: 10, name: "Akshaya Aron", role: "Co-founder Octo · CEO Quartic.ai", kind: "trainer-f", beat: "did",
         quote: "Akshaya and I built Octo together.\n\nA decade later, we're back together at Fere.ai." },
-      { x: 11, y: 5, name: "Early Beta User", role: "Quartic Lab · 2013", kind: "client", beat: "did",
+      { x: 7, y: 5, name: "Early Beta User", role: "Quartic Lab · 2013", kind: "client", beat: "did",
         quote: "The chatbot felt like magic in 2013.\n\nWe didn't have a word for conversational AI yet.\n\nThey just called it the interface of the future." },
     ],
     creature: { id: "botto", name: "Bottoflux", type: "AI", power: 22, color: "#9fe8ff", shape: "spark",
@@ -341,7 +341,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     theme: { ground: "dusk", accent: "#f0c4ff", landmark: "tower" },
     w: 26, h: 20,
     // Tower center, trophy room right, marble floor left
-    building: { x: 8, y: 1, w: 8, h: 10, doorX: 3, color: "#9a6fc4", roof: "#3f2266" },
+    building: { x: 5, y: 1, w: 8, h: 10, doorX: 2, color: "#9a6fc4", roof: "#3f2266" },
     sign: { x: -99, y: -99, text: "INVESTOPAD\nFamily office of Rohan & Arjun Malhotra.\nFund 0 from scratch." },
     badge: { x: 23, y: 16, id: "fund", label: "Capital Badge", color: "#f0c4ff" },
     npcs: [
@@ -349,7 +349,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
         quote: "Partner for Growth and Technology.\n\nHelped build Fund I — deal sourcing, portfolio analysis, founder relationships, growth strategy. I didn't write the cheques, but I was in the room while most of our companies raised theirs." },
       { x: 22, y: 12, name: "Portfolio", role: "Companies worked with", kind: "client", beat: "did",
         quote: "Meesho, Entri, Simsim, Amazon, Forbes.\n\nAcross growth, brand, and product strategy." },
-      { x: 13, y: 7, name: "Rohan Malhotra", role: "Investopad · Family Office", kind: "investor", beat: "learned",
+      { x: 9, y: 7, name: "Rohan Malhotra", role: "Investopad · Family Office", kind: "investor", beat: "learned",
         quote: "The best growth partners don't just execute.\n\nThey think like founders.\n\nParam was in the room when it mattered." },
     ],
     creature: { id: "falcon", name: "Capitalcon", type: "Capital", power: 24, color: "#f0c4ff", shape: "bird",
@@ -393,7 +393,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     theme: { ground: "mall", accent: "#ff9fd4", landmark: "mall" },
     w: 26, h: 20,
     // Mall building center-wide, neon arches flank; sneaker racks behind sign
-    building: { x: 7, y: 2, w: 12, h: 6, doorX: 5, color: "#c0388c", roof: "#4a1240" },
+    building: { x: 3, y: 2, w: 12, h: 6, doorX: 3, color: "#c0388c", roof: "#4a1240" },
     sign: { x: -99, y: -99, text: "SOLESEARCH MALL\nIndia's sneaker & streetwear platform.\n$795K raised · CNBC-TV18." },
     badge: { x: 23, y: 10, id: "ceo", label: "Culture Badge", color: "#ff9fd4" },
     npcs: [
@@ -401,7 +401,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
         quote: "Co-founded India's leading sneaker and streetwear platform with Prabal Baghla. Joined by Rannvijay Singha. Raised $795K.\n\nStores in Mumbai and Hyderabad. CNBC-TV18." },
       { x: 22, y: 16, name: "Prabal Baghla", role: "Co-founder · SoleSearch", kind: "trainer-m", beat: "learned",
         quote: "Built the operations and retail presence together.\n\nMumbai and Hyderabad stores, 30+ events, ₹26cr+ annual sales." },
-      { x: 12, y: 8, name: "Sneakerhead", role: "SoleSearch Mall", kind: "fan", beat: "did",
+      { x: 8, y: 8, name: "Sneakerhead", role: "SoleSearch Mall", kind: "fan", beat: "did",
         quote: "I've been to 12 SoleSearch events.\n\nThe first one was 40 people in a parking lot.\n\nThe last one had a queue around the block." },
       { x: 18, y: 13, name: "Rannvijay Singha", role: "Brand Partner · SoleSearch", kind: "celeb", beat: "did",
         quote: "I joined because it was real.\n\nNot another influencer deal — an actual platform building India's streetwear culture from the ground up." },
@@ -503,7 +503,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
         quote: "A music label and pet-forward brand. Original music, brand world, live events.\n\nNo brief. No client. The work that exists because it has to." },
       { x: 21, y: 11, name: "A cat", role: "Studio resident", kind: "fan", beat: "did",
         quote: "Mrrrp." },
-      { x: 14, y: 16, name: "Music Fan", role: "CCD Live Event", kind: "fan", beat: "did",
+      { x: 8, y: 16, name: "Music Fan", role: "CCD Live Event", kind: "fan", beat: "did",
         quote: "I discovered Cats Can Dance at a live show.\n\nThere's something about music made without a brief.\n\nIt sounds different. More honest." },
     ],
     creature: { id: "cat", name: "Discocat", type: "Soul", power: 22, color: "#ffd29a", shape: "cat",
@@ -554,7 +554,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
       { x: 22, y: 9, name: "param@catscandance.com", role: "Email", kind: "celeb", beat: "did",
         quote: "Send me something interesting.\n\nparam@catscandance.com",
         special: "contact" },
-      { x: 10, y: 12, name: "Former Client", role: "Iterate Partner", kind: "client", beat: "did",
+      { x: 7, y: 12, name: "Former Client", role: "Iterate Partner", kind: "client", beat: "did",
         quote: "We hired Iterate for a three-month sprint.\n\nThey moved faster than our internal team and shipped things we'd been planning for a year.\n\nAI-native isn't a pitch. It's how they actually work." },
     ],
     creature: { id: "core", name: "Iteratron", type: "Stack", power: 40, color: "#7ce0ff", shape: "core",
@@ -808,6 +808,13 @@ export function allInteractives(): Interactive[] {
     }
     list.push({ kind: "sign", zone, sign: zone.sign, x: zone.ox + zone.sign.x, y: zone.oy + zone.sign.y });
     list.push({ kind: "badge", zone, badge: zone.badge, x: zone.ox + zone.badge.x, y: zone.oy + zone.badge.y });
+    // Press wall — adds a sign Interactive with pressWall:true so Game.tsx opens PressModal
+    if (zone.pressWall) {
+      const pwx = zone.ox + zone.pressWall.x;
+      const pwy = zone.oy + zone.pressWall.y;
+      const pressSign: GameSign & { pressWall?: boolean } = { x: zone.pressWall.x, y: zone.pressWall.y, text: "", pressWall: true };
+      list.push({ kind: "sign", zone, sign: pressSign, x: pwx, y: pwy });
+    }
     const dx = zone.ox + zone.building.x + zone.building.doorX;
     const dy = zone.oy + zone.building.y + zone.building.h - 1;
     list.push({ kind: "door", zone, x: dx, y: dy });

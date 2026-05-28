@@ -203,10 +203,10 @@ function paintRoutes(grid: TileCode[][], w: number, h: number) {
           break;
         }
         case "stream": {
-          // Water strip crosses the path at mid
+          // Water strip crosses OUTSIDE the path corridor only — never block the player
           if (y >= routeMid - 1 && y <= routeMid + 1) {
-            for (let x = PATH_X1; x < PATH_X2; x++) {
-              if (!inPath(x)) continue; // already done above
+            for (let x = 3; x < w - 3; x++) {
+              if (x >= PATH_X1 - 1 && x <= PATH_X2) continue; // keep path clear
               grid[y][x] = T.WATER;
             }
           }

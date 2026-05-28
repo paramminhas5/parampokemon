@@ -335,8 +335,8 @@ function makeCcd(): Interior {
   // Deckchair — listening couch
   t[6][5] = T.PROP_DECKCHAIR;
   t[6][6] = T.PROP_DECKCHAIR;
-  // Brick plant in corner
-  t[4][2] = T.PROP_BRICK_PLANT;
+  // Brick plant in corner (different corner — don't overwrite speaker at [4][2])
+  t[3][2] = T.PROP_BRICK_PLANT;
   // Studio floor throughout
   for (let y = 1; y < H - 1; y++) {
     for (let x = 1; x < W - 1; x++) {
