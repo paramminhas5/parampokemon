@@ -112,6 +112,8 @@ FAL_KEY=your_key node generate_sprites_v3.mjs --regen=title_bg --batch=A  # redo
 - [x] **Building interiors** — every door opens a real 12×9 tile room, WASD movement, NPC dialog, themed props, fade transitions, exit back to overworld
 - [x] **Rival NPC at Home** — Rival character at south of spawn, challenges you before you leave Pallet Town
 - [x] **Per-zone unique BGM** — all 10 zones have distinct melodies; GRP and Iterate HQ get unique tracks instead of shared ground-type BGM
+- [x] **Route NPCs** — 9 characters, one per corridor between zones, with thematic quotes about the journey between eras
+- [x] **3–4 NPCs per zone** — all 10 zones populated with extra characters: investors, fans, clients, tenants, co-founders
 - [x] Zone BGM (Web Audio API procedural, zero audio files), battle BGM + SFX
 - [x] Save/load via localStorage
 
@@ -162,72 +164,52 @@ FAL_KEY=your_key node generate_sprites_v3.mjs --regen=title_bg --batch=A  # redo
 
 ### 🔴 High Priority
 
-#### 1. Route NPCs
-Every route corridor between zones is currently empty. 9 NPCs, one per route, make the world feel lived-in:
-- Positioned beside the path, mid-route
-- One thematic flavor line each (about the transition from one era to the next)
-- No battle, just texture
-
-**Files:** `game/data.ts` (add `routeNpcs` array), `game/world.ts` (place them), `game/engine.ts` (include in interactives)
-
-#### 2. More NPCs Per Zone
-Currently 2–3 NPCs per zone. Adding 1–2 more per zone (fan, client, engineer, tenant) makes each world feel populated rather than sparse.
-
-**Files:** `game/data.ts` — add to each zone's `npcs[]`
-
-#### 3. Interior Art (Batch D)
-Interiors use procedural tile rendering. For a premium look, generate actual room background art:
+#### 1. Interior Art (Batch D)
+Interiors use procedural tile rendering. For a premium look, generate actual room background art and render it as a canvas layer behind the props:
 ```bash
-# Add Batch D to generate_sprites_v3.mjs (10 interior room PNGs)
+# Add Batch D to generate_sprites_v3.mjs (10 interior room PNGs, top-down RPG style)
 FAL_KEY=xxx node generate_sprites_v3.mjs --batch=D
 ```
-Then render as background canvas layer in `Interior.tsx` — same pattern as battle backgrounds.
+Then in `Interior.tsx`, draw the PNG as background before the tile layer — same pattern as battle backgrounds.
+
+#### 2. Post-Champion Content
+After beating all 9 gyms, unlock something worth finding:
+- Short "Champion Route" north of Pallet Town, only accessible after full completion
+- Final NPC = Param himself, talking about what he's building now
+- Triggers `ContactModal` directly — best possible CTA ending
+
+**Files:** `game/data.ts`, `game/world.ts` (add northern route), `game/engine.ts` (completion gate)
 
 ---
 
 ### 🟠 Medium Priority
 
-#### 4. Mobile Polish
-- D-pad: larger hit targets (min 54px), better thumb-zone positioning (lower on screen)
+#### 3. Mobile Polish
+- D-pad: larger hit targets (min 54px), lower on screen (thumb zone)
 - `navigator.vibrate(20)` haptic on each walk step
-- `touch-action: none` on game canvas prevents accidental pinch-to-zoom during swipe-to-walk
-- Ensure Interior touch controls work well on small screens
+- `touch-action: none` on canvas to prevent pinch-to-zoom during swipe
 
-#### 5. Post-Champion Content
-After beating all 9 gyms, unlock something worth finding:
-- "Champion Route" — a short path north of Pallet Town, only accessible after full completion
-- One final NPC = Param himself, talking about what he's building right now
-- Triggers `ContactModal` directly — the best possible CTA ending
-
-**Files:** `game/data.ts`, `game/world.ts`, `game/engine.ts` (completion check)
-
-#### 6. Homepage Creature Strip
+#### 4. Homepage Creature Strip
 - Increase creature opacity: 6% → 15%
 - Add `@keyframes creature-drift` — slow independent float per creature
-- Each creature has a unique phase + speed so they never sync
-
-**Files:** `components/home/CareerCard.tsx`, `app/page.tsx`
+- Unique phase + speed per creature so they never sync
 
 ---
 
 ### 🟡 Lower Priority
 
-#### 7. OG Image
+#### 5. OG Image
 `/public/og.png` is referenced in `app/layout.tsx` but doesn't exist — every social share shows a blank card.
 - Content: game title + Merlord sprite + zone mosaic + "A playable portfolio" tagline
 - Size: 1200×630
-- Can be generated via FAL (`fal-ai/flux/dev`) or a simple canvas script
 
-#### 8. Press Wall Warppad
-`public/sprites/ui/warppad.png` exists but isn't wired as a tile. Press wall positions currently use the BADGE tile.
-- Add a `WARP_PAD` tile type in `tiles.ts`
-- Draw the `warppad.png` image on it
-- Place at `zone.pressWall` position in `world.ts`
+#### 6. Press Wall Warppad
+`public/sprites/ui/warppad.png` exists but isn't wired as a tile. Press walls currently use the BADGE tile.
+- Add `WARP_PAD` tile in `tiles.ts`, draw the PNG on it
+- Place at `zone.pressWall` coords in `world.ts`
 
-#### 9. Sprite Quality Pass
-Some sprites from v2 (especially creatures) lack the crisp GBA silhouette — mixed model quality from early generation runs.
-- Re-run specific weak ones with `--model=sdxl` and updated prompts
-- Or re-run all creatures with `fal-ai/flux-lora` + a Pokemon GBA LoRA for maximum accuracy
+#### 7. Sprite Quality Pass
+Some v2 creatures lack crisp GBA silhouettes from early mixed-model runs.
 ```bash
 FAL_KEY=xxx node generate_sprites_v2.mjs --batch=creatures --only=iterate,origin --model=sdxl
 ```
@@ -240,15 +222,16 @@ FAL_KEY=xxx node generate_sprites_v2.mjs --batch=creatures --only=iterate,origin
 |------|--------|
 | Core gameplay loop | ✅ Complete |
 | All 10 zones + routes | ✅ Complete |
-| Building interiors | ✅ Complete |
-| Battle system | ✅ Complete |
+| Building interiors (10 rooms) | ✅ Complete |
+| Battle system + backgrounds | ✅ Complete |
 | All sprites generated + wired | ✅ Complete |
 | Zone arrival cinematics | ✅ Complete |
-| Battle backgrounds | ✅ Complete |
 | Pokédex tab | ✅ Complete |
 | Rival NPC | ✅ Complete |
 | Per-zone unique BGM | ✅ Complete |
-| Route NPCs | 🔜 Next |
+| Route NPCs (9 corridors) | ✅ Complete |
+| 3–4 NPCs per zone | ✅ Complete |
+| Interior art (Batch D) | 🔜 Next |
 | Post-champion content | 🔜 Planned |
 | OG image | 🔜 Planned |
 | Mobile polish | 🔜 Planned |
