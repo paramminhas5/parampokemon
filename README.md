@@ -109,7 +109,7 @@ FAL_KEY=your_key node generate_sprites_v3.mjs --regen=title_bg --batch=A  # redo
 - [x] Wild creature catch system
 - [x] Skill berry system (NPCs teach battle moves)
 - [x] Full NPC dialog with typewriter effect
-- [x] Building doors trigger first NPC dialog
+- [x] **Building interiors** — every door opens a real 12×9 tile room with WASD movement, NPC dialog, themed props, fade transitions, exit back to overworld
 - [x] Zone BGM (Web Audio API procedural, zero audio files), battle BGM + SFX
 - [x] Save/load via localStorage
 
@@ -155,70 +155,60 @@ FAL_KEY=your_key node generate_sprites_v3.mjs --regen=title_bg --batch=A  # redo
 
 ### 🔴 High Priority
 
-#### 1. Building Interiors
-**The biggest missing depth feature.** Doors currently trigger first NPC dialog. Real fix: actual interior tile maps per building.
-
-```
-Engine: add currentInterior: string | null to GameState
-New file: game/interiors.ts — 10 interior tile maps + NPC positions
-New component: components/game/Interior.tsx
-Transition: black fade in/out on door cross
-Exit tile returns to overworld
-```
-
-| Zone | Interior theme |
-|------|---------------|
-| home | Cozy bedroom — CRT TV, guitar, records |
-| origin | Workshop — drafting table, sketchbook |
-| grp | Market office — price boards, catalog shelves |
-| hab | Property office — lease papers, key hooks |
-| ai | Server room — racks, AI terminal |
-| investopad | Boardroom — long table, whiteboard |
-| sole | Store back room — shoe boxes, racks |
-| fere | Trading floor — crypto screens, agent terminals |
-| ccd | Recording studio — mixing desk, mic stand, cat |
-| iterate | Agency HQ — strategy boards, trophy wall |
-
-> All tiles already exist — no new sprites needed for MVP interiors. Optional: generate interior art with `generate_sprites_v3.mjs --batch=D` (not yet written).
-
-#### 2. Pokédex Tab in Bag
-Existing Creatures tab is a basic grid. Should be a proper Pokédex entry:
+#### 1. Pokédex Tab in Bag
+Existing Creatures tab is a basic grid. Upgrade to a real Pokédex:
 - Large sprite + name + type pill + power bar
-- Zone found, flavor description  
-- Silhouette + "???" for uncaught
-- Gives players a reason to explore all zones
+- Zone found, flavor description
+- Silhouette + "???" for uncaught creatures
+- Gives players a reason to visit every zone
 
-#### 3. Rival NPC at Home
-- Character blocking path south of player spawn
-- Dialog challenge before player can leave Pallet Town
-- One-time gate — steps aside after talking
-- Adds narrative tension to the opening
+**Files:** `components/game/Bag.tsx` — enhance the creatures tab
+
+#### 2. Rival NPC at Home
+- Character blocking the path south of player spawn in Pallet Town
+- One challenge dialog before the player can leave
+- One-time gate — steps aside permanently after talking
+- Adds narrative tension to the opening moment
+
+**Files:** `game/data.ts` (add NPC), `game/world.ts` (place on path)
+
+#### 3. Per-Zone Unique BGM
+Currently BGM is tied to ground type — two grass zones sound identical.
+- Add a `bgmId` field per zone in `data.ts`
+- Wire unique 16-step melody sequences in `audio.ts`
+- Fades in on zone enter, out on exit
+
+**Files:** `game/data.ts`, `lib/audio.ts`
 
 ---
 
 ### 🟠 Medium Priority
 
-#### 4. Per-Zone Unique BGM
-Currently ground type determines BGM — two grass zones sound identical.
-- Add `bgmId` per zone in `data.ts`  
-- Add 3 new unique melody layers in `audio.ts`
-- Each zone gets its own 16-step melody on top of the base track
-- Fades in on zone enter
+#### 4. Route NPCs
+- 1 NPC per route corridor between zones (9 total)
+- Positioned beside the path, says one thematic flavor line
+- Makes the corridors feel alive instead of empty
 
-#### 5. Route NPCs
-- 1 NPC per route corridor (9 total)
-- Position: middle of route, beside the path
-- One thematic flavor line each
-- Makes empty corridors feel alive
+**Files:** `game/data.ts` (add route NPCs array), `game/world.ts` (place them)
 
-#### 6. More NPCs Per Zone
-- Currently 2 per zone — feels sparse
-- Add 1–2 more per zone (fan, client, engineer)
-- Rich enough to feel like a real world
+#### 5. More NPCs Per Zone
+- Currently 2 NPCs per zone — feels sparse
+- Add 1–2 more per zone (fan, client, engineer, tenant)
+- Richer world, more story texture
+
+**Files:** `game/data.ts`
+
+#### 6. Interior Art (Optional Upgrade)
+Interiors currently use procedural tile rendering. For a premium look, generate actual room art:
+```bash
+# Add Batch D to generate_sprites_v3.mjs
+FAL_KEY=xxx node generate_sprites_v3.mjs --batch=D   # 10 interior room PNGs
+```
+Then render as background canvas layer inside `Interior.tsx` (same pattern as battle BGs).
 
 #### 7. Mobile Polish
 - D-pad: larger hit targets, better thumb-zone positioning
-- `navigator.vibrate(20)` haptic on step
+- `navigator.vibrate(20)` haptic on each step
 - `touch-action: none` on canvas prevents accidental pinch-to-zoom
 
 ---
@@ -226,23 +216,23 @@ Currently ground type determines BGM — two grass zones sound identical.
 ### 🟡 Lower Priority
 
 #### 8. Post-Champion Content
-- Unlock "Champion Route" north of Pallet Town after beating all 9 gyms
+- After beating all 9 gyms: unlock a "Champion Route" north of Pallet Town
 - Final NPC = Param himself, talking about what he's building now
-- Champion NPC triggers ContactModal directly
+- Champion NPC opens ContactModal directly
 
 #### 9. Homepage Creature Strip
-- Creature opacity: 6% → 15%
-- Add `@keyframes creature-drift` with slow float per creature
-- Each has unique phase offset
+- Increase creature strip opacity: 6% → 15%
+- Add `@keyframes creature-drift` slow float per creature
+- Each creature has a unique phase offset so they move independently
 
 #### 10. OG Image
-- `/public/og.png` referenced in layout but doesn't exist
-- Generate: game title, Merlord sprite, zone mosaic, "A playable portfolio" tagline
-- Can be done with FAL or a simple canvas script
+- `/public/og.png` is referenced in `app/layout.tsx` but doesn't exist
+- Content: game title + Merlord sprite + zone mosaic + "A playable portfolio" tagline
+- Can be generated via FAL or a simple canvas script
 
 #### 11. Press Wall Warppad
-- `warppad.png` exists but isn't rendered as a distinct tile
-- Wire as visual tile at press wall positions (currently uses BADGE tile)
+- `public/sprites/ui/warppad.png` exists but isn't wired as a tile
+- Should render as a distinct visual at press wall positions (currently uses the BADGE tile)
 
 ---
 
@@ -261,6 +251,7 @@ parampokemon/
 │       ├── Game.tsx                      # Root — state + modal orchestration
 │       ├── Battle.tsx                    # Turn-based battle (+ battle BG canvas)
 │       ├── ZoneTitle.tsx                 # ★ Zone arrival cinematic
+│       ├── Interior.tsx                  # ★ Building interior renderer
 │       ├── BattleIntro.tsx / VictoryMoment.tsx
 │       ├── Bag.tsx / StartMenu.tsx / WorldMap.tsx / WorldSelect.tsx
 │       ├── CliffNotes.tsx / CatchModal.tsx / ContactModal.tsx / PressModal.tsx
@@ -274,6 +265,7 @@ parampokemon/
 │   ├── tiles.ts            # 38 tile types + character sprites (procedural canvas)
 │   ├── sprites.ts          # Mermander line + gym leaders (procedural canvas)
 │   ├── landmarks.ts        # Landmark image renderer per zone
+│   ├── interiors.ts        # ★ 10 interior tile maps + NPC positions
 │   ├── world.ts            # Tile grid builder (6-tile path, dense route walls)
 │   ├── pathfind.ts         # BFS click-to-walk
 │   └── sprite-registry.ts  # Image cache + all PNG URL maps
