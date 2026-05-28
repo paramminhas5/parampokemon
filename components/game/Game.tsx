@@ -23,6 +23,7 @@ import { SkillLearnOverlay } from "./SkillLearnOverlay";
 import { TouchControls } from "./TouchControls";
 import { ChampionCard } from "./ChampionCard";
 import { playSound, playZoneBGM, playBattleBGM, stopBattleBGM, stopBGM, setMuted, isMuted, loadMutePref } from "@/lib/audio";
+import { LEADER_URL } from "@/game/sprite-registry";
 import { ZoneTitle } from "./ZoneTitle";
 import { Interior } from "./Interior";
 
@@ -68,7 +69,7 @@ export function Game() {
   // Phase 5: champion card
   const [championOpen, setChampionOpen] = useState(false);
 
-  // pendingSkillLearn: queued after dialog closes
+  // pendingSkillLearn: queued after dialog closes — fired once dialog unmounts
   const pendingSkillLearnRef = useRef<{ zone: Zone; npcName: string } | null>(null);
   const [badges, setBadges] = useState<Set<string>>(new Set());
   const [creatures, setCreatures] = useState<Set<string>>(new Set());
@@ -86,14 +87,19 @@ export function Game() {
       const raw = localStorage.getItem("pq_save");
       if (raw) {
         const s = JSON.parse(raw);
-        if (s.badges) setBadges(new Set(s.badges));
+        if (s.badges)    setBadges(new Set(s.badges));
         if (s.creatures) { setCreatures(new Set(s.creatures)); caughtRef.current = new Set(s.creatures); }
-        if (s.skills) setSkills(new Set(s.skills));
-        if (s.defeated) setDefeated(new Set(s.defeated));
-        if (s.visited) setVisited(new Set(s.visited));
-        // If they have a save, not a first visit
+        if (s.skills)    setSkills(new Set(s.skills));
+        if (s.defeated)  setDefeated(new Set(s.defeated));
+        if (s.visited)   setVisited(new Set(s.visited));
         setIsFirstVisit(false);
-        setTitleDone(false); // still show title but skip professor
+        setTitleDone(false);
+        // ★ Show save-loaded toast so returning players know their progress is here
+        const badgeCount    = (s.badges    as string[] | undefined)?.length ?? 0;
+        const creatureCount = (s.creatures as string[] | undefined)?.length ?? 0;
+        setTimeout(() => {
+          showToast(`SAVE LOADED`, `${badgeCount} badge${badgeCount !== 1 ? "s" : ""} · ${creatureCount} creature${creatureCount !== 1 ? "s" : ""}`);
+        }, 1400);
       } else {
         // Truly first visit — show full title + professor intro
         setIsFirstVisit(true);
@@ -103,7 +109,7 @@ export function Game() {
       setIsFirstVisit(true);
       setTitleDone(false);
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Save on change
   useEffect(() => {
@@ -137,10 +143,8 @@ export function Game() {
           if (i.npc.special === "contact") { setContactOpen(true); engine.setPaused(true); return; }
           setDialog({ type: "npc", name: i.npc.name, role: i.npc.role, quote: i.npc.quote, kind: i.npc.kind });
           engine.setPaused(true);
-          // Unlock follower when Prof. Iterate is talked to
-          if (i.npc.kind === "professor") {
-            engine.unlockFollower();
-          }
+          // Unlock follower the moment the professor is spoken to
+          if (i.npc.kind === "professor") engine.unlockFollower();
           if (i.npc.beat === "did" && i.zone.creature && !caughtRef.current.has(i.zone.creature.id)) {
             setTimeout(() => setCatchModal(i.zone), 400);
           }
@@ -149,15 +153,13 @@ export function Game() {
               if (prev.has(i.zone.skill!.id)) return prev;
               const n = new Set(prev); n.add(i.zone.skill!.id);
               engine.addSkill(i.zone.skill!.id);
-              // Queue skill learn overlay — fires after dialog closes via handleDialogClose
+              // Queue — fires after dialog closes to avoid engine pause collision
               pendingSkillLearnRef.current = { zone: i.zone, npcName: i.npc.name };
               return n;
             });
           }
         } else if (i.kind === "sign") {
-          if (i.sign.pressWall) {
-            setPressOpen(true); engine.setPaused(true); return;
-          }
+          if (i.sign.pressWall) { setPressOpen(true); engine.setPaused(true); return; }
           setDialog({ type: "sign", text: i.sign.text });
           engine.setPaused(true);
         }
@@ -166,17 +168,20 @@ export function Game() {
         setCurrentZoneId(z.id);
         const isFirstTime = !visited.has(z.id);
         setVisited(prev => { const n = new Set(prev); n.add(z.id); return n; });
-        showToast(z.name.toUpperCase(), z.subtitle);
+        // Toast uses zone accent colour
+        setToast({ title: z.name.toUpperCase(), sub: z.subtitle });
+        if (toastTimer.current) clearTimeout(toastTimer.current);
+        toastTimer.current = setTimeout(() => setToast(null), 2800);
         // Fire zone transition + BGM
         transKeyRef.current += 1;
         setTransition({ kind: "zone", color: z.theme.accent, key: transKeyRef.current });
         playZoneBGM(z.theme.ground as Parameters<typeof playZoneBGM>[0], z.id);
-        // Only show arrival cinematic + CliffNotes on FIRST visit
+        // Only show arrival cinematic on FIRST visit; CliffNotes fires from ZoneTitle.onDone
         if (z.id !== "home" && isFirstTime) {
           setZoneTitle(z);
           engine.setPaused(true);
+          // ↑ DO NOT also call setCliffOpen here — ZoneTitle.onDone handles it
         }
-        if (z.id !== "home" && isFirstTime) { setCliffOpen(z); }
       },
       onMenu: () => { setMenuOpen(true); engine.setPaused(true); },
       onBadge: (badgeId: string) => {
@@ -201,19 +206,18 @@ export function Game() {
     // Sync player stage to current badge progression
     engine.setPlayerStage(stageForBadges(badges.size).id);
 
-    // Restore engine state
+    // Restore engine state from save
     try {
       const raw = localStorage.getItem("pq_save");
       if (raw) {
         const s = JSON.parse(raw);
-        if (s.badges) s.badges.forEach((id: string) => engine.state.collectedBadges.add(id));
+        if (s.badges)    s.badges.forEach((id: string) => engine.state.collectedBadges.add(id));
         if (s.creatures) s.creatures.forEach((id: string) => engine.state.collectedCreatures.add(id));
-        if (s.skills) s.skills.forEach((id: string) => engine.state.collectedSkills.add(id));
-        if (s.defeated) s.defeated.forEach((id: string) => engine.state.defeatedGyms.add(id));
-        // Restore follower if they've already talked to professor (have any skills or badges)
-        if ((s.skills && s.skills.length > 0) || (s.badges && s.badges.length > 0)) {
-          engine.unlockFollower();
-        }
+        if (s.skills)    s.skills.forEach((id: string) => engine.state.collectedSkills.add(id));
+        if (s.defeated)  s.defeated.forEach((id: string) => engine.state.defeatedGyms.add(id));
+        // Restore follower if player has already been through tutorial
+        const hasMadeProgress = (s.badges?.length ?? 0) > 0 || (s.skills?.length ?? 0) > 0;
+        if (hasMadeProgress) engine.unlockFollower();
       }
     } catch {}
 
@@ -522,50 +526,81 @@ export function Game() {
           ))}
         </div>
 
-        {/* Toast */}
+        {/* Toast — uses current zone accent colour */}
         {toast && (
           <div style={{
             position: "absolute", top: 58, left: "50%",
             transform: "translateX(-50%)",
             zIndex: 25, pointerEvents: "none",
-            background: "rgba(4,8,20,0.96)", border: "2px solid #1a2a4a",
+            background: "rgba(4,8,20,0.96)",
+            border: `2px solid ${currentZone.theme.accent}50`,
             padding: "8px 14px", textAlign: "center", maxWidth: 300,
             animation: "pq-fade-in 0.18s ease-out",
+            boxShadow: `0 0 16px ${currentZone.theme.accent}20`,
           }}>
-            <div style={{ fontFamily: "var(--font-pixel)", fontSize: 9, color: "#7ce0ff" }}>{toast.title}</div>
+            <div style={{ fontFamily: "var(--font-pixel)", fontSize: 9, color: currentZone.theme.accent }}>{toast.title}</div>
             {toast.sub && <div style={{ fontFamily: "var(--font-pixel)", fontSize: 6, color: "#2a3a50", marginTop: 3 }}>{toast.sub}</div>}
           </div>
         )}
 
-        {/* Badge earned */}
-        {gotBadge && (
-          <div style={{
-            position: "absolute", inset: 0, zIndex: 45,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            pointerEvents: "none", background: "rgba(3,6,14,0.7)",
-          }}>
+        {/* Badge earned — shows defeated leader's portrait */}
+        {gotBadge && (() => {
+          const badgeZone = ZONES.find(z => z.badge.id === gotBadge.label.toLowerCase().replace(/ /g, "-") || z.badge.label === gotBadge.label);
+          const leaderUrl = badgeZone?.gym ? LEADER_URL[badgeZone.gym.leader] : null;
+          return (
             <div style={{
-              border: `3px solid ${gotBadge.color}`,
-              background: `linear-gradient(135deg, ${gotBadge.color}18 0%, #050c18 100%)`,
-              padding: "28px 44px", textAlign: "center",
-              boxShadow: `0 0 40px ${gotBadge.color}40`,
-              animation: "pq-badge-pop 0.4s cubic-bezier(0.34,1.56,0.64,1)",
+              position: "absolute", inset: 0, zIndex: 45,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              pointerEvents: "none", background: "rgba(3,6,14,0.72)",
             }}>
               <div style={{
-                width: 52, height: 52, borderRadius: "50%", background: gotBadge.color,
-                margin: "0 auto 14px", display: "flex", alignItems: "center", justifyContent: "center",
-                fontFamily: "var(--font-pixel)", fontSize: 22,
-                boxShadow: `0 0 20px ${gotBadge.color}`,
-              }}>★</div>
-              <div style={{ fontFamily: "var(--font-pixel)", fontSize: 6, color: gotBadge.color, marginBottom: 6 }}>
-                GYM BADGE EARNED
-              </div>
-              <div style={{ fontFamily: "var(--font-pixel)", fontSize: 12, color: "#fff" }}>
-                {gotBadge.label.toUpperCase()}
+                border: `3px solid ${gotBadge.color}`,
+                background: `linear-gradient(135deg, ${gotBadge.color}18 0%, #050c18 100%)`,
+                padding: "24px 36px", textAlign: "center",
+                boxShadow: `0 0 40px ${gotBadge.color}40`,
+                animation: "pq-badge-pop 0.4s cubic-bezier(0.34,1.56,0.64,1)",
+                display: "flex", flexDirection: "column", alignItems: "center", gap: 10,
+              }}>
+                {/* Leader portrait or generic star */}
+                {leaderUrl ? (
+                  <div style={{ position: "relative" }}>
+                    <img
+                      src={leaderUrl}
+                      alt=""
+                      style={{
+                        width: 64, height: 64,
+                        imageRendering: "pixelated",
+                        border: `2px solid ${gotBadge.color}80`,
+                        filter: `drop-shadow(0 0 12px ${gotBadge.color})`,
+                      }}
+                    />
+                    <div style={{
+                      position: "absolute", bottom: -6, right: -6,
+                      width: 20, height: 20, borderRadius: "50%",
+                      background: gotBadge.color,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      fontSize: 10, color: "#fff",
+                      boxShadow: `0 0 8px ${gotBadge.color}`,
+                    }}>★</div>
+                  </div>
+                ) : (
+                  <div style={{
+                    width: 52, height: 52, borderRadius: "50%", background: gotBadge.color,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontFamily: "var(--font-pixel)", fontSize: 22,
+                    boxShadow: `0 0 20px ${gotBadge.color}`,
+                  }}>★</div>
+                )}
+                <div style={{ fontFamily: "var(--font-pixel)", fontSize: 6, color: gotBadge.color }}>
+                  GYM BADGE EARNED
+                </div>
+                <div style={{ fontFamily: "var(--font-pixel)", fontSize: 12, color: "#fff", letterSpacing: "0.04em" }}>
+                  {gotBadge.label.toUpperCase()}
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Overlays */}
         {titleDone && worldSelectOpen && (
@@ -580,12 +615,13 @@ export function Game() {
         )}
         {dialog && <DialogBox dialog={dialog} onClose={() => {
           setDialog(null);
-          // Fire pending skill learn overlay now that dialog is closed
+          // Fire queued skill learn AFTER dialog is fully gone — avoids engine pause collision
           if (pendingSkillLearnRef.current) {
             const pending = pendingSkillLearnRef.current;
             pendingSkillLearnRef.current = null;
-            setSkillLearnZone(pending);
-            // engine stays paused for the overlay
+            // Small delay so dialog unmount is complete before overlay mounts
+            setTimeout(() => setSkillLearnZone(pending), 50);
+            // engine stays paused — SkillLearnOverlay.onClose will unpause
           } else {
             engineRef.current?.setPaused(false);
           }
@@ -650,8 +686,10 @@ export function Game() {
             zone={skillLearnZone.zone}
             npcName={skillLearnZone.npcName}
             onClose={() => {
+              const sz = skillLearnZone;
               setSkillLearnZone(null);
-              showToast(`✦ ${skillLearnZone.zone.skill!.name.toUpperCase()} READY`, "Use it in battle");
+              engineRef.current?.setPaused(false);
+              showToast(`✦ ${sz.zone.skill!.name.toUpperCase()} READY`, "Use it in battle");
             }}
           />
         )}

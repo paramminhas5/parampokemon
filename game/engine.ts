@@ -44,7 +44,7 @@ export type GameState = {
   paused: boolean;
   path: { x: number; y: number }[];
   playerStage: string;
-  /** Follower only appears after Prof. Iterate gives Mermander */
+  /** Follower only shows after Prof. Iterate gives Mermander */
   followerUnlocked: boolean;
 };
 
@@ -604,8 +604,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       }
     }
 
-    // Follower sprite — the Mermander line creature trails 1 tile behind player
-    // Only visible after Prof. Iterate gives Mermander (followerUnlocked)
+    // Follower sprite — only shown after followerUnlocked (Prof. Iterate gives Mermander)
     if (state.followerUnlocked) {
       const followerX = state.walkFrom.x;
       const followerY = state.walkFrom.y;
