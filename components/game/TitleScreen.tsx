@@ -1,8 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { drawStarter } from "@/game/sprites";
-import { drawCharacter } from "@/game/tiles";
-import { TITLE_BG_URL, getSprite, isReady } from "@/game/sprite-registry";
+import { TITLE_BG_URL, PLAYER_FRONT_URL, LEADER_URL, getSprite, isReady } from "@/game/sprite-registry";
 
 // ─── Prof. Iterate's opening speech ────────────────────────────────────────
 const INTRO_LINES = [
@@ -34,11 +32,13 @@ const STYLES = `
 @keyframes ts-sub-in     { 0%{opacity:0;transform:translateY(8px)} 100%{opacity:1;transform:translateY(0)} }
 @keyframes ts-press-blink{ 0%,100%{opacity:1} 49%{opacity:1} 50%,99%{opacity:0} }
 @keyframes ts-star-drift { 0%{transform:translateY(0) scale(1)} 100%{transform:translateY(-8px) scale(1.05)} }
-@keyframes ts-merman-bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+@keyframes ts-merman-bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+@keyframes ts-merman-glow{ 0%,100%{filter:drop-shadow(0 0 24px rgba(124,224,255,0.55))} 50%{filter:drop-shadow(0 0 44px rgba(124,224,255,0.9))} }
 @keyframes ts-scanline   { 0%{transform:translateY(0)} 100%{transform:translateY(100vh)} }
 @keyframes ts-dialog-in  { 0%{opacity:0;transform:translateY(16px)} 100%{opacity:1;transform:translateY(0)} }
-@keyframes ts-char-in    { 0%{opacity:0;transform:scale(0.8)} 100%{opacity:1;transform:scale(1)} }
+@keyframes ts-prof-in    { 0%{opacity:0;transform:scale(0.7) translateY(10px)} 100%{opacity:1;transform:scale(1) translateY(0)} }
 @keyframes ts-cursor     { 0%,100%{opacity:1} 50%{opacity:0} }
+@keyframes ts-ring       { 0%{transform:scale(0.6);opacity:0.8} 100%{transform:scale(2.2);opacity:0} }
 `;
 
 const FRAME_MS = 22;
@@ -60,15 +60,13 @@ function TitleBgLayer() {
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
         ctx.drawImage(img, (canvas.width - sw) / 2, (canvas.height - sh) / 2, sw, sh);
-        // Dark vignette overlay
-        const grad = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, canvas.width * 0.75);
+        const grad = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 0, canvas.width/2, canvas.height/2, canvas.width * 0.75);
         grad.addColorStop(0,   "rgba(1,2,10,0.35)");
         grad.addColorStop(0.6, "rgba(1,2,10,0.55)");
         grad.addColorStop(1,   "rgba(1,2,10,0.88)");
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
       } else {
-        // fallback while loading
         ctx.fillStyle = "#010208";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         rafRef.current = requestAnimationFrame(draw);
@@ -78,15 +76,10 @@ function TitleBgLayer() {
     return () => cancelAnimationFrame(rafRef.current);
   }, []);
   return (
-    <canvas
-      ref={canvasRef}
-      width={960}
-      height={640}
-      style={{
-        position: "absolute", inset: 0, width: "100%", height: "100%",
-        zIndex: 0, pointerEvents: "none",
-      }}
-    />
+    <canvas ref={canvasRef} width={960} height={640} style={{
+      position: "absolute", inset: 0, width: "100%", height: "100%",
+      zIndex: 0, pointerEvents: "none",
+    }} />
   );
 }
 
@@ -102,30 +95,17 @@ export function TitleScreen({ onComplete, isFirstVisit }: Props) {
   const [lineIdx, setLineIdx] = useState(0);
   const [shown, setShown] = useState(0);
   const [textDone, setTextDone] = useState(false);
+  // Track whether PNG sprites are loaded
+  const [mermanReady, setMermanReady] = useState(false);
 
-  const mermanRef = useRef<HTMLCanvasElement>(null);
-  const profRef = useRef<HTMLCanvasElement>(null);
-  const rafRef = useRef(0);
-
-  // Sprite animation
+  // Pre-load mermander PNG
   useEffect(() => {
-    const loop = (now: number) => {
-      if (mermanRef.current) {
-        const c = mermanRef.current.getContext("2d")!;
-        c.imageSmoothingEnabled = false;
-        c.clearRect(0, 0, 128, 128);
-        drawStarter(c, "mermander", "front", 16, 8, 3.0, now / 100);
-      }
-      if (profRef.current) {
-        const c = profRef.current.getContext("2d")!;
-        c.imageSmoothingEnabled = false;
-        c.clearRect(0, 0, 64, 64);
-        drawCharacter(c, "professor", "down", 0, 8, 10);
-      }
-      rafRef.current = requestAnimationFrame(loop);
-    };
-    rafRef.current = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(rafRef.current);
+    const img = getSprite(PLAYER_FRONT_URL.mermander);
+    if (isReady(img)) { setMermanReady(true); return; }
+    const check = setInterval(() => {
+      if (isReady(img)) { setMermanReady(true); clearInterval(check); }
+    }, 80);
+    return () => clearInterval(check);
   }, []);
 
   // If not first visit, skip immediately
@@ -157,38 +137,26 @@ export function TitleScreen({ onComplete, isFirstVisit }: Props) {
   }, [lineIdx, phase, currentLine.text]);
 
   function advance() {
-    if (phase === "title") {
-      setPhase("intro");
-      return;
-    }
+    if (phase === "title") { setPhase("intro"); return; }
     if (phase === "intro") {
-      if (!textDone) {
-        // skip to end of current line
-        setShown(currentLine.text.length);
-        setTextDone(true);
-        return;
-      }
-      if (lineIdx < INTRO_LINES.length - 1) {
-        setLineIdx(l => l + 1);
-      } else {
-        setPhase("done");
-        onComplete();
-      }
+      if (!textDone) { setShown(currentLine.text.length); setTextDone(true); return; }
+      if (lineIdx < INTRO_LINES.length - 1) { setLineIdx(l => l + 1); }
+      else { setPhase("done"); onComplete(); }
     }
   }
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (["Enter", " ", "z", "Z", "Escape"].includes(e.key)) {
-        e.preventDefault();
-        advance();
-      }
+      if (["Enter", " ", "z", "Z", "Escape"].includes(e.key)) { e.preventDefault(); advance(); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   });
 
   if (phase === "done") return null;
+
+  // Prof portrait: use statusquo (iterate HQ leader) or prehype as professor stand-in
+  const profUrl = LEADER_URL.prehype;
 
   return (
     <div
@@ -203,8 +171,6 @@ export function TitleScreen({ onComplete, isFirstVisit }: Props) {
       onClick={advance}
     >
       <style>{STYLES}</style>
-
-      {/* Title BG image — rendered on a canvas behind everything */}
       <TitleBgLayer />
 
       {/* Starfield */}
@@ -234,10 +200,30 @@ export function TitleScreen({ onComplete, isFirstVisit }: Props) {
       {/* ── TITLE PHASE ── */}
       {phase === "title" && (
         <div style={{ textAlign: "center", position: "relative", zIndex: 5 }}>
-          {/* Mermander sprite */}
-          <div style={{ animation: "ts-merman-bob 2s ease-in-out infinite", marginBottom: 8 }}>
-            <canvas ref={mermanRef} width={128} height={128}
-              style={{ imageRendering: "pixelated", width: 160, height: 160, filter: "drop-shadow(0 0 30px rgba(124,224,255,0.5))" }} />
+          {/* Mermander PNG sprite */}
+          <div style={{
+            animation: "ts-merman-bob 2.2s ease-in-out infinite",
+            marginBottom: 8,
+            display: "flex", justifyContent: "center",
+          }}>
+            {mermanReady ? (
+              <img
+                src={PLAYER_FRONT_URL.mermander}
+                alt="Mermander"
+                style={{
+                  width: 160, height: 160,
+                  imageRendering: "pixelated",
+                  animation: "ts-merman-glow 2.2s ease-in-out infinite",
+                }}
+              />
+            ) : (
+              /* Fallback shimmer while loading */
+              <div style={{
+                width: 160, height: 160,
+                background: "radial-gradient(ellipse at center, rgba(124,224,255,0.15) 0%, transparent 70%)",
+                borderRadius: "50%",
+              }} />
+            )}
           </div>
 
           <div style={{ fontSize: 7, color: "#3a5a80", letterSpacing: "0.3em", marginBottom: 16, animation: "ts-sub-in 0.6s ease-out 0.2s both" }}>
@@ -246,8 +232,7 @@ export function TitleScreen({ onComplete, isFirstVisit }: Props) {
 
           <h1 style={{
             fontSize: "clamp(28px, 7vw, 52px)",
-            lineHeight: 1.1,
-            margin: "0 0 6px",
+            lineHeight: 1.1, margin: "0 0 6px",
             color: "#7ce0ff",
             textShadow: "0 6px 0 #0a2040, 0 0 50px rgba(124,224,255,0.5)",
             animation: "ts-title-in 0.7s cubic-bezier(0.34,1.56,0.64,1) both",
@@ -259,14 +244,9 @@ export function TitleScreen({ onComplete, isFirstVisit }: Props) {
             FIFTEEN YEARS OF BUILDING
           </div>
 
-          <div style={{
-            marginTop: 36, fontSize: 8, color: "#7ce0ff",
-            animation: "ts-press-blink 1.4s step-end infinite",
-            letterSpacing: "0.1em",
-          }}>
+          <div style={{ marginTop: 36, fontSize: 8, color: "#7ce0ff", animation: "ts-press-blink 1.4s step-end infinite", letterSpacing: "0.1em" }}>
             ▶ PRESS START
           </div>
-
           <div style={{ fontSize: 6, color: "#1a2a3a", marginTop: 10, letterSpacing: "0.08em" }}>
             SPACE · ENTER · TAP
           </div>
@@ -282,10 +262,29 @@ export function TitleScreen({ onComplete, isFirstVisit }: Props) {
           display: "flex", flexDirection: "column",
           alignItems: "center", gap: 20,
         }}>
-          {/* Prof sprite */}
-          <div style={{ animation: "ts-char-in 0.4s ease-out both" }}>
-            <canvas ref={profRef} width={64} height={64}
-              style={{ imageRendering: "pixelated", width: 80, height: 80, filter: "drop-shadow(0 0 12px rgba(168,211,154,0.5))" }} />
+          {/* Prof portrait — real PNG, not canvas */}
+          <div style={{ animation: "ts-prof-in 0.45s cubic-bezier(0.34,1.4,0.64,1) both", position: "relative" }}>
+            {/* Subtle glow ring behind portrait */}
+            <div style={{
+              position: "absolute", inset: -12, borderRadius: "50%",
+              background: "radial-gradient(circle, rgba(168,211,154,0.25) 0%, transparent 70%)",
+              animation: "ts-bg-pulse 1.8s ease-in-out infinite",
+            }} />
+            <div style={{
+              width: 80, height: 80,
+              border: "2px solid rgba(168,211,154,0.55)",
+              background: "rgba(168,211,154,0.08)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              overflow: "hidden", position: "relative",
+              boxShadow: "0 0 20px rgba(168,211,154,0.25)",
+            }}>
+              <img
+                src={profUrl}
+                alt="Prof. Iterate"
+                style={{ width: 72, height: 72, imageRendering: "pixelated" }}
+                onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+              />
+            </div>
           </div>
 
           {/* Dialog box */}
@@ -303,32 +302,15 @@ export function TitleScreen({ onComplete, isFirstVisit }: Props) {
               borderBottom: "1px solid #1a3a2a",
               background: "linear-gradient(135deg, rgba(168,211,154,0.1) 0%, transparent 60%)",
             }}>
-              <div style={{
-                width: 44, height: 44, flexShrink: 0,
-                border: "2px solid #a8d39a60",
-                background: "#a8d39a10",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                overflow: "hidden",
-              }}>
-                <canvas ref={undefined} width={32} height={32}
-                  style={{ imageRendering: "pixelated", width: 32, height: 32 }} />
-                {/* inline mini-prof drawn */}
-                <span style={{ fontSize: 18, color: "#a8d39a" }}>⚗</span>
-              </div>
               <div>
-                <div style={{ fontSize: 9, color: "#a8d39a", letterSpacing: "0.06em" }}>
-                  {currentLine.speaker}
-                </div>
-                <div style={{ fontSize: 7, color: "#5570aa", marginTop: 3 }}>
-                  {currentLine.role}
-                </div>
+                <div style={{ fontSize: 9, color: "#a8d39a", letterSpacing: "0.06em" }}>{currentLine.speaker}</div>
+                <div style={{ fontSize: 7, color: "#5570aa", marginTop: 3 }}>{currentLine.role}</div>
               </div>
               <div style={{ marginLeft: "auto", fontSize: 7, color: "#1a2a3a" }}>
                 {lineIdx + 1}/{INTRO_LINES.length}
               </div>
             </div>
-
-            {/* Text */}
+            {/* Text body */}
             <div style={{ padding: "12px 14px 16px" }}>
               <div style={{
                 fontFamily: "var(--font-mono)", fontSize: 16,
@@ -343,11 +325,7 @@ export function TitleScreen({ onComplete, isFirstVisit }: Props) {
 
           {/* Advance hint */}
           {textDone && (
-            <div style={{
-              fontSize: 7, color: "#3a5070",
-              letterSpacing: "0.1em",
-              animation: "ts-press-blink 1.2s step-end infinite",
-            }}>
+            <div style={{ fontSize: 7, color: "#3a5070", letterSpacing: "0.1em", animation: "ts-press-blink 1.2s step-end infinite" }}>
               {lineIdx < INTRO_LINES.length - 1 ? "▶ NEXT" : "▶ BEGIN QUEST"}
             </div>
           )}

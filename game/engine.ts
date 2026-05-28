@@ -44,6 +44,8 @@ export type GameState = {
   paused: boolean;
   path: { x: number; y: number }[];
   playerStage: string;
+  /** Follower only shows after Prof. Iterate gives Mermander */
+  followerUnlocked: boolean;
 };
 
 type InputName = "up" | "down" | "left" | "right" | "action" | "menu";
@@ -95,6 +97,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
     paused: false,
     path: [],
     playerStage: "mermander",
+    followerUnlocked: false,
   };
 
   const input: Input = { up: false, down: false, left: false, right: false, action: false, menu: false };
@@ -601,8 +604,8 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       }
     }
 
-    // Follower sprite — the Mermander line creature trails 1 tile behind player
-    {
+    // Follower sprite — only shown after followerUnlocked (Prof. Iterate gives Mermander)
+    if (state.followerUnlocked) {
       const followerX = state.walkFrom.x;
       const followerY = state.walkFrom.y;
       const fbx = Math.round(followerX * TILE) + offX;
@@ -689,6 +692,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       window.removeEventListener("resize", resize);
     },
     setPlayerStage(stage: string) { state.playerStage = stage; },
+    unlockFollower() { state.followerUnlocked = true; },
     get VIEW_TILES_X() { return VIEW_TILES_X; },
     get VIEW_TILES_Y() { return VIEW_TILES_Y; },
     TILE_PX: TILE,

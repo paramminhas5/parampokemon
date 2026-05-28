@@ -310,9 +310,21 @@ export function WorldSelect({ onSelect, onClose }: {
                 <img
                   src={`/sprites/landmarks/${hoveredZone.id}.png`}
                   alt={hoveredZone.name}
-                  style={{ width:160, height:160, imageRendering:"pixelated", position:"relative", zIndex:1 }}
+                  style={{
+                    width: "100%", height: "100%",
+                    objectFit: "cover", objectPosition: "center",
+                    imageRendering: "auto",
+                    position: "relative", zIndex: 1,
+                    opacity: 0.92,
+                  }}
                   onError={e => (e.currentTarget.style.display = "none")}
                 />
+                {/* Accent overlay to tie into game palette */}
+                <div style={{
+                  position: "absolute", inset: 0, zIndex: 2,
+                  background: `linear-gradient(180deg, transparent 50%, ${hoveredZone.theme.accent}22 100%)`,
+                  pointerEvents: "none",
+                }} />
               </div>
 
               {/* Zone info card */}

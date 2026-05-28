@@ -465,27 +465,73 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee }: {
       </div>
 
       {/* Battle log */}
-      <div style={{ height: 110, overflowY: "auto", padding: "6px 14px", borderBottom: "2px solid #0a1525", background: "rgba(2,5,12,0.88)", backdropFilter: "blur(6px)", flexShrink: 0 }}>
-        {log.map((l, i) => (
-          <div key={i} style={{
-            fontSize: l.kind === "super" || l.kind === "crit" ? 11 : 10,
-            lineHeight: 1.65, color: LOG_COLORS[l.kind],
-            fontWeight: l.kind === "super" || l.kind === "crit" ? "bold" : "normal",
-            animation: l.kind === "super" || l.kind === "crit" ? "log-super 1.4s ease-in-out infinite" : "none",
-            display: "flex", alignItems: "center", gap: 5,
-          }}>
-            <span>{l.kind === "crit" ? "⚡ " : l.kind === "super" ? "★ " : l.kind === "info" ? "  " : "▸ "}{l.text}</span>
-            {l.type && (
-              <span style={{
-                fontSize: 7,
-                background: (TYPE_COLORS[l.type] ?? "#7ce0ff") + "20",
-                border: `1px solid ${(TYPE_COLORS[l.type] ?? "#7ce0ff")}45`,
-                color: TYPE_COLORS[l.type] ?? "#7ce0ff",
-                padding: "1px 5px", borderRadius: 99, flexShrink: 0,
-              }}>{l.type}</span>
-            )}
-          </div>
-        ))}
+      <div style={{ height: 120, overflowY: "auto", padding: "6px 14px", borderBottom: "2px solid #0a1525", background: "rgba(2,5,12,0.88)", backdropFilter: "blur(6px)", flexShrink: 0 }}>
+        {log.map((l, i) => {
+          const isAttack  = l.kind === "normal" && l.type !== undefined;
+          const isFlavor  = l.kind === "info";
+          const isSuper   = l.kind === "super";
+          const isCrit    = l.kind === "crit";
+          const isNotSo   = l.kind === "notso";
+          return (
+            <div key={i} style={{
+              marginBottom: isAttack ? 0 : isFlavor ? 3 : 2,
+              lineHeight: 1.5,
+            }}>
+              {isAttack ? (
+                /* Attack name — largest, accent-coloured */
+                <div style={{
+                  fontFamily: "var(--font-pixel)", fontSize: 9,
+                  color: l.type ? (TYPE_COLORS[l.type] ?? "#c8d8f0") : "#c8d8f0",
+                  display: "flex", alignItems: "center", gap: 6, marginTop: 4,
+                }}>
+                  <span style={{ opacity: 0.5 }}>▸</span>
+                  {l.text}
+                  {l.type && (
+                    <span style={{
+                      fontSize: 6,
+                      background: (TYPE_COLORS[l.type] ?? "#7ce0ff") + "20",
+                      border: `1px solid ${(TYPE_COLORS[l.type] ?? "#7ce0ff")}45`,
+                      color: TYPE_COLORS[l.type] ?? "#7ce0ff",
+                      padding: "1px 5px", borderRadius: 99, flexShrink: 0,
+                    }}>{l.type}</span>
+                  )}
+                </div>
+              ) : isFlavor ? (
+                /* Flavor text — italic, slightly smaller, muted — this is the story moment */
+                <div style={{
+                  fontFamily: "var(--font-mono)", fontSize: 13,
+                  color: "#6a88b0", fontStyle: "italic",
+                  paddingLeft: 12, lineHeight: 1.55,
+                  borderLeft: "2px solid #1a2a40",
+                }}>
+                  {l.text}
+                </div>
+              ) : (isSuper || isCrit) ? (
+                /* Super / crit — BIG, glowing */
+                <div style={{
+                  fontFamily: "var(--font-pixel)",
+                  fontSize: isCrit ? 12 : 11,
+                  color: LOG_COLORS[l.kind],
+                  textShadow: `0 0 12px ${LOG_COLORS[l.kind]}`,
+                  animation: "log-super 1.4s ease-in-out infinite",
+                  display: "flex", alignItems: "center", gap: 4,
+                  marginTop: 2,
+                }}>
+                  {l.kind === "crit" ? "⚡" : "★"} {l.text}
+                </div>
+              ) : isNotSo ? (
+                <div style={{ fontFamily: "var(--font-pixel)", fontSize: 8, color: LOG_COLORS.notso, opacity: 0.8 }}>
+                  {l.text}
+                </div>
+              ) : (
+                /* Generic system line — small, muted */
+                <div style={{ fontFamily: "var(--font-pixel)", fontSize: 7, color: "#3a5070", lineHeight: 1.6 }}>
+                  {l.text}
+                </div>
+              )}
+            </div>
+          );
+        })}
         <div ref={logEndRef} />
       </div>
 
