@@ -7,7 +7,8 @@ import {
 import { buildWorld } from "./world";
 import {
   CREATURE_URL, getSprite, isReady,
-  PLAYER_SPRITE_URL, PLAYER_BACK_URL, PLAYER_LEFT_URL, PLAYER_RIGHT_URL,
+  PARAM_SPRITE_URL,
+  FOLLOWER_SPRITE_URL, FOLLOWER_BACK_URL, FOLLOWER_LEFT_URL, FOLLOWER_RIGHT_URL,
 } from "./sprite-registry";
 import {
   TILE, SOLID, T, drawTile, drawBadge, drawCharacter, drawRoof,
@@ -421,8 +422,9 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       camXSmooth += (cx - camXSmooth) * 0.12;
       camYSmooth += (cy - camYSmooth) * 0.12;
     }
-    const offX = Math.floor(-camXSmooth * TILE);
-    const offY = Math.floor(-camYSmooth * TILE);
+    // Single round() here — never double-floor — eliminates the ±1px flicker
+    const offX = Math.round(-camXSmooth * TILE);
+    const offY = Math.round(-camYSmooth * TILE);
 
     ctx.fillStyle = "#08101a";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -481,7 +483,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       if (i.kind !== "npc") continue;
       if (i.x < tx0 - 1 || i.x > tx1 + 1 || i.y < ty0 - 1 || i.y > ty1 + 1) continue;
       const f = (Math.floor(now / 600 + i.x * 0.3) % 8 === 0 ? 1 : 0) as 0 | 1;
-      const npcBob = Math.sin(now / 800 + i.x * 1.3) * 1.5;
+      const npcBob = Math.round(Math.sin(now / 800 + i.x * 1.3) * 1.5);
       drawCharacter(ctx, i.npc.kind, "down", f, i.x * TILE + offX, i.y * TILE + offY + npcBob);
     }
 
@@ -553,31 +555,33 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       ctx.fillText("GYM", dx * TILE + offX + 2, dy * TILE + offY - 4 + bob);
     }
 
-    // Player on top
+    // Player on top — always Param the human, direction-aware
     {
-      const pbx = Math.floor(state.px * TILE) + offX;
-      const pby = Math.floor(state.py * TILE) + offY;
+      const pbx = Math.round(state.px * TILE) + offX;
+      const pby = Math.round(state.py * TILE) + offY;
 
-      // Zone accent glow under player (drawn before sprite)
+      // Zone accent glow under player
       const playerZone = zoneAt(state.tx, state.ty);
       if (playerZone && playerZone.id !== "home") {
         const glowAlpha = 0.18 + Math.sin(now / 400) * 0.06;
         ctx.fillStyle = playerZone.theme.accent + Math.round(glowAlpha * 255).toString(16).padStart(2, "0");
         ctx.beginPath();
-        ctx.ellipse(Math.floor(state.px * TILE) + offX + TILE / 2, Math.floor(state.py * TILE) + offY + TILE - 2, TILE * 0.6, 3, 0, 0, Math.PI * 2);
+        ctx.ellipse(Math.round(state.px * TILE) + offX + TILE / 2, Math.round(state.py * TILE) + offY + TILE - 2, TILE * 0.6, 3, 0, 0, Math.PI * 2);
         ctx.fill();
       }
 
-      let url: string | undefined;
-      if (state.dir === "down") url = PLAYER_SPRITE_URL[state.playerStage];
-      else if (state.dir === "up") url = PLAYER_BACK_URL[state.playerStage];
-      else if (state.dir === "left") url = PLAYER_LEFT_URL[state.playerStage];
-      else if (state.dir === "right") url = PLAYER_RIGHT_URL[state.playerStage];
-      const img = url ? getSprite(url) : null;
-      if (img && isReady(img)) {
+      // Param sprite — direction mapped to the 4 Param PNGs
+      let paramUrl: string;
+      if (state.dir === "up")         paramUrl = PARAM_SPRITE_URL.back;
+      else if (state.dir === "left")  paramUrl = PARAM_SPRITE_URL.left;
+      else if (state.dir === "right") paramUrl = PARAM_SPRITE_URL.right;
+      else                            paramUrl = PARAM_SPRITE_URL.front;
+
+      const paramImg = getSprite(paramUrl);
+      if (paramImg && isReady(paramImg)) {
         const size = Math.round(TILE * 1.5);
         ctx.imageSmoothingEnabled = false;
-        ctx.drawImage(img, pbx + (TILE - size) / 2, pby + (TILE - size) / 2, size, size);
+        ctx.drawImage(paramImg, pbx + (TILE - size) / 2, pby + (TILE - size) / 2, size, size);
       } else {
         drawCharacter(ctx, "player", state.dir, state.frame, pbx, pby);
       }
@@ -591,16 +595,29 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       }
     }
 
-    // Follower sprite (trails 1 tile behind player in the walk-from direction)
+    // Follower sprite — the Mermander line creature trails 1 tile behind player
     {
       const followerX = state.walkFrom.x;
       const followerY = state.walkFrom.y;
-      const fbx = Math.floor(followerX * TILE) + offX;
-      const fby = Math.floor(followerY * TILE) + offY;
-      // Only draw follower if it's not on the exact same tile as player
-      if (followerX !== state.px || followerY !== state.py) {
-        const followerFrame = (state.stepCount % 2 === 0 ? 1 : 0) as 0 | 1 | 2;
-        drawFollower(ctx, state.playerStage as "mermander" | "mermalion" | "merlord", fbx, fby, followerFrame);
+      const fbx = Math.round(followerX * TILE) + offX;
+      const fby = Math.round(followerY * TILE) + offY;
+      if (followerX !== state.tx || followerY !== state.ty) {
+        // Pick directional follower sprite (faces toward player = opposite of player dir)
+        let followerUrl: string | undefined;
+        if (state.dir === "up")         followerUrl = FOLLOWER_BACK_URL[state.playerStage];
+        else if (state.dir === "down")  followerUrl = FOLLOWER_SPRITE_URL[state.playerStage];
+        else if (state.dir === "left")  followerUrl = FOLLOWER_LEFT_URL[state.playerStage];
+        else                            followerUrl = FOLLOWER_RIGHT_URL[state.playerStage];
+
+        const followerImg = followerUrl ? getSprite(followerUrl) : null;
+        if (followerImg && isReady(followerImg)) {
+          const size = Math.round(TILE * 1.2);
+          ctx.imageSmoothingEnabled = false;
+          ctx.drawImage(followerImg, fbx + (TILE - size) / 2, fby + (TILE - size) / 2, size, size);
+        } else {
+          const followerFrame = (state.stepCount % 2 === 0 ? 1 : 0) as 0 | 1 | 2;
+          drawFollower(ctx, state.playerStage as "mermander" | "mermalion" | "merlord", fbx, fby, followerFrame);
+        }
       }
     }
   }
