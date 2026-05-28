@@ -5,7 +5,7 @@
 Walk through 10 worlds. Talk to the people. Fight the gym leaders. Collect the badges.  
 Each boss is a **real challenge Param actually faced**. Defeat them to earn the badge and read what he learned.
 
-**Stack:** Next.js 15 · TypeScript · Canvas 2D · FAL.ai (SDXL sprites)
+**Stack:** Next.js 15 · TypeScript · Canvas 2D · FAL.ai (flux/dev sprites)
 
 ---
 
@@ -65,90 +65,105 @@ npm run dev        # → http://localhost:3000
 
 ## 🎨 Sprite Generation
 
-All sprites are AI-generated via **FAL.ai** (SDXL pixel art model).
+All sprites are AI-generated via **FAL.ai** using `flux/dev` (28 steps, premium quality).
+
+### v2 — Creatures, Leaders, Player, Landmarks (already generated ✅)
 
 ```bash
-# Generate all 40 sprites in 4 batches
 FAL_KEY=your_key node generate_sprites_v2.mjs
 
-# One batch at a time (recommended — verify before continuing)
+# One batch at a time (recommended)
 FAL_KEY=your_key node generate_sprites_v2.mjs --batch=creatures --model=sdxl
 FAL_KEY=your_key node generate_sprites_v2.mjs --batch=leaders   --model=sdxl
 FAL_KEY=your_key node generate_sprites_v2.mjs --batch=player    --model=sdxl
 FAL_KEY=your_key node generate_sprites_v2.mjs --batch=landmarks --model=sdxl
 
 # Regenerate specific sprites
-FAL_KEY=your_key node generate_sprites_v2.mjs --batch=creatures --only=grp,fere --model=sdxl
+FAL_KEY=your_key node generate_sprites_v2.mjs --batch=creatures --only=grp,fere
+```
 
-# Models: sdxl (default, best pixel art) | sd15 (true pixel, slower) | flux (high quality)
+### v3 — New assets: UI art, Zone Banners, Battle Backgrounds (already generated ✅)
+
+```bash
+FAL_KEY=your_key node generate_sprites_v3.mjs            # all batches
+FAL_KEY=your_key node generate_sprites_v3.mjs --batch=A  # UI/title art (3 imgs)
+FAL_KEY=your_key node generate_sprites_v3.mjs --batch=B  # zone arrival banners (10 imgs)
+FAL_KEY=your_key node generate_sprites_v3.mjs --batch=C  # battle backgrounds (10 imgs)
+FAL_KEY=your_key node generate_sprites_v3.mjs --preview  # 1 per batch for approval
+FAL_KEY=your_key node generate_sprites_v3.mjs --regen=title_bg --batch=A  # redo one
 ```
 
 **Fallback:** if any PNG fails to load, the engine renders procedural canvas pixel art from `game/sprites.ts` / `game/tiles.ts` — no blank spaces ever.
 
 ---
 
-## ✅ What's Been Built
+## ✅ What's Built (Complete)
 
 ### Core game
 - [x] Full overworld: 10 zones, themed route corridors, 80×300 tile world
-- [x] Smooth tile movement — WASD, click-to-walk (A\*), touch swipe, D-pad
-- [x] Cinematic camera lerp — **jitter-free** (Math.floor, single timestamp per frame)
-- [x] 38 unique tile types — animated water, neon, crypto, pylon tiles (flicker-free)
+- [x] Smooth tile movement — WASD, click-to-walk (BFS), touch swipe, D-pad
+- [x] Cinematic camera lerp — jitter-free
+- [x] 38 unique tile types — animated water, neon, crypto, pylon tiles
 - [x] Turn-based battle — type effectiveness, crits, miss, PP tracking
 - [x] 3-stage evolution (Mermander → Mermalion → Merlord) with cutscene
 - [x] Wild creature catch system
 - [x] Skill berry system (NPCs teach battle moves)
 - [x] Full NPC dialog with typewriter effect
-- [x] Building doors — facing a door greets you with the zone's first NPC
-- [x] Zone BGM (Web Audio API procedural), battle BGM + SFX
+- [x] Building doors trigger first NPC dialog
+- [x] Zone BGM (Web Audio API procedural, zero audio files), battle BGM + SFX
 - [x] Save/load via localStorage
 
-### UI / overlays
-- [x] Title screen with Prof. Iterate intro
-- [x] World Select + Warp transitions
-- [x] Bag inventory (creatures, moves, badges)
-- [x] World Map fast-travel
-- [x] Zone cliff notes overlay
-- [x] Battle intro cinematic + Victory moment
-- [x] Evolution cutscene
-- [x] Skill learn overlay
-- [x] Champion card (final gym win)
-- [x] Press wall, Contact modal
-- [x] Touch D-pad (mobile)
+### Visual / Cinematic
+- [x] **Title screen** — `title_bg.png` cinematic background with vignette
+- [x] **Zone arrival cinematic** (`ZoneTitle.tsx`) — full-screen 2.6s banner on zone enter, accent particles, shimmer, scanline
+- [x] **Battle backgrounds** — zone-specific PNG canvas behind every battle arena
+- [x] **Battle HP drain counter** — number counts down over 500ms, HP bar shakes on hit
+- [x] **SUPER EFFECTIVE / CRITICAL HIT** — glowing text pop centered on battle arena
+- [x] **Champion card** — `champion_bg.png` gold hall background on completion
+- [x] World Select galaxy view (SVG, nebula, shooting stars, connection lines)
+- [x] Battle intro cinematic + Victory moment + Evolution cutscene
+- [x] Skill learn overlay + CliffNotes slide-up + CatchModal
 
-### Sprites
-- [x] 9 zone creatures (SDXL pixel art PNGs)
-- [x] 9 gym leaders (SDXL pixel art PNGs)
-- [x] 12 player sprites — Mermander/Mermalion/Merlord × 4 directions (SDXL PNGs)
-- [x] 10 landmark sprites (SDXL PNGs)
-- [x] Param player character — South Asian skin tone, dark hair, slim navy outfit
-
-### Homepage & Resume
-- [x] Homepage career zone cards — **expand on click** (cliff notes, metrics, gym boss, creature)
-- [x] Resume experience entries — **expand on click** (extra bullets, learned quotes, metrics, gym leader)
-- [x] Gym leaders strip
-- [x] Selected press section
-
-### World feel
-- [x] One sign rule — only Pallet Town has a tutorial sign; all other zones use NPCs
-- [x] 9 route themes (meadow, forest, stream, boulders, neon, mall, crypto, garden, skyline)
-- [x] Zone-entry arch gates
+### World design
+- [x] Linear path — 6 tiles wide (widened from 4), clear forced direction
+- [x] Dense tree walls flanking all route corridors — no wandering off
+- [x] Zone-entry arch gates span full 6-tile path
+- [x] 9 route themes (meadow, forest, stream, boulders, neon, mall, crypto, garden, skyline) with decorations scattered ON the path
 - [x] Thematic props per zone (servers, racks, speakers, pylons, candlesticks, trophies)
 - [x] Zone ambient particles, NPC idle bob, wild creature bob + "!" marker
+- [x] Zone glow underfoot for player
+
+### Sprites (all AI-generated, all wired)
+- [x] 9 zone creatures (`/sprites/creatures/`)
+- [x] 9 gym leaders (`/sprites/leaders/`)
+- [x] 12 player overworld sprites — Mermander/Mermalion/Merlord × 4 directions
+- [x] 6 battle sprites — Mermander/Mermalion/Merlord × battle_back + battle_front
+- [x] 4 Param player sprites — front/back/left/right
+- [x] 10 landmark sprites (`/sprites/landmarks/`)
+- [x] 10 zone arrival banners (`/sprites/banners/`) — wide cinematic art per zone
+- [x] 10 battle backgrounds (`/sprites/battle/`) — arena art per zone
+- [x] UI art: `title_bg.png`, `champion_bg.png`, `pokeball_hq.png`
+
+### Homepage & Resume
+- [x] Homepage career zone cards — expand on click
+- [x] Resume experience entries — expand on click
+- [x] Gym leaders strip, press section
 
 ---
 
 ## 🔜 Next Steps
 
-### 🔴 High priority
+### 🔴 High Priority
 
-#### 1. Building interiors
-Right now doors greet you with the first NPC's dialog. The real fix is **actual interior rooms** — small 8×6 tile maps per building with walkable floor, desks, props, and an exit door.
+#### 1. Building Interiors
+**The biggest missing depth feature.** Doors currently trigger first NPC dialog. Real fix: actual interior tile maps per building.
 
 ```
-Engine change: add currentInterior: string | null to GameState
+Engine: add currentInterior: string | null to GameState
+New file: game/interiors.ts — 10 interior tile maps + NPC positions
 New component: components/game/Interior.tsx
 Transition: black fade in/out on door cross
+Exit tile returns to overworld
 ```
 
 | Zone | Interior theme |
@@ -164,61 +179,70 @@ Transition: black fade in/out on door cross
 | ccd | Recording studio — mixing desk, mic stand, cat |
 | iterate | Agency HQ — strategy boards, trophy wall |
 
-#### 2. Richer zone layouts
-- Increase zone width from 26 → 32 tiles (more room to breathe)
-- Add a second building per zone (annex, shop, or house)
-- Zone-specific ground details: river in Hab, neon roads in AI, vinyl circles in CCD
-- Route NPCs mid-corridor saying one thematic line
-- Route height 10 → 14 tiles (less cramped between zones)
+> All tiles already exist — no new sprites needed for MVP interiors. Optional: generate interior art with `generate_sprites_v3.mjs --batch=D` (not yet written).
 
-#### 3. Sprite quality pass
-The SDXL sprites are good but some lack the crisp GBA silhouette. Options:
-- Re-run with `fal-ai/flux-lora` + `sWizad/pokemon-trainer-sprite-pixelart` LoRA (trigger: `pkspr`) — this is trained specifically on GBA sprites
-- Post-process: downscale to 96×96 then upscale 4× with nearest-neighbour to force true pixel grid
-- Hand-polish specific creatures in any pixel editor (Aseprite) — creatures, leaders are 512px so there's room
+#### 2. Pokédex Tab in Bag
+Existing Creatures tab is a basic grid. Should be a proper Pokédex entry:
+- Large sprite + name + type pill + power bar
+- Zone found, flavor description  
+- Silhouette + "???" for uncaught
+- Gives players a reason to explore all zones
 
----
-
-### 🟠 Medium priority
-
-#### 4. Battle polish
-- HP bar drain animation — currently snaps instantly, should drain over 500ms
-- Show type badge + creature name above opponent HP bar
-- Screen shake on SUPER EFFECTIVE hits (`transform: translateX` on the arena)
-- Win fanfare: particle burst over the victory screen
-
-#### 5. Pokédex in Bag
-- In-game Pokédex tab inside the Bag overlay
-- Shows caught creatures: sprite, name, type, power, description, zone found
-- "???" for uncaught — gives the player a reason to explore
-
-#### 6. Mobile controls polish
-- D-pad redesign: larger hit targets, semi-transparent, thumb-zone positioning
-- `navigator.vibrate(20)` haptic on each walk step
-- Prevent accidental pinch-to-zoom during swipe-to-walk (`touch-action: none` on canvas)
+#### 3. Rival NPC at Home
+- Character blocking path south of player spawn
+- Dialog challenge before player can leave Pallet Town
+- One-time gate — steps aside after talking
+- Adds narrative tension to the opening
 
 ---
 
-### 🟡 Lower priority
+### 🟠 Medium Priority
 
-#### 7. More NPC variety
-- 3–4 NPCs per zone instead of 2
-- Route trainer NPCs between zones (walk up to them, they say one line)
-- Home zone: add a rival character (kid who challenges you as you leave Pallet Town)
+#### 4. Per-Zone Unique BGM
+Currently ground type determines BGM — two grass zones sound identical.
+- Add `bgmId` per zone in `data.ts`  
+- Add 3 new unique melody layers in `audio.ts`
+- Each zone gets its own 16-step melody on top of the base track
+- Fades in on zone enter
 
-#### 8. Audio depth
-- Per-zone melody layer on top of existing bass/rhythm procedural BGM
-- Tempo variation: early zones = slow, Iterate HQ = fast
-- Distinct battle intro SFX per gym leader type
+#### 5. Route NPCs
+- 1 NPC per route corridor (9 total)
+- Position: middle of route, beside the path
+- One thematic flavor line each
+- Makes empty corridors feel alive
 
-#### 9. Post-champion content
-- After beating all 9 gyms: unlock a "Champion Route" north of Pallet Town
-- Final NPC = Param himself, talking about what he's working on now
-- Champion NPC opens ContactModal directly
+#### 6. More NPCs Per Zone
+- Currently 2 per zone — feels sparse
+- Add 1–2 more per zone (fan, client, engineer)
+- Rich enough to feel like a real world
 
-#### 10. Homepage creature strip
-- Hero background creatures: opacity 6% → 15%, add slow drift animation
-- Each creature drifts at its own speed/phase using CSS animation
+#### 7. Mobile Polish
+- D-pad: larger hit targets, better thumb-zone positioning
+- `navigator.vibrate(20)` haptic on step
+- `touch-action: none` on canvas prevents accidental pinch-to-zoom
+
+---
+
+### 🟡 Lower Priority
+
+#### 8. Post-Champion Content
+- Unlock "Champion Route" north of Pallet Town after beating all 9 gyms
+- Final NPC = Param himself, talking about what he's building now
+- Champion NPC triggers ContactModal directly
+
+#### 9. Homepage Creature Strip
+- Creature opacity: 6% → 15%
+- Add `@keyframes creature-drift` with slow float per creature
+- Each has unique phase offset
+
+#### 10. OG Image
+- `/public/og.png` referenced in layout but doesn't exist
+- Generate: game title, Merlord sprite, zone mosaic, "A playable portfolio" tagline
+- Can be done with FAL or a simple canvas script
+
+#### 11. Press Wall Warppad
+- `warppad.png` exists but isn't rendered as a distinct tile
+- Wire as visual tile at press wall positions (currently uses BADGE tile)
 
 ---
 
@@ -231,11 +255,12 @@ parampokemon/
 │   ├── play/page.tsx                     # Game entry → GameBoot → Game
 │   └── resume/page.tsx                   # CV (Server Component)
 ├── components/
-│   ├── home/CareerCard.tsx               # ★ Expand-on-click career card (client)
-│   ├── resume/ExperienceEntry.tsx        # ★ Expand-on-click resume entry (client)
-│   └── game/                             # All game overlays (client)
+│   ├── home/CareerCard.tsx               # Expand-on-click career card
+│   ├── resume/ExperienceEntry.tsx        # Expand-on-click resume entry
+│   └── game/
 │       ├── Game.tsx                      # Root — state + modal orchestration
-│       ├── Battle.tsx                    # Turn-based battle system
+│       ├── Battle.tsx                    # Turn-based battle (+ battle BG canvas)
+│       ├── ZoneTitle.tsx                 # ★ Zone arrival cinematic
 │       ├── BattleIntro.tsx / VictoryMoment.tsx
 │       ├── Bag.tsx / StartMenu.tsx / WorldMap.tsx / WorldSelect.tsx
 │       ├── CliffNotes.tsx / CatchModal.tsx / ContactModal.tsx / PressModal.tsx
@@ -244,22 +269,25 @@ parampokemon/
 │       ├── TouchControls.tsx / TransitionOverlay.tsx / ZoneAmbience.tsx
 │       └── DialogBox.tsx
 ├── game/
-│   ├── data.ts           # ALL content: zones, creatures, gyms, moves, NPCs
-│   ├── engine.ts         # Game loop: input, movement, camera, render
-│   ├── tiles.ts          # 38 tile types + character sprites (procedural canvas)
-│   ├── sprites.ts        # Mermander line + gym leaders (procedural canvas)
-│   ├── landmarks.ts      # Landmark image renderer per zone
-│   ├── world.ts          # Tile grid builder
-│   ├── pathfind.ts       # A* click-to-walk
-│   └── sprite-registry.ts # Image cache + PNG URL maps
-├── lib/audio.ts          # Web Audio API: BGM + SFX
+│   ├── data.ts             # ALL content: zones, creatures, gyms, moves, NPCs
+│   ├── engine.ts           # Game loop: input, movement, camera, render
+│   ├── tiles.ts            # 38 tile types + character sprites (procedural canvas)
+│   ├── sprites.ts          # Mermander line + gym leaders (procedural canvas)
+│   ├── landmarks.ts        # Landmark image renderer per zone
+│   ├── world.ts            # Tile grid builder (6-tile path, dense route walls)
+│   ├── pathfind.ts         # BFS click-to-walk
+│   └── sprite-registry.ts  # Image cache + all PNG URL maps
+├── lib/audio.ts            # Web Audio API: 10 BGM tracks + SFX (zero audio files)
 ├── public/sprites/
-│   ├── creatures/        # 9 zone creatures (SDXL PNG)
-│   ├── leaders/          # 9 gym leaders (SDXL PNG)
-│   ├── player/           # Mermander × Mermalion × Merlord × 4 dirs (SDXL PNG)
-│   ├── landmarks/        # 10 zone building icons (SDXL PNG)
-│   └── ui/               # Pokéball + UI
-└── generate_sprites_v2.mjs  # FAL.ai batch sprite generator
+│   ├── creatures/          # 9 zone creatures (flux/dev PNG) ✅
+│   ├── leaders/            # 9 gym leaders (flux/dev PNG) ✅
+│   ├── player/             # Mermander × 3 stages × 4 dirs + 6 battle sprites ✅
+│   ├── landmarks/          # 10 zone building icons ✅
+│   ├── banners/            # 10 zone arrival banners (wide cinematic) ✅
+│   ├── battle/             # 10 battle arena backgrounds ✅
+│   └── ui/                 # title_bg, champion_bg, pokeball, pokeball_hq ✅
+├── generate_sprites_v2.mjs # Original: creatures, leaders, player, landmarks
+└── generate_sprites_v3.mjs # New: UI art, banners, battle BGs
 ```
 
 ### Data flow
@@ -277,17 +305,30 @@ game/data.ts  →  ZONES[]  →  game/world.ts     →  TileCode[][]  →  engin
 1. Add to `Z[]` in `game/data.ts`
 2. Add to `ZONE_IDS_IN_ORDER`
 3. Drop `public/sprites/creatures/{id}.png` + `public/sprites/landmarks/{id}.png`
-4. Add URLs to `CREATURE_URL` + `LANDMARK_URL` in `game/sprite-registry.ts`
+4. Add to `CREATURE_URL` + `LANDMARK_URL` in `game/sprite-registry.ts`
+5. Add banner to `BANNER_URL` + battle BG to `BATTLE_BG_URL`
 
 ### Adding a tile type
 1. Add to `T` in `game/tiles.ts`
-2. Add `case T.MY_TILE:` to `drawTile()` — remember to accept and pass `now` for animations
+2. Add `case T.MY_TILE:` to `drawTile()` — pass `now` for animations
 3. Add to `SOLID` set if impassable
 4. Place it in `game/world.ts`
 
 ### Sprite fallback chain
 ```
 PNG from /public/sprites → if not loaded → procedural canvas art (always renders)
+```
+
+### Re-generating specific sprites
+```bash
+# Redo one banner
+FAL_KEY=xxx node generate_sprites_v3.mjs --regen=sole --batch=B
+
+# Redo one battle background
+FAL_KEY=xxx node generate_sprites_v3.mjs --regen=ai --batch=C
+
+# Preview mode (1 per batch)
+FAL_KEY=xxx node generate_sprites_v3.mjs --batch=B --preview
 ```
 
 ---
