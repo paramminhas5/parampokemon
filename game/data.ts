@@ -126,6 +126,8 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
         quote: "Take care out there, sweetheart. Fifteen years is a long road.\n\nRemember: shipping beats waiting. I love you.\n\nP.S. — Use WORLD SELECT to jump to any zone. Non-linear is the point." },
       { x: 23, y: 4, name: "Prof. Iterate", role: "Pokémon Professor", kind: "professor", beat: "learned",
         quote: "Welcome to PARAM QUEST!\n\nHere — take MERMANDER. He's small, but he grows. Every world drops a SKILL BERRY. Feed them to Mermander and he evolves.\n\nBeat 4 gyms → Mermalion. Beat 8 → Merlord.\n\nHit WORLD SELECT (top-right) to jump anywhere, anytime." },
+      { x: 12, y: 17, name: "Rival", role: "Childhood Friend", kind: "rival", beat: "did",
+        quote: "Wait — before you go.\n\nYou're really just going to walk out there and start building things?\n\nFine. But when you come back with badges, I want to see them.\n\nGo on then. The world's waiting." },
     ],
     cliff: {
       era: "Bedroom · Pre-2010",

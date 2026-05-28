@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ZONES, STARTER_STAGES, stageForBadges } from "@/game/data";
 import { drawStarter } from "@/game/sprites";
-import { CREATURE_URL, getSprite, isReady } from "@/game/sprite-registry";
+import { CREATURE_URL } from "@/game/sprite-registry";
 
 type Tab = "mermander" | "creatures" | "berries" | "badges";
 
@@ -159,51 +159,257 @@ function BadgesTab({ badges }: { badges: Set<string> }) {
   );
 }
 
+// ─── Pokédex Tab ─────────────────────────────────────────────────────────────
+const DEX_STYLES = `
+@keyframes dex-slide-in  { from { opacity:0; transform:translateX(18px) } to { opacity:1; transform:translateX(0) } }
+@keyframes dex-fade-in   { from { opacity:0 } to { opacity:1 } }
+@keyframes dex-sprite-in { from { opacity:0; transform:scale(0.82) } to { opacity:1; transform:scale(1) } }
+@keyframes dex-scan      { 0%{transform:translateY(-100%)} 100%{transform:translateY(400%)} }
+`;
+
 function CreaturesTab({ caught }: { caught: Set<string> }) {
   const zonesWithCreature = ZONES.filter((z) => z.creature);
+  const [selected, setSelected] = useState<string | null>(
+    zonesWithCreature.find(z => caught.has(z.creature!.id))?.id ?? zonesWithCreature[0].id
+  );
+
+  const selZone = zonesWithCreature.find(z => z.id === selected) ?? zonesWithCreature[0];
+  const selCr   = selZone.creature!;
+  const selHas  = caught.has(selCr.id);
+  const selUrl  = CREATURE_URL[selZone.id];
+  const caught_count = zonesWithCreature.filter(z => caught.has(z.creature!.id)).length;
+
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-      {zonesWithCreature.map((z) => {
-        const cr = z.creature!;
-        const has = caught.has(cr.id);
-        const url = CREATURE_URL[z.id];
-        const img = url ? getSprite(url) : null;
-        const ready = img ? isReady(img) : false;
-        return (
-          <div key={cr.id} className="pq-panel-inner text-center" style={{ opacity: has ? 1 : 0.45, padding: 8 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      <style>{DEX_STYLES}</style>
+
+      {/* Header */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: 6, borderBottom: "1px solid var(--color-dialog-border)" }}>
+        <span style={{ fontFamily: "var(--font-pixel)", fontSize: 9, color: "var(--color-dialog-shadow)", letterSpacing: "0.12em" }}>
+          POKÉDEX
+        </span>
+        <span style={{ fontFamily: "var(--font-pixel)", fontSize: 8, color: "#ffd24a" }}>
+          {caught_count} / {zonesWithCreature.length} CAUGHT
+        </span>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1.6fr", gap: 10, minHeight: 320 }}>
+
+        {/* LEFT — list */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 4, overflowY: "auto", maxHeight: 400 }}>
+          {zonesWithCreature.map((z, idx) => {
+            const cr  = z.creature!;
+            const has = caught.has(cr.id);
+            const sel = z.id === selected;
+            return (
+              <button
+                key={cr.id}
+                onClick={() => setSelected(z.id)}
+                style={{
+                  display: "flex", alignItems: "center", gap: 8,
+                  padding: "7px 10px",
+                  background: sel
+                    ? `linear-gradient(135deg, ${z.theme.accent}28 0%, ${z.theme.accent}10 100%)`
+                    : "transparent",
+                  border: sel
+                    ? `1px solid ${z.theme.accent}70`
+                    : "1px solid transparent",
+                  cursor: "pointer",
+                  textAlign: "left",
+                  transition: "all 0.1s",
+                  borderRadius: 3,
+                }}
+              >
+                {/* Mini sprite / silhouette */}
+                <div style={{
+                  width: 32, height: 32, flexShrink: 0,
+                  background: has ? z.theme.accent + "22" : "#0a1020",
+                  border: `1px solid ${sel ? z.theme.accent + "80" : "var(--color-dialog-border)"}`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  overflow: "hidden", borderRadius: 2,
+                  position: "relative",
+                }}>
+                  {has && selUrl !== undefined && CREATURE_URL[z.id] ? (
+                    <img
+                      src={CREATURE_URL[z.id]}
+                      alt={cr.name}
+                      width={28} height={28}
+                      style={{ width: 28, height: 28, objectFit: "contain", imageRendering: "pixelated",
+                               filter: has ? "none" : "grayscale(1) brightness(0.2)" }}
+                    />
+                  ) : (
+                    <span style={{ fontFamily: "var(--font-pixel)", fontSize: 14,
+                                   color: has ? z.theme.accent : "#1a2a3a", opacity: has ? 0.8 : 1 }}>
+                      {has ? "" : "?"}
+                    </span>
+                  )}
+                  {!has && (
+                    <div style={{ position: "absolute", inset: 0, background: "#0a1020cc",
+                                  display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <span style={{ fontFamily: "var(--font-pixel)", fontSize: 12, color: "#1a2a3a" }}>?</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Name + number */}
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontFamily: "var(--font-pixel)", fontSize: 8,
+                                color: sel ? z.theme.accent : has ? "var(--color-dialog)" : "#2a3a50",
+                                letterSpacing: "0.04em" }}>
+                    {has ? cr.name.toUpperCase() : "???"}
+                  </div>
+                  <div style={{ fontFamily: "var(--font-pixel)", fontSize: 6,
+                                color: sel ? z.theme.accent + "aa" : "#1a2a3a", marginTop: 2 }}>
+                    #{String(idx + 1).padStart(3, "0")} · {has ? cr.type : "?"}
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* RIGHT — detail panel */}
+        <div
+          key={selected}
+          style={{
+            background: `linear-gradient(160deg, ${selZone.theme.accent}12 0%, #050c18 60%)`,
+            border: `1px solid ${selHas ? selZone.theme.accent + "55" : "var(--color-dialog-border)"}`,
+            borderRadius: 4,
+            display: "flex", flexDirection: "column",
+            overflow: "hidden",
+            animation: "dex-slide-in 0.22s ease-out",
+            position: "relative",
+          }}
+        >
+          {/* Scanline */}
+          {selHas && (
             <div style={{
-              width: "100%", aspectRatio: "1 / 1",
-              background: z.theme.accent + (has ? "22" : "11"),
-              border: `2px solid ${has ? z.theme.accent : "var(--color-dialog-border)"}`,
-              borderRadius: 4,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              overflow: "hidden",
+              position: "absolute", left: 0, right: 0, height: 2,
+              background: `linear-gradient(90deg, transparent, ${selZone.theme.accent}60, transparent)`,
+              animation: "dex-scan 3s linear infinite",
+              pointerEvents: "none", zIndex: 1,
+            }} />
+          )}
+
+          {/* Sprite area */}
+          <div style={{
+            flex: "0 0 160px",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            background: selHas
+              ? `radial-gradient(ellipse at 50% 60%, ${selZone.theme.accent}18 0%, transparent 70%)`
+              : "#020408",
+            borderBottom: `1px solid ${selZone.theme.accent}25`,
+            position: "relative",
+            overflow: "hidden",
+          }}>
+            {selHas && selUrl ? (
+              <img
+                src={selUrl}
+                alt={selCr.name}
+                width={128} height={128}
+                style={{
+                  width: 128, height: 128,
+                  objectFit: "contain",
+                  imageRendering: "pixelated",
+                  filter: `drop-shadow(0 0 20px ${selZone.theme.accent}90)`,
+                  animation: "dex-sprite-in 0.3s ease-out",
+                }}
+              />
+            ) : (
+              <div style={{
+                width: 100, height: 100,
+                background: "#050c18",
+                border: "2px solid #0a1525",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                borderRadius: 4,
+              }}>
+                <span style={{ fontFamily: "var(--font-pixel)", fontSize: 36, color: "#0a1525" }}>?</span>
+              </div>
+            )}
+
+            {/* Zone + number badge */}
+            <div style={{
+              position: "absolute", top: 8, left: 8,
+              background: "rgba(2,4,12,0.85)",
+              border: `1px solid ${selZone.theme.accent}40`,
+              padding: "2px 7px",
+              fontFamily: "var(--font-pixel)", fontSize: 6,
+              color: selZone.theme.accent, letterSpacing: "0.1em",
             }}>
-              {has && url ? (
-                <img
-                  src={url}
-                  alt={cr.name}
-                  loading="lazy"
-                  width={128}
-                  height={128}
-                  style={{
-                    width: "92%", height: "92%", objectFit: "contain",
-                    imageRendering: "pixelated",
-                    opacity: ready ? 1 : 0.5,
-                    filter: has ? "none" : "grayscale(1) brightness(0.4)",
-                  }}
-                />
-              ) : (
-                <div style={{ fontFamily: "var(--font-pixel)", fontSize: 28, opacity: 0.5, color: "var(--color-dialog)" }}>?</div>
-              )}
+              {selZone.org.toUpperCase()}
             </div>
-            <div className="pq-label mt-2" style={{ fontSize: 9 }}>{z.org}</div>
-            <div className="pq-text" style={{ fontSize: 13, marginTop: 2 }}>{has ? cr.name : "???"}</div>
-            <div className="pq-text-sm" style={{ fontSize: 11, opacity: 0.7 }}>{cr.type} · PWR {cr.power}</div>
-            {has && <div className="pq-text-sm" style={{ fontSize: 11, opacity: 0.6, marginTop: 4 }}>{cr.description}</div>}
           </div>
-        );
-      })}
+
+          {/* Info area */}
+          <div style={{ padding: "12px 14px", flex: 1, display: "flex", flexDirection: "column", gap: 8 }}>
+            {/* Name */}
+            <div>
+              <div style={{ fontFamily: "var(--font-pixel)", fontSize: 6,
+                            color: "#3a5070", letterSpacing: "0.15em", marginBottom: 4 }}>
+                {selHas ? `#${String(zonesWithCreature.findIndex(z=>z.id===selected)+1).padStart(3,"0")} · ${selZone.years}` : "NOT YET CAUGHT"}
+              </div>
+              <div style={{ fontFamily: "var(--font-pixel)", fontSize: selHas ? 16 : 12,
+                            color: selHas ? "#c8d8f0" : "#2a3a50", letterSpacing: "0.06em" }}>
+                {selHas ? selCr.name.toUpperCase() : "???"}
+              </div>
+            </div>
+
+            {/* Type + Power */}
+            {selHas && (
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <span style={{
+                  fontFamily: "var(--font-pixel)", fontSize: 7,
+                  background: selZone.theme.accent + "22",
+                  border: `1px solid ${selZone.theme.accent}60`,
+                  color: selZone.theme.accent,
+                  padding: "3px 8px", borderRadius: 99,
+                }}>
+                  {selCr.type}
+                </span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontFamily: "var(--font-pixel)", fontSize: 6, color: "#2a3a50", marginBottom: 3 }}>
+                    POWER {selCr.power}
+                  </div>
+                  <div style={{ height: 4, background: "#0d1527", borderRadius: 2, overflow: "hidden" }}>
+                    <div style={{
+                      height: "100%",
+                      width: `${Math.min(100, selCr.power)}%`,
+                      background: `linear-gradient(90deg, ${selZone.theme.accent}cc, ${selZone.theme.accent})`,
+                      borderRadius: 2,
+                      boxShadow: `0 0 6px ${selZone.theme.accent}80`,
+                    }} />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Description */}
+            {selHas && (
+              <div style={{
+                fontFamily: "var(--font-mono)", fontSize: 12,
+                color: "#7a9ab8", lineHeight: 1.5,
+                borderTop: `1px solid ${selZone.theme.accent}20`,
+                paddingTop: 8,
+              }}>
+                {selCr.description}
+              </div>
+            )}
+
+            {/* Catch hint */}
+            {!selHas && (
+              <div style={{
+                fontFamily: "var(--font-pixel)", fontSize: 7,
+                color: "#1a2a3a", lineHeight: 1.6, marginTop: "auto",
+              }}>
+                FOUND IN:<br />
+                <span style={{ color: "#2a3a50" }}>{selZone.name.toUpperCase()}</span>
+                <br /><br />
+                Walk near the wild creature<br />in {selZone.name} to catch it.
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

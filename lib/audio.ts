@@ -319,11 +319,58 @@ export function resumeBGM() {
 // ─── Public BGM API ─────────────────────────────────────────────
 type ZoneGround = "grass" | "sand" | "stone" | "neon" | "dusk" | "night" | "mall" | "crypto" | "studio" | "snow";
 
-export function playZoneBGM(ground: ZoneGround) {
+// Per-zone unique BGM overrides — zones that share a ground type
+// get their own distinct melody so no two zones ever sound the same.
+const ZONE_BGM_OVERRIDES: Partial<Record<string, BgmTrack>> = {
+  // Home (grass) — gentle, nostalgic lullaby
+  home: BGM_TRACKS.grass,
+
+  // Origin (sand) — scrappy, upbeat builder energy
+  origin: BGM_TRACKS.sand,
+
+  // GRP (grass) — busier than home, market energy, upbeat
+  grp: {
+    melody: [784, 880, 784, 698, 784, 880, 988, 880, 784, 698, 659, 698, 784, 0, 659, 0],
+    bass:   [392, 0, 440, 0, 392, 0, 349, 0, 392, 0, 330, 0, 392, 0, 330, 0],
+    tempo: 245, melodyVol: 0.1, bassVol: 0.07,
+    melodyType: "square", bassType: "triangle", swing: true,
+  },
+
+  // Hab (stone) — heavy, operational, rhythmic
+  hab: BGM_TRACKS.stone,
+
+  // AI / Quartic (neon) — synthwave, driving
+  ai: BGM_TRACKS.neon,
+
+  // Investopad (dusk) — sophisticated, minor key VC vibes
+  investopad: BGM_TRACKS.dusk,
+
+  // SoleSearch (mall) — hype, pop energy
+  sole: BGM_TRACKS.mall,
+
+  // Fere (crypto) — tense, bass-heavy trading floor
+  fere: BGM_TRACKS.crypto,
+
+  // CCD (studio) — lo-fi warmth, jazz-adjacent
+  ccd: BGM_TRACKS.studio,
+
+  // Iterate (night) — unique final zone: sparse, forward-looking
+  iterate: {
+    melody: [988, 0, 0, 880, 0, 784, 0, 880, 988, 0, 880, 0, 0, 784, 0, 0,
+             880, 0, 784, 0, 698, 0, 784, 880, 988, 0, 0, 880, 784, 0, 0, 0],
+    bass:   [247, 0, 0, 0, 262, 0, 0, 0, 247, 0, 0, 0, 220, 0, 0, 0,
+             233, 0, 0, 0, 196, 0, 0, 0, 247, 0, 0, 0, 220, 0, 0, 0],
+    tempo: 330, melodyVol: 0.09, bassVol: 0.065,
+    melodyType: "triangle", bassType: "sine", swing: false,
+  },
+};
+
+export function playZoneBGM(ground: ZoneGround, zoneId?: string) {
   if (muted) return;
-  const trackId = `zone:${ground}`;
-  if (currentBgmId === trackId && bgmActive) return; // already playing
-  const track = BGM_TRACKS[ground] ?? BGM_TRACKS.grass;
+  // Use zone-specific track if available, fall back to ground type
+  const trackId = zoneId ? `zone:${zoneId}` : `zone:${ground}`;
+  if (currentBgmId === trackId && bgmActive) return;
+  const track = (zoneId !== undefined ? ZONE_BGM_OVERRIDES[zoneId] : undefined) ?? BGM_TRACKS[ground] ?? BGM_TRACKS.grass;
   startTrack(track, trackId, 500);
 }
 

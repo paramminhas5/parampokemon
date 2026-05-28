@@ -159,8 +159,7 @@ export function Game() {
         // Fire zone transition + BGM
         transKeyRef.current += 1;
         setTransition({ kind: "zone", color: z.theme.accent, key: transKeyRef.current });
-        playZoneBGM(z.theme.ground as Parameters<typeof playZoneBGM>[0]);
-        // Zone arrival cinematic (skip for Home — player starts there)
+        playZoneBGM(z.theme.ground as Parameters<typeof playZoneBGM>[0], z.id);
         if (z.id !== "home") {
           setZoneTitle(z);
           engine.setPaused(true);
@@ -226,7 +225,7 @@ export function Game() {
       setVisited(prev => { const n = new Set(prev); n.add(zoneId); return n; });
       showToast(`⚡ ${z.name.toUpperCase()}`, z.subtitle);
       // Start zone BGM after warp completes
-      setTimeout(() => playZoneBGM(z.theme.ground as Parameters<typeof playZoneBGM>[0]), 300);
+      setTimeout(() => playZoneBGM(z.theme.ground as Parameters<typeof playZoneBGM>[0], z.id), 300);
     }
   }
 
@@ -249,8 +248,7 @@ export function Game() {
     setGotBadge({ label: zone.badge.label, color: zone.badge.color });
     playSound("badge");
     // Resume zone BGM
-    playZoneBGM(zone.theme.ground as Parameters<typeof playZoneBGM>[0]);
-    // Champion card if this is the final gym (iterate = last zone with gym)
+    playZoneBGM(zone.theme.ground as Parameters<typeof playZoneBGM>[0], zone.id);
     const gymZones = ZONES.filter(z => z.gym);
     const isLastGym = zone.id === gymZones[gymZones.length - 1]?.id;
     if (isLastGym) {
