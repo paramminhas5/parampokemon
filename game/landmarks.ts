@@ -13,32 +13,74 @@ function r(ctx: Ctx, x: number, y: number, w: number, h: number, c: string) {
 
 /** Draw a landmark for a zone at the zone's pixel origin (top-left of zone). */
 export function drawLandmark(ctx: Ctx, zone: Zone, offX: number, offY: number, now: number) {
-  // Anchor: centred above the building in world pixel space
-  const cx = zone.ox * TILE + offX + (zone.building.x + zone.building.w / 2) * TILE;
-  const baseY = zone.oy * TILE + offY + (zone.building.y - 1) * TILE;
+  // Place landmark at the SOUTH ENTRANCE of the zone — at the path just below the building door
+  // This creates a decorative gate/arch at the zone's main entrance
+  const doorWorldX = zone.ox + zone.building.x + zone.building.doorX;
+  const doorWorldY = zone.oy + zone.building.y + zone.building.h;
+  const gateCx = doorWorldX * TILE + offX + TILE / 2;
+  const gateY  = (doorWorldY - 1) * TILE + offY;
 
   const url = LANDMARK_URL[zone.id];
   if (url) {
     const img = getSprite(url);
     if (isReady(img)) {
-      // Render at 5×5 tiles — fits above building without overlapping it
-      const w = TILE * 5;
-      const h = TILE * 5;
-      const dx = Math.round(cx - w / 2);
-      const dy = Math.round(baseY - h + TILE * 1.5);
-      ctx.imageSmoothingEnabled = false;
-      // Subtle drop shadow
-      ctx.shadowColor = "rgba(0,0,0,0.45)";
-      ctx.shadowBlur = 8;
-      ctx.shadowOffsetY = 4;
+      // Render as a small decorative banner/sign above the door arch — 3×3 tiles, framed
+      const w = TILE * 3;
+      const h = TILE * 3;
+      const dx = Math.round(gateCx - w / 2);
+      const dy = Math.round(gateY - h - TILE * 0.5);
+
+      // Gate pillar left
+      r(ctx, dx - 4, dy + h * 0.25, 4, h * 0.75, "#0d1a30");
+      r(ctx, dx - 3, dy + h * 0.25, 2, h * 0.75, "#1a2a40");
+      // Gate pillar right
+      r(ctx, dx + w, dy + h * 0.25, 4, h * 0.75, "#0d1a30");
+      r(ctx, dx + w + 1, dy + h * 0.25, 2, h * 0.75, "#1a2a40");
+      // Arch top bar
+      r(ctx, dx - 4, dy + h * 0.2, w + 8, 3, zone.theme.accent + "99");
+      r(ctx, dx - 4, dy + h * 0.2, w + 8, 1, zone.theme.accent);
+
+      // Image frame background
+      ctx.fillStyle = "rgba(2,5,14,0.65)";
+      ctx.fillRect(dx - 1, dy - 1, w + 2, h + 2);
+      // Accent border
+      ctx.strokeStyle = zone.theme.accent + "90";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(dx, dy, w, h);
+
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
       ctx.drawImage(img, dx, dy, w, h);
-      ctx.shadowColor = "transparent";
-      ctx.shadowBlur = 0;
-      ctx.shadowOffsetY = 0;
+
+      // Overlay to blend with pixel world — dark vignette + color tint
+      const grad = ctx.createLinearGradient(dx, dy, dx, dy + h);
+      grad.addColorStop(0, "rgba(2,5,14,0.35)");
+      grad.addColorStop(0.5, "rgba(2,5,14,0.05)");
+      grad.addColorStop(1, "rgba(2,5,14,0.50)");
+      ctx.fillStyle = grad;
+      ctx.fillRect(dx, dy, w, h);
+      // Accent color tint
+      ctx.fillStyle = zone.theme.accent + "18";
+      ctx.fillRect(dx, dy, w, h);
+
+      // Re-draw border on top
+      ctx.strokeStyle = zone.theme.accent + "80";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(dx, dy, w, h);
+      // Corner dots
+      ctx.fillStyle = zone.theme.accent;
+      ctx.fillRect(dx - 1, dy - 1, 3, 3);
+      ctx.fillRect(dx + w - 2, dy - 1, 3, 3);
+      ctx.fillRect(dx - 1, dy + h - 2, 3, 3);
+      ctx.fillRect(dx + w - 2, dy + h - 2, 3, 3);
+
       return;
     }
   }
 
+  // ─── Fallback procedural landmarks (when PNG not yet loaded) ─────────
+  const cx = zone.ox * TILE + offX + (zone.building.x + zone.building.w / 2) * TILE;
+  const baseY = zone.oy * TILE + offY + (zone.building.y - 1) * TILE;
   const id = zone.theme.landmark;
 
   if (id === "home" || id === "bedroom") {

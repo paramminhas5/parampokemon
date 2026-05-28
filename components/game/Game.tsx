@@ -68,6 +68,8 @@ export function Game() {
   // Phase 5: champion card
   const [championOpen, setChampionOpen] = useState(false);
 
+  // pendingSkillLearn: queued after dialog closes
+  const pendingSkillLearnRef = useRef<{ zone: Zone; npcName: string } | null>(null);
   const [badges, setBadges] = useState<Set<string>>(new Set());
   const [creatures, setCreatures] = useState<Set<string>>(new Set());
   const [skills, setSkills] = useState<Set<string>>(new Set());
@@ -135,6 +137,10 @@ export function Game() {
           if (i.npc.special === "contact") { setContactOpen(true); engine.setPaused(true); return; }
           setDialog({ type: "npc", name: i.npc.name, role: i.npc.role, quote: i.npc.quote, kind: i.npc.kind });
           engine.setPaused(true);
+          // Unlock follower when Prof. Iterate is talked to
+          if (i.npc.kind === "professor") {
+            engine.unlockFollower();
+          }
           if (i.npc.beat === "did" && i.zone.creature && !caughtRef.current.has(i.zone.creature.id)) {
             setTimeout(() => setCatchModal(i.zone), 400);
           }
@@ -143,8 +149,8 @@ export function Game() {
               if (prev.has(i.zone.skill!.id)) return prev;
               const n = new Set(prev); n.add(i.zone.skill!.id);
               engine.addSkill(i.zone.skill!.id);
-              // Show rich skill learn overlay instead of just a toast
-              setSkillLearnZone({ zone: i.zone, npcName: i.npc.name });
+              // Queue skill learn overlay — fires after dialog closes via handleDialogClose
+              pendingSkillLearnRef.current = { zone: i.zone, npcName: i.npc.name };
               return n;
             });
           }
@@ -204,6 +210,10 @@ export function Game() {
         if (s.creatures) s.creatures.forEach((id: string) => engine.state.collectedCreatures.add(id));
         if (s.skills) s.skills.forEach((id: string) => engine.state.collectedSkills.add(id));
         if (s.defeated) s.defeated.forEach((id: string) => engine.state.defeatedGyms.add(id));
+        // Restore follower if they've already talked to professor (have any skills or badges)
+        if ((s.skills && s.skills.length > 0) || (s.badges && s.badges.length > 0)) {
+          engine.unlockFollower();
+        }
       }
     } catch {}
 
@@ -469,26 +479,46 @@ export function Game() {
         {/* HUD — BOTTOM RIGHT */}
         <div style={{
           position: "absolute", bottom: 0, right: 0,
-          display: "flex", flexDirection: "column", gap: 5,
-          padding: "8px", paddingBottom: "calc(env(safe-area-inset-bottom) + 8px)",
+          display: "flex", flexDirection: "column", gap: 6,
+          padding: "10px", paddingBottom: "calc(env(safe-area-inset-bottom) + 10px)",
           zIndex: 20,
         }}>
           {[
-            { label: "NOTES", action: () => { setCliffOpen(currentZone); playSound("menu"); } },
-            { label: "BAG",   action: () => { setBagOpen(true);          playSound("menu"); } },
-            { label: "☰",    action: () => { setMenuOpen(true);         playSound("menu"); } },
+            { label: "NOTES", icon: "📋", action: () => { setCliffOpen(currentZone); playSound("menu"); } },
+            { label: "BAG",   icon: "🎒", action: () => { setBagOpen(true);          playSound("menu"); } },
+            { label: "MENU",  icon: "☰",  action: () => { setMenuOpen(true);         playSound("menu"); } },
           ].map(btn => (
             <button key={btn.label} onClick={btn.action} style={{
-              background: "rgba(4,8,20,0.88)", border: "2px solid #1a2a4a",
-              color: "#4a6080", padding: "9px 11px",
-              fontFamily: "var(--font-pixel)", fontSize: 9,
-              cursor: "pointer", minHeight: 38,
-              backdropFilter: "blur(4px)",
-              transition: "all 0.12s",
+              background: `linear-gradient(135deg, rgba(4,8,20,0.92) 0%, rgba(10,16,36,0.88) 100%)`,
+              border: `1px solid rgba(124,224,255,0.12)`,
+              color: "#4a6888",
+              padding: "10px 14px",
+              fontFamily: "var(--font-pixel)", fontSize: 8,
+              cursor: "pointer", minHeight: 42, minWidth: 64,
+              backdropFilter: "blur(12px)",
+              transition: "all 0.15s cubic-bezier(0.2,0,0,1)",
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 5,
+              boxShadow: "0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)",
+              letterSpacing: "0.06em",
             }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = currentZone.theme.accent + "60"; (e.currentTarget as HTMLButtonElement).style.color = currentZone.theme.accent; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#1a2a4a"; (e.currentTarget as HTMLButtonElement).style.color = "#4a6080"; }}
-            >{btn.label}</button>
+              onMouseEnter={e => {
+                const el = e.currentTarget as HTMLButtonElement;
+                el.style.borderColor = currentZone.theme.accent + "80";
+                el.style.color = currentZone.theme.accent;
+                el.style.background = `linear-gradient(135deg, ${currentZone.theme.accent}18 0%, rgba(4,8,20,0.92) 100%)`;
+                el.style.boxShadow = `0 0 16px ${currentZone.theme.accent}25, 0 2px 8px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)`;
+              }}
+              onMouseLeave={e => {
+                const el = e.currentTarget as HTMLButtonElement;
+                el.style.borderColor = "rgba(124,224,255,0.12)";
+                el.style.color = "#4a6888";
+                el.style.background = "linear-gradient(135deg, rgba(4,8,20,0.92) 0%, rgba(10,16,36,0.88) 100%)";
+                el.style.boxShadow = "0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)";
+              }}
+            >
+              <span style={{ fontSize: 12 }}>{btn.icon}</span>
+              {btn.label}
+            </button>
           ))}
         </div>
 
@@ -548,7 +578,18 @@ export function Game() {
           <WorldMap visited={visited} defeated={defeated} currentId={currentZoneId}
             onWarp={handleWarp} onClose={() => setMapOpen(false)} />
         )}
-        {dialog && <DialogBox dialog={dialog} onClose={() => { setDialog(null); engineRef.current?.setPaused(false); }} />}
+        {dialog && <DialogBox dialog={dialog} onClose={() => {
+          setDialog(null);
+          // Fire pending skill learn overlay now that dialog is closed
+          if (pendingSkillLearnRef.current) {
+            const pending = pendingSkillLearnRef.current;
+            pendingSkillLearnRef.current = null;
+            setSkillLearnZone(pending);
+            // engine stays paused for the overlay
+          } else {
+            engineRef.current?.setPaused(false);
+          }
+        }} />}
         {menuOpen && <StartMenu badges={badges} creatures={creatures} skills={skills} onClose={() => setMenuOpen(false)} />}
         {bagOpen && <Bag creatures={creatures} skills={skills} badges={badges} onClose={() => setBagOpen(false)} />}
         {cliffOpen && <CliffNotes zone={cliffOpen} onClose={() => setCliffOpen(null)} />}
