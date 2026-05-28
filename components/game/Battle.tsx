@@ -2,7 +2,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import type { Zone, Move } from "@/game/data";
 import { ZONES, stageForBadges } from "@/game/data";
-import { drawStarter } from "@/game/sprites";
 import { CREATURE_URL, PLAYER_BACK_URL, PLAYER_FRONT_URL, BATTLE_BG_URL, LEADER_URL, getSprite, isReady } from "@/game/sprite-registry";
 import { playSound } from "@/lib/audio";
 
@@ -252,19 +251,25 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee }: {
       if (meRef.current) {
         const c = meRef.current.getContext("2d")!;
         c.imageSmoothingEnabled = false; c.clearRect(0, 0, 128, 128);
-        if (isReady(myBackImg)) { const bob = Math.sin(now / 350) * 3; c.drawImage(myBackImg, 4, 4 + bob, 120, 120); }
-        else drawStarter(c, stage.id, "back", 8, 8, 2.8, now / 100);
+        if (isReady(myBackImg)) {
+          const bob = Math.sin(now / 350) * 3;
+          c.drawImage(myBackImg, 4, 4 + bob, 120, 120);
+        }
       }
+      // oppRef now draws the LEADER PNG large — creature is shown as HP card thumbnail
       if (oppRef.current) {
         const c = oppRef.current.getContext("2d")!;
         c.imageSmoothingEnabled = false; c.clearRect(0, 0, 160, 160);
-        if (oppCreatureImg && isReady(oppCreatureImg)) { const bob = Math.sin(now / 420) * 3; c.drawImage(oppCreatureImg, 8, 8 + bob, 144, 144); }
+        if (leaderImg && isReady(leaderImg)) {
+          const bob = Math.sin(now / 420) * 3;
+          c.drawImage(leaderImg, 4, 4 + bob, 152, 152);
+        }
       }
       rafRef.current = requestAnimationFrame(loop);
     };
     rafRef.current = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [stage.id, oppCreatureImg, myBackImg, battleBgImg]);
+  }, [stage.id, leaderImg, myBackImg, battleBgImg]);
 
   useEffect(() => { logEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [log]);
 
@@ -433,28 +438,13 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee }: {
         {/* Opponent side */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", padding: "0 16px 8px 12px", justifyContent: "flex-start", position: "relative", zIndex: 2 }}>
           <div style={{ transform: oppShake ? "translateX(9px) rotate(4deg)" : "translateX(0)", transition: "transform 0.08s", filter: `drop-shadow(0 0 24px ${accent}90)`, animation: "sprite-enter-right 0.45s cubic-bezier(0.2,0.8,0.4,1)" }}>
-            {/* Show gym leader PNG portrait above creature sprite */}
-            {leaderImg && isReady(leaderImg) && (
-              <img
-                src={LEADER_URL[gym.leader]}
-                alt={gym.opponentName}
-                style={{
-                  width: 40, height: 40,
-                  imageRendering: "pixelated",
-                  position: "absolute", top: 4, right: 4,
-                  border: `1px solid ${accent}55`,
-                  background: "rgba(2,5,14,0.7)",
-                  borderRadius: 2,
-                  zIndex: 3,
-                }}
-              />
-            )}
             <canvas ref={oppRef} width={160} height={160} style={{ imageRendering: "pixelated", width: 148, height: 148 }} />
           </div>
           <div style={{ background: "rgba(3,7,18,0.92)", border: `2px solid ${accent}45`, padding: "8px 10px", width: "100%", backdropFilter: "blur(4px)", borderRadius: 3 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-              {leaderImg && isReady(leaderImg) && (
-                <img src={LEADER_URL[gym.leader]} alt="" style={{ width: 22, height: 22, imageRendering: "pixelated", border: `1px solid ${accent}40`, flexShrink: 0, borderRadius: 1 }} />
+              {/* Creature PNG thumbnail in HP card */}
+              {oppCreatureImg && isReady(oppCreatureImg) && oppCreatureUrl && (
+                <img src={oppCreatureUrl} alt="" style={{ width: 22, height: 22, imageRendering: "pixelated", border: `1px solid ${accent}40`, flexShrink: 0, borderRadius: 1 }} />
               )}
               <div style={{ fontSize: 6, color: "#3a5070" }}>{gym.opponentTitle.toUpperCase()}</div>
             </div>
