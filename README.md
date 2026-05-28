@@ -109,7 +109,9 @@ FAL_KEY=your_key node generate_sprites_v3.mjs --regen=title_bg --batch=A  # redo
 - [x] Wild creature catch system
 - [x] Skill berry system (NPCs teach battle moves)
 - [x] Full NPC dialog with typewriter effect
-- [x] **Building interiors** — every door opens a real 12×9 tile room with WASD movement, NPC dialog, themed props, fade transitions, exit back to overworld
+- [x] **Building interiors** — every door opens a real 12×9 tile room, WASD movement, NPC dialog, themed props, fade transitions, exit back to overworld
+- [x] **Rival NPC at Home** — Rival character at south of spawn, challenges you before you leave Pallet Town
+- [x] **Per-zone unique BGM** — all 10 zones have distinct melodies; GRP and Iterate HQ get unique tracks instead of shared ground-type BGM
 - [x] Zone BGM (Web Audio API procedural, zero audio files), battle BGM + SFX
 - [x] Save/load via localStorage
 
@@ -133,6 +135,11 @@ FAL_KEY=your_key node generate_sprites_v3.mjs --regen=title_bg --batch=A  # redo
 - [x] Zone ambient particles, NPC idle bob, wild creature bob + "!" marker
 - [x] Zone glow underfoot for player
 
+### Inventory & Pokédex
+- [x] **Pokédex tab** — two-panel layout: scrollable list with mini sprites + full entry panel (large sprite, accent glow, scanline, type pill, power bar, description, zone hint)
+- [x] Bag inventory — Mermander tab, Creatures/Pokédex, Berries, Badges
+- [x] Caught counter `X / 9 CAUGHT` in header; silhouette + hint for uncaught
+
 ### Sprites (all AI-generated, all wired)
 - [x] 9 zone creatures (`/sprites/creatures/`)
 - [x] 9 gym leaders (`/sprites/leaders/`)
@@ -155,84 +162,96 @@ FAL_KEY=your_key node generate_sprites_v3.mjs --regen=title_bg --batch=A  # redo
 
 ### 🔴 High Priority
 
-#### 1. Pokédex Tab in Bag
-Existing Creatures tab is a basic grid. Upgrade to a real Pokédex:
-- Large sprite + name + type pill + power bar
-- Zone found, flavor description
-- Silhouette + "???" for uncaught creatures
-- Gives players a reason to visit every zone
+#### 1. Route NPCs
+Every route corridor between zones is currently empty. 9 NPCs, one per route, make the world feel lived-in:
+- Positioned beside the path, mid-route
+- One thematic flavor line each (about the transition from one era to the next)
+- No battle, just texture
 
-**Files:** `components/game/Bag.tsx` — enhance the creatures tab
+**Files:** `game/data.ts` (add `routeNpcs` array), `game/world.ts` (place them), `game/engine.ts` (include in interactives)
 
-#### 2. Rival NPC at Home
-- Character blocking the path south of player spawn in Pallet Town
-- One challenge dialog before the player can leave
-- One-time gate — steps aside permanently after talking
-- Adds narrative tension to the opening moment
+#### 2. More NPCs Per Zone
+Currently 2–3 NPCs per zone. Adding 1–2 more per zone (fan, client, engineer, tenant) makes each world feel populated rather than sparse.
 
-**Files:** `game/data.ts` (add NPC), `game/world.ts` (place on path)
+**Files:** `game/data.ts` — add to each zone's `npcs[]`
 
-#### 3. Per-Zone Unique BGM
-Currently BGM is tied to ground type — two grass zones sound identical.
-- Add a `bgmId` field per zone in `data.ts`
-- Wire unique 16-step melody sequences in `audio.ts`
-- Fades in on zone enter, out on exit
-
-**Files:** `game/data.ts`, `lib/audio.ts`
+#### 3. Interior Art (Batch D)
+Interiors use procedural tile rendering. For a premium look, generate actual room background art:
+```bash
+# Add Batch D to generate_sprites_v3.mjs (10 interior room PNGs)
+FAL_KEY=xxx node generate_sprites_v3.mjs --batch=D
+```
+Then render as background canvas layer in `Interior.tsx` — same pattern as battle backgrounds.
 
 ---
 
 ### 🟠 Medium Priority
 
-#### 4. Route NPCs
-- 1 NPC per route corridor between zones (9 total)
-- Positioned beside the path, says one thematic flavor line
-- Makes the corridors feel alive instead of empty
+#### 4. Mobile Polish
+- D-pad: larger hit targets (min 54px), better thumb-zone positioning (lower on screen)
+- `navigator.vibrate(20)` haptic on each walk step
+- `touch-action: none` on game canvas prevents accidental pinch-to-zoom during swipe-to-walk
+- Ensure Interior touch controls work well on small screens
 
-**Files:** `game/data.ts` (add route NPCs array), `game/world.ts` (place them)
+#### 5. Post-Champion Content
+After beating all 9 gyms, unlock something worth finding:
+- "Champion Route" — a short path north of Pallet Town, only accessible after full completion
+- One final NPC = Param himself, talking about what he's building right now
+- Triggers `ContactModal` directly — the best possible CTA ending
 
-#### 5. More NPCs Per Zone
-- Currently 2 NPCs per zone — feels sparse
-- Add 1–2 more per zone (fan, client, engineer, tenant)
-- Richer world, more story texture
+**Files:** `game/data.ts`, `game/world.ts`, `game/engine.ts` (completion check)
 
-**Files:** `game/data.ts`
+#### 6. Homepage Creature Strip
+- Increase creature opacity: 6% → 15%
+- Add `@keyframes creature-drift` — slow independent float per creature
+- Each creature has a unique phase + speed so they never sync
 
-#### 6. Interior Art (Optional Upgrade)
-Interiors currently use procedural tile rendering. For a premium look, generate actual room art:
-```bash
-# Add Batch D to generate_sprites_v3.mjs
-FAL_KEY=xxx node generate_sprites_v3.mjs --batch=D   # 10 interior room PNGs
-```
-Then render as background canvas layer inside `Interior.tsx` (same pattern as battle BGs).
-
-#### 7. Mobile Polish
-- D-pad: larger hit targets, better thumb-zone positioning
-- `navigator.vibrate(20)` haptic on each step
-- `touch-action: none` on canvas prevents accidental pinch-to-zoom
+**Files:** `components/home/CareerCard.tsx`, `app/page.tsx`
 
 ---
 
 ### 🟡 Lower Priority
 
-#### 8. Post-Champion Content
-- After beating all 9 gyms: unlock a "Champion Route" north of Pallet Town
-- Final NPC = Param himself, talking about what he's building now
-- Champion NPC opens ContactModal directly
-
-#### 9. Homepage Creature Strip
-- Increase creature strip opacity: 6% → 15%
-- Add `@keyframes creature-drift` slow float per creature
-- Each creature has a unique phase offset so they move independently
-
-#### 10. OG Image
-- `/public/og.png` is referenced in `app/layout.tsx` but doesn't exist
+#### 7. OG Image
+`/public/og.png` is referenced in `app/layout.tsx` but doesn't exist — every social share shows a blank card.
 - Content: game title + Merlord sprite + zone mosaic + "A playable portfolio" tagline
-- Can be generated via FAL or a simple canvas script
+- Size: 1200×630
+- Can be generated via FAL (`fal-ai/flux/dev`) or a simple canvas script
 
-#### 11. Press Wall Warppad
-- `public/sprites/ui/warppad.png` exists but isn't wired as a tile
-- Should render as a distinct visual at press wall positions (currently uses the BADGE tile)
+#### 8. Press Wall Warppad
+`public/sprites/ui/warppad.png` exists but isn't wired as a tile. Press wall positions currently use the BADGE tile.
+- Add a `WARP_PAD` tile type in `tiles.ts`
+- Draw the `warppad.png` image on it
+- Place at `zone.pressWall` position in `world.ts`
+
+#### 9. Sprite Quality Pass
+Some sprites from v2 (especially creatures) lack the crisp GBA silhouette — mixed model quality from early generation runs.
+- Re-run specific weak ones with `--model=sdxl` and updated prompts
+- Or re-run all creatures with `fal-ai/flux-lora` + a Pokemon GBA LoRA for maximum accuracy
+```bash
+FAL_KEY=xxx node generate_sprites_v2.mjs --batch=creatures --only=iterate,origin --model=sdxl
+```
+
+---
+
+## 📊 Completion Status
+
+| Area | Status |
+|------|--------|
+| Core gameplay loop | ✅ Complete |
+| All 10 zones + routes | ✅ Complete |
+| Building interiors | ✅ Complete |
+| Battle system | ✅ Complete |
+| All sprites generated + wired | ✅ Complete |
+| Zone arrival cinematics | ✅ Complete |
+| Battle backgrounds | ✅ Complete |
+| Pokédex tab | ✅ Complete |
+| Rival NPC | ✅ Complete |
+| Per-zone unique BGM | ✅ Complete |
+| Route NPCs | 🔜 Next |
+| Post-champion content | 🔜 Planned |
+| OG image | 🔜 Planned |
+| Mobile polish | 🔜 Planned |
 
 ---
 
@@ -260,8 +279,8 @@ parampokemon/
 │       ├── TouchControls.tsx / TransitionOverlay.tsx / ZoneAmbience.tsx
 │       └── DialogBox.tsx
 ├── game/
-│   ├── data.ts             # ALL content: zones, creatures, gyms, moves, NPCs
-│   ├── engine.ts           # Game loop: input, movement, camera, render
+│   ├── data.ts             # ALL content: zones, creatures, gyms, moves, NPCs, rival
+│   ├── engine.ts           # Game loop: input, movement, camera, render, onDoorEnter
 │   ├── tiles.ts            # 38 tile types + character sprites (procedural canvas)
 │   ├── sprites.ts          # Mermander line + gym leaders (procedural canvas)
 │   ├── landmarks.ts        # Landmark image renderer per zone
@@ -269,7 +288,7 @@ parampokemon/
 │   ├── world.ts            # Tile grid builder (6-tile path, dense route walls)
 │   ├── pathfind.ts         # BFS click-to-walk
 │   └── sprite-registry.ts  # Image cache + all PNG URL maps
-├── lib/audio.ts            # Web Audio API: 10 BGM tracks + SFX (zero audio files)
+├── lib/audio.ts            # Web Audio API: 10 unique zone BGMs + battle BGM + SFX
 ├── public/sprites/
 │   ├── creatures/          # 9 zone creatures (flux/dev PNG) ✅
 │   ├── leaders/            # 9 gym leaders (flux/dev PNG) ✅
