@@ -8,9 +8,9 @@ import { T, groundTileFor, type TileCode } from "./tiles";
 const ZONE_H  = 20;
 const ROUTE_H = 10;
 
-// Path corridor: 4 tiles wide, center of world
-const PATH_X1 = 38;
-const PATH_X2 = 42; // exclusive
+// Path corridor: 6 tiles wide (widened from 4), center of world
+const PATH_X1 = 37;
+const PATH_X2 = 43; // exclusive — 6 tiles total
 
 // ─── Per-zone props (thematic decorations) ─────────────────────────────────
 const ZONE_PROPS: Record<string, TileCode[]> = {
@@ -154,112 +154,116 @@ function paintRoutes(grid: TileCode[][], w: number, h: number) {
       }
     }
 
-    // Theme-specific route fill
+    // ── Dense tree walls flanking the path corridor ───────────────────────
+    // Left wall: cols 3..PATH_X1-3 get solid trees except a decorative gap
+    // Right wall: cols PATH_X2+2..w-3 get solid trees
+    // This forces the player down the corridor — no wandering off
     for (let y = zoneBottom + 1; y < nextTop - 1; y++) {
-      const inPath = (x: number) => x >= PATH_X1 - 1 && x < PATH_X2 + 1;
+      // Left dense forest wall (3 tiles deep)
+      for (let x = 3; x < PATH_X1 - 2; x++) {
+        const r = sr(x, y, i + 500);
+        if (r < 0.78) grid[y][x] = T.TREE;
+      }
+      // Left shoulder (1-2 tile buffer next to path — light scatter)
+      for (let x = PATH_X1 - 2; x < PATH_X1; x++) {
+        const r = sr(x, y, i + 600);
+        if (r < 0.30) grid[y][x] = T.TREE;
+      }
+      // Right shoulder
+      for (let x = PATH_X2; x < PATH_X2 + 2; x++) {
+        const r = sr(x, y, i + 700);
+        if (r < 0.30) grid[y][x] = T.TREE;
+      }
+      // Right dense forest wall (3 tiles deep)
+      for (let x = PATH_X2 + 2; x < w - 3; x++) {
+        const r = sr(x, y, i + 800);
+        if (r < 0.78) grid[y][x] = T.TREE;
+      }
+    }
+
+    // Theme-specific route fill (path corridor only)
+    for (let y = zoneBottom + 1; y < nextTop - 1; y++) {
+      const inPath = (x: number) => x >= PATH_X1 && x < PATH_X2;
 
       switch (theme) {
         case "meadow": {
-          for (let x = 3; x < w - 3; x++) {
-            if (inPath(x)) continue;
-            const r = sr(x, y, i);
-            if (r < 0.18) grid[y][x] = T.FLOWER_R;
-            else if (r < 0.34) grid[y][x] = T.FLOWER_Y;
-            else if (r < 0.44) grid[y][x] = T.TALL_GRASS;
+          // Scatter flowers on the path itself for beauty
+          for (let x = PATH_X1; x < PATH_X2; x++) {
+            const r = sr(x, y, i + 1000);
+            if (r < 0.10) grid[y][x] = T.FLOWER_R;
+            else if (r < 0.20) grid[y][x] = T.FLOWER_Y;
           }
           break;
         }
         case "forest": {
-          for (let x = 3; x < w - 3; x++) {
-            if (inPath(x)) continue;
-            const r = sr(x, y, i);
-            // Dense left forest, dense right forest, open center channel
-            if (x < 28 && r < 0.55) grid[y][x] = T.TREE;
-            else if (x > 50 && r < 0.55) grid[y][x] = T.TREE;
-            else if (r < 0.08) grid[y][x] = T.FLOWER_Y;
+          for (let x = PATH_X1; x < PATH_X2; x++) {
+            const r = sr(x, y, i + 1001);
+            if (r < 0.06) grid[y][x] = T.FLOWER_Y;
           }
           break;
         }
         case "stream": {
-          // Water strip at route mid, with flower banks
+          // Water strip crosses the path at mid
           if (y >= routeMid - 1 && y <= routeMid + 1) {
-            for (let x = 3; x < w - 3; x++) {
-              if (inPath(x)) continue;
+            for (let x = PATH_X1; x < PATH_X2; x++) {
+              if (!inPath(x)) continue; // already done above
               grid[y][x] = T.WATER;
             }
-          } else {
-            for (let x = 3; x < w - 3; x++) {
-              if (inPath(x)) continue;
-              const r = sr(x, y, i);
-              if (Math.abs(y - routeMid) <= 3 && r < 0.3) {
-                grid[y][x] = r < 0.15 ? T.FLOWER_R : T.FLOWER_Y;
-              } else if (r < 0.15) grid[y][x] = T.TALL_GRASS;
-            }
-          }
-          break;
-        }
-        case "boulders": {
-          for (let x = 3; x < w - 3; x++) {
-            if (inPath(x)) continue;
-            const r = sr(x, y, i);
-            // Stone pillars in clusters
-            if (r < 0.22) grid[y][x] = T.TREE;
-            else if (r < 0.30) grid[y][x] = T.STONE;
           }
           break;
         }
         case "neon": {
-          for (let x = 3; x < w - 3; x++) {
-            if (inPath(x)) continue;
-            const r = sr(x, y, i);
-            // Scattered neon pylons + dark floor patches
-            if (r < 0.06) grid[y][x] = T.PROP_NEON_PYLON;
-            else if (r < 0.18) grid[y][x] = T.NEON_FLOOR;
+          for (let x = PATH_X1; x < PATH_X2; x++) {
+            const r = sr(x, y, i + 1003);
+            if (r < 0.04) grid[y][x] = T.PROP_NEON_PYLON;
+            else if (r < 0.12) grid[y][x] = T.NEON_FLOOR;
           }
           break;
         }
         case "mall": {
-          for (let x = 3; x < w - 3; x++) {
-            if (inPath(x)) continue;
-            const r = sr(x, y, i);
-            if (r < 0.05) grid[y][x] = T.PROP_RACK;
-            else if (r < 0.12) grid[y][x] = T.PROP_PRICETAG;
-            else if (r < 0.20) grid[y][x] = T.MALL_FLOOR;
+          for (let x = PATH_X1; x < PATH_X2; x++) {
+            const r = sr(x, y, i + 1004);
+            if (r < 0.04) grid[y][x] = T.PROP_RACK;
+            else if (r < 0.10) grid[y][x] = T.MALL_FLOOR;
           }
           break;
         }
         case "crypto": {
-          for (let x = 3; x < w - 3; x++) {
-            if (inPath(x)) continue;
-            const r = sr(x, y, i);
-            if (r < 0.07) grid[y][x] = T.PROP_CANDLESTICK;
-            else if (r < 0.18) grid[y][x] = T.CRYPTO_FLOOR;
+          for (let x = PATH_X1; x < PATH_X2; x++) {
+            const r = sr(x, y, i + 1005);
+            if (r < 0.05) grid[y][x] = T.PROP_CANDLESTICK;
+            else if (r < 0.14) grid[y][x] = T.CRYPTO_FLOOR;
           }
           break;
         }
         case "garden": {
-          for (let x = 3; x < w - 3; x++) {
-            if (inPath(x)) continue;
-            const r = sr(x, y, i);
-            if (r < 0.14) grid[y][x] = T.FLOWER_Y;
-            else if (r < 0.26) grid[y][x] = T.FLOWER_R;
-            else if (r < 0.32) grid[y][x] = T.PROP_SPEAKER;
-            else if (r < 0.42) grid[y][x] = T.TALL_GRASS;
+          for (let x = PATH_X1; x < PATH_X2; x++) {
+            const r = sr(x, y, i + 1006);
+            if (r < 0.10) grid[y][x] = T.FLOWER_Y;
+            else if (r < 0.18) grid[y][x] = T.FLOWER_R;
           }
           break;
         }
         case "skyline": {
-          for (let x = 3; x < w - 3; x++) {
-            if (inPath(x)) continue;
-            const r = sr(x, y, i);
-            if (r < 0.06) grid[y][x] = T.PROP_TROPHY;
-            else if (r < 0.13) grid[y][x] = T.PROP_NEON_PYLON;
-            else if (r < 0.22) grid[y][x] = T.NIGHT_FLOOR;
+          for (let x = PATH_X1; x < PATH_X2; x++) {
+            const r = sr(x, y, i + 1007);
+            if (r < 0.05) grid[y][x] = T.PROP_TROPHY;
+            else if (r < 0.11) grid[y][x] = T.NIGHT_FLOOR;
           }
           break;
         }
+        case "boulders": {
+          for (let x = PATH_X1; x < PATH_X2; x++) {
+            const r = sr(x, y, i + 1002);
+            if (r < 0.06) grid[y][x] = T.STONE;
+          }
+          break;
+        }
+        default: break;
       }
     }
+    // unused var suppression
+    void routeMid;
   }
 }
 
@@ -268,14 +272,15 @@ function paintRoutes(grid: TileCode[][], w: number, h: number) {
 function paintZoneArches(grid: TileCode[][], h: number) {
   for (let i = 1; i < ZONES.length; i++) {
     const z = ZONES[i];
-    const archY = z.oy - 1; // row just above zone top (already TREE from border)
+    const archY = z.oy - 1;
     if (archY < 2 || archY >= h) continue;
-    // Overwrite the path-column cells only with arch tiles
-    // PATH_X1, PATH_X1+1 = arch, PATH_X1+2, PATH_X1+3 = arch
+    // Arch spans the 6-tile path — L, 4×M, R
     grid[archY][PATH_X1]     = T.ARCH_L;
     grid[archY][PATH_X1 + 1] = T.ARCH_M;
     grid[archY][PATH_X1 + 2] = T.ARCH_M;
-    grid[archY][PATH_X1 + 3] = T.ARCH_R;
+    grid[archY][PATH_X1 + 3] = T.ARCH_M;
+    grid[archY][PATH_X1 + 4] = T.ARCH_M;
+    grid[archY][PATH_X1 + 5] = T.ARCH_R;
   }
 }
 

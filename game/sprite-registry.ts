@@ -27,8 +27,7 @@ export const CREATURE_URL: Record<string, string> = {
   iterate:    "/sprites/creatures/iterate.png",
 };
 
-// ─── Param (human player) — same sprite regardless of evolution stage ─────
-// The player is always Param. The follower changes as Mermander evolves.
+// ─── Param (human player) ─────────────────────────────────────────────────
 export const PARAM_SPRITE_URL = {
   front: "/sprites/player/param_front.png",
   back:  "/sprites/player/param_back.png",
@@ -58,18 +57,24 @@ export const FOLLOWER_RIGHT_URL: Record<string, string> = {
   merlord:   "/sprites/player/merlord_right.png",
 };
 
-// ─── Battle back sprites (what opponent sees when Param sends out creature) ─
+// ─── Battle sprites ────────────────────────────────────────────────────────
 export const PLAYER_BACK_URL: Record<string, string> = {
   mermander: "/sprites/player/mermander_battle_back.png",
   mermalion: "/sprites/player/mermalion_battle_back.png",
   merlord:   "/sprites/player/merlord_battle_back.png",
 };
+export const PLAYER_FRONT_URL: Record<string, string> = {
+  mermander: "/sprites/player/mermander_battle_front.png",
+  mermalion: "/sprites/player/mermalion_battle_front.png",
+  merlord:   "/sprites/player/merlord_battle_front.png",
+};
 
-// Legacy aliases kept for Battle.tsx compatibility
+// Legacy aliases
 export const PLAYER_SPRITE_URL = FOLLOWER_SPRITE_URL;
 export const PLAYER_LEFT_URL   = FOLLOWER_LEFT_URL;
 export const PLAYER_RIGHT_URL  = FOLLOWER_RIGHT_URL;
 
+// ─── Landmarks ────────────────────────────────────────────────────────────
 export const LANDMARK_URL: Record<string, string> = {
   home:       "/sprites/landmarks/home.png",
   origin:     "/sprites/landmarks/origin.png",
@@ -83,9 +88,41 @@ export const LANDMARK_URL: Record<string, string> = {
   iterate:    "/sprites/landmarks/iterate.png",
 };
 
-export const POKEBALL_URL = "/sprites/ui/pokeball.png";
+// ─── Zone arrival banners (Batch B) ───────────────────────────────────────
+export const BANNER_URL: Record<string, string> = {
+  home:       "/sprites/banners/home.png",
+  origin:     "/sprites/banners/origin.png",
+  grp:        "/sprites/banners/grp.png",
+  hab:        "/sprites/banners/hab.png",
+  ai:         "/sprites/banners/ai.png",
+  investopad: "/sprites/banners/investopad.png",
+  sole:       "/sprites/banners/sole.png",
+  fere:       "/sprites/banners/fere.png",
+  ccd:        "/sprites/banners/ccd.png",
+  iterate:    "/sprites/banners/iterate.png",
+};
 
-// ─── Image loader cache ───────────────────────────────────────
+// ─── Battle backgrounds (Batch C) ─────────────────────────────────────────
+export const BATTLE_BG_URL: Record<string, string> = {
+  home:       "/sprites/battle/home.png",
+  origin:     "/sprites/battle/origin.png",
+  grp:        "/sprites/battle/grp.png",
+  hab:        "/sprites/battle/hab.png",
+  ai:         "/sprites/battle/ai.png",
+  investopad: "/sprites/battle/investopad.png",
+  sole:       "/sprites/battle/sole.png",
+  fere:       "/sprites/battle/fere.png",
+  ccd:        "/sprites/battle/ccd.png",
+  iterate:    "/sprites/battle/iterate.png",
+};
+
+// ─── UI sprites ───────────────────────────────────────────────────────────
+export const POKEBALL_URL    = "/sprites/ui/pokeball.png";
+export const POKEBALL_HQ_URL = "/sprites/ui/pokeball_hq.png";
+export const TITLE_BG_URL    = "/sprites/ui/title_bg.png";
+export const CHAMPION_BG_URL = "/sprites/ui/champion_bg.png";
+
+// ─── Image loader cache ───────────────────────────────────────────────────
 const cache = new Map<string, HTMLImageElement>();
 
 export function getSprite(url: string): HTMLImageElement {
@@ -111,7 +148,13 @@ if (typeof window !== "undefined") {
   Object.values(FOLLOWER_LEFT_URL).forEach(getSprite);
   Object.values(FOLLOWER_RIGHT_URL).forEach(getSprite);
   Object.values(PLAYER_BACK_URL).forEach(getSprite);
+  Object.values(PLAYER_FRONT_URL).forEach(getSprite);
+  Object.values(BANNER_URL).forEach(getSprite);
+  Object.values(BATTLE_BG_URL).forEach(getSprite);
   getSprite(POKEBALL_URL);
+  getSprite(POKEBALL_HQ_URL);
+  getSprite(TITLE_BG_URL);
+  getSprite(CHAMPION_BG_URL);
 }
 
 export function preloadAllSprites(): Promise<void> {
@@ -125,7 +168,13 @@ export function preloadAllSprites(): Promise<void> {
     ...Object.values(FOLLOWER_LEFT_URL),
     ...Object.values(FOLLOWER_RIGHT_URL),
     ...Object.values(PLAYER_BACK_URL),
+    ...Object.values(PLAYER_FRONT_URL),
+    ...Object.values(BANNER_URL),
+    ...Object.values(BATTLE_BG_URL),
     POKEBALL_URL,
+    POKEBALL_HQ_URL,
+    TITLE_BG_URL,
+    CHAMPION_BG_URL,
   ];
   return new Promise((resolve) => {
     let remaining = urls.length;
@@ -139,6 +188,6 @@ export function preloadAllSprites(): Promise<void> {
         img.addEventListener("error", done, { once: true });
       }
     }
-    setTimeout(resolve, 5000);
+    setTimeout(resolve, 8000);
   });
 }

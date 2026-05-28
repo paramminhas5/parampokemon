@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { drawStarter } from "@/game/sprites";
 import { drawCharacter } from "@/game/tiles";
+import { TITLE_BG_URL, getSprite, isReady } from "@/game/sprite-registry";
 
 // ─── Prof. Iterate's opening speech ────────────────────────────────────────
 const INTRO_LINES = [
@@ -41,6 +42,53 @@ const STYLES = `
 `;
 
 const FRAME_MS = 22;
+
+// ─── Title background image layer ────────────────────────────────────────────
+function TitleBgLayer() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const rafRef = useRef(0);
+  useEffect(() => {
+    const img = getSprite(TITLE_BG_URL);
+    const draw = () => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d")!;
+      if (img && isReady(img)) {
+        const scale = Math.max(canvas.width / img.naturalWidth, canvas.height / img.naturalHeight);
+        const sw = img.naturalWidth * scale;
+        const sh = img.naturalHeight * scale;
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
+        ctx.drawImage(img, (canvas.width - sw) / 2, (canvas.height - sh) / 2, sw, sh);
+        // Dark vignette overlay
+        const grad = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, canvas.width * 0.75);
+        grad.addColorStop(0,   "rgba(1,2,10,0.35)");
+        grad.addColorStop(0.6, "rgba(1,2,10,0.55)");
+        grad.addColorStop(1,   "rgba(1,2,10,0.88)");
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      } else {
+        // fallback while loading
+        ctx.fillStyle = "#010208";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        rafRef.current = requestAnimationFrame(draw);
+      }
+    };
+    draw();
+    return () => cancelAnimationFrame(rafRef.current);
+  }, []);
+  return (
+    <canvas
+      ref={canvasRef}
+      width={960}
+      height={640}
+      style={{
+        position: "absolute", inset: 0, width: "100%", height: "100%",
+        zIndex: 0, pointerEvents: "none",
+      }}
+    />
+  );
+}
 
 interface Props {
   onComplete: () => void;
@@ -155,6 +203,9 @@ export function TitleScreen({ onComplete, isFirstVisit }: Props) {
       onClick={advance}
     >
       <style>{STYLES}</style>
+
+      {/* Title BG image — rendered on a canvas behind everything */}
+      <TitleBgLayer />
 
       {/* Starfield */}
       <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>

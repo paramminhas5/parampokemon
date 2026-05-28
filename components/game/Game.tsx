@@ -23,6 +23,7 @@ import { SkillLearnOverlay } from "./SkillLearnOverlay";
 import { TouchControls } from "./TouchControls";
 import { ChampionCard } from "./ChampionCard";
 import { playSound, playZoneBGM, playBattleBGM, stopBattleBGM, stopBGM, setMuted, isMuted, loadMutePref } from "@/lib/audio";
+import { ZoneTitle } from "./ZoneTitle";
 
 const INIT_W = 20 * TILE;
 const INIT_H = 14 * TILE;
@@ -61,6 +62,7 @@ export function Game() {
   const [isFirstVisit, setIsFirstVisit] = useState(false);
   const [victoryZone, setVictoryZone] = useState<Zone | null>(null);
   const [skillLearnZone, setSkillLearnZone] = useState<{ zone: Zone; npcName: string } | null>(null);
+  const [zoneTitle, setZoneTitle] = useState<Zone | null>(null);
   // Phase 5: champion card
   const [championOpen, setChampionOpen] = useState(false);
 
@@ -156,7 +158,12 @@ export function Game() {
         transKeyRef.current += 1;
         setTransition({ kind: "zone", color: z.theme.accent, key: transKeyRef.current });
         playZoneBGM(z.theme.ground as Parameters<typeof playZoneBGM>[0]);
-        if (z.id !== "home") { setCliffOpen(z); engine.setPaused(true); }
+        // Zone arrival cinematic (skip for Home — player starts there)
+        if (z.id !== "home") {
+          setZoneTitle(z);
+          engine.setPaused(true);
+        }
+        if (z.id !== "home") { setCliffOpen(z); }
       },
       onMenu: () => { setMenuOpen(true); engine.setPaused(true); },
       onBadge: (badgeId: string) => {
@@ -604,6 +611,18 @@ export function Game() {
             defeated={defeated}
             creatures={creatures}
             onClose={() => { setChampionOpen(false); engineRef.current?.setPaused(false); }}
+          />
+        )}
+
+        {/* Zone arrival cinematic */}
+        {zoneTitle && (
+          <ZoneTitle
+            zone={zoneTitle}
+            onDone={() => {
+              setZoneTitle(null);
+              // Open CliffNotes after banner
+              setCliffOpen(zoneTitle);
+            }}
           />
         )}
 

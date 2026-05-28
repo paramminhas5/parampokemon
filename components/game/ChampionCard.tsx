@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ZONES, CONTACT } from "@/game/data";
 import { drawStarter } from "@/game/sprites";
+import { CHAMPION_BG_URL, getSprite, isReady } from "@/game/sprite-registry";
 
 const STYLES = `
 @keyframes cc-bg-in      { from{opacity:0} to{opacity:1} }
@@ -24,6 +25,39 @@ interface Props {
 }
 
 const TOTAL_GYMS = ZONES.filter(z => z.gym).length;
+
+// ─── Champion background image ────────────────────────────────────────────
+function ChampionBgLayer() {
+  const ref = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const img = getSprite(CHAMPION_BG_URL);
+    const draw = () => {
+      const c = ref.current;
+      if (!c) return;
+      const ctx = c.getContext("2d")!;
+      if (img && isReady(img)) {
+        const scale = Math.max(c.width / img.naturalWidth, c.height / img.naturalHeight);
+        const sw = img.naturalWidth * scale;
+        const sh = img.naturalHeight * scale;
+        ctx.imageSmoothingEnabled = true;
+        ctx.drawImage(img, (c.width - sw) / 2, (c.height - sh) / 2, sw, sh);
+        ctx.fillStyle = "rgba(2,5,14,0.68)";
+        ctx.fillRect(0, 0, c.width, c.height);
+      } else {
+        ctx.fillStyle = "#020814";
+        ctx.fillRect(0, 0, c.width, c.height);
+        requestAnimationFrame(draw);
+      }
+    };
+    draw();
+  }, []);
+  return (
+    <canvas ref={ref} width={960} height={640} style={{
+      position: "absolute", inset: 0, width: "100%", height: "100%",
+      zIndex: 0, pointerEvents: "none",
+    }} />
+  );
+}
 
 export function ChampionCard({ badges, defeated, creatures, onClose }: Props) {
   const merlordRef = useRef<HTMLCanvasElement>(null);
@@ -90,6 +124,9 @@ export function ChampionCard({ badges, defeated, creatures, onClose }: Props) {
       onClick={phase === "share" ? onClose : undefined}
     >
       <style>{STYLES}</style>
+
+      {/* Champion BG image */}
+      <ChampionBgLayer />
 
       {/* Scanline */}
       <div style={{ position: "absolute", left: 0, right: 0, height: 2, background: "linear-gradient(90deg,transparent,rgba(255,210,74,0.3),transparent)", animation: "cc-scan 5s linear infinite", pointerEvents: "none" }} />
