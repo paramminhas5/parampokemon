@@ -21,9 +21,9 @@ export function drawLandmark(ctx: Ctx, zone: Zone, offX: number, offY: number, n
   if (url) {
     const img = getSprite(url);
     if (isReady(img)) {
-      // Render at 8×8 tiles wide (was 5×5) for much richer detail
-      const w = TILE * 8;
-      const h = TILE * 8;
+      // Render at 5×5 tiles — fits above building without overlapping it
+      const w = TILE * 5;
+      const h = TILE * 5;
       const dx = Math.round(cx - w / 2);
       const dy = Math.round(baseY - h + TILE * 1.5);
       ctx.imageSmoothingEnabled = false;
