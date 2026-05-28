@@ -24,6 +24,7 @@ import { TouchControls } from "./TouchControls";
 import { ChampionCard } from "./ChampionCard";
 import { playSound, playZoneBGM, playBattleBGM, stopBattleBGM, stopBGM, setMuted, isMuted, loadMutePref } from "@/lib/audio";
 import { ZoneTitle } from "./ZoneTitle";
+import { Interior } from "./Interior";
 
 const INIT_W = 20 * TILE;
 const INIT_H = 14 * TILE;
@@ -63,6 +64,7 @@ export function Game() {
   const [victoryZone, setVictoryZone] = useState<Zone | null>(null);
   const [skillLearnZone, setSkillLearnZone] = useState<{ zone: Zone; npcName: string } | null>(null);
   const [zoneTitle, setZoneTitle] = useState<Zone | null>(null);
+  const [interiorZone, setInteriorZone] = useState<Zone | null>(null);
   // Phase 5: champion card
   const [championOpen, setChampionOpen] = useState(false);
 
@@ -118,7 +120,7 @@ export function Game() {
     toastTimer.current = setTimeout(() => setToast(null), 2800);
   }, []);
 
-  const isModalOpen = !!(dialog || menuOpen || bagOpen || cliffOpen || mapOpen || worldSelectOpen || battle || battleIntro || catchModal || contactOpen || pressOpen || evolution || victoryZone || skillLearnZone || !titleDone || championOpen);
+  const isModalOpen = !!(dialog || menuOpen || bagOpen || cliffOpen || mapOpen || worldSelectOpen || battle || battleIntro || catchModal || contactOpen || pressOpen || evolution || victoryZone || skillLearnZone || !titleDone || championOpen || interiorZone);
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -176,6 +178,11 @@ export function Game() {
         engine.setPaused(true);
       },
       onWild: (z: Zone) => { setCatchModal(z); engine.setPaused(true); },
+      onDoorEnter: (z: Zone) => {
+        setInteriorZone(z);
+        engine.setPaused(true);
+        playSound("warp");
+      },
     });
     engineRef.current = engine;
     setEngineReady(true);
@@ -622,6 +629,18 @@ export function Game() {
               setZoneTitle(null);
               // Open CliffNotes after banner
               setCliffOpen(zoneTitle);
+            }}
+          />
+        )}
+
+        {/* Building interior */}
+        {interiorZone && (
+          <Interior
+            zoneId={interiorZone.id}
+            onExit={() => {
+              setInteriorZone(null);
+              engineRef.current?.setPaused(false);
+              playSound("warp");
             }}
           />
         )}

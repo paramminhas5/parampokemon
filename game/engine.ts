@@ -55,6 +55,8 @@ export type EngineCallbacks = {
   onBadge: (badgeId: string) => void;
   onGymEnter: (zone: Zone) => void;
   onWild: (zone: Zone) => void;
+  /** Called when player enters a non-gym building door — triggers interior */
+  onDoorEnter: (zone: Zone) => void;
 };
 
 export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
@@ -157,13 +159,8 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         if (gymUnlocked(door.zone.id, state.collectedBadges)) cb.onGymEnter(door.zone);
         else cb.onInteract({ kind: "sign", zone: door.zone, sign: { x: f.x, y: f.y, text: `${door.zone.name.toUpperCase()}\n\nThis gym is sealed.\nDefeat the previous champions first.` }, x: f.x, y: f.y });
       } else {
-        // Non-gym building or defeated gym: greet with first NPC's dialog
-        const greeter = door.zone.npcs[0];
-        if (greeter) {
-          cb.onInteract({ kind: "npc", zone: door.zone, npc: greeter, x: f.x, y: f.y });
-        } else {
-          cb.onInteract({ kind: "sign", zone: door.zone, sign: { x: f.x, y: f.y, text: `${door.zone.name.toUpperCase()}\n\n${door.zone.gym?.victory ?? "Welcome."}` }, x: f.x, y: f.y });
-        }
+        // Non-gym building: enter the interior
+        cb.onDoorEnter(door.zone);
       }
       return;
     }
