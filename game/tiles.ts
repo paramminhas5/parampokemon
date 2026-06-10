@@ -706,49 +706,96 @@ export function drawCharacter(
 
   // Special: Param (player) — taller, slimmer, South Asian appearance
   if (kind === "player") {
-    // Shadow
-    ctx.fillStyle = "rgba(0,0,0,0.3)";
+    // Drop shadow
+    ctx.fillStyle = "rgba(0,0,0,0.35)";
     ctx.beginPath();
-    ctx.ellipse(px0 + 8, py0 + 15, 4, 1.2, 0, 0, Math.PI * 2);
+    ctx.ellipse(px0 + 8, py0 + 15, 4, 1.3, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Legs with walk animation
-    const stepL = frame === 1 ? -2 : 0;
-    const stepR = frame === 2 ? -2 : 0;
-    fillRect(ctx, px0 + 5, py0 + 11 + stepL, 2, 4, p.pants);
-    fillRect(ctx, px0 + 9, py0 + 11 + stepR, 2, 4, p.pants);
-    // Shoes
-    fillRect(ctx, px0 + 5, py0 + 14, 2, 1, p.shoes);
-    fillRect(ctx, px0 + 9, py0 + 14, 2, 1, p.shoes);
+    // ── Legs with walk cycle ──
+    const legL = frame === 1 ? -2 : frame === 2 ? 1 : 0;
+    const legR = frame === 2 ? -2 : frame === 1 ? 1 : 0;
+    // Left leg
+    fillRect(ctx, px0 + 5, py0 + 11 + legL, 3, 3, p.pants);
+    fillRect(ctx, px0 + 5, py0 + 13 + legL, 3, 1, "#1a1a2a"); // shoe
+    // Right leg
+    fillRect(ctx, px0 + 8, py0 + 11 + legR, 3, 3, p.pants);
+    fillRect(ctx, px0 + 8, py0 + 13 + legR, 3, 1, "#1a1a2a"); // shoe
 
-    // Torso — slim dark outfit
-    fillRect(ctx, px0 + 5, py0 + 6, 6, 6, p.shirt);
-    fillRect(ctx, px0 + 4, py0 + 7, 1, 4, p.shirt); // left arm
-    fillRect(ctx, px0 + 11, py0 + 7, 1, 4, p.shirt); // right arm
-    // Shirt collar detail
+    // ── Torso — dark hoodie/jacket look ──
+    fillRect(ctx, px0 + 4, py0 + 6, 8, 6, p.shirt);
+    // Collar crease
     fillRect(ctx, px0 + 6, py0 + 6, 4, 1, p.shirtAlt);
-
-    // Head — slightly taller oval, South Asian skin tone
-    fillRect(ctx, px0 + 5, py0 + 1, 6, 5, p.skin);
-    // Hair — dark, short
-    fillRect(ctx, px0 + 5, py0 + 1, 6, 2, p.hair);
-    fillRect(ctx, px0 + 4, py0 + 2, 1, 2, p.hair);
-    fillRect(ctx, px0 + 11, py0 + 2, 1, 2, p.hair);
-
-    // Face features by direction
-    if (dir === "down") {
-      px(ctx, px0 + 6, py0 + 4, "#0a0a0a");
-      px(ctx, px0 + 9, py0 + 4, "#0a0a0a");
-      fillRect(ctx, px0 + 7, py0 + 5, 2, 1, "#8a3a2a"); // mouth
-    } else if (dir === "up") {
-      fillRect(ctx, px0 + 5, py0 + 1, 6, 2, p.hair);
-      fillRect(ctx, px0 + 5, py0 + 3, 6, 1, p.hair);
-    } else if (dir === "left") {
-      px(ctx, px0 + 5, py0 + 4, "#0a0a0a");
-      fillRect(ctx, px0 + 4, py0 + 2, 1, 2, p.hair);
+    // Arms
+    if (dir === "left" || dir === "right") {
+      // Show arm swing
+      const armSwing = frame === 1 ? 1 : frame === 2 ? -1 : 0;
+      fillRect(ctx, px0 + 3, py0 + 7 + armSwing, 1, 3, p.shirt);  // left arm
+      fillRect(ctx, px0 + 12, py0 + 7 - armSwing, 1, 3, p.shirt); // right arm
     } else {
-      px(ctx, px0 + 10, py0 + 4, "#0a0a0a");
-      fillRect(ctx, px0 + 11, py0 + 2, 1, 2, p.hair);
+      fillRect(ctx, px0 + 3, py0 + 7, 1, 3, p.shirt);
+      fillRect(ctx, px0 + 12, py0 + 7, 1, 3, p.shirt);
+    }
+    // Wrists / hands
+    fillRect(ctx, px0 + 3, py0 + 10, 1, 1, p.skin);
+    fillRect(ctx, px0 + 12, py0 + 10, 1, 1, p.skin);
+
+    // ── Head — South Asian skin, strong jawline ──
+    // Neck
+    fillRect(ctx, px0 + 7, py0 + 4, 2, 2, p.skin);
+    // Head shape — slightly wider at cheeks
+    fillRect(ctx, px0 + 4, py0 + 1, 8, 4, p.skin);
+    fillRect(ctx, px0 + 5, py0 + 0, 6, 1, p.skin); // top of head
+    // Ear dots
+    px(ctx, px0 + 4, py0 + 2, p.skin);
+    px(ctx, px0 + 11, py0 + 2, p.skin);
+
+    // ── Hair — dark, textured, modern cut ──
+    fillRect(ctx, px0 + 4, py0 + 0, 8, 2, p.hair); // top
+    fillRect(ctx, px0 + 3, py0 + 1, 2, 2, p.hair); // left side
+    fillRect(ctx, px0 + 11, py0 + 1, 2, 2, p.hair); // right side
+    // Hair texture highlights
+    px(ctx, px0 + 6, py0 + 0, "#2a1810");
+    px(ctx, px0 + 9, py0 + 0, "#2a1810");
+
+    // ── Face by direction ──
+    if (dir === "down") {
+      // Eyes — dark brown, expressive
+      fillRect(ctx, px0 + 5, py0 + 3, 2, 1, "#1a0a04");
+      fillRect(ctx, px0 + 9, py0 + 3, 2, 1, "#1a0a04");
+      // Eye whites
+      px(ctx, px0 + 6, py0 + 3, "#fff");
+      px(ctx, px0 + 10, py0 + 3, "#fff");
+      // Nose bridge
+      px(ctx, px0 + 7, py0 + 3, p.skin);
+      // Mouth — slight confident smile
+      px(ctx, px0 + 6, py0 + 4, "#7a3020");
+      px(ctx, px0 + 7, py0 + 4, "#9a4030");
+      px(ctx, px0 + 8, py0 + 4, "#9a4030");
+      px(ctx, px0 + 9, py0 + 4, "#7a3020");
+    } else if (dir === "up") {
+      // Back of head — show hair only
+      fillRect(ctx, px0 + 4, py0 + 1, 8, 3, p.hair);
+      fillRect(ctx, px0 + 3, py0 + 2, 1, 2, p.hair);
+      fillRect(ctx, px0 + 12, py0 + 2, 1, 2, p.hair);
+    } else if (dir === "left") {
+      // Left profile
+      px(ctx, px0 + 5, py0 + 3, "#1a0a04");
+      px(ctx, px0 + 6, py0 + 3, "#fff");
+      px(ctx, px0 + 5, py0 + 4, "#7a3020"); // mouth
+      // Hair profile
+      fillRect(ctx, px0 + 3, py0 + 1, 2, 3, p.hair);
+      // Nose
+      px(ctx, px0 + 4, py0 + 3, p.skin);
+    } else {
+      // Right profile
+      px(ctx, px0 + 10, py0 + 3, "#1a0a04");
+      px(ctx, px0 + 9, py0 + 3, "#fff");
+      px(ctx, px0 + 10, py0 + 4, "#7a3020"); // mouth
+      // Hair profile
+      fillRect(ctx, px0 + 11, py0 + 1, 2, 3, p.hair);
+      // Nose
+      px(ctx, px0 + 11, py0 + 3, p.skin);
     }
     return;
   }
