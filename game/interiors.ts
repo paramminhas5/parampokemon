@@ -51,18 +51,18 @@ function makeHome(): Interior {
   // Rug center
   t[3][4] = T.STUDIO_FLOOR; t[3][5] = T.STUDIO_FLOOR; t[3][6] = T.STUDIO_FLOOR;
   t[4][4] = T.STUDIO_FLOOR; t[4][5] = T.STUDIO_FLOOR; t[4][6] = T.STUDIO_FLOOR;
-  // CRT desk (top-left area) — represented by PROP_SERVER (glowing screen)
+  // CRT desk top-left (the first computer)
   t[1][2] = T.BUILDING_WALL; // back shelf
   t[2][2] = T.PROP_SERVER;
   t[2][3] = T.PROP_SERVER;
-  // Guitar (speaker prop, top-right)
+  // Guitar / speaker top-right
   t[2][9] = T.PROP_SPEAKER;
-  // Bed (deckchair stand-in, right side)
+  // Bed right side — moved to row 3 so row 5 stays clear for movement
+  t[3][8] = T.PROP_DECKCHAIR;
   t[4][8] = T.PROP_DECKCHAIR;
-  t[4][9] = T.PROP_DECKCHAIR;
-  // Flower pot
-  t[5][2] = T.PROP_BRICK_PLANT;
-  // Vinyl record stacks (pricetag = stacked records vibe)
+  // Flower pot bottom-left
+  t[6][2] = T.PROP_BRICK_PLANT;
+  // Vinyl / book stack bottom-right
   t[6][9] = T.PROP_CART;
   return {
     id: "home",
@@ -71,9 +71,10 @@ function makeHome(): Interior {
     tiles: t,
     accentColor: "#9ad6e8",
     npcs: [
-      { x: 5, y: 4, name: "Mom", role: "Pallet Town",
+      // Mom at (5,3) — player spawns at (5,6), walks up to (5,4), talks to Mom at (5,3)
+      { x: 5, y: 3, name: "Mom", role: "Pallet Town",
         kind: "mom",
-        quote: "This is where it all started.\n\nLate nights, early mornings. Code on one screen, music on another.\n\nSome things never change." },
+        quote: "This is where it all started, Param.\n\nLate nights, early mornings. Code on one screen, music on another.\n\nYou've been building since before you knew what to call it.\n\nNow go — the world's waiting." },
     ],
   };
 }

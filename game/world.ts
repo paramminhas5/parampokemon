@@ -616,9 +616,10 @@ function placeZoneContent(grid: TileCode[][], w: number, h: number) {
           // Don't place on or adjacent to path corridor
           if (px3 >= PATH_X1 - 2 && px3 < PATH_X2 + 2) continue;
           const seed = sr(px3, py, z.id.charCodeAt(0));
-          // 18% prop density (up from 12%)
-          if (seed < 0.18) {
-            const propIdx = Math.floor(seed * props.length / 0.18) % props.length;
+          // Home zone gets lower density (8%) — cleaner starting area
+          const density = z.id === "home" ? 0.08 : 0.18;
+          if (seed < density) {
+            const propIdx = Math.floor(seed * props.length / density) % props.length;
             grid[py][px3] = props[propIdx];
           }
         }
