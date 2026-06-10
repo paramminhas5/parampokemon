@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { TITLE_BG_URL, PLAYER_FRONT_URL, LEADER_URL, getSprite, isReady } from "@/game/sprite-registry";
 
-// ─── Prof. Iterate's opening speech ────────────────────────────────────────
+// ─── Prof. Iterate's opening speech ─────────────────────────────────────────
 const INTRO_LINES = [
   {
     speaker: "Prof. Iterate",
@@ -27,44 +27,69 @@ const INTRO_LINES = [
 ];
 
 const STYLES = `
-@keyframes ts-bg-pulse   { 0%,100%{opacity:0.4} 50%{opacity:0.7} }
-@keyframes ts-title-in   { 0%{opacity:0;transform:translateY(-20px) scale(0.92)} 100%{opacity:1;transform:translateY(0) scale(1)} }
-@keyframes ts-sub-in     { 0%{opacity:0;transform:translateY(8px)} 100%{opacity:1;transform:translateY(0)} }
-@keyframes ts-press-blink{ 0%,100%{opacity:1} 49%{opacity:1} 50%,99%{opacity:0} }
-@keyframes ts-star-drift { 0%{transform:translateY(0) scale(1)} 100%{transform:translateY(-8px) scale(1.05)} }
-@keyframes ts-merman-bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
-@keyframes ts-merman-glow{ 0%,100%{filter:drop-shadow(0 0 24px rgba(124,224,255,0.55))} 50%{filter:drop-shadow(0 0 44px rgba(124,224,255,0.9))} }
-@keyframes ts-scanline   { 0%{transform:translateY(0)} 100%{transform:translateY(100vh)} }
-@keyframes ts-dialog-in  { 0%{opacity:0;transform:translateY(16px)} 100%{opacity:1;transform:translateY(0)} }
-@keyframes ts-prof-in    { 0%{opacity:0;transform:scale(0.7) translateY(10px)} 100%{opacity:1;transform:scale(1) translateY(0)} }
-@keyframes ts-cursor     { 0%,100%{opacity:1} 50%{opacity:0} }
-@keyframes ts-ring       { 0%{transform:scale(0.6);opacity:0.8} 100%{transform:scale(2.2);opacity:0} }
+/* ── Title phase ── */
+@keyframes ts-bg-pulse    { 0%,100%{opacity:0.4} 50%{opacity:0.75} }
+@keyframes ts-title-drop  {
+  0%   { opacity:0; transform:translateY(-40px) scale(1.18); }
+  55%  { opacity:1; transform:translateY(6px)   scale(0.97); }
+  75%  { transform:translateY(-3px) scale(1.01); }
+  100% { transform:translateY(0)    scale(1); }
+}
+@keyframes ts-sub-in      { 0%{opacity:0;transform:translateY(10px)} 100%{opacity:1;transform:translateY(0)} }
+@keyframes ts-press-blink { 0%,100%{opacity:1} 49%{opacity:1} 50%,99%{opacity:0} }
+@keyframes ts-star-twinkle{ 0%,100%{opacity:var(--s-base)} 50%{opacity:calc(var(--s-base) * 2.5)} }
+@keyframes ts-merman-bob  { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+@keyframes ts-merman-glow {
+  0%,100%{ filter:drop-shadow(0 0 20px rgba(124,224,255,0.5)) drop-shadow(0 6px 0 rgba(0,0,0,0.5)); }
+  50%    { filter:drop-shadow(0 0 44px rgba(124,224,255,0.95)) drop-shadow(0 6px 0 rgba(0,0,0,0.5)); }
+}
+@keyframes ts-scanline    {
+  0%   { top:-4px; opacity:0; }
+  5%   { opacity:1; }
+  95%  { opacity:0.7; }
+  100% { top:100%; opacity:0; }
+}
+@keyframes ts-glow-ring   { 0%{transform:scale(0.7);opacity:0.6} 100%{transform:scale(2.4);opacity:0} }
+@keyframes ts-pill-in     { 0%{opacity:0;transform:translateY(6px) scale(0.94)} 100%{opacity:1;transform:translateY(0) scale(1)} }
+
+/* ── Intro phase ── */
+@keyframes ts-dialog-in   { 0%{opacity:0;transform:translateY(18px)} 100%{opacity:1;transform:translateY(0)} }
+@keyframes ts-prof-in     { 0%{opacity:0;transform:scale(0.65) translateY(14px)} 100%{opacity:1;transform:scale(1) translateY(0)} }
+@keyframes ts-cursor      { 0%,100%{opacity:1} 50%{opacity:0} }
+@keyframes ts-advance-pulse{
+  0%,100%{ opacity:0.55; transform:translateY(0); }
+  50%    { opacity:1;    transform:translateY(-3px); }
+}
 `;
 
-const FRAME_MS = 22;
+const FRAME_MS = 20;
 
-// ─── Title background image layer ────────────────────────────────────────────
+// ─── Title background canvas ─────────────────────────────────────────────────
 function TitleBgLayer() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const rafRef = useRef(0);
+  const rafRef    = useRef(0);
   useEffect(() => {
-    const img = getSprite(TITLE_BG_URL);
+    const img  = getSprite(TITLE_BG_URL);
     const draw = () => {
       const canvas = canvasRef.current;
       if (!canvas) return;
       const ctx = canvas.getContext("2d")!;
       if (img && isReady(img)) {
         const scale = Math.max(canvas.width / img.naturalWidth, canvas.height / img.naturalHeight);
-        const sw = img.naturalWidth * scale;
+        const sw = img.naturalWidth  * scale;
         const sh = img.naturalHeight * scale;
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = "high";
+        ctx.imageSmoothingEnabled  = true;
+        ctx.imageSmoothingQuality  = "high";
         ctx.drawImage(img, (canvas.width - sw) / 2, (canvas.height - sh) / 2, sw, sh);
-        const grad = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 0, canvas.width/2, canvas.height/2, canvas.width * 0.75);
-        grad.addColorStop(0,   "rgba(1,2,10,0.35)");
-        grad.addColorStop(0.6, "rgba(1,2,10,0.55)");
-        grad.addColorStop(1,   "rgba(1,2,10,0.88)");
-        ctx.fillStyle = grad;
+        // vignette
+        const g = ctx.createRadialGradient(
+          canvas.width/2, canvas.height/2, 0,
+          canvas.width/2, canvas.height/2, canvas.width * 0.75
+        );
+        g.addColorStop(0,   "rgba(1,2,10,0.3)");
+        g.addColorStop(0.6, "rgba(1,2,10,0.55)");
+        g.addColorStop(1,   "rgba(1,2,10,0.92)");
+        ctx.fillStyle = g;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
       } else {
         ctx.fillStyle = "#010208";
@@ -77,43 +102,87 @@ function TitleBgLayer() {
   }, []);
   return (
     <canvas ref={canvasRef} width={960} height={640} style={{
-      position: "absolute", inset: 0, width: "100%", height: "100%",
+      position: "absolute", inset: 0,
+      width: "100%", height: "100%",
       zIndex: 0, pointerEvents: "none",
     }} />
   );
 }
 
+// ─── Starfield ───────────────────────────────────────────────────────────────
+function Starfield() {
+  return (
+    <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 1 }}>
+      {Array.from({ length: 110 }, (_, i) => {
+        const big    = i % 11 === 0;
+        const bright = i % 5  === 0;
+        const base   = big ? 0.55 : bright ? 0.32 : 0.14 + (i % 5) * 0.05;
+        return (
+          <div key={i} style={{
+            position:     "absolute",
+            left:         `${(i * 43.7 + 7) % 100}%`,
+            top:          `${(i * 67.1 + 11) % 100}%`,
+            width:        big ? 3 : bright ? 2 : 1,
+            height:       big ? 3 : bright ? 2 : 1,
+            background:   i % 5 === 0 ? "#7ce0ff" : i % 3 === 0 ? "#c89af0" : "#fff",
+            borderRadius: "50%",
+            opacity:      base,
+            // @ts-ignore CSS custom property
+            "--s-base":   base,
+            animation:    `ts-star-twinkle ${2.5 + (i % 5) * 0.7}s ease-in-out ${(i % 7) * 0.38}s infinite`,
+          } as React.CSSProperties} />
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── Scanline sweep ──────────────────────────────────────────────────────────
+function Scanline() {
+  return (
+    <div style={{
+      position:   "absolute",
+      left:       0,
+      right:      0,
+      height:     3,
+      top:        0,
+      background: "linear-gradient(90deg, transparent 0%, rgba(124,224,255,0.18) 20%, rgba(124,224,255,0.35) 50%, rgba(124,224,255,0.18) 80%, transparent 100%)",
+      animation:  "ts-scanline 8s linear 1.5s infinite",
+      pointerEvents: "none",
+      zIndex:     8,
+    }} />
+  );
+}
+
+// ─── Main component ──────────────────────────────────────────────────────────
 interface Props {
-  onComplete: () => void;
+  onComplete:   () => void;
   isFirstVisit: boolean;
 }
 
 export function TitleScreen({ onComplete, isFirstVisit }: Props) {
-  const [phase, setPhase] = useState<"title" | "intro" | "done">(
-    isFirstVisit ? "title" : "done"
-  );
-  const [lineIdx, setLineIdx] = useState(0);
-  const [shown, setShown] = useState(0);
+  const [phase, setPhase]       = useState<"title" | "intro" | "done">(isFirstVisit ? "title" : "done");
+  const [lineIdx, setLineIdx]   = useState(0);
+  const [shown,  setShown]      = useState(0);
   const [textDone, setTextDone] = useState(false);
-  // Track whether PNG sprites are loaded
   const [mermanReady, setMermanReady] = useState(false);
 
-  // Pre-load mermander PNG
+  // Pre-load Mermander sprite
   useEffect(() => {
     const img = getSprite(PLAYER_FRONT_URL.mermander);
     if (isReady(img)) { setMermanReady(true); return; }
-    const check = setInterval(() => {
-      if (isReady(img)) { setMermanReady(true); clearInterval(check); }
+    const t = setInterval(() => {
+      if (isReady(img)) { setMermanReady(true); clearInterval(t); }
     }, 80);
-    return () => clearInterval(check);
+    return () => clearInterval(t);
   }, []);
 
-  // If not first visit, skip immediately
+  // Skip everything if not first visit
   useEffect(() => {
-    if (!isFirstVisit) { onComplete(); }
+    if (!isFirstVisit) onComplete();
   }, [isFirstVisit, onComplete]);
 
-  // Typewriter for current line
+  // Typewriter for intro phase
   const currentLine = INTRO_LINES[lineIdx];
   useEffect(() => {
     if (phase !== "intro") return;
@@ -124,11 +193,7 @@ export function TitleScreen({ onComplete, isFirstVisit }: Props) {
     const tick = () => {
       if (cancelled) return;
       i++;
-      if (i >= currentLine.text.length) {
-        setShown(currentLine.text.length);
-        setTextDone(true);
-        return;
-      }
+      if (i >= currentLine.text.length) { setShown(currentLine.text.length); setTextDone(true); return; }
       setShown(i);
       setTimeout(tick, FRAME_MS);
     };
@@ -155,133 +220,152 @@ export function TitleScreen({ onComplete, isFirstVisit }: Props) {
 
   if (phase === "done") return null;
 
-  // Prof portrait: use statusquo (iterate HQ leader) or prehype as professor stand-in
   const profUrl = LEADER_URL.prehype;
 
   return (
     <div
       style={{
-        position: "absolute", inset: 0, zIndex: 100,
-        display: "flex", flexDirection: "column",
+        position:   "absolute", inset: 0, zIndex: 100,
+        display:    "flex", flexDirection: "column",
         alignItems: "center", justifyContent: "center",
         background: "linear-gradient(180deg, #010208 0%, #040b1e 40%, #060d22 100%)",
-        overflow: "hidden", cursor: "pointer",
+        overflow:   "hidden", cursor: "pointer",
         fontFamily: "var(--font-pixel)",
       }}
       onClick={advance}
     >
       <style>{STYLES}</style>
       <TitleBgLayer />
-
-      {/* Starfield */}
-      <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
-        {Array.from({ length: 80 }, (_, i) => (
-          <div key={i} style={{
-            position: "absolute",
-            left: `${(i * 43.1 + 5) % 100}%`,
-            top:  `${(i * 67.3 + 3) % 100}%`,
-            width:  i % 7 === 0 ? 2 : 1,
-            height: i % 7 === 0 ? 2 : 1,
-            background: i % 5 === 0 ? "#7ce0ff" : i % 3 === 0 ? "#c89af0" : "#fff",
-            borderRadius: "50%",
-            opacity: 0.06 + (i % 5) * 0.06,
-            animation: `ts-star-drift ${3 + (i % 4)}s ease-in-out ${(i % 6) * 0.4}s infinite alternate`,
-          }} />
-        ))}
-      </div>
+      <Starfield />
+      <Scanline />
 
       {/* Nebula blobs */}
-      <div style={{ position: "absolute", top: "-10%", left: "-5%", width: "50%", height: "60%", background: "radial-gradient(ellipse, rgba(124,100,255,0.12) 0%, transparent 70%)", filter: "blur(40px)", animation: "ts-bg-pulse 6s ease-in-out infinite", pointerEvents: "none" }} />
-      <div style={{ position: "absolute", bottom: "-5%", right: "-5%", width: "45%", height: "55%", background: "radial-gradient(ellipse, rgba(0,232,160,0.08) 0%, transparent 70%)", filter: "blur(50px)", animation: "ts-bg-pulse 8s ease-in-out 2s infinite alternate", pointerEvents: "none" }} />
+      <div style={{ position:"absolute", top:"-10%", left:"-5%", width:"50%", height:"60%",
+        background:"radial-gradient(ellipse, rgba(124,100,255,0.13) 0%, transparent 70%)",
+        filter:"blur(40px)", animation:"ts-bg-pulse 6s ease-in-out infinite",
+        pointerEvents:"none", zIndex:1 }} />
+      <div style={{ position:"absolute", bottom:"-5%", right:"-5%", width:"45%", height:"55%",
+        background:"radial-gradient(ellipse, rgba(0,232,160,0.09) 0%, transparent 70%)",
+        filter:"blur(50px)", animation:"ts-bg-pulse 8s ease-in-out 2s infinite alternate",
+        pointerEvents:"none", zIndex:1 }} />
 
-      {/* Scanline */}
-      <div style={{ position: "absolute", left: 0, right: 0, height: 2, background: "linear-gradient(90deg,transparent,rgba(124,224,255,0.06),transparent)", animation: "ts-scanline 6s linear infinite", pointerEvents: "none" }} />
-
-      {/* ── TITLE PHASE ── */}
+      {/* ── TITLE PHASE ────────────────────────────────────────── */}
       {phase === "title" && (
-        <div style={{ textAlign: "center", position: "relative", zIndex: 5 }}>
-          {/* Mermander PNG sprite */}
+        <div style={{ textAlign:"center", position:"relative", zIndex:5 }}>
+
+          {/* Glow ring behind Mermander */}
           <div style={{
-            animation: "ts-merman-bob 2.2s ease-in-out infinite",
-            marginBottom: 8,
-            display: "flex", justifyContent: "center",
-          }}>
+            position:"absolute", top:"50%", left:"50%",
+            width:180, height:180,
+            transform:"translate(-50%,-70%)",
+            borderRadius:"50%",
+            background:"radial-gradient(circle, rgba(124,224,255,0.22) 0%, transparent 68%)",
+            animation:"ts-glow-ring 2.8s ease-out infinite",
+            pointerEvents:"none",
+          }} />
+
+          {/* Mermander sprite */}
+          <div style={{ animation:"ts-merman-bob 2.2s ease-in-out infinite", marginBottom:8, display:"flex", justifyContent:"center" }}>
             {mermanReady ? (
               <img
                 src={PLAYER_FRONT_URL.mermander}
                 alt="Mermander"
-                style={{
-                  width: 160, height: 160,
-                  imageRendering: "pixelated",
-                  animation: "ts-merman-glow 2.2s ease-in-out infinite",
-                }}
+                style={{ width:160, height:160, imageRendering:"pixelated",
+                         animation:"ts-merman-glow 2.2s ease-in-out infinite" }}
               />
             ) : (
-              /* Fallback shimmer while loading */
-              <div style={{
-                width: 160, height: 160,
-                background: "radial-gradient(ellipse at center, rgba(124,224,255,0.15) 0%, transparent 70%)",
-                borderRadius: "50%",
-              }} />
+              <div style={{ width:160, height:160,
+                background:"radial-gradient(ellipse, rgba(124,224,255,0.15) 0%, transparent 70%)",
+                borderRadius:"50%" }} />
             )}
           </div>
 
-          <div style={{ fontSize: 7, color: "#3a5a80", letterSpacing: "0.3em", marginBottom: 16, animation: "ts-sub-in 0.6s ease-out 0.2s both" }}>
+          {/* Badge label */}
+          <div style={{ fontSize:7, color:"#3a5a80", letterSpacing:"0.3em", marginBottom:18,
+            animation:"ts-sub-in 0.55s ease-out 0.15s both" }}>
             ★ A PLAYABLE PORTFOLIO
           </div>
 
-          <h1 style={{
-            fontSize: "clamp(28px, 7vw, 52px)",
-            lineHeight: 1.1, margin: "0 0 6px",
-            color: "#7ce0ff",
-            textShadow: "0 6px 0 #0a2040, 0 0 50px rgba(124,224,255,0.5)",
-            animation: "ts-title-in 0.7s cubic-bezier(0.34,1.56,0.64,1) both",
-          }}>
-            PARAM<br />QUEST
-          </h1>
+          {/* Title — drop animation, dual colour */}
+          <div style={{ animation:"ts-title-drop 0.75s cubic-bezier(0.22,1,0.36,1) 0.05s both" }}>
+            <div style={{
+              fontFamily: "var(--font-pixel)",
+              fontSize:   "clamp(30px, 7.5vw, 56px)",
+              lineHeight: 1.05,
+              color:      "#7ce0ff",
+              textShadow: "0 6px 0 #0a2040, 0 0 50px rgba(124,224,255,0.55)",
+              letterSpacing: "0.03em",
+            }}>PARAM</div>
+            <div style={{
+              fontFamily: "var(--font-pixel)",
+              fontSize:   "clamp(30px, 7.5vw, 56px)",
+              lineHeight: 1.05,
+              color:      "#ffd24a",
+              textShadow: "0 6px 0 #3a1a00, 0 0 50px rgba(255,210,74,0.45)",
+              letterSpacing: "0.03em",
+              marginBottom: 10,
+            }}>QUEST</div>
+          </div>
 
-          <div style={{ fontSize: 7, color: "#5570aa", letterSpacing: "0.15em", marginTop: 10, animation: "ts-sub-in 0.5s ease-out 0.5s both" }}>
+          {/* Subtitle */}
+          <div style={{ fontSize:7, color:"#5570aa", letterSpacing:"0.15em",
+            animation:"ts-sub-in 0.5s ease-out 0.6s both" }}>
             FIFTEEN YEARS OF BUILDING
           </div>
 
-          <div style={{ marginTop: 36, fontSize: 8, color: "#7ce0ff", animation: "ts-press-blink 1.4s step-end infinite", letterSpacing: "0.1em" }}>
-            ▶ PRESS START
+          {/* PRESS START pill */}
+          <div style={{
+            display:"inline-block",
+            marginTop: 32,
+            padding: "10px 20px",
+            background: "rgba(124,224,255,0.06)",
+            border: "1px solid rgba(124,224,255,0.18)",
+            animation: "ts-pill-in 0.4s ease-out 0.9s both",
+          }}>
+            <div style={{ fontSize:8, color:"#7ce0ff",
+              animation:"ts-press-blink 1.4s step-end infinite", letterSpacing:"0.12em" }}>
+              ▶ PRESS START
+            </div>
           </div>
-          <div style={{ fontSize: 6, color: "#1a2a3a", marginTop: 10, letterSpacing: "0.08em" }}>
+
+          {/* Hint */}
+          <div style={{ fontSize:6, color:"#2a3a50", marginTop:10, letterSpacing:"0.08em",
+            animation:"ts-sub-in 0.4s ease-out 1.1s both" }}>
             SPACE · ENTER · TAP
           </div>
         </div>
       )}
 
-      {/* ── INTRO PHASE ── */}
+      {/* ── INTRO PHASE ────────────────────────────────────────── */}
       {phase === "intro" && (
         <div style={{
-          position: "relative", zIndex: 5,
-          width: "100%", maxWidth: 560,
-          padding: "0 16px",
-          display: "flex", flexDirection: "column",
-          alignItems: "center", gap: 20,
+          position:"relative", zIndex:5,
+          width:"100%", maxWidth:580,
+          padding:"0 16px",
+          display:"flex", flexDirection:"column",
+          alignItems:"center", gap:18,
         }}>
-          {/* Prof portrait — real PNG, not canvas */}
-          <div style={{ animation: "ts-prof-in 0.45s cubic-bezier(0.34,1.4,0.64,1) both", position: "relative" }}>
-            {/* Subtle glow ring behind portrait */}
+
+          {/* Prof portrait */}
+          <div style={{ animation:"ts-prof-in 0.45s cubic-bezier(0.34,1.4,0.64,1) both", position:"relative" }}>
+            {/* Outer glow halo */}
             <div style={{
-              position: "absolute", inset: -12, borderRadius: "50%",
-              background: "radial-gradient(circle, rgba(168,211,154,0.25) 0%, transparent 70%)",
-              animation: "ts-bg-pulse 1.8s ease-in-out infinite",
+              position:"absolute", inset:-16, borderRadius:"50%",
+              background:"radial-gradient(circle, rgba(168,211,154,0.28) 0%, transparent 70%)",
+              animation:"ts-bg-pulse 1.8s ease-in-out infinite",
             }} />
             <div style={{
-              width: 80, height: 80,
-              border: "2px solid rgba(168,211,154,0.55)",
-              background: "rgba(168,211,154,0.08)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              overflow: "hidden", position: "relative",
-              boxShadow: "0 0 20px rgba(168,211,154,0.25)",
+              width:96, height:96,
+              border:"2px solid rgba(168,211,154,0.65)",
+              background:"rgba(168,211,154,0.09)",
+              display:"flex", alignItems:"center", justifyContent:"center",
+              overflow:"hidden", position:"relative",
+              boxShadow:"0 0 28px rgba(168,211,154,0.3), 0 4px 0 rgba(0,0,0,0.5)",
             }}>
               <img
                 src={profUrl}
                 alt="Prof. Iterate"
-                style={{ width: 72, height: 72, imageRendering: "pixelated" }}
+                style={{ width:88, height:88, imageRendering:"pixelated" }}
                 onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
               />
             </div>
@@ -289,44 +373,61 @@ export function TitleScreen({ onComplete, isFirstVisit }: Props) {
 
           {/* Dialog box */}
           <div style={{
-            width: "100%",
-            background: "#07101e",
-            border: "2px solid #2a3a5a",
-            boxShadow: "inset 0 -2px 0 rgba(0,0,0,0.4), 0 0 20px rgba(168,211,154,0.1)",
-            animation: "ts-dialog-in 0.3s ease-out both",
+            width:"100%",
+            background:"#07101e",
+            border:"2px solid #2a4a3a",
+            boxShadow:"inset 0 -2px 0 rgba(0,0,0,0.4), 0 0 24px rgba(168,211,154,0.12)",
+            animation:"ts-dialog-in 0.3s ease-out both",
           }}>
-            {/* Header */}
+            {/* Header bar */}
             <div style={{
-              display: "flex", alignItems: "center", gap: 10,
-              padding: "8px 12px",
-              borderBottom: "1px solid #1a3a2a",
-              background: "linear-gradient(135deg, rgba(168,211,154,0.1) 0%, transparent 60%)",
+              display:"flex", alignItems:"center", gap:10,
+              padding:"9px 14px",
+              borderBottom:"1px solid rgba(168,211,154,0.18)",
+              background:"linear-gradient(135deg, rgba(168,211,154,0.12) 0%, transparent 60%)",
             }}>
               <div>
-                <div style={{ fontSize: 9, color: "#a8d39a", letterSpacing: "0.06em" }}>{currentLine.speaker}</div>
-                <div style={{ fontSize: 7, color: "#5570aa", marginTop: 3 }}>{currentLine.role}</div>
+                <div style={{ fontSize:10, color:"#b8e8a8", letterSpacing:"0.06em" }}>
+                  {currentLine.speaker}
+                </div>
+                <div style={{ fontSize:7, color:"#5570aa", marginTop:3 }}>
+                  {currentLine.role}
+                </div>
               </div>
-              <div style={{ marginLeft: "auto", fontSize: 7, color: "#1a2a3a" }}>
-                {lineIdx + 1}/{INTRO_LINES.length}
+              <div style={{ marginLeft:"auto", display:"flex", gap:4, alignItems:"center" }}>
+                {INTRO_LINES.map((_, i) => (
+                  <div key={i} style={{
+                    width:6, height:6, borderRadius:"50%",
+                    background: i === lineIdx ? "#b8e8a8" : i < lineIdx ? "rgba(184,232,168,0.4)" : "rgba(184,232,168,0.12)",
+                    border:"1px solid rgba(168,211,154,0.35)",
+                    transition:"background 0.25s",
+                  }} />
+                ))}
               </div>
             </div>
+
             {/* Text body */}
-            <div style={{ padding: "12px 14px 16px" }}>
+            <div style={{ padding:"14px 16px 18px" }}>
               <div style={{
-                fontFamily: "var(--font-mono)", fontSize: 16,
-                lineHeight: 1.55, color: "#c8d8f0",
-                whiteSpace: "pre-wrap", minHeight: 80,
+                fontFamily:"var(--font-mono)", fontSize:16,
+                lineHeight:1.6, color:"#c8d8f0",
+                whiteSpace:"pre-wrap", minHeight:88,
               }}>
                 {currentLine.text.slice(0, shown)}
-                {!textDone && <span style={{ animation: "ts-cursor 0.8s step-end infinite" }}>▌</span>}
+                {!textDone && (
+                  <span style={{ animation:"ts-cursor 0.8s step-end infinite" }}>▌</span>
+                )}
               </div>
             </div>
           </div>
 
           {/* Advance hint */}
           {textDone && (
-            <div style={{ fontSize: 7, color: "#3a5070", letterSpacing: "0.1em", animation: "ts-press-blink 1.2s step-end infinite" }}>
-              {lineIdx < INTRO_LINES.length - 1 ? "▶ NEXT" : "▶ BEGIN QUEST"}
+            <div style={{
+              fontSize:7, color:"#5588aa", letterSpacing:"0.12em",
+              animation:"ts-advance-pulse 1.1s ease-in-out infinite",
+            }}>
+              {lineIdx < INTRO_LINES.length - 1 ? "▶ CONTINUE" : "▶ BEGIN QUEST"}
             </div>
           )}
         </div>
