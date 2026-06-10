@@ -330,6 +330,25 @@ function addZoneTreeClusters(grid: TileCode[][], z: typeof ZONES[0], w: number, 
           }
         }
       }
+      // Tall grass patches — scattered naturally around the zone
+      // Cluster 1: left-centre area
+      for (let gy = oy + 7; gy < oy + 12; gy++) {
+        for (let gx = ox + 2; gx < ox + 8; gx++) {
+          if (safe(gx, gy)) {
+            const r = sr(gx, gy, 77);
+            if (r < 0.35) grid[gy][gx] = T.TALL_GRASS;
+          }
+        }
+      }
+      // Cluster 2: right-centre (away from Prof lab)
+      for (let gy = oy + 9; gy < oy + 15; gy++) {
+        for (let gx = ox + 14; gx < ox + 19; gx++) {
+          if (safe(gx, gy)) {
+            const r = sr(gx, gy, 55);
+            if (r < 0.30) grid[gy][gx] = T.TALL_GRASS;
+          }
+        }
+      }
       // Tree cluster — top-left corner, away from Prof and spawn
       for (let gy = oy + 1; gy <= oy + 3; gy++) {
         for (let gx = ox + 1; gx <= ox + 3; gx++) {
@@ -478,6 +497,7 @@ function paintBuilding(
   b: { x: number; y: number; w: number; h: number; doorX: number; color: string; roof: string },
   zoneOx: number, zoneOy: number,
   worldW: number, worldH: number,
+  isGym: boolean,
 ) {
   for (let gy = b.y; gy < b.y + b.h; gy++) {
     for (let gx = b.x; gx < b.x + b.w; gx++) {
@@ -495,11 +515,13 @@ function paintBuilding(
       else                               grid[wy][wx] = T.BUILDING_WALL;
     }
   }
-  // Mat tile right below the door
-  const matWx = zoneOx + b.x + b.doorX;
-  const matWy = zoneOy + b.y + b.h;
-  if (matWx >= 0 && matWy >= 0 && matWx < worldW && matWy < worldH) {
-    grid[matWy][matWx] = T.MAT;
+  // Mat tile right below the door — only for gym buildings (caller passes isGym)
+  if (isGym) {
+    const matWx = zoneOx + b.x + b.doorX;
+    const matWy = zoneOy + b.y + b.h;
+    if (matWx >= 0 && matWy >= 0 && matWx < worldW && matWy < worldH) {
+      grid[matWy][matWx] = T.MAT;
+    }
   }
 }
 
@@ -579,7 +601,7 @@ function placeZoneContent(grid: TileCode[][], w: number, h: number) {
     const props = ZONE_PROPS[z.id] ?? [];
 
     // Building
-    paintBuilding(grid, z.building, z.ox, z.oy, w, h);
+    paintBuilding(grid, z.building, z.ox, z.oy, w, h, !!z.gym);
 
     // Unique zone border treatment
     paintZoneBorder(grid, z, w, h);

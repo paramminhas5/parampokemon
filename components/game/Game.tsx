@@ -2,7 +2,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { createEngine, TILE } from "@/game/engine";
-import { PixiFilterOverlay } from "./PixiFilterOverlay";
 import { ZONES, type Interactive, type Zone, type NpcKind, PLAYER_SPAWN, stageForBadges, type RouteNpc } from "@/game/data";
 import { DialogBox } from "./DialogBox";
 import { StartMenu } from "./StartMenu";
@@ -195,13 +194,24 @@ export function Game() {
       onBadge: (badgeId: string) => {
         // Find the zone this badge belongs to
         const badgeZone = ZONES.find(z => z.badge.id === badgeId);
-        if (badgeZone) {
-          // Trigger the full victory cutscene — same path as gym win
+        if (badgeZone && badgeZone.gym) {
+          // Gym zones: trigger the full victory cutscene
           stopBattleBGM();
           setVictoryZone(badgeZone);
           engine.setPaused(true);
+        } else if (badgeZone) {
+          // Non-gym zones (e.g. home Starter Token): award badge + flash directly,
+          // no VictoryMoment (which requires zone.gym and crashes without it)
+          setBadges(prev => { const n = new Set(prev); n.add(badgeId); return n; });
+          setDefeated(prev => { const n = new Set(prev); n.add(badgeZone.id); return n; });
+          setGotBadge({ label: badgeZone.badge.label, color: badgeZone.badge.color });
+          playSound("badge");
+          engineRef.current?.triggerFollowerAnim("spin");
+          showToast(`★ ${badgeZone.badge.label.toUpperCase()} EARNED`, badgeZone.outcome);
+          setTimeout(() => setGotBadge(null), 1400);
+          engine.setPaused(false);
         } else {
-          // Fallback: just award the badge silently
+          // Fallback: award silently
           setBadges(prev => { const n = new Set(prev); n.add(badgeId); return n; });
         }
       },
@@ -451,13 +461,7 @@ export function Game() {
           style={{ width: "100%", height: "100%", imageRendering: "pixelated", display: "block" }}
         />
 
-        {/* PixiJS post-processing: bloom glow only — no CRT scanlines */}
-        <PixiFilterOverlay
-          sourceCanvas={canvasRef.current}
-          crt={false}
-          bloom
-          bloomStrength={1.1}
-        />
+        {/* PixiJS post-processing: disabled — was causing overbright display */}
 
         {/* Zone ambient overlay */}
         <ZoneAmbience ground={currentZone.theme.ground} accent={currentZone.theme.accent} />

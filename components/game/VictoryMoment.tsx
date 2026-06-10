@@ -21,7 +21,12 @@ interface Props {
 }
 
 export function VictoryMoment({ zone, onContinue }: Props) {
-  const gym = zone.gym!;
+  const gym = zone.gym;
+  // Safety: if zone has no gym (e.g. home starter token), skip immediately
+  if (!gym) {
+    onContinue();
+    return null;
+  }
   const accent = zone.theme.accent;
   const [phase, setPhase] = useState<"leader" | "badge" | "quote" | "ready">("leader");
   const [leaderReady, setLeaderReady] = useState(false);
