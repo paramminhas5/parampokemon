@@ -117,9 +117,26 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
       break;
     }
     case T.TALL_GRASS: {
+      // Base ground
       fillRect(ctx, px0, py0, TILE, TILE, "#5fb255");
       fillRect(ctx, px0, py0 + 8, TILE, 8, "#3d7a3a");
-      for (let i = 0; i < 6; i += 2) px(ctx, px0 + i + 2, py0 + 7, "#79c46b");
+      // Swaying grass blades — top half sways with wind
+      const sway = Math.sin(now / 600 + wx * 0.7 + wy * 0.4) * 1.5;
+      const swayI = Math.round(sway);
+      // Left blade
+      ctx.fillStyle = "#79c46b";
+      ctx.fillRect(px0 + 2 + swayI, py0 + 1, 1, 7);
+      ctx.fillRect(px0 + 2 + swayI, py0 + 1, 2, 2);
+      // Middle blade
+      ctx.fillStyle = "#5fb255";
+      ctx.fillRect(px0 + 7 - swayI, py0, 1, 8);
+      ctx.fillRect(px0 + 6 - swayI, py0, 3, 2);
+      // Right blade
+      ctx.fillStyle = "#79c46b";
+      ctx.fillRect(px0 + 12 + swayI, py0 + 2, 1, 6);
+      ctx.fillRect(px0 + 11 + swayI, py0 + 2, 2, 2);
+      // Dark base tips (stationary)
+      for (let i = 0; i < 6; i += 2) ctx.fillRect(px0 + i + 2, py0 + 7, 1, 1);
       break;
     }
     case T.PATH: {
@@ -177,9 +194,11 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
     case T.FLOWER_Y: {
       drawTile(ctx, T.GRASS, wx, wy, px0, py0, now);
       const c = code === T.FLOWER_R ? "#e85e5e" : "#f5d24a";
-      px(ctx, px0 + 7, py0 + 7, c); px(ctx, px0 + 8, py0 + 7, c);
-      px(ctx, px0 + 7, py0 + 8, c); px(ctx, px0 + 8, py0 + 8, c);
-      px(ctx, px0 + 6, py0 + 8, "#fff"); px(ctx, px0 + 9, py0 + 7, "#fff");
+      // Gentle bob on the flower head
+      const fBob = Math.round(Math.sin(now / 700 + wx * 0.8 + wy * 0.6) * 1);
+      px(ctx, px0 + 7, py0 + 7 + fBob, c); px(ctx, px0 + 8, py0 + 7 + fBob, c);
+      px(ctx, px0 + 7, py0 + 8 + fBob, c); px(ctx, px0 + 8, py0 + 8 + fBob, c);
+      px(ctx, px0 + 6, py0 + 8 + fBob, "#fff"); px(ctx, px0 + 9, py0 + 7 + fBob, "#fff");
       break;
     }
     case T.TREE: {

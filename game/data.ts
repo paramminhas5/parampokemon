@@ -891,7 +891,10 @@ export function allInteractives(): Interactive[] {
     for (const npc of zone.npcs) {
       list.push({ kind: "npc", zone, npc, x: zone.ox + npc.x, y: zone.oy + npc.y });
     }
-    list.push({ kind: "sign", zone, sign: zone.sign, x: zone.ox + zone.sign.x, y: zone.oy + zone.sign.y });
+    // Only push sign if it has real coordinates (sentinel -99,-99 = no sign)
+    if (zone.sign.x !== -99 && zone.sign.y !== -99) {
+      list.push({ kind: "sign", zone, sign: zone.sign, x: zone.ox + zone.sign.x, y: zone.oy + zone.sign.y });
+    }
     list.push({ kind: "badge", zone, badge: zone.badge, x: zone.ox + zone.badge.x, y: zone.oy + zone.badge.y });
     // Press wall — adds a sign Interactive with pressWall:true so Game.tsx opens PressModal
     if (zone.pressWall) {

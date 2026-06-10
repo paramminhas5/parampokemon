@@ -193,7 +193,17 @@ export function Game() {
       },
       onMenu: () => { setMenuOpen(true); engine.setPaused(true); },
       onBadge: (badgeId: string) => {
-        setBadges(prev => { const n = new Set(prev); n.add(badgeId); return n; });
+        // Find the zone this badge belongs to
+        const badgeZone = ZONES.find(z => z.badge.id === badgeId);
+        if (badgeZone) {
+          // Trigger the full victory cutscene — same path as gym win
+          stopBattleBGM();
+          setVictoryZone(badgeZone);
+          engine.setPaused(true);
+        } else {
+          // Fallback: just award the badge silently
+          setBadges(prev => { const n = new Set(prev); n.add(badgeId); return n; });
+        }
       },
       onGymEnter: (z: Zone) => {
         // Show battle intro first, then real battle + battle BGM
@@ -306,6 +316,15 @@ export function Game() {
     engineRef.current?.triggerFollowerAnim("spin");
     // Resume zone BGM
     playZoneBGM(zone.theme.ground as Parameters<typeof playZoneBGM>[0], zone.id);
+
+    // Non-gym zones (e.g. home starter token) — just flash badge, unpause, done
+    if (!zone.gym) {
+      setTimeout(() => setGotBadge(null), 1400);
+      engineRef.current?.setPaused(false);
+      showToast(`★ ${zone.badge.label.toUpperCase()} EARNED`, zone.outcome);
+      return;
+    }
+
     const gymZones = ZONES.filter(z => z.gym);
     const isLastGym = zone.id === gymZones[gymZones.length - 1]?.id;
     if (isLastGym) {
@@ -432,14 +451,12 @@ export function Game() {
           style={{ width: "100%", height: "100%", imageRendering: "pixelated", display: "block" }}
         />
 
-        {/* PixiJS post-processing: CRT scanlines + bloom glow over the game canvas */}
+        {/* PixiJS post-processing: bloom glow only — no CRT scanlines */}
         <PixiFilterOverlay
           sourceCanvas={canvasRef.current}
-          crt
+          crt={false}
           bloom
-          lineContrast={0.10}
-          vignetting={0.18}
-          bloomStrength={1.2}
+          bloomStrength={1.1}
         />
 
         {/* Zone ambient overlay */}
