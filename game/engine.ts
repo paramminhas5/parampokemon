@@ -1020,19 +1020,16 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
 
   function resize() {
     // Match canvas backing buffer to its CSS-displayed size, in TILE units.
+    // Use the actual CSS layout size (which is set by the parent container / CSS)
     const cssW = canvas.clientWidth || canvas.parentElement?.clientWidth || DEFAULT_VIEW_TILES_X * TILE;
     const cssH = canvas.clientHeight || canvas.parentElement?.clientHeight || DEFAULT_VIEW_TILES_Y * TILE;
-    // Use devicePixelRatio for crisp rendering on HiDPI displays
-    const dpr = Math.min(window.devicePixelRatio || 1, 3); // cap at 3x for perf
     // Target a roomy on-screen tile size so the world feels close, not tiny:
     const targetTilePx = cssW < 520 ? 36 : cssW < 900 ? 30 : 26;
     VIEW_TILES_X = Math.max(9, Math.min(28, Math.floor(cssW / targetTilePx)));
     VIEW_TILES_Y = Math.max(11, Math.min(22, Math.floor(cssH / targetTilePx)));
-    canvas.width = Math.round(VIEW_TILES_X * TILE * dpr);
-    canvas.height = Math.round(VIEW_TILES_Y * TILE * dpr);
-    canvas.style.width = `${VIEW_TILES_X * TILE}px`;
-    canvas.style.height = `${VIEW_TILES_Y * TILE}px`;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    // Set the backing buffer — CSS handles the display size (width:100%, height:100%)
+    canvas.width = VIEW_TILES_X * TILE;
+    canvas.height = VIEW_TILES_Y * TILE;
     ctx.imageSmoothingEnabled = false;
   }
   resize();

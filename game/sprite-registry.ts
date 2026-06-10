@@ -125,6 +125,11 @@ export const CHAMPION_BG_URL = "/sprites/ui/champion_bg.png";
 // ─── Image loader cache ───────────────────────────────────────────────────
 const cache = new Map<string, HTMLImageElement>();
 
+// ─── Tile textures (generated via fal.ai) ─────────────────────────────────
+export const TILE_TEXTURE_URL: Record<string, string> = {
+  grass: "/sprites/tiles/grass.png",
+};
+
 export function getSprite(url: string): HTMLImageElement {
   let img = cache.get(url);
   if (img) return img;
