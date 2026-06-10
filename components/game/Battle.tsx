@@ -1,9 +1,96 @@
 "use client";
 import { useEffect, useRef, useState, useCallback } from "react";
-import type { Zone, Move } from "@/game/data";
+import type { Zone, Move, Gym } from "@/game/data";
 import { ZONES, stageForBadges } from "@/game/data";
 import { CREATURE_URL, PLAYER_BACK_URL, PLAYER_FRONT_URL, BATTLE_BG_URL, LEADER_URL, getSprite, isReady } from "@/game/sprite-registry";
 import { playSound } from "@/lib/audio";
+
+// ─── Gym Leader AI — personality-driven move selection ──────────────────────
+type StrategyCtx = {
+  turn: number;
+  myHp: number;   myMaxHp: number;   // player HP
+  oppHp: number;  oppMaxHp: number;  // leader HP (unused by most strategies but available)
+  playerStageId: string;
+};
+
+function withPPFallback(preferred: number, moves: Move[]): number {
+  // Leaders have unlimited PP in this system; just validate index
+  return Math.max(0, Math.min(preferred, moves.length - 1));
+}
+
+function pickLeaderMove(gym: Gym, ctx: StrategyCtx): number {
+  const { turn, myHp, myMaxHp } = ctx;
+  const moves = gym.moves;
+  if (!moves.length) return 0;
+
+  const highestPowerIdx = () => {
+    let best = 0;
+    for (let i = 1; i < moves.length; i++) if (moves[i].power > moves[best].power) best = i;
+    return best;
+  };
+  const lowestPowerIdx = () => {
+    let best = 0;
+    for (let i = 1; i < moves.length; i++) if (moves[i].power < moves[best].power) best = i;
+    return best;
+  };
+
+  switch (gym.leader) {
+    case "blankpage":
+      // Stall: low power when player is healthy; escalate when wounded
+      return withPPFallback(myHp / myMaxHp > 0.6 ? lowestPowerIdx() : highestPowerIdx(), moves);
+
+    case "longtail":
+      // Flood: alternate 0/2 every turn; every 4th use move 3
+      if (turn % 4 === 3) return withPPFallback(Math.min(3, moves.length - 1), moves);
+      return withPPFallback(turn % 2 === 0 ? 0 : Math.min(2, moves.length - 1), moves);
+
+    case "zerorunway":
+      // Fast-pressure: always highest power
+      return withPPFallback(highestPowerIdx(), moves);
+
+    case "prehype":
+      // Educational: cycle all 4 in order so player sees every type
+      return withPPFallback(turn % moves.length, moves);
+
+    case "termsheet": {
+      // Probe: turn 0 → Normal, turn 1 → 2nd move, turn 2+ → weakness match or highest power
+      if (turn === 0) return withPPFallback(0, moves);
+      if (turn === 1) return withPPFallback(1, moves);
+      // From turn 2: prefer moves that match any weakness keyword in the move's type
+      const weakIdx = moves.findIndex(m =>
+        m.type === "Search" || m.type === "Vision" || m.type === "Ops"
+      );
+      return withPPFallback(weakIdx >= 0 ? weakIdx : highestPowerIdx(), moves);
+    }
+
+    case "noculture":
+      // Hype-build: soft start, escalate
+      if (turn < 2) return withPPFallback(Math.min(turn, moves.length - 1), moves);
+      if (turn === 2) return withPPFallback(Math.min(2, moves.length - 1), moves);
+      return withPPFallback(Math.min(3, moves.length - 1), moves);
+
+    case "blackbox":
+      // Unpredictable: random
+      return withPPFallback(Math.floor(Math.random() * moves.length), moves);
+
+    case "nobrief":
+      // Artistic: pick the move with the longest flavor text
+      return withPPFallback(
+        moves.reduce((best, m, i) => m.flavor.length > moves[best].flavor.length ? i : best, 0),
+        moves
+      );
+
+    case "statusquo": {
+      // Champion: even rotation first 2 turns; then highest power when player < 50% HP
+      if (turn < 2) return withPPFallback(turn % moves.length, moves);
+      if (myHp / myMaxHp < 0.5) return withPPFallback(highestPowerIdx(), moves);
+      return withPPFallback(turn % moves.length, moves);
+    }
+
+    default:
+      return withPPFallback(turn % moves.length, moves);
+  }
+}
 
 // ─── Type colours ───────────────────────────────────────────────────────────
 const TYPE_COLORS: Record<string, string> = {
@@ -50,6 +137,13 @@ const BATTLE_STYLES = `
   40% { transform: translateX(4px); }
   60% { transform: translateX(-3px); }
   80% { transform: translateX(2px); }
+}
+@keyframes opp-shake {
+  0%,100% { transform: translateX(0) translateY(0); }
+  20% { transform: translateX(-9px) translateY(-4px); }
+  40% { transform: translateX(9px) translateY(2px); }
+  60% { transform: translateX(-6px) translateY(-2px); }
+  80% { transform: translateX(4px) translateY(1px); }
 }
 @keyframes super-flash {
   0%   { opacity: 0; transform: scale(0.7); }
@@ -260,10 +354,10 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee }: {
       // oppRef now draws the LEADER PNG large — creature is shown as HP card thumbnail
       if (oppRef.current) {
         const c = oppRef.current.getContext("2d")!;
-        c.imageSmoothingEnabled = false; c.clearRect(0, 0, 160, 160);
+        c.imageSmoothingEnabled = false; c.clearRect(0, 0, 240, 240);
         if (leaderImg && isReady(leaderImg)) {
           const bob = Math.sin(now / 420) * 3;
-          c.drawImage(leaderImg, 4, 4 + bob, 152, 152);
+          c.drawImage(leaderImg, 4, 4 + bob, 232, 232);
         }
       }
       rafRef.current = requestAnimationFrame(loop);
@@ -332,7 +426,12 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee }: {
         setDone(true); playSound("victory");
         setTimeout(onWin, 2000); setAnimating(false); return;
       }
-      const leaderMove = gym.moves[turn % gym.moves.length];
+      const leaderMoveIdx = pickLeaderMove(gym, {
+        turn, myHp, myMaxHp: stage.hp,
+        oppHp: nextOppHp, oppMaxHp: gym.hp,
+        playerStageId: stage.id,
+      });
+      const leaderMove = gym.moves[leaderMoveIdx];
       setTimeout(() => {
         const cd = Math.max(4, Math.round(leaderMove.power * 0.55));
         const nextMyHp = Math.max(0, myHp - cd);
@@ -391,10 +490,10 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee }: {
         display: "grid", gridTemplateColumns: "1fr 1fr",
         flexShrink: 0,
         borderBottom: `2px solid ${accent}35`,
-        minHeight: 210, position: "relative", overflow: "hidden",
+        minHeight: 260, position: "relative", overflow: "hidden",
       }}>
         {/* Battle background PNG (Batch C) */}
-        <canvas ref={bgRef} width={800} height={210} style={{
+        <canvas ref={bgRef} width={800} height={260} style={{
           position: "absolute", inset: 0, width: "100%", height: "100%",
           zIndex: 0, background: arenaBg,
         }} />
@@ -438,8 +537,8 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee }: {
 
         {/* Opponent side */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", padding: "0 16px 8px 12px", justifyContent: "flex-start", position: "relative", zIndex: 2 }}>
-          <div style={{ transform: oppShake ? "translateX(9px) rotate(4deg)" : "translateX(0)", transition: "transform 0.08s", filter: `drop-shadow(0 0 24px ${accent}90)`, animation: "sprite-enter-right 0.45s cubic-bezier(0.2,0.8,0.4,1)" }}>
-            <canvas ref={oppRef} width={160} height={160} style={{ imageRendering: "pixelated", width: 148, height: 148 }} />
+          <div style={{ transform: oppShake ? "none" : "none", animation: `${oppShake ? "opp-shake 0.45s ease-out" : "sprite-enter-right 0.45s cubic-bezier(0.2,0.8,0.4,1)"}`, filter: `drop-shadow(0 0 28px ${accent}90)` }}>
+            <canvas ref={oppRef} width={240} height={240} style={{ imageRendering: "pixelated", width: 240, height: 240 }} />
           </div>
           <div style={{ background: "rgba(3,7,18,0.92)", border: `2px solid ${accent}45`, padding: "8px 10px", width: "100%", backdropFilter: "blur(4px)", borderRadius: 3 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
