@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { createEngine, TILE } from "@/game/engine";
+import { PixiFilterOverlay } from "./PixiFilterOverlay";
 import { ZONES, type Interactive, type Zone, type NpcKind, PLAYER_SPAWN, stageForBadges, type RouteNpc } from "@/game/data";
 import { DialogBox } from "./DialogBox";
 import { StartMenu } from "./StartMenu";
@@ -429,6 +430,16 @@ export function Game() {
           width={INIT_W}
           height={INIT_H}
           style={{ width: "100%", height: "100%", imageRendering: "pixelated", display: "block" }}
+        />
+
+        {/* PixiJS post-processing: CRT scanlines + bloom glow over the game canvas */}
+        <PixiFilterOverlay
+          sourceCanvas={canvasRef.current}
+          crt
+          bloom
+          lineContrast={0.10}
+          vignetting={0.18}
+          bloomStrength={1.2}
         />
 
         {/* Zone ambient overlay */}
