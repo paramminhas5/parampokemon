@@ -2,7 +2,8 @@
 
 export type Beat = "did" | "learned";
 export type NpcKind =
-  | "trainer-m" | "trainer-f" | "investor" | "engineer"
+  | "trainer-m" | "trainer-f" | "route-trainer-m" | "route-trainer-f"
+  | "investor" | "engineer"
   | "celeb" | "client" | "fan" | "tenant" | "professor" | "mom" | "rival";
 export type Dir = "up" | "down" | "left" | "right";
 
@@ -162,7 +163,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     theme: { ground: "sand", accent: "#f5b78a", landmark: "bedroom" },
     w: 26, h: 20,
     // Workshop sprawling left side, open workshop feel
-    building: { x: 2, y: 3, w: 10, h: 7, doorX: 5, color: "#e6c47a", roof: "#7a4d28" },
+    building: { x: 2, y: 3, w: 10, h: 7, doorX: 5, color: "#e6c47a", roof: "#2a1830" },
     sign: { x: -99, y: -99, text: "ORIGIN TOWN\nBuilder. Designer. Music producer.\nThe story starts here." },
     badge: { x: 22, y: 15, id: "vision", label: "Vision Badge", color: "#f5b78a" },
     npcs: [
@@ -213,7 +214,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     theme: { ground: "grass", accent: "#a8d39a", landmark: "market" },
     w: 26, h: 20,
     // Market building top-right, stalls and price tags left side
-    building: { x: 15, y: 1, w: 9, h: 7, doorX: 4, color: "#a8d39a", roof: "#3f7a3a" },
+    building: { x: 15, y: 1, w: 9, h: 7, doorX: 4, color: "#a8d39a", roof: "#1a3010" },
     sign: { x: -99, y: -99, text: "GRP MARKET\nIndia's first price-comparison engine.\nBuilt in college." },
     badge: { x: 3, y: 15, id: "ship", label: "Search Badge", color: "#a8d39a" },
     npcs: [
@@ -263,7 +264,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     theme: { ground: "stone", accent: "#f6a268", landmark: "rentals" },
     w: 26, h: 20,
     // Apartment block center-right, brick plants + fences left side
-    building: { x: 16, y: 3, w: 8, h: 8, doorX: 3, color: "#c47833", roof: "#5a2c0c" },
+    building: { x: 16, y: 3, w: 8, h: 8, doorX: 3, color: "#c47833", roof: "#3a1800" },
     sign: { x: -99, y: -99, text: "HAB DISTRICT\nBudget rentals. ₹1Cr revenue.\nZero VC money." },
     badge: { x: 3, y: 16, id: "ops", label: "Operator Badge", color: "#f6a268" },
     npcs: [
@@ -311,7 +312,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     theme: { ground: "neon", accent: "#9fe8ff", landmark: "lab" },
     w: 26, h: 20,
     // Server room far-left, neon pylon grid fills center; entry from right
-    building: { x: 1, y: 1, w: 10, h: 8, doorX: 5, color: "#4a6e9a", roof: "#1f3548" },
+    building: { x: 1, y: 1, w: 10, h: 8, doorX: 5, color: "#4a6e9a", roof: "#0a1830" },
     sign: { x: -99, y: -99, text: "QUARTIC LAB\nBuilt AI before it was a category.\n2013 chatbot · Octo · Quartic.ai" },
     badge: { x: 22, y: 7, id: "ai", label: "Conversation Badge", color: "#9fe8ff" },
     npcs: [
@@ -363,7 +364,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     theme: { ground: "dusk", accent: "#f0c4ff", landmark: "tower" },
     w: 26, h: 20,
     // Tower center, trophy room right, marble floor left
-    building: { x: 5, y: 1, w: 8, h: 10, doorX: 2, color: "#9a6fc4", roof: "#3f2266" },
+    building: { x: 5, y: 1, w: 8, h: 10, doorX: 2, color: "#9a6fc4", roof: "#2a1040" },
     sign: { x: -99, y: -99, text: "INVESTOPAD\nFamily office of Rohan & Arjun Malhotra.\nFund 0 from scratch." },
     badge: { x: 23, y: 16, id: "fund", label: "Capital Badge", color: "#f0c4ff" },
     npcs: [
@@ -419,7 +420,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     theme: { ground: "mall", accent: "#ff9fd4", landmark: "mall" },
     w: 26, h: 20,
     // Mall building center-wide, neon arches flank; sneaker racks behind sign
-    building: { x: 3, y: 2, w: 12, h: 6, doorX: 3, color: "#c0388c", roof: "#4a1240" },
+    building: { x: 3, y: 2, w: 12, h: 6, doorX: 3, color: "#c0388c", roof: "#3a0828" },
     sign: { x: -99, y: -99, text: "SOLESEARCH MALL\nIndia's sneaker & streetwear platform.\n$795K raised · CNBC-TV18." },
     badge: { x: 23, y: 10, id: "ceo", label: "Culture Badge", color: "#ff9fd4" },
     npcs: [
@@ -475,7 +476,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     theme: { ground: "crypto", accent: "#00e8a0", landmark: "trading" },
     w: 26, h: 20,
     // Trading floor right side; candlestick forest left; sign bottom-center
-    building: { x: 16, y: 2, w: 9, h: 7, doorX: 4, color: "#1a8c6e", roof: "#053d2c" },
+    building: { x: 16, y: 2, w: 9, h: 7, doorX: 4, color: "#1a8c6e", roof: "#003d2c" },
     sign: { x: -99, y: -99, text: "FERE DISTRICT\nAutonomous AI agents.\n$1.3M raised." },
     badge: { x: 5, y: 9, id: "agent", label: "Autonomy Badge", color: "#00e8a0" },
     npcs: [
@@ -526,7 +527,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     theme: { ground: "studio", accent: "#ffd29a", landmark: "studio" },
     w: 26, h: 20,
     // Studio building top-left, speakers and record player scattered right
-    building: { x: 1, y: 1, w: 9, h: 7, doorX: 4, color: "#c47844", roof: "#5a2c10" },
+    building: { x: 1, y: 1, w: 9, h: 7, doorX: 4, color: "#c47844", roof: "#2a0808" },
     sign: { x: -99, y: -99, text: "CATS CAN DANCE\nMusic label · Pet-forward brand.\nNo brief. No client." },
     badge: { x: 22, y: 15, id: "soul", label: "Soul Badge", color: "#ffd29a" },
     npcs: [
@@ -574,7 +575,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     theme: { ground: "night", accent: "#7ce0ff", landmark: "agency" },
     w: 26, h: 20,
     // HQ building top-right with trophy wall; champion archway center; contact left
-    building: { x: 15, y: 1, w: 10, h: 8, doorX: 4, color: "#4a8cc4", roof: "#1a3858" },
+    building: { x: 15, y: 1, w: 10, h: 8, doorX: 4, color: "#4a8cc4", roof: "#060c1e" },
     sign: { x: -99, y: -99, text: "ITERATE HQ\nAI-native marketing agency.\nFifteen years pointed at one target." },
     badge: { x: 4, y: 15, id: "champion", label: "Champion Badge", color: "#7ce0ff" },
     npcs: [
@@ -819,7 +820,7 @@ export const ROUTE_NPCS: RouteNpc[] = [
   // Route 3: GRP → Hab (y = 2*30 + 25 = 85)
   { x: 40, y: 85,
     name: "Early Adopter", role: "Route 3 · GRP → Hab",
-    kind: "trainer-m",
+    kind: "route-trainer-m",
     quote: "I was the 12th user of GetRightPrice.\n\nI still remember comparing prices for a Nokia phone.\n\nFirst-mover energy is real. You can feel it." },
 
   // Route 4: Hab → AI (y = 3*30 + 25 = 115)

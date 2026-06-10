@@ -1,0 +1,479 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "**Task 1.1** — `app/globals.css`: Add 5 CSS variables under `:root`:": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444751
+      },
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116453378
+      }
+    ],
+    "**Task 1.2** — `components/game/Battle.tsx`: Replace `\"#060c18\"` (inactive MoveButton background) with `\"var(--color-bg-panel)\"`. Replace `\"#0d1527\"` (HP bar track background) with `\"var(--color-bg-dark)\"`.": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444754
+      }
+    ],
+    "**Task 1.3** — `components/game/WorldMap.tsx`: Replace `#060e1e` (outer container gradient start) with `var(--color-bg-deep)` and `#040a16` (gradient end) with `var(--color-bg-void)`.": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444756
+      }
+    ],
+    "**Task 1.4** — Grep all `.tsx` files for literal strings `#07101e`, `#0d1527`, `#020508`, `#060c18`, `#04080f`. Replace each occurrence with the mapped CSS variable. Document any canvas fill calls that cannot use CSS variables with a `// canvas-only` comment.": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444757
+      }
+    ],
+    "**Task 2.1** — `components/game/ZoneTitle.tsx`: In the `particles` array definition, change `size` values so every particle is `2`:": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444759
+      }
+    ],
+    "**Task 2.2** — `components/game/ZoneTitle.tsx`: In the `particles.map()` render block, change:": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444760
+      }
+    ],
+    "**Task 3.1** — `components/game/WorldMap.tsx`: Outer container `div` — change `borderRadius: 3` → `borderRadius: 0`.": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444762
+      }
+    ],
+    "**Task 3.2** — `components/game/WorldMap.tsx`: Header sub-container — change `borderRadius: \"3px 3px 0 0\"` → `borderRadius: 0`.": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444763
+      }
+    ],
+    "**Task 3.3** — `components/game/WorldMap.tsx`: Footer sub-container — change `borderRadius: \"0 0 3px 3px\"` → `borderRadius: 0`.": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444765
+      }
+    ],
+    "**Task 3.4** — `components/game/WorldMap.tsx`: Timeline node — change `borderRadius: \"50%\"` → `borderRadius: 0`. Change `width: 14, height: 14` → `width: 8, height: 8`.": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444767
+      }
+    ],
+    "**Task 3.5** — `components/game/WorldMap.tsx`: Zone card `<button>` — change `borderRadius: 2` → `borderRadius: 0`.": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444768
+      }
+    ],
+    "**Task 3.6** — `components/game/WorldMap.tsx`: Landmark thumbnail container `div` — change `borderRadius: 2` → `borderRadius: 0`.": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444770
+      }
+    ],
+    "**Task 3.7** — `components/game/WorldMap.tsx`: Close button — change `borderRadius: 2` → `borderRadius: 0`.": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444773
+      }
+    ],
+    "**Task 3.8** — `components/game/WorldMap.tsx`: Defeated CTA badge (22×22 `div`) — change `borderRadius: \"50%\"` → `borderRadius: 0`. Change `width: 22, height: 22` → `width: 18, height: 18`.": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444775
+      }
+    ],
+    "**Task 3.9** — `components/game/WorldMap.tsx`: Visited dot (5×5 `div`) — change `borderRadius: \"50%\"` → `borderRadius: 0`.": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444777
+      }
+    ],
+    "**Task 3.10** — `components/game/WorldMap.tsx`: \"HERE\" tag span — change `borderRadius: 1` → `borderRadius: 0`.": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444778
+      }
+    ],
+    "**Task 3.11** — `components/game/WorldMap.tsx`: Timeline connector lines — remove gradient; use flat solid color:": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444780
+      }
+    ],
+    "**Task 4.1** — `game/engine.ts`: Add `const npcFacingState = new Map<string, { dir: Dir; until: number }>()` at the top of `createEngine`, before the `state` object.": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444782
+      }
+    ],
+    "**Task 4.2** — `game/engine.ts`: In the zone NPCs render loop (`for (const i of interactives)` block), replace the current facing logic with the full state machine:": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444784
+      }
+    ],
+    "**Task 4.3** — `game/engine.ts`: Apply the same facing state machine to the `ROUTE_NPCS` render loop, using `route:${rn.x}:${rn.y}` as the map key.": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444786
+      }
+    ],
+    "**Task 5.1** — `game/engine.ts`: In `render()`, add a `lerp` helper at top of the function. Replace the hard-cut `if/else if` hour-based tint block with the interpolated version using 4 tint keyframes (NIGHT, SUNRISE, DAY, DUSK) with smooth transition windows at hours 6–9, 9–10, 17–18, 20–21.": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444788
+      }
+    ],
+    "**Task 6.1** — `components/game/Battle.tsx`: Battle log `isAttack` branch — change `fontSize: 9` → `fontSize: 11`.": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444789
+      }
+    ],
+    "**Task 6.2** — `components/game/Battle.tsx`: Battle log `isFlavor` branch — change `fontSize: 11` → `fontSize: 13`. Confirm `fontStyle: \"italic\"` is present.": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444792
+      }
+    ],
+    "**Task 6.3** — `components/game/Battle.tsx`: `MoveButton` hover gradient:": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444794
+      }
+    ],
+    "**Task 7.1** — `components/game/Game.tsx`: Toast `div` inline style — change `border: \\`2px solid ${currentZone.theme.accent}50\\`` → `border: \\`2px solid ${currentZone.theme.accent}80\\``.": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444796
+      }
+    ],
+    "**Task 8.1** — `components/game/TransitionOverlay.tsx`: Change `DURATION.battle` from `800` → `600`.": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444798
+      }
+    ],
+    "**Task 8.2** — `components/game/TransitionOverlay.tsx`: Color-wash opacity:": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444800
+      }
+    ],
+    "**Task 8.3** — `components/game/TransitionOverlay.tsx`: Verify `onMidpoint` fires at `DURATION[kind] / 2 = 300ms` for battle kind. The existing `setTimeout(() => { setPhase(\"hold\"); onMidpoint?.(); }, half)` is correct — confirm the `half` variable references `DURATION[trigger.kind] / 2` after the Task 8.1 change.": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444802
+      }
+    ],
+    "**Task 8.4** — `components/game/Game.tsx`: Wire `TransitionOverlay.onMidpoint` to gate `Battle` mount:": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444804
+      }
+    ],
+    "**Task 9.1** — `game/sprite-registry.ts`: Audit `CREATURE_URL` map. Confirm entries exist for all 9 zone IDs: `origin`, `grp`, `hab`, `ai`, `investopad`, `sole`, `fere`, `ccd`, `iterate`. Add any missing entries pointing to `/sprites/creatures/{id}.png`.": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444806
+      }
+    ],
+    "**Task 9.2** — `components/game/Battle.tsx`: In the `oppRef` canvas animation loop, confirm the draw priority is:": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444808
+      }
+    ],
+    "**Task 10.1** — `components/game/Battle.tsx` + `components/game/CatchModal.tsx`: Audit wild encounter entry point. In `CatchModal.tsx`, confirm the component does not auto-fire a \"wild attacked\" turn before the player picks a move. If there is a `setTimeout` that triggers an opponent move on mount, remove it or gate it behind a player action.": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444810
+      }
+    ],
+    "**Task 10.2** — `components/game/Battle.tsx`: Confirm `Battle` props include `badges: Set<string>`. Confirm `stage = stageForBadges(badges.size)` is computed at the top of the component. Confirm `PLAYER_BACK_URL[stage.id]` is used for the player's back sprite canvas, NOT a hardcoded `mermander` string.": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444812
+      }
+    ],
+    "**Task 10.3** — `components/game/CatchModal.tsx`: If `CatchModal` has its own sprite rendering, update it to accept a `badges` prop and derive `stage = stageForBadges(badges.size)`. Use `PLAYER_BACK_URL[stage.id]` for the player back sprite. Pass `badges={badges}` from `Game.tsx` where `<CatchModal>` is mounted.": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444814
+      }
+    ],
+    "**Task 11.1** — `game/tiles.ts`: Add two new `NpcKind` palette entries to `PALETTES`:": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444815
+      }
+    ],
+    "**Task 11.2** — `game/data.ts`: In the `ROUTE_NPCS` array, change the `kind` field of each route NPC from `\"trainer-m\"` / `\"trainer-f\"` to `\"route-trainer-m\"` / `\"route-trainer-f\"` as appropriate.": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444817
+      }
+    ],
+    "**Task 12.1** — `game/tiles.ts`: Add a new exported function `drawGymWall(ctx, px0, py0, wallColor, accentColor)` that renders a distinctive gym wall tile:": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444819
+      }
+    ],
+    "**Task 12.2** — `game/engine.ts`: In the building render loop, detect gym zones (`z.gym && !state.defeatedGyms.has(z.id)`). For tiles that are `T.BUILDING_WALL` within a gym building footprint, call `drawGymWall(ctx, px, py, z.building.color, z.theme.accent)` instead of `drawTile(ctx, T.BUILDING_WALL, ...)`.": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444820
+      }
+    ],
+    "**Task 12.3** — `game/data.ts`: Update each gym zone's `building.roof` to a zone-specific dark accent value (rather than generic `#b0382c`):": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444822
+      }
+    ],
+    "**Task 13.1** — `game/engine.ts`: In the gym label rendering block, replace the current label positioning with:": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444824
+      }
+    ],
+    "**Task 14.1** — `game/data.ts`: Audit the home zone (`id: \"home\"`) building definition. Verify:": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444825
+      }
+    ],
+    "**Task 14.2** — `game/world.ts`: Confirm the `DOOR` tile is being placed at the correct coordinate for the home zone. Add a `console.assert` in development mode that the door tile coordinate matches `allInteractives()` door entry coordinates.": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444827
+      }
+    ],
+    "**Task 14.3** — `game/engine.ts`: In `interactInFront()`, ensure that when the player faces a tile containing `T.DOOR`, the `door` interactive is correctly found by matching `i.x === f.x && i.y === f.y` where `f` is the facing tile. Add a fallback: also check if the player is standing ON the door tile (not just facing it), since some layouts allow the player to step onto the door.": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444829
+      }
+    ],
+    "**Task 14.4** — Test all 10 zones: walk up to each building door and press action key. Confirm `Interior` component mounts. Fix any zone where door coordinates are mis-aligned (common issue: `doorX` off by 1, or building placed outside zone bounds).": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444831
+      }
+    ],
+    "**Task 15.1** — `game/data.ts`: For every zone with `hiddenItem: { x, y }`, verify the coordinate falls on a non-solid tile in the zone's tile grid. Cross-reference with `world.ts` to confirm the tile at `(zone.ox + hiddenItem.x, zone.oy + hiddenItem.y)` is walkable. Fix any coordinate that lands on a tree, fence, or building wall by moving it 1–2 tiles onto the nearest path tile.": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444833
+      }
+    ],
+    "**Task 15.2** — `game/engine.ts`: In `autoInteractNear()`, the hidden item detection block:": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444835
+      }
+    ],
+    "**Task 15.3** — `game/engine.ts`: Add a subtle shimmer/pulse visual on hidden item tiles in the render loop. When a hidden item exists at `(i.x, i.y)` and has not been collected, draw a 2×2 pixel pulse every 3 seconds:": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444837
+      }
+    ],
+    "**Task 16.1** — `components/game/Battle.tsx`: In `useEffect` loop (canvas draw loop), ensure every sub-canvas context sets `imageSmoothingEnabled = false`:": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444838
+      }
+    ],
+    "**Task 16.2** — `game/engine.ts`: At `createEngine`, confirm `ctx.imageSmoothingEnabled = false` is set once at creation. Also set it before every `ctx.drawImage` call for player sprite and follower sprite, since some browsers reset this after `clearRect`.": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444840
+      }
+    ],
+    "**Task 16.3** — `generate_sprites_v3.mjs`: Add a `--batch=creatures-hq` mode that regenerates all creature and player PNGs at `fal-ai/flux/dev`, 28 steps, `square_hd` (1024×1024) with the refined pixel-art prompt. Add `--batch=leaders-hq` for gym leader PNGs. Output overwrites `public/sprites/creatures/{id}.png` and `public/sprites/leaders/{id}.png`.": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444842
+      }
+    ],
+    "**Task 17.1** — `game/tiles.ts`: Add `T.TREE_TALL: 40` to the tile enum. Add `T.TREE_TALL` to `SOLID` set. Add `case T.TREE_TALL:` to `drawTile()`:": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444843
+      }
+    ],
+    "**Task 17.2** — `game/world.ts`: In the route corridor placement loop, replace every 3rd tree tile along the route side borders with `T.TREE_TALL` (seeded by position so it's deterministic). This creates height variation along corridors.": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444846
+      }
+    ],
+    "**Task 17.3** — `game/world.ts`: Add a `routePathOffset(y, routeTop, routeH)` helper function that returns a ±2 tile horizontal offset using a sine curve:": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444848
+      }
+    ],
+    "**Task 17.4** — `game/world.ts`: In the zone floor placement loop, scatter zone-specific decorative props on non-path, non-solid tiles using a seeded random:": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444850
+      }
+    ],
+    "Gym text appears on building wall, not floating": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444852
+      }
+    ],
+    "Route NPCs have distinct looks (not gym leader sprites)": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444854
+      }
+    ],
+    "Gym buildings look different from regular buildings": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444856
+      }
+    ],
+    "Entering a building opens Interior component": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444858
+      }
+    ],
+    "Hidden item pulses; collecting it shows SkillLearnOverlay": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444859
+      }
+    ],
+    "Gym battle arena shows zone creature PNG (not leader portrait)": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444861
+      }
+    ],
+    "World path has visible curves; tree heights vary": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444863
+      }
+    ],
+    "Enter any gym: transition is 600ms, flash reaches 0.9 opacity": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444865
+      }
+    ],
+    "Arena shows creature sprite large; leader is only in HP card thumbnail": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444867
+      }
+    ],
+    "Move name text is readable (≥11px)": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444869
+      }
+    ],
+    "Flavor/log text is italic and larger (13px)": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444871
+      }
+    ],
+    "**Task 18.3** — Grep verification: Run `grep -r \"#07101e\\|#0d1527\\|#020508\\|#060c18\\|#04080f\" --include=\"*.tsx\" --include=\"*.css\" .` — confirm zero matches outside of `globals.css` variable declarations.": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444873
+      }
+    ],
+    "**Task 18.4** — Commit all Phase 1–17 changes to branch `visual-polish-v2`. Push. Open PR targeting `visual-polish-v1`.": [
+      {
+        "executionId": "60f29cad-3388-4a20-a8e2-3b1c15ebbf54",
+        "chatSessionId": "341e8e62-3483-4b4d-b8cb-4f0bba70559f",
+        "timestamp": 1781116444875
+      }
+    ]
+  }
+}

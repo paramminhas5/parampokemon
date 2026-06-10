@@ -45,11 +45,12 @@ export const T = {
   PROP_CART: 37,
   PROP_DECKCHAIR: 38,
   WARPPAD: 39,
+  TREE_TALL: 40,
 } as const;
 export type TileCode = number;
 
 export const SOLID = new Set<TileCode>([
-  T.TREE, T.FENCE, T.WATER, T.BUILDING_WALL, T.BUILDING_ROOF, T.SIGN,
+  T.TREE, T.TREE_TALL, T.FENCE, T.WATER, T.BUILDING_WALL, T.BUILDING_ROOF, T.SIGN,
   T.ARCH_L, T.ARCH_R, T.PROP_SERVER, T.PROP_RACK, T.PROP_SPEAKER,
   T.PROP_PRICETAG, T.PROP_BRICK_PLANT, T.PROP_NEON_PYLON, T.PROP_CANDLESTICK,
   T.PROP_TROPHY, T.PROP_CART, T.PROP_DECKCHAIR,
@@ -208,8 +209,32 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
       }
       break;
     }
-    case T.FENCE: {
+    case T.TREE_TALL: {
+      // Taller tree — crown extends 8px above tile top
       drawTile(ctx, T.GRASS, wx, wy, px0, py0, now);
+      const crownTop = py0 - 8;
+      // Trunk
+      fillRect(ctx, px0 + 6, py0 + 8, 4, 8, "#3d2b0a");
+      fillRect(ctx, px0 + 6, py0 + 8, 1, 8, "#2a1c05");
+      fillRect(ctx, px0 + 9, py0 + 8, 1, 8, "#5a4020");
+      // Roots
+      fillRect(ctx, px0 + 4, py0 + 14, 2, 2, "#3d2b0a");
+      fillRect(ctx, px0 + 10, py0 + 14, 2, 2, "#3d2b0a");
+      // Foliage layers — taller
+      fillRect(ctx, px0 + 2, crownTop + 4, 12, 12, "#1a5c2a");
+      fillRect(ctx, px0 + 3, crownTop + 2, 10, 6, "#2a7a3a");
+      fillRect(ctx, px0 + 5, crownTop - 2, 6, 8, "#3a9a4a");
+      // Highlight blobs
+      fillRect(ctx, px0 + 4, crownTop + 3, 3, 2, "#4ab858");
+      fillRect(ctx, px0 + 9, crownTop + 5, 3, 2, "#3a9040");
+      fillRect(ctx, px0 + 6, crownTop, 2, 3, "#5aca68");
+      // Top highlight
+      fillRect(ctx, px0 + 6, crownTop - 4, 4, 4, "#4ab858");
+      // Shadow underside
+      fillRect(ctx, px0 + 2, py0 + 8, 12, 1, "#0e3a18");
+      break;
+    }
+    case T.FENCE: {      drawTile(ctx, T.GRASS, wx, wy, px0, py0, now);
       fillRect(ctx, px0, py0 + 7, TILE, 2, "#d8c098");
       fillRect(ctx, px0 + 3, py0 + 4, 2, 8, "#a88858");
       fillRect(ctx, px0 + 11, py0 + 4, 2, 8, "#a88858");
@@ -626,15 +651,35 @@ export function drawRoof(ctx: Ctx, px0: number, py0: number, color: string, shad
 
 function lighten(hex: string): string {
   const c = hex.replace("#", "");
-  const n = parseInt(c.length === 3 ? c.split("").map(x=>x+x).join("") : c, 16);
-  const r2 = Math.min(255, ((n >> 16) & 255) + 40);
+  const n = parseInt(c.length === 3 ? c.split("").map(x=>x+x).join("") : c, 16);  const r2 = Math.min(255, ((n >> 16) & 255) + 40);
   const g2 = Math.min(255, ((n >> 8) & 255) + 40);
   const b2 = Math.min(255, (n & 255) + 40);
   return `#${((1<<24)+(r2<<16)+(g2<<8)+b2).toString(16).slice(1)}`;
 }
 
-export function drawBadge(ctx: Ctx, px0: number, py0: number, color: string, phase: number) {
-  const lift = Math.sin(phase) * 2.5;
+export function drawGymWall(
+  ctx: Ctx,
+  px0: number, py0: number,
+  wallColor: string, accentColor: string
+) {
+  const S = TILE;
+  // Dark base
+  ctx.fillStyle = wallColor + "cc"; // canvas-only
+  ctx.fillRect(px0, py0, S, S);
+  // Vertical pillar stripes every 4px
+  ctx.fillStyle = accentColor + "30"; // canvas-only
+  for (let x = 0; x < S; x += 4) {
+    ctx.fillRect(px0 + x, py0, 1, S);
+  }
+  // Top accent glow strip
+  ctx.fillStyle = accentColor + "80"; // canvas-only
+  ctx.fillRect(px0, py0, S, 2);
+  // Bottom shadow
+  ctx.fillStyle = "rgba(0,0,0,0.5)";
+  ctx.fillRect(px0, py0 + S - 1, S, 1);
+}
+
+export function drawBadge(ctx: Ctx, px0: number, py0: number, color: string, phase: number) {  const lift = Math.sin(phase) * 2.5;
   const liftI = Math.floor(lift);
   // Drop shadow
   ctx.fillStyle = "rgba(0,0,0,0.4)";
@@ -683,6 +728,8 @@ const PALETTES: Record<NpcKind | "player", Palette> = {
   player:     { hair: "#1a0e08", skin: "#c8956a", shirt: "#1a1a2e", shirtAlt: "#0a0a1a", pants: "#2a3a5a", shoes: "#0a0808" },
   "trainer-m":{ hair: "#2a1810", skin: "#f0c9a0", shirt: "#3a78d8", shirtAlt: "#1f4a98", pants: "#2a2a2a", shoes: "#101010" },
   "trainer-f":{ hair: "#7a3a2a", skin: "#f0c9a0", shirt: "#d83a78", shirtAlt: "#981f4a", pants: "#3a2a4a", shoes: "#101010" },
+  "route-trainer-m": { hair: "#3a2a18", skin: "#d4a060", shirt: "#2a5040", shirtAlt: "#1a3028", pants: "#3a3a2a", shoes: "#2a1a0a" },
+  "route-trainer-f": { hair: "#c86040", skin: "#e8b890", shirt: "#7a3a58", shirtAlt: "#4a1a38", pants: "#3a2a3a", shoes: "#1a1010" },
   investor:   { hair: "#1a1a1a", skin: "#e8c098", shirt: "#202028", shirtAlt: "#0a0a10", pants: "#101018", shoes: "#3a3a3a" },
   engineer:   { hair: "#1a1a1a", skin: "#d8b890", shirt: "#3a8a6a", shirtAlt: "#1f5a40", pants: "#28384a", shoes: "#101010" },
   celeb:      { hair: "#202020", skin: "#d8a878", shirt: "#f0c870", shirtAlt: "#a08838", pants: "#2a2a2a", shoes: "#101010" },

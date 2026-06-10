@@ -440,10 +440,39 @@ const BATCH_C = [
 ];
 
 // ─── Batch registry ───────────────────────────────────────────────────────
+const BATCH_CREATURES_HQ = [
+  { id: "spark",       name: "Sparkling",    type: "Vision",   description: "Small golden spark creature" },
+  { id: "crawler",     name: "Crawlix",      type: "Search",   description: "Blue web crawler blob" },
+  { id: "rhino",       name: "Opsros",       type: "Ops",      description: "Orange brick rhino" },
+  { id: "botto",       name: "Bottoflux",    type: "AI",       description: "Cyan AI chatbot spark" },
+  { id: "falcon",      name: "Capitalcon",   type: "Capital",  description: "Purple capital falcon bird" },
+  { id: "lynx",        name: "Sneakynx",     type: "Brand",    description: "Pink sneaker lynx" },
+  { id: "wisp",        name: "Agentwisp",    type: "Autonomy", description: "Green autonomous agent wisp" },
+  { id: "cat",         name: "Discocat",     type: "Soul",     description: "Golden disco cat" },
+  { id: "core",        name: "Iteratron",    type: "Stack",    description: "Blue full-stack core robot" },
+  { id: "mermander",   name: "Mermander",    type: "Vision",   description: "Cyan starter creature builder" },
+  { id: "mermalion",   name: "Mermalion",    type: "Ops",      description: "Purple evolved operator" },
+  { id: "merlord",     name: "Merlord",      type: "Stack",    description: "Golden champion form" },
+].map(c => ({
+  id: c.id,
+  dir: "public/sprites/creatures",
+  size: "square_hd",
+  steps: 28,
+  guidance: 4.0,
+  prompt: [
+    `Pokemon GBA sprite, ${c.name}, ${c.description}, ${c.type} type,`,
+    `bold black pixel outlines, transparent background, single centered creature,`,
+    `chibi proportions, clean 16-color palette, no anti-aliasing, pure pixel art,`,
+    `high contrast, facing right, game-ready sprite, solid color background removed,`,
+    `Game Boy Advance Pokemon style, cute and memorable design`,
+  ].join(" "),
+}));
+
 const BATCHES = {
   A: { label: "BATCH A — UI / Title Art         (3 images)",  specs: BATCH_A },
   B: { label: "BATCH B — Zone Arrival Banners  (10 images)", specs: BATCH_B },
   C: { label: "BATCH C — Battle Backgrounds    (10 images)", specs: BATCH_C },
+  "creatures-hq": { label: "BATCH creatures-hq — Hi-res Creature Sprites (12 images)", specs: BATCH_CREATURES_HQ },
 };
 
 async function runBatch(key) {
@@ -471,11 +500,11 @@ async function runBatch(key) {
 async function main() {
   const keys = BATCH === "all"
     ? ["A", "B", "C"]
-    : BATCH.split(",").map(s => s.trim().toUpperCase()).filter(k => BATCHES[k]);
+    : BATCH.split(",").map(s => s.trim()).map(k => BATCHES[k.toUpperCase()] ? k.toUpperCase() : k).filter(k => BATCHES[k]);
 
   const unknown = BATCH === "all" ? [] : keys.filter(k => !BATCHES[k]);
   if (unknown.length) {
-    console.error(`❌  Unknown batch: ${unknown.join(", ")}. Valid: A, B, C`);
+    console.error(`❌  Unknown batch: ${unknown.join(", ")}. Valid: A, B, C, creatures-hq`);
     process.exit(1);
   }
 

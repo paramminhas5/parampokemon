@@ -30,10 +30,10 @@ export function WorldMap({ visited, defeated, currentId, onWarp, onClose }: {
         style={{
           width: "100%", maxWidth: 500,
           border: "2px solid #162438",
-          background: "linear-gradient(180deg, #060e1e 0%, #040a16 100%)",
+          background: `linear-gradient(180deg, var(--color-bg-deep) 0%, var(--color-bg-void) 100%)`,
           display: "flex", flexDirection: "column",
           maxHeight: "92vh",
-          borderRadius: 3,
+          borderRadius: 0,
           boxShadow: "0 0 40px rgba(124,224,255,0.06), 0 20px 60px rgba(0,0,0,0.8)",
           animation: "wm-fade 0.25s ease-out",
         }}
@@ -45,7 +45,7 @@ export function WorldMap({ visited, defeated, currentId, onWarp, onClose }: {
           padding: "12px 16px",
           borderBottom: "1px solid #101e32",
           background: "rgba(4,8,18,0.8)",
-          borderRadius: "3px 3px 0 0",
+          borderRadius: 0,
         }}>
           <div>
             <div style={{ fontFamily: "var(--font-pixel)", fontSize: 10, color: "#7ce0ff", textShadow: "0 0 16px rgba(124,224,255,0.4)" }}>
@@ -59,7 +59,7 @@ export function WorldMap({ visited, defeated, currentId, onWarp, onClose }: {
             background: "none", border: "1px solid #162438",
             color: "#2a4060", padding: "6px 10px",
             fontFamily: "var(--font-pixel)", fontSize: 9, cursor: "pointer",
-            borderRadius: 2, transition: "all 0.1s",
+            borderRadius: 0, transition: "all 0.1s",
           }}>✕</button>
         </div>
 
@@ -78,14 +78,12 @@ export function WorldMap({ visited, defeated, currentId, onWarp, onClose }: {
                   {i > 0 && (
                     <div style={{
                       width: 2, flex: 1, minHeight: 8,
-                      background: isDefeated
-                        ? `linear-gradient(to bottom, ${ZONES[i-1].theme.accent}, ${z.theme.accent})`
-                        : "#0e1c2e",
+                      background: isDefeated ? z.theme.accent : "#0e1c2e",
                     }} />
                   )}
-                  {/* Timeline node */}
+                  {/* Timeline node — square, 8×8 */}
                   <div style={{
-                    width: 14, height: 14, borderRadius: "50%", flexShrink: 0, zIndex: 2,
+                    width: 8, height: 8, borderRadius: 0, flexShrink: 0, zIndex: 2,
                     background: isCurrent
                       ? "#7ce0ff"
                       : isDefeated
@@ -115,7 +113,7 @@ export function WorldMap({ visited, defeated, currentId, onWarp, onClose }: {
                       ? `linear-gradient(135deg, ${z.theme.accent}14, ${z.theme.accent}08)`
                       : "transparent",
                     border: `1px solid ${isCurrent ? z.theme.accent + "38" : "transparent"}`,
-                    borderRadius: 2,
+                    borderRadius: 0,
                     padding: "7px 10px",
                     margin: "2px 0 2px 8px",
                     cursor: isCurrent ? "default" : "pointer",
@@ -140,7 +138,7 @@ export function WorldMap({ visited, defeated, currentId, onWarp, onClose }: {
                     width: 36, height: 36, flexShrink: 0,
                     background: `${z.theme.accent}0c`,
                     border: `1px solid ${z.theme.accent}20`,
-                    borderRadius: 2, overflow: "hidden",
+                    borderRadius: 0, overflow: "hidden",
                     display: "flex", alignItems: "center", justifyContent: "center",
                     position: "relative",
                   }}>
@@ -189,12 +187,14 @@ export function WorldMap({ visited, defeated, currentId, onWarp, onClose }: {
                           fontSize: 6, padding: "1px 4px",
                           background: "#7ce0ff18", border: "1px solid #7ce0ff35",
                           color: "#7ce0ff", fontFamily: "var(--font-pixel)",
+                          borderRadius: 0,
                         }}>HERE</span>
                       )}
                     </div>
                     <div style={{ display: "flex", gap: 8, marginTop: 2, alignItems: "center" }}>
+                      {/* Visited dot — square */}
                       <div style={{
-                        width: 5, height: 5, borderRadius: "50%",
+                        width: 5, height: 5, borderRadius: 0,
                         background: z.theme.accent, flexShrink: 0,
                         boxShadow: `0 0 3px ${z.theme.accent}`,
                       }} />
@@ -207,7 +207,7 @@ export function WorldMap({ visited, defeated, currentId, onWarp, onClose }: {
                   <div style={{ flexShrink: 0 }}>
                     {isDefeated && !isCurrent ? (
                       <div style={{
-                        width: 22, height: 22, borderRadius: "50%",
+                        width: 18, height: 18, borderRadius: 0,
                         background: `${z.theme.accent}22`,
                         border: `1.5px solid ${z.theme.accent}70`,
                         display: "flex", alignItems: "center", justifyContent: "center",
@@ -217,7 +217,7 @@ export function WorldMap({ visited, defeated, currentId, onWarp, onClose }: {
                       <span style={{
                         fontFamily: "var(--font-pixel)", fontSize: 6,
                         border: "1px solid #162438", color: "#2a4060",
-                        padding: "3px 6px", borderRadius: 1,
+                        padding: "3px 6px", borderRadius: 0,
                       }}>WARP</span>
                     ) : null}
                   </div>
@@ -232,7 +232,7 @@ export function WorldMap({ visited, defeated, currentId, onWarp, onClose }: {
           padding: "8px 16px", borderTop: "1px solid #0e1c30",
           display: "flex", justifyContent: "space-between", alignItems: "center",
           background: "rgba(2,6,14,0.7)",
-          borderRadius: "0 0 3px 3px",
+          borderRadius: 0,
         }}>
           <div style={{ fontFamily: "var(--font-pixel)", fontSize: 6, color: "#2a4060" }}>
             ★ {defeated.size}/9 GYMS · {visited.size}/{ZONES.length} VISITED

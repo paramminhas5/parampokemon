@@ -178,7 +178,7 @@ function HPBar({ current, max, label, color, shaking }: {
           {displayed}/{max}
         </span>
       </div>
-      <div style={{ height: 7, background: "#0d1527", border: "1px solid rgba(255,255,255,0.1)", overflow: "hidden", borderRadius: 0 }}>
+      <div style={{ height: 7, background: "var(--color-bg-dark)", border: "1px solid rgba(255,255,255,0.1)", overflow: "hidden", borderRadius: 0 }}>
         <div style={{
           height: "100%", width: `${pct * 100}%`,
           background: `linear-gradient(90deg, ${barColor}cc, ${barColor})`,
@@ -209,9 +209,9 @@ function MoveButton({ move, disabled, ppLeft, onClick }: {
       onMouseLeave={() => setHovered(false)}
       style={{
         background: inactive
-          ? "#060c18"
+          ? "var(--color-bg-panel)"
           : hovered
-            ? `linear-gradient(135deg, ${color}22 0%, ${color}0a 100%)`
+            ? `linear-gradient(135deg, ${color}33 0%, ${color}14 100%)`
             : `linear-gradient(135deg, ${color}14 0%, ${color}06 100%)`,
         border: `1px solid ${inactive ? "#1a2040" : hovered ? color + "90" : color + "50"}`,
         color: inactive ? "#2a3a50" : "var(--color-dialog)",
@@ -323,6 +323,7 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee, onFinishingBl
       // Draw battle background
       if (bgRef.current) {
         const c = bgRef.current.getContext("2d")!;
+        c.imageSmoothingEnabled = false;
         c.clearRect(0, 0, bgRef.current.width, bgRef.current.height);
         if (battleBgImg && isReady(battleBgImg)) {
           const scale = Math.max(bgRef.current.width / battleBgImg.naturalWidth, bgRef.current.height / battleBgImg.naturalHeight);
@@ -345,15 +346,21 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee, onFinishingBl
           c.drawImage(myBackImg, 4, 4 + bob, 120, 120);
         }
       }
-      // oppRef draws the CREATURE large on the field
+      // oppRef draws the CREATURE large on the field — never the leader portrait
       if (oppRef.current) {
         const c = oppRef.current.getContext("2d")!;
-        c.imageSmoothingEnabled = false; c.clearRect(0, 0, 240, 240);
-        // Show the creature as the main battle sprite; fall back to leader portrait
-        const drawImg = oppCreatureImg && isReady(oppCreatureImg) ? oppCreatureImg : leaderImg;
-        if (drawImg && isReady(drawImg)) {
+        c.imageSmoothingEnabled = false;
+        c.clearRect(0, 0, 240, 240);
+        if (oppCreatureImg && isReady(oppCreatureImg)) {
           const bob = Math.sin(now / 420) * 3;
-          c.drawImage(drawImg, 8, 8 + bob, 224, 224);
+          c.drawImage(oppCreatureImg, 8, 8 + bob, 224, 224);
+        } else {
+          // Procedural fallback — accent silhouette, NOT the leader portrait
+          const bob = Math.sin(now / 420) * 3;
+          c.fillStyle = accent + "50"; // canvas-only
+          c.fillRect(32, 32 + bob, 176, 176);
+          c.fillStyle = accent + "30"; // canvas-only
+          c.fillRect(48, 48 + bob, 144, 144);
         }
       }
       rafRef.current = requestAnimationFrame(loop);
@@ -588,7 +595,7 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee, onFinishingBl
               {isAttack ? (
                 /* Attack name — largest, accent-coloured */
                 <div style={{
-                  fontFamily: "var(--font-pixel)", fontSize: 9,
+                  fontFamily: "var(--font-pixel)", fontSize: 11,
                   color: l.type ? (TYPE_COLORS[l.type] ?? "#c8d8f0") : "#c8d8f0",
                   display: "flex", alignItems: "center", gap: 6, marginTop: 4,
                 }}>
@@ -607,7 +614,7 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee, onFinishingBl
               ) : isFlavor ? (
                 /* Flavor text — italic, slightly smaller, muted — this is the story moment */
                 <div style={{
-                  fontFamily: "var(--font-mono)", fontSize: 11,
+                  fontFamily: "var(--font-mono)", fontSize: 13,
                   color: "#6a88b0", fontStyle: "italic",
                   paddingLeft: 12, lineHeight: 1.55,
                   borderLeft: "2px solid #1a2a40",

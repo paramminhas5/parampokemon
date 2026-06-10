@@ -575,7 +575,7 @@ export function Game() {
             transform: "translateX(-50%)",
             zIndex: 25, pointerEvents: "none",
             background: "rgba(4,8,20,0.96)",
-            border: `2px solid ${currentZone.theme.accent}50`,
+            border: `2px solid ${currentZone.theme.accent}80`,
             padding: "8px 14px", textAlign: "center", maxWidth: 300,
             animation: "pq-fade-in 0.18s ease-out",
             boxShadow: `0 0 16px ${currentZone.theme.accent}20`,
@@ -675,7 +675,7 @@ export function Game() {
         {battleIntro && (
           <BattleIntro
             zone={battleIntro}
-            onComplete={() => { setBattleIntro(null); setBattle(battleIntro); }}
+            onComplete={() => { setBattleIntro(null); }}
           />
         )}
         {battle && (
@@ -836,7 +836,16 @@ export function Game() {
         )}
 
         {/* Screen transition overlay — always on top */}
-        <TransitionOverlay trigger={transition} />
+        <TransitionOverlay
+          trigger={transition}
+          onMidpoint={() => {
+            if (battleIntro) {
+              const z = battleIntro;
+              setBattleIntro(null);
+              setBattle(z);
+            }
+          }}
+        />
 
         {/* Touch D-pad — only visible on touch devices, hidden on desktop via CSS */}
         {!isModalOpen && (

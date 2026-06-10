@@ -10,7 +10,7 @@ interface Props {
 
 const DURATION: Record<TransitionKind, number> = {
   zone: 600,
-  battle: 800,
+  battle: 600,
   warp: 500,
   none: 0,
 };
@@ -84,7 +84,7 @@ export function TransitionOverlay({ trigger, onMidpoint }: Props) {
         <div style={{
           position: "absolute", inset: 0,
           background: activeColor,
-          opacity: phase === "in" ? 0.7 : 0,
+          opacity: (phase === "in" || phase === "hold") ? 0.9 : 0,
           transition: phase === "in" ? "opacity 0.15s" : "opacity 0.4s",
         }} />
       </div>

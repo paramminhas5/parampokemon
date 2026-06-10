@@ -12,7 +12,7 @@ import {
   FOLLOWER_SPRITE_URL, FOLLOWER_BACK_URL, FOLLOWER_LEFT_URL, FOLLOWER_RIGHT_URL,
 } from "./sprite-registry";
 import {
-  TILE, SOLID, T, drawTile, drawBadge, drawCharacter, drawRoof,
+  TILE, SOLID, T, drawTile, drawBadge, drawCharacter, drawRoof, drawGymWall,
 } from "./tiles";
 import { drawLandmark } from "./landmarks";
 import { drawFollower } from "./sprites";
@@ -80,6 +80,9 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
   // Canvas shake state
   let shakeUntil = 0;
   let shakeAmp = 0;
+
+  // NPC facing state — remembers last facing dir for 2 seconds after player walks away
+  const npcFacingState = new Map<string, { dir: Dir; until: number }>();
 
   const world = buildWorld();
   const worldH = world.length;
@@ -172,6 +175,17 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
 
   function interactInFront() {
     const f = facingTile();
+    // Also check if player is standing ON the door tile itself (some building layouts)
+    const playerDoor = interactives.find((i) => i.kind === "door" && i.x === state.tx && i.y === state.ty);
+    if (playerDoor && playerDoor.kind === "door") {
+      if (playerDoor.zone.gym && !state.defeatedGyms.has(playerDoor.zone.id)) {
+        if (gymUnlocked(playerDoor.zone.id, state.collectedBadges)) cb.onGymEnter(playerDoor.zone);
+        else cb.onInteract({ kind: "sign", zone: playerDoor.zone, sign: { x: state.tx, y: state.ty, text: `${playerDoor.zone.name.toUpperCase()}\n\nThis gym is sealed.\nDefeat the previous champions first.` }, x: state.tx, y: state.ty });
+      } else {
+        cb.onDoorEnter(playerDoor.zone);
+      }
+      return;
+    }
     // door first
     const door = interactives.find((i) => i.kind === "door" && i.x === f.x && i.y === f.y);
     if (door && door.kind === "door") {
@@ -391,15 +405,20 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
             const my = zz.oy + zz.building.y + zz.building.h; // mat is one south of door
             return mx === state.tx && my === state.ty;
           });
-          if (matZone && matZone.gym && !state.defeatedGyms.has(matZone.id)) {
-            if (gymUnlocked(matZone.id, state.collectedBadges)) {
-              cb.onGymEnter(matZone);
-            } else {
-              cb.onInteract({
-                kind: "sign", zone: matZone,
-                sign: { x: state.tx, y: state.ty, text: `${matZone.name.toUpperCase()}\n\nThis gym is sealed.\nDefeat the previous champions first.` },
-                x: state.tx, y: state.ty,
-              });
+          if (matZone) {
+            if (matZone.gym && !state.defeatedGyms.has(matZone.id)) {
+              if (gymUnlocked(matZone.id, state.collectedBadges)) {
+                cb.onGymEnter(matZone);
+              } else {
+                cb.onInteract({
+                  kind: "sign", zone: matZone,
+                  sign: { x: state.tx, y: state.ty, text: `${matZone.name.toUpperCase()}\n\nThis gym is sealed.\nDefeat the previous champions first.` },
+                  x: state.tx, y: state.ty,
+                });
+              }
+            } else if (!matZone.gym) {
+              // Non-gym building: also enter on mat step
+              cb.onDoorEnter(matZone);
             }
           }
         }
@@ -473,29 +492,28 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
     ctx.fillStyle = "#08101a";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Day/night ambient tint based on local clock hour
-    const hour = new Date().getHours();
-    let ambientColor: string;
-    let ambientAlpha: number;
-    if (hour >= 6 && hour < 9) {
-      // Sunrise: warm amber
-      ambientColor = "rgba(255,180,80,";
-      ambientAlpha = 0.08;
-    } else if (hour >= 9 && hour < 17) {
-      // Day: neutral (no tint)
-      ambientColor = "rgba(255,255,200,";
-      ambientAlpha = 0.02;
-    } else if (hour >= 17 && hour < 20) {
-      // Dusk: blue-orange
-      ambientColor = "rgba(80,120,220,";
-      ambientAlpha = 0.10;
-    } else {
-      // Night: deep blue
-      ambientColor = "rgba(10,20,80,";
-      ambientAlpha = 0.18;
-    }
-    if (ambientAlpha > 0) {
-      ctx.fillStyle = `${ambientColor}${ambientAlpha})`;
+    // Smooth day/night ambient tint based on local clock with minute-level interpolation
+    {
+      const lerp = (a: number, b: number, f: number) =>
+        a + (b - a) * Math.max(0, Math.min(1, f));
+      type Tint = { r: number; g: number; b: number; a: number };
+      const TINT_NIGHT:   Tint = { r: 10,  g: 15,  b: 60,  a: 0.18 };
+      const TINT_SUNRISE: Tint = { r: 255, g: 180, b: 80,  a: 0.08 };
+      const TINT_DAY:     Tint = { r: 255, g: 255, b: 200, a: 0.02 };
+      const TINT_DUSK:    Tint = { r: 80,  g: 100, b: 220, a: 0.10 };
+      const hr = new Date().getHours();
+      const mn = new Date().getMinutes();
+      const tc = hr + mn / 60;
+      let tint: Tint;
+      if      (tc < 6)  { tint = TINT_NIGHT; }
+      else if (tc < 9)  { const f = (tc-6)/3;  tint = { r:lerp(TINT_NIGHT.r,TINT_SUNRISE.r,f), g:lerp(TINT_NIGHT.g,TINT_SUNRISE.g,f), b:lerp(TINT_NIGHT.b,TINT_SUNRISE.b,f), a:lerp(TINT_NIGHT.a,TINT_SUNRISE.a,f) }; }
+      else if (tc < 10) { const f = (tc-9)/1;  tint = { r:lerp(TINT_SUNRISE.r,TINT_DAY.r,f), g:lerp(TINT_SUNRISE.g,TINT_DAY.g,f), b:lerp(TINT_SUNRISE.b,TINT_DAY.b,f), a:lerp(TINT_SUNRISE.a,TINT_DAY.a,f) }; }
+      else if (tc < 17) { tint = TINT_DAY; }
+      else if (tc < 18) { const f = (tc-17)/1; tint = { r:lerp(TINT_DAY.r,TINT_DUSK.r,f), g:lerp(TINT_DAY.g,TINT_DUSK.g,f), b:lerp(TINT_DAY.b,TINT_DUSK.b,f), a:lerp(TINT_DAY.a,TINT_DUSK.a,f) }; }
+      else if (tc < 20) { tint = TINT_DUSK; }
+      else if (tc < 21) { const f = (tc-20)/1; tint = { r:lerp(TINT_DUSK.r,TINT_NIGHT.r,f), g:lerp(TINT_DUSK.g,TINT_NIGHT.g,f), b:lerp(TINT_DUSK.b,TINT_NIGHT.b,f), a:lerp(TINT_DUSK.a,TINT_NIGHT.a,f) }; }
+      else              { tint = TINT_NIGHT; }
+      ctx.fillStyle = `rgba(${Math.round(tint.r)},${Math.round(tint.g)},${Math.round(tint.b)},${tint.a.toFixed(3)})`; // canvas-only
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
@@ -521,30 +539,53 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
           b.w === 1 ? "solo" : bx === 0 ? "left" : bx === b.w - 1 ? "right" : "mid";
         drawRoof(ctx, wx * TILE + offX, ry * TILE + offY, b.color, b.roof, kind);
       }
-      ctx.fillStyle = b.color + "22";
+      ctx.fillStyle = b.color + "22"; // canvas-only
       ctx.fillRect((b.x + z.ox) * TILE + offX, (b.y + 1 + z.oy) * TILE + offY, b.w * TILE, (b.h - 1) * TILE);
+
+      // Gym buildings get distinctive accent walls
+      if (z.gym && !state.defeatedGyms.has(z.id)) {
+        // More imposing fill for gym buildings
+        ctx.fillStyle = b.color + "40"; // canvas-only
+        ctx.fillRect(
+          (b.x + z.ox) * TILE + offX,
+          (b.y + 1 + z.oy) * TILE + offY,
+          b.w * TILE,
+          (b.h - 1) * TILE
+        );
+        // Draw gym wall tiles over the building body
+        for (let bx2 = 0; bx2 < b.w; bx2++) {
+          for (let by2 = 1; by2 < b.h - 1; by2++) {
+            drawGymWall(
+              ctx,
+              (b.x + bx2 + z.ox) * TILE + offX,
+              (b.y + by2 + z.oy) * TILE + offY,
+              b.color, z.theme.accent
+            );
+          }
+        }
+      }
 
       // landmark for this zone (only when on-screen)
       if (z.oy + z.h >= ty0 - 4 && z.oy <= ty1 + 4) {
         drawLandmark(ctx, z, offX, offY, now);
       }
 
-      // GYM text label painted directly on the building front wall
+      // GYM label painted on building front wall face
       if (z.gym && !state.defeatedGyms.has(z.id)) {
         const doorWx = z.ox + z.building.x + z.building.doorX;
         const buildFrontY = z.oy + z.building.y + z.building.h - 1;
         if (doorWx >= tx0 - 1 && doorWx <= tx1 + 1 && buildFrontY >= ty0 - 1 && buildFrontY <= ty1 + 1) {
+          const wallStartY = (z.oy + z.building.y + 1) * TILE + offY;
           const labelX = (z.ox + z.building.x) * TILE + offX + 2;
-          const labelY = (z.oy + z.building.y + 1) * TILE + offY + 4;
           const labelW = z.building.w * TILE - 4;
-          // Background strip on building wall
-          ctx.fillStyle = "rgba(2,5,14,0.72)";
-          ctx.fillRect(labelX, labelY, labelW, 9);
+          // Background strip on wall face
+          ctx.fillStyle = "rgba(0,0,0,0.82)";
+          ctx.fillRect(labelX, wallStartY + 2, labelW, 11);
           // GYM text
-          ctx.fillStyle = z.theme.accent;
-          ctx.font = "bold 7px monospace";
+          ctx.fillStyle = z.theme.accent; // canvas-only
+          ctx.font = "bold 8px monospace";
           ctx.textAlign = "center";
-          ctx.fillText("⚔ GYM", (z.ox + z.building.x) * TILE + offX + (z.building.w * TILE) / 2, labelY + 7);
+          ctx.fillText("⚔ GYM", labelX + labelW / 2, wallStartY + 11);
           ctx.textAlign = "left";
         }
       }
@@ -568,22 +609,27 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       }
     }
 
-    // NPCs — with idle bob animation, face toward player when nearby
+    // NPCs — with idle bob animation, face toward player when nearby (with 2s revert timer)
     for (const i of interactives) {
       if (i.kind !== "npc") continue;
       if (i.x < tx0 - 1 || i.x > tx1 + 1 || i.y < ty0 - 1 || i.y > ty1 + 1) continue;
       const f = (Math.floor(now / 600 + i.x * 0.3) % 8 === 0 ? 1 : 0) as 0 | 1;
       const npcBob = Math.round(Math.sin(now / 800 + i.x * 1.3) * 1.5);
-      // Compute NPC facing direction toward player when nearby
-      let npcDir: Dir = "down";
+      // NPC facing with 2-second revert timer
+      const npcKey = `${i.zone.id}:${i.x}:${i.y}`;
       const ndx = state.tx - i.x;
       const ndy = state.ty - i.y;
-      if (Math.abs(ndx) <= 2 && Math.abs(ndy) <= 2) {
-        if (Math.abs(ndx) >= Math.abs(ndy)) {
-          npcDir = ndx > 0 ? "right" : "left";
-        } else {
-          npcDir = ndy > 0 ? "down" : "up";
-        }
+      const dist = Math.abs(ndx) + Math.abs(ndy);
+      let npcDir: Dir = "down";
+      if (dist <= 2) {
+        const computed: Dir = Math.abs(ndx) >= Math.abs(ndy)
+          ? (ndx > 0 ? "right" : "left")
+          : (ndy > 0 ? "down" : "up");
+        npcFacingState.set(npcKey, { dir: computed, until: now + 2000 });
+        npcDir = computed;
+      } else {
+        const stored = npcFacingState.get(npcKey);
+        if (stored && stored.until > now) npcDir = stored.dir;
       }
       drawCharacter(ctx, i.npc.kind, npcDir, f, i.x * TILE + offX, i.y * TILE + offY + npcBob);
     }
@@ -593,15 +639,21 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       if (rn.x < tx0 - 1 || rn.x > tx1 + 1 || rn.y < ty0 - 1 || rn.y > ty1 + 1) continue;
       const f = (Math.floor(now / 700 + rn.x * 0.4) % 8 === 0 ? 1 : 0) as 0 | 1;
       const bob = Math.round(Math.sin(now / 900 + rn.x * 1.1) * 1.5);
-      let rnDir: Dir = "down";
+      // Route NPC facing with 2-second revert timer
+      const rnKey = `route:${rn.x}:${rn.y}`;
       const rndx = state.tx - rn.x;
       const rndy = state.ty - rn.y;
-      if (Math.abs(rndx) <= 2 && Math.abs(rndy) <= 2) {
-        if (Math.abs(rndx) >= Math.abs(rndy)) {
-          rnDir = rndx > 0 ? "right" : "left";
-        } else {
-          rnDir = rndy > 0 ? "down" : "up";
-        }
+      const rndist = Math.abs(rndx) + Math.abs(rndy);
+      let rnDir: Dir = "down";
+      if (rndist <= 2) {
+        const computed: Dir = Math.abs(rndx) >= Math.abs(rndy)
+          ? (rndx > 0 ? "right" : "left")
+          : (rndy > 0 ? "down" : "up");
+        npcFacingState.set(rnKey, { dir: computed, until: now + 2000 });
+        rnDir = computed;
+      } else {
+        const stored = npcFacingState.get(rnKey);
+        if (stored && stored.until > now) rnDir = stored.dir;
       }
       drawCharacter(ctx, rn.kind, rnDir, f, rn.x * TILE + offX, rn.y * TILE + offY + bob);
     }
@@ -639,8 +691,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       if (img && isReady(img)) {
         const size = Math.round(TILE * 1.4);
         ctx.imageSmoothingEnabled = false;
-        ctx.drawImage(img, bx + (TILE - size) / 2, by + (TILE - size) / 2 + bob, size, size);
-      } else {
+        ctx.drawImage(img, bx + (TILE - size) / 2, by + (TILE - size) / 2 + bob, size, size);      } else {
         // fallback dot
         ctx.fillStyle = i.zone.theme.accent;
         ctx.fillRect(bx + 4, by + 4 + bob, TILE - 8, TILE - 8);
@@ -654,6 +705,25 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         ctx.fillStyle = "#e83a3a";
         ctx.fillRect(bx + TILE - 5, by - 7 + bob, 1, 4);
         ctx.fillRect(bx + TILE - 5, by - 1 + bob, 1, 1);
+      }
+    }
+
+    // Hidden item shimmer — subtle pulse so player can find items
+    for (const i of interactives) {
+      if (i.kind !== "hidden") continue;
+      if (state.collectedSkills.has(i.zone.skill?.id ?? "")) continue;
+      if (i.x < tx0 - 1 || i.x > tx1 + 1 || i.y < ty0 - 1 || i.y > ty1 + 1) continue;
+      // Pulse once every 3 seconds for 400ms
+      const pulsePhase = now % 3000;
+      if (pulsePhase < 400) {
+        const alpha = Math.sin((pulsePhase / 400) * Math.PI);
+        const alphaHex = Math.round(alpha * 200).toString(16).padStart(2, "0");
+        ctx.fillStyle = i.zone.theme.accent + alphaHex; // canvas-only
+        ctx.fillRect(
+          i.x * TILE + offX + TILE / 2 - 2,
+          i.y * TILE + offY + TILE / 2 - 2,
+          4, 4
+        );
       }
     }
 

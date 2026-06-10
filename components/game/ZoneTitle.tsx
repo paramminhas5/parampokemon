@@ -96,7 +96,7 @@ export function ZoneTitle({ zone, onDone }: { zone: Zone; onDone: () => void }) 
     left: `${8 + (i * 37.1 + 3) % 84}%`,
     delay: `${(i * 0.18) % 1.4}s`,
     dur:   `${1.1 + (i % 5) * 0.22}s`,
-    size:  i % 3 === 0 ? 5 : 3,
+    size:  2,
   }));
 
   return (
@@ -149,8 +149,8 @@ export function ZoneTitle({ zone, onDone }: { zone: Zone; onDone: () => void }) 
           left: p.left,
           width: p.size, height: p.size,
           background: accent,
-          borderRadius: "50%",
-          boxShadow: `0 0 8px ${accent}`,
+          borderRadius: 0,
+          boxShadow: "none",
           animation: `zt-particle ${p.dur} ${p.delay} ease-out infinite`,
           opacity: 0,
         }} />

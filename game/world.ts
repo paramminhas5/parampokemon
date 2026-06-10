@@ -12,6 +12,13 @@ const ROUTE_H = 10;
 const PATH_X1 = 37;
 const PATH_X2 = 43; // exclusive — 6 tiles total
 
+// ─── Path curve helper — returns ±2 tile horizontal S-curve offset ─────────
+function routePathOffset(y: number, routeTop: number, routeH: number, amp: number = 2): number {
+  if (routeH <= 0) return 0;
+  const t = (y - routeTop) / routeH;
+  return Math.round(Math.sin(t * Math.PI * 1.5) * amp);
+}
+
 // ─── Per-zone props (thematic decorations) ─────────────────────────────────
 const ZONE_PROPS: Record<string, TileCode[]> = {
   home:       [T.PROP_DECKCHAIR, T.FLOWER_Y, T.FLOWER_R, T.FENCE],
@@ -100,8 +107,7 @@ export function buildWorld(): TileCode[][] {
       if (z.oy - 1 >= 0 && !isPathCol) grid[z.oy - 1][x] = T.TREE;
       const byBottom = z.oy + z.h;
       if (byBottom < h && !isPathCol) grid[byBottom][x] = T.TREE;
-    }
-  }
+    }  }
 
   // ── Step 4: Central path corridor ────────────────────────────────────
   for (let y = 2; y < h - 2; y++) {
@@ -159,36 +165,53 @@ function paintRoutes(grid: TileCode[][], w: number, h: number) {
     // Right wall: cols PATH_X2+2..w-3 get solid trees
     // This forces the player down the corridor — no wandering off
     for (let y = zoneBottom + 1; y < nextTop - 1; y++) {
+      const routeTop = zoneBottom + 1;
+      const routeH = nextTop - 1 - routeTop;
+      const pathOffset = routePathOffset(y, routeTop, routeH);
+      const shiftedX1 = Math.max(PATH_X1 - 1, Math.min(PATH_X1 + 1, PATH_X1 + pathOffset));
+      const shiftedX2 = shiftedX1 + (PATH_X2 - PATH_X1);
+
       // Left dense forest wall (3 tiles deep)
-      for (let x = 3; x < PATH_X1 - 2; x++) {
+      for (let x = 3; x < shiftedX1 - 2; x++) {
         const r = sr(x, y, i + 500);
-        if (r < 0.78) grid[y][x] = T.TREE;
+        if (r < 0.78) {
+          const isTall = sr(x, y, i + 900) < 0.33;
+          grid[y][x] = isTall ? T.TREE_TALL : T.TREE;
+        }
       }
       // Left shoulder (1-2 tile buffer next to path — light scatter)
-      for (let x = PATH_X1 - 2; x < PATH_X1; x++) {
+      for (let x = shiftedX1 - 2; x < shiftedX1; x++) {
         const r = sr(x, y, i + 600);
         if (r < 0.30) grid[y][x] = T.TREE;
       }
       // Right shoulder
-      for (let x = PATH_X2; x < PATH_X2 + 2; x++) {
+      for (let x = shiftedX2; x < shiftedX2 + 2; x++) {
         const r = sr(x, y, i + 700);
         if (r < 0.30) grid[y][x] = T.TREE;
       }
       // Right dense forest wall (3 tiles deep)
-      for (let x = PATH_X2 + 2; x < w - 3; x++) {
+      for (let x = shiftedX2 + 2; x < w - 3; x++) {
         const r = sr(x, y, i + 800);
-        if (r < 0.78) grid[y][x] = T.TREE;
+        if (r < 0.78) {
+          const isTall = sr(x, y, i + 901) < 0.33;
+          grid[y][x] = isTall ? T.TREE_TALL : T.TREE;
+        }
       }
     }
 
     // Theme-specific route fill (path corridor only)
     for (let y = zoneBottom + 1; y < nextTop - 1; y++) {
-      const inPath = (x: number) => x >= PATH_X1 && x < PATH_X2;
+      const routeTop2 = zoneBottom + 1;
+      const routeH2 = nextTop - 1 - routeTop2;
+      const pathOff2 = routePathOffset(y, routeTop2, routeH2);
+      const px1 = Math.max(PATH_X1 - 1, Math.min(PATH_X1 + 1, PATH_X1 + pathOff2));
+      const px2 = px1 + (PATH_X2 - PATH_X1);
+      void ((x: number) => x >= px1 && x < px2); // path check available for themes
 
       switch (theme) {
         case "meadow": {
           // Scatter flowers on the path itself for beauty
-          for (let x = PATH_X1; x < PATH_X2; x++) {
+          for (let x = px1; x < px2; x++) {
             const r = sr(x, y, i + 1000);
             if (r < 0.10) grid[y][x] = T.FLOWER_R;
             else if (r < 0.20) grid[y][x] = T.FLOWER_Y;
@@ -196,7 +219,7 @@ function paintRoutes(grid: TileCode[][], w: number, h: number) {
           break;
         }
         case "forest": {
-          for (let x = PATH_X1; x < PATH_X2; x++) {
+          for (let x = px1; x < px2; x++) {
             const r = sr(x, y, i + 1001);
             if (r < 0.06) grid[y][x] = T.FLOWER_Y;
           }
@@ -206,14 +229,14 @@ function paintRoutes(grid: TileCode[][], w: number, h: number) {
           // Water strip crosses OUTSIDE the path corridor only — never block the player
           if (y >= routeMid - 1 && y <= routeMid + 1) {
             for (let x = 3; x < w - 3; x++) {
-              if (x >= PATH_X1 - 1 && x <= PATH_X2) continue; // keep path clear
+              if (x >= px1 - 1 && x <= px2) continue; // keep path clear
               grid[y][x] = T.WATER;
             }
           }
           break;
         }
         case "neon": {
-          for (let x = PATH_X1; x < PATH_X2; x++) {
+          for (let x = px1; x < px2; x++) {
             const r = sr(x, y, i + 1003);
             if (r < 0.04) grid[y][x] = T.PROP_NEON_PYLON;
             else if (r < 0.12) grid[y][x] = T.NEON_FLOOR;
@@ -221,7 +244,7 @@ function paintRoutes(grid: TileCode[][], w: number, h: number) {
           break;
         }
         case "mall": {
-          for (let x = PATH_X1; x < PATH_X2; x++) {
+          for (let x = px1; x < px2; x++) {
             const r = sr(x, y, i + 1004);
             if (r < 0.04) grid[y][x] = T.PROP_RACK;
             else if (r < 0.10) grid[y][x] = T.MALL_FLOOR;
@@ -229,7 +252,7 @@ function paintRoutes(grid: TileCode[][], w: number, h: number) {
           break;
         }
         case "crypto": {
-          for (let x = PATH_X1; x < PATH_X2; x++) {
+          for (let x = px1; x < px2; x++) {
             const r = sr(x, y, i + 1005);
             if (r < 0.05) grid[y][x] = T.PROP_CANDLESTICK;
             else if (r < 0.14) grid[y][x] = T.CRYPTO_FLOOR;
@@ -237,7 +260,7 @@ function paintRoutes(grid: TileCode[][], w: number, h: number) {
           break;
         }
         case "garden": {
-          for (let x = PATH_X1; x < PATH_X2; x++) {
+          for (let x = px1; x < px2; x++) {
             const r = sr(x, y, i + 1006);
             if (r < 0.10) grid[y][x] = T.FLOWER_Y;
             else if (r < 0.18) grid[y][x] = T.FLOWER_R;
@@ -245,7 +268,7 @@ function paintRoutes(grid: TileCode[][], w: number, h: number) {
           break;
         }
         case "skyline": {
-          for (let x = PATH_X1; x < PATH_X2; x++) {
+          for (let x = px1; x < px2; x++) {
             const r = sr(x, y, i + 1007);
             if (r < 0.05) grid[y][x] = T.PROP_TROPHY;
             else if (r < 0.11) grid[y][x] = T.NIGHT_FLOOR;
@@ -253,7 +276,7 @@ function paintRoutes(grid: TileCode[][], w: number, h: number) {
           break;
         }
         case "boulders": {
-          for (let x = PATH_X1; x < PATH_X2; x++) {
+          for (let x = px1; x < px2; x++) {
             const r = sr(x, y, i + 1002);
             if (r < 0.06) grid[y][x] = T.STONE;
           }
@@ -303,8 +326,14 @@ function addZoneTreeClusters(grid: TileCode[][], z: typeof ZONES[0], w: number, 
     const bx1 = ox + z.building.x, bx2 = ox + z.building.x + z.building.w;
     const by1 = oy + z.building.y, by2 = oy + z.building.y + z.building.h + 2;
     if (gx >= bx1 - 1 && gx <= bx2 + 1 && gy >= by1 - 1 && gy <= by2 + 1) return false;
+    // Never block door or mat tiles
+    const doorWx = ox + z.building.x + z.building.doorX;
+    const doorWy = oy + z.building.y + z.building.h - 1;
+    if (gx === doorWx && (gy === doorWy || gy === doorWy + 1 || gy === doorWy + 2)) return false;
     // Never on badge position
     if (gx === ox + z.badge.x && gy === oy + z.badge.y) return false;
+    // Never place on hidden item tile
+    if (z.hiddenItem && gx === ox + z.hiddenItem.x && gy === oy + z.hiddenItem.y) return false;
     // Never overwrite non-base tiles (sign, badge, etc.)
     if (grid[gy][gx] !== base) return false;
     return true;
