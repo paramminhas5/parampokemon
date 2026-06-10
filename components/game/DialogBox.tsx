@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import type { GameDialog } from "./Game";
 import type { NpcKind } from "@/game/data";
 import { drawCharacter } from "@/game/tiles";
@@ -23,7 +23,6 @@ const KIND_ACCENT: Partial<Record<NpcKind | "sign" | "badge", string>> = {
   sign:        "#5570aa",
   badge:       "#ffd24a",
 };
-
 function NpcPortrait({ kind, accent }: { kind: NpcKind; accent: string }) {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
@@ -63,15 +62,25 @@ function NpcPortrait({ kind, accent }: { kind: NpcKind; accent: string }) {
 }
 
 export function DialogBox({ dialog, onClose }: { dialog: NonNullable<GameDialog>; onClose: () => void }) {
-  const fullText = dialog.type === "npc"
+  const singleText = dialog.type === "npc"
     ? dialog.quote
     : dialog.type === "sign"
     ? dialog.text
     : `${dialog.label} obtained!\n\n${dialog.outcome}`;
 
+  // Multi-beat support: npc dialogs can have a beats array
+  const beats: string[] = (dialog.type === "npc" && dialog.beats && dialog.beats.length > 0)
+    ? dialog.beats
+    : [singleText];
+
+  const [beatIndex, setBeatIndex] = useState(0);
   const [shown, setShown] = useState(0);
   const [done, setDone] = useState(false);
 
+  const currentText = beats[beatIndex];
+  const isLastBeat = beatIndex === beats.length - 1;
+
+  // Reset typewriter whenever beat changes
   useEffect(() => {
     setShown(0);
     setDone(false);
@@ -80,8 +89,8 @@ export function DialogBox({ dialog, onClose }: { dialog: NonNullable<GameDialog>
     const tick = () => {
       if (cancelled) return;
       i += CHARS_PER_FRAME;
-      if (i >= fullText.length) {
-        setShown(fullText.length);
+      if (i >= currentText.length) {
+        setShown(currentText.length);
         setDone(true);
         return;
       }
@@ -90,19 +99,32 @@ export function DialogBox({ dialog, onClose }: { dialog: NonNullable<GameDialog>
     };
     const id = setTimeout(tick, FRAME_MS);
     return () => { cancelled = true; clearTimeout(id); };
-  }, [fullText]);
+  }, [currentText, beatIndex]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const advance = useCallback(() => {
+    if (!done) {
+      // Finish typing current beat instantly
+      setShown(currentText.length);
+      setDone(true);
+    } else if (!isLastBeat) {
+      // Advance to next beat
+      setBeatIndex(b => b + 1);
+    } else {
+      // Final beat — close
+      onClose();
+    }
+  }, [done, isLastBeat, currentText.length, onClose]);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key === " " || e.key === "Enter" || e.key === "z" || e.key === "Z" || e.key === "Escape") {
         e.preventDefault();
-        if (!done) { setShown(fullText.length); setDone(true); }
-        else onClose();
+        advance();
       }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [done, fullText.length, onClose]);
+  }, [advance]);
 
   const isNpc   = dialog.type === "npc";
   const isBadge = dialog.type === "badge";
@@ -119,10 +141,13 @@ export function DialogBox({ dialog, onClose }: { dialog: NonNullable<GameDialog>
 
   const subLabel = isNpc ? dialog.role : undefined;
 
+  // Beat progress indicator (e.g. "1 / 3") shown when more beats remain
+  const showBeatCount = beats.length > 1;
+
   return (
     <div
       className="fixed inset-0 z-30 flex items-end justify-center"
-      onClick={() => done ? onClose() : (setShown(fullText.length), setDone(true))}
+      onClick={() => advance()}
       style={{
         background: "rgba(0,0,0,0.28)",
         paddingBottom: "calc(env(safe-area-inset-bottom) + 16px)",
@@ -156,7 +181,7 @@ export function DialogBox({ dialog, onClose }: { dialog: NonNullable<GameDialog>
               fontSize: 22, color: accentColor,
             }}>★</div>
           )}
-          <div style={{ minWidth: 0 }}>
+          <div style={{ minWidth: 0, flex: 1 }}>
             <div style={{
               fontFamily: "var(--font-pixel)", fontSize: 9,
               color: accentColor, letterSpacing: "0.06em",
@@ -168,6 +193,14 @@ export function DialogBox({ dialog, onClose }: { dialog: NonNullable<GameDialog>
               }}>{subLabel}</div>
             )}
           </div>
+          {/* Beat indicator */}
+          {showBeatCount && (
+            <div style={{
+              fontFamily: "var(--font-pixel)", fontSize: 6,
+              color: accentColor + "70", letterSpacing: "0.08em",
+              flexShrink: 0,
+            }}>{beatIndex + 1}/{beats.length}</div>
+          )}
         </div>
 
         {/* Text body */}
@@ -176,11 +209,12 @@ export function DialogBox({ dialog, onClose }: { dialog: NonNullable<GameDialog>
             whiteSpace: "pre-wrap", minHeight: 56,
             fontSize: 17, lineHeight: 1.45,
           }}>
-            {fullText.slice(0, shown)}
+            {currentText.slice(0, shown)}
             {!done && <span className="pq-blink">▌</span>}
           </div>
         </div>
 
+        {/* Arrow: blinks when done. On last beat it means "close", otherwise "next" */}
         {done && <div className="pq-dialog-arrow" />}
       </div>
     </div>

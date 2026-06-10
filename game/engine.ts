@@ -3,7 +3,7 @@
 import {
   ZONES, PLAYER_SPAWN, allInteractives, zoneAt, gymUnlocked,
   ROUTE_NPCS,
-  type Dir, type Interactive, type Zone,
+  type Dir, type Interactive, type Zone, type RouteNpc,
 } from "./data";
 import { buildWorld } from "./world";
 import {
@@ -40,12 +40,15 @@ export type GameState = {
   collectedCreatures: Set<string>;
   collectedSkills: Set<string>;
   defeatedGyms: Set<string>;
+  defeatedTrainers: Set<string>;
   visitedZones: Set<string>;
   paused: boolean;
   path: { x: number; y: number }[];
   playerStage: string;
   /** Follower only shows after Prof. Iterate gives Mermander */
   followerUnlocked: boolean;
+  /** Follower animation state */
+  followerAnim: { kind: "idle" | "jump" | "spin"; startedAt: number };
 };
 
 type InputName = "up" | "down" | "left" | "right" | "action" | "menu";
@@ -60,6 +63,10 @@ export type EngineCallbacks = {
   onWild: (zone: Zone) => void;
   /** Called when player enters a non-gym building door — triggers interior */
   onDoorEnter: (zone: Zone) => void;
+  /** Called when player steps on an undiscovered hidden item tile */
+  onHiddenItem: (zone: Zone) => void;
+  /** Called when player interacts with a route trainer NPC */
+  onTrainerBattle: (npc: RouteNpc) => void;
 };
 
 export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
@@ -93,11 +100,13 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
     collectedCreatures: new Set(),
     collectedSkills: new Set(),
     defeatedGyms: new Set(),
+    defeatedTrainers: new Set(),
     visitedZones: new Set([ZONES[0].id]),
     paused: false,
     path: [],
     playerStage: "mermander",
     followerUnlocked: false,
+    followerAnim: { kind: "idle", startedAt: 0 },
   };
 
   const input: Input = { up: false, down: false, left: false, right: false, action: false, menu: false };
@@ -224,8 +233,27 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         const key = `n:${npc.zone.id}:${npc.npc.name}`;
         if (key !== lastAutoKey || performance.now() - lastAutoAt > 8000) {
           lastAutoKey = key; lastAutoAt = performance.now();
-          cb.onInteract(npc);
+          // Check if this NPC is a route trainer that hasn't been defeated
+          const routeNpc = ROUTE_NPCS.find(rn => rn.name === npc.npc.name && rn.trainer);
+          if (routeNpc && routeNpc.trainer && !state.defeatedTrainers.has(routeNpc.name)) {
+            cb.onTrainerBattle(routeNpc);
+          } else {
+            cb.onInteract(npc);
+          }
           return;
+        }
+      }
+      // Hidden item detection — fires when player steps directly on the tile
+      if (n.x === here.x && n.y === here.y) {
+        const hidden = interactives.find((i) => i.kind === "hidden" && i.x === n.x && i.y === n.y);
+        if (hidden && hidden.kind === "hidden" && !state.collectedSkills.has(hidden.zone.skill?.id ?? "")) {
+          const key = `h:${hidden.zone.id}`;
+          if (key !== lastAutoKey || performance.now() - lastAutoAt > 8000) {
+            lastAutoKey = key; lastAutoAt = performance.now();
+            state.collectedSkills.add(hidden.zone.skill!.id);
+            cb.onHiddenItem(hidden.zone);
+            return;
+          }
         }
       }
     }
@@ -614,6 +642,33 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       const fbx = Math.round(followerX * TILE) + offX;
       const fby = Math.round(followerY * TILE) + offY;
       if (followerX !== state.tx || followerY !== state.ty) {
+        // Compute follower animation offset
+        const anim = state.followerAnim;
+        const elapsed = now - anim.startedAt;
+        let followerOffsetY = 0;
+        let followerRotation = 0;
+
+        if (anim.kind === "jump") {
+          if (elapsed < 120) {
+            followerOffsetY = -Math.sin((elapsed / 120) * Math.PI) * 10;
+          } else if (elapsed < 240) {
+            followerOffsetY = -Math.sin(((elapsed - 120) / 120) * Math.PI) * 10 * (1 - (elapsed - 120) / 120);
+          } else {
+            state.followerAnim = { kind: "idle", startedAt: 0 };
+          }
+        } else if (anim.kind === "spin") {
+          if (elapsed < 400) {
+            followerRotation = (elapsed / 400) * Math.PI * 2;
+          } else {
+            state.followerAnim = { kind: "idle", startedAt: 0 };
+          }
+        }
+
+        // Increased idle bob: 2.5px amplitude
+        const idleBob = anim.kind === "idle"
+          ? Math.round(Math.sin(now / 350) * 2.5)
+          : 0;
+
         // Pick directional follower sprite (faces toward player = opposite of player dir)
         let followerUrl: string | undefined;
         if (state.dir === "up")         followerUrl = FOLLOWER_BACK_URL[state.playerStage];
@@ -622,10 +677,23 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         else                            followerUrl = FOLLOWER_RIGHT_URL[state.playerStage];
 
         const followerImg = followerUrl ? getSprite(followerUrl) : null;
+        const size = Math.round(TILE * 1.2);
+        const drawX = fbx + (TILE - size) / 2;
+        const drawY = fby + (TILE - size) / 2 + followerOffsetY + idleBob;
+
         if (followerImg && isReady(followerImg)) {
-          const size = Math.round(TILE * 1.2);
           ctx.imageSmoothingEnabled = false;
-          ctx.drawImage(followerImg, fbx + (TILE - size) / 2, fby + (TILE - size) / 2, size, size);
+          if (followerRotation !== 0) {
+            const cx2 = drawX + size / 2;
+            const cy2 = drawY + size / 2;
+            ctx.save();
+            ctx.translate(cx2, cy2);
+            ctx.rotate(followerRotation);
+            ctx.drawImage(followerImg, -size / 2, -size / 2, size, size);
+            ctx.restore();
+          } else {
+            ctx.drawImage(followerImg, drawX, drawY, size, size);
+          }
         } else {
           const followerFrame = (state.stepCount % 2 === 0 ? 1 : 0) as 0 | 1 | 2;
           drawFollower(ctx, state.playerStage as "mermander" | "mermalion" | "merlord", fbx, fby, followerFrame);
@@ -662,8 +730,15 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       state.defeatedGyms.add(zoneId);
       state.collectedBadges.add(badgeId);
     },
+    markTrainerDefeated(npcName: string) {
+      state.defeatedTrainers.add(npcName);
+    },
     addCreature(id: string) { state.collectedCreatures.add(id); },
     addSkill(id: string) { state.collectedSkills.add(id); },
+    triggerFollowerAnim(kind: "jump" | "spin") {
+      if (!state.followerUnlocked) return;
+      state.followerAnim = { kind, startedAt: performance.now() };
+    },
     /** Fast-travel: teleport the player to a zone's spawn / landmark tile. */
     warpTo(zoneId: string) {
       const z = ZONES.find((x) => x.id === zoneId);

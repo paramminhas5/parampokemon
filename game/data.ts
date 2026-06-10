@@ -14,7 +14,8 @@ export type GameNpc = {
   x: number; y: number;
   name: string;
   role: string;
-  quote: string;
+  quote?: string;
+  beats?: string[];
   kind: NpcKind;
   beat: Beat;
   special?: "press-trigger" | "contact";
@@ -104,6 +105,7 @@ export type Zone = {
   gym?: Gym;
   cliff: CliffNotes;
   spawn?: { x: number; y: number };
+  hiddenItem?: { x: number; y: number };
 };
 
 // ─── Zones ─────────────────────────────────────────────────────
@@ -123,11 +125,24 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     spawn: { x: 13, y: 14 },
     npcs: [
       { x: 5, y: 15, name: "Mom", role: "Pallet Town", kind: "mom", beat: "did",
-        quote: "Take care out there, sweetheart. Fifteen years is a long road.\n\nRemember: shipping beats waiting. I love you.\n\nP.S. — Use WORLD SELECT to jump to any zone. Non-linear is the point." },
+        quote: "Take care out there, sweetheart.",
+        beats: [
+          "Take care out there, sweetheart. Fifteen years is a long road.",
+          "And if you're reading this — you, the person scrolling through Param's career right now — thanks for being here. This is his life's work.\n\nP.S. — Use WORLD SELECT to jump to any zone. Non-linear is the point."
+        ] },
       { x: 23, y: 4, name: "Prof. Iterate", role: "Pokémon Professor", kind: "professor", beat: "learned",
-        quote: "Welcome to PARAM QUEST!\n\nHere — take MERMANDER. He's small, but he grows. Every world drops a SKILL BERRY. Feed them to Mermander and he evolves.\n\nBeat 4 gyms → Mermalion. Beat 8 → Merlord.\n\nHit WORLD SELECT (top-right) to jump anywhere, anytime." },
+        quote: "Welcome to PARAM QUEST!",
+        beats: [
+          "You're holding 15 years of Param's career in your hands.\n\nWalk through it.",
+          "Here — take MERMANDER. He's small, but he grows. Every world drops a SKILL BERRY. Feed them to Mermander and he evolves.\n\nBeat 4 gyms → Mermalion. Beat 8 → Merlord.",
+          "Each gym boss is a real obstacle Param faced. Beat them. Read the CliffNotes after. You'll understand why he built what he built.\n\nHit WORLD SELECT (top-right) to jump anywhere, anytime."
+        ] },
       { x: 9, y: 17, name: "Rival", role: "Childhood Friend", kind: "rival", beat: "did",
-        quote: "Wait — before you go.\n\nYou're really just going to walk out there and start building things?\n\nFine. But when you come back with badges, I want to see them.\n\nGo on then. The world's waiting." },
+        quote: "Wait — before you go.",
+        beats: [
+          "Wait — before you go.\n\nYou're really just going to walk out there and start building things?",
+          "Fine. But I'll be watching.\n\nWhen you come back with badges — when you've walked through every chapter — I want to see what you've learned.\n\nGo on then. The world's waiting."
+        ] },
       { x: 18, y: 14, name: "Neighbour Kid", role: "Pallet Town", kind: "fan", beat: "did",
         quote: "I heard Param wrote his first line of code at 9.\n\nI can't even do maths.\n\nMaybe I should try." },
     ],
@@ -154,7 +169,10 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
       { x: 4, y: 16, name: "Param", role: "Builder · Designer · Director", kind: "trainer-m", beat: "did",
         quote: "Builder, designer, creative director, music producer.\n\nFifteen years across e-commerce, real estate, AI, sneakers, music, and AI-led marketing." },
       { x: 20, y: 12, name: "The throughline", role: "What ties it together", kind: "celeb", beat: "learned",
-        quote: "Every chapter compounds into the next.\nThe skills carry over.\n\nThe only constant is shipping." },
+        beats: [
+          "Every chapter compounds into the next. The skills carry over.",
+          "You're walking through that compounding right now. Each zone you visit — that's a real thing Param built, with real stakes.\n\nThe only constant is shipping."
+        ] },
       { x: 8, y: 8, name: "Old Classmate", role: "Origin Town", kind: "trainer-f", beat: "did",
         quote: "He was building websites and making music while the rest of us figured out what to study.\n\nNobody called it a career back then. He just called it Tuesday." },
     ],
@@ -165,19 +183,20 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     gym: {
       opponentName: "The Blank Page",
       opponentTitle: "Origin Gym Leader",
-      intro: "So you want to build. Prove it. Make something where nothing was.",
+      intro: "You want to build something where nothing was. Go on then. Make it.",
       hp: 60,
       weakTo: ["Vision", "Brand"],
       resists: [],
       moves: [
-        { id: "doubt", name: "Creeping Doubt", type: "Ghost", power: 12, pp: 20, accuracy: 95, category: "special", flavor: "The Blank Page fills your screen with uncertainty." },
-        { id: "procrastinate", name: "Procrastinate", type: "Normal", power: 8, pp: 30, accuracy: 100, category: "status", flavor: "'Just one more day of planning...'", effect: "buff" },
-        { id: "early", name: "Too Early", type: "Ghost", power: 18, pp: 15, accuracy: 90, category: "special", flavor: "Nobody's done this before. Maybe there's a reason." },
-        { id: "noone", name: "Nobody Cares", type: "Dark", power: 22, pp: 10, accuracy: 85, category: "special", flavor: "The market is indifferent. It always is, at first." },
+        { id: "doubt", name: "Creeping Doubt", type: "Ghost", power: 12, pp: 20, accuracy: 95, category: "special", flavor: "The cursor blinks. Nothing comes. Sound familiar?" },
+        { id: "procrastinate", name: "Procrastinate", type: "Normal", power: 8, pp: 30, accuracy: 100, category: "status", flavor: "'Just one more day of planning...' You know this voice.", effect: "buff" },
+        { id: "early", name: "Too Early", type: "Ghost", power: 18, pp: 15, accuracy: 90, category: "special", flavor: "Nobody's done this before. Maybe there's a reason — or maybe you're just first." },
+        { id: "noone", name: "Nobody Cares", type: "Dark", power: 22, pp: 10, accuracy: 85, category: "special", flavor: "The market is indifferent. It always is, at first. Ship anyway." },
       ],
-      victory: "First shipped thing. The hardest one.",
+      victory: "You made the first thing. That's the hardest one. Now keep going.",
       leader: "blankpage",
     },
+    hiddenItem: { x: 18, y: 14 },
     cliff: {
       era: "Pune · Pre-2010",
       did: ["First product at 19", "First company at 21"],
@@ -214,19 +233,20 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     gym: {
       opponentName: "The Long Tail",
       opponentTitle: "GRP Gym Leader",
-      intro: "Millions of SKUs. Pennies of margin. Move.",
+      intro: "Millions of SKUs. Pennies of margin. You think you can index all of it? Move.",
       hp: 70,
       weakTo: ["Search", "Vision"],
       resists: ["Brand"],
       moves: [
-        { id: "sku", name: "SKU Flood", type: "Normal", power: 15, pp: 25, accuracy: 100, category: "special", flavor: "Millions of products. Which one matters?" },
-        { id: "margin", name: "Thin Margins", type: "Steel", power: 20, pp: 15, accuracy: 95, category: "physical", flavor: "Affiliate economics squeeze hard." },
-        { id: "crawl", name: "Crawl Rate", type: "Bug", power: 25, pp: 10, accuracy: 90, category: "special", flavor: "The pipeline backs up. Inventory goes stale." },
-        { id: "affiliate", name: "Affiliate Zero", type: "Poison", power: 30, pp: 5, accuracy: 85, category: "special", flavor: "Commissions disappear overnight.", effect: "crit" },
+        { id: "sku", name: "SKU Flood", type: "Normal", power: 15, pp: 25, accuracy: 100, category: "special", flavor: "Millions of products. Which one matters to your user? Pick fast." },
+        { id: "margin", name: "Thin Margins", type: "Steel", power: 20, pp: 15, accuracy: 95, category: "physical", flavor: "Affiliate economics squeeze hard. You feel that yet?" },
+        { id: "crawl", name: "Crawl Rate", type: "Bug", power: 25, pp: 10, accuracy: 90, category: "special", flavor: "The pipeline backs up. Inventory goes stale. Can you keep up?" },
+        { id: "affiliate", name: "Affiliate Zero", type: "Poison", power: 30, pp: 5, accuracy: 85, category: "special", flavor: "Commissions disappear overnight. Now what?", effect: "crit" },
       ],
-      victory: "First product surfaced. First check cleared.",
+      victory: "You found the signal in the noise. First product surfaced. First check cleared.",
       leader: "longtail",
     },
+    hiddenItem: { x: 5, y: 11 },
     cliff: {
       era: "College · 2010",
       did: ["India's first price-comparison engine for electronics", "Angel-backed by Sidharth Rao (Webchutney)"],
@@ -261,19 +281,20 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     gym: {
       opponentName: "Zero Runway",
       opponentTitle: "Hab Gym Leader",
-      intro: "No fund. No safety net. Build a real business.",
+      intro: "No fund. No safety net. You want to build a real business? Prove it — with your own money on the line.",
       hp: 80,
       weakTo: ["Ops", "Search"],
       resists: ["AI"],
       moves: [
-        { id: "cashburn", name: "Cash Burn", type: "Fire", power: 18, pp: 20, accuracy: 100, category: "special", flavor: "Wait — there is no cash. But the burn still happens." },
-        { id: "tenant", name: "Tenant Left", type: "Ghost", power: 22, pp: 15, accuracy: 90, category: "physical", flavor: "Three units vacant. Rent day is tomorrow." },
-        { id: "margins", name: "Margin Squeeze", type: "Steel", power: 26, pp: 10, accuracy: 90, category: "special", flavor: "Real estate margins are unforgiving." },
-        { id: "runway", name: "Zero Runway", type: "Dark", power: 32, pp: 5, accuracy: 80, category: "special", flavor: "Build a real business or the lights go out.", effect: "crit" },
+        { id: "cashburn", name: "Cash Burn", type: "Fire", power: 18, pp: 20, accuracy: 100, category: "special", flavor: "Wait — there is no cash. The burn still happens. Feel that pressure?" },
+        { id: "tenant", name: "Tenant Left", type: "Ghost", power: 22, pp: 15, accuracy: 90, category: "physical", flavor: "Three units vacant. Rent day is tomorrow. What's your move?" },
+        { id: "margins", name: "Margin Squeeze", type: "Steel", power: 26, pp: 10, accuracy: 90, category: "special", flavor: "Real estate margins are unforgiving. You knew that going in." },
+        { id: "runway", name: "Zero Runway", type: "Dark", power: 32, pp: 5, accuracy: 80, category: "special", flavor: "Build a real business or the lights go out. Your choice.", effect: "crit" },
       ],
-      victory: "₹1Cr in. Operations sold. Lesson kept.",
+      victory: "₹1Cr in. Operations sold. You understand what bootstrapped actually means now.",
       leader: "zerorunway",
     },
+    hiddenItem: { x: 6, y: 12 },
     cliff: {
       era: "Bengaluru · 2012-13",
       did: ["Standardised budget rentals across Bengaluru", "Scaled to ₹1Cr revenue", "Sold operations cleanly"],
@@ -308,19 +329,20 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     gym: {
       opponentName: "Pre-Hype Market",
       opponentTitle: "Quartic Gym Leader",
-      intro: "Nobody's heard of chatbots. Or AI. Or you. Sell it anyway.",
+      intro: "Nobody's heard of chatbots. Or AI. Or you. You're going to sell it anyway? Good luck.",
       hp: 90,
       weakTo: ["AI", "Vision"],
       resists: ["Ops"],
       moves: [
-        { id: "whatis", name: "What's a Chatbot?", type: "Normal", power: 15, pp: 25, accuracy: 100, category: "status", flavor: "Market confusion is real. Nobody searched for this." },
-        { id: "early2", name: "Too Early Again", type: "Psychic", power: 22, pp: 15, accuracy: 95, category: "special", flavor: "You're ahead of the curve. The curve doesn't care." },
-        { id: "nosearch", name: "Zero Search Volume", type: "Ghost", power: 28, pp: 10, accuracy: 90, category: "special", flavor: "No SEO. No ads. No playbook. Pure missionary." },
-        { id: "adoption", name: "Adoption Gap", type: "Ice", power: 35, pp: 5, accuracy: 85, category: "special", flavor: "Even great tech needs a bridge to humans.", effect: "crit" },
+        { id: "whatis", name: "What's a Chatbot?", type: "Normal", power: 15, pp: 25, accuracy: 100, category: "status", flavor: "Market confusion is real. Nobody searched for this. How do you explain what doesn't exist yet?" },
+        { id: "early2", name: "Too Early Again", type: "Psychic", power: 22, pp: 15, accuracy: 95, category: "special", flavor: "You're ahead of the curve. The curve doesn't care about your timeline." },
+        { id: "nosearch", name: "Zero Search Volume", type: "Ghost", power: 28, pp: 10, accuracy: 90, category: "special", flavor: "No SEO. No ads. No playbook. Pure missionary selling. Still want to?" },
+        { id: "adoption", name: "Adoption Gap", type: "Ice", power: 35, pp: 5, accuracy: 85, category: "special", flavor: "Even great tech needs a bridge to humans. You're that bridge.", effect: "crit" },
       ],
-      victory: "Octo acquired. Direction set.",
+      victory: "You sold the invisible. Octo acquired. Your direction is set — keep going.",
       leader: "prehype",
     },
+    hiddenItem: { x: 20, y: 14 },
     cliff: {
       era: "2013-17 · AI before AI",
       did: ["One of India's first chatbots in 2013", "Co-built Octo (acquired by Quartic.ai)", "Led marketing as Director"],
@@ -350,7 +372,10 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
       { x: 22, y: 12, name: "Portfolio", role: "Companies worked with", kind: "client", beat: "did",
         quote: "Meesho, Entri, Simsim, Amazon, Forbes.\n\nAcross growth, brand, and product strategy." },
       { x: 9, y: 7, name: "Rohan Malhotra", role: "Investopad · Family Office", kind: "investor", beat: "learned",
-        quote: "The best growth partners don't just execute.\n\nThey think like founders.\n\nParam was in the room when it mattered." },
+        beats: [
+          "The best growth partners don't just execute. They think like founders.",
+          "If you're looking at this portfolio — you, right now — ask yourself: do you want someone who's been on both sides of the table?\n\nParam was in the room when it mattered."
+        ] },
     ],
     creature: { id: "falcon", name: "Capitalcon", type: "Capital", power: 24, color: "#f0c4ff", shape: "bird",
       description: "Term Sheet's falcon. Spots deals at a thousand decks.", from: "investopad" },
@@ -359,19 +384,20 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     gym: {
       opponentName: "Term Sheet",
       opponentTitle: "Investopad Gym Leader",
-      intro: "From the other side of the table now. Defend the thesis.",
+      intro: "You're on the other side of the table now. Defend your thesis. I'm listening.",
       hp: 100,
       weakTo: ["Capital", "Ops"],
       resists: ["Brand"],
       moves: [
-        { id: "moat", name: "Where's the Moat?", type: "Steel", power: 20, pp: 20, accuracy: 100, category: "special", flavor: "Every investor's first question. Have your answer ready." },
-        { id: "whynow", name: "Why Now?", type: "Psychic", power: 25, pp: 15, accuracy: 95, category: "special", flavor: "Timing is everything. Prove yours." },
-        { id: "cohort", name: "Show the Cohort", type: "Water", power: 30, pp: 10, accuracy: 90, category: "special", flavor: "Retention curves don't lie. Neither do unit economics." },
-        { id: "dilution", name: "Dilution Threat", type: "Dark", power: 38, pp: 5, accuracy: 85, category: "special", flavor: "The cap table is a weapon in the wrong hands.", effect: "crit" },
+        { id: "moat", name: "Where's the Moat?", type: "Steel", power: 20, pp: 20, accuracy: 100, category: "special", flavor: "Every investor's first question. What's yours? Have it ready." },
+        { id: "whynow", name: "Why Now?", type: "Psychic", power: 25, pp: 15, accuracy: 95, category: "special", flavor: "Timing is everything. Prove that your timing is right." },
+        { id: "cohort", name: "Show the Cohort", type: "Water", power: 30, pp: 10, accuracy: 90, category: "special", flavor: "Retention curves don't lie. Neither do unit economics. Show me yours." },
+        { id: "dilution", name: "Dilution Threat", type: "Dark", power: 38, pp: 5, accuracy: 85, category: "special", flavor: "The cap table is a weapon in the wrong hands. Do you know your numbers?", effect: "crit" },
       ],
-      victory: "Fund 0 stood up. Reputation built.",
+      victory: "Fund 0 stood up. Reputation built. You understand the other side of the table now.",
       leader: "termsheet",
     },
+    hiddenItem: { x: 20, y: 14 },
     cliff: {
       era: "Post-Octo · Venture",
       did: ["Helped build Fund I from scratch", "Worked with Meesho, Entri, Simsim, Amazon, Forbes", "In the room while portfolio companies raised"],
@@ -414,19 +440,20 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     gym: {
       opponentName: "No Sneaker Culture",
       opponentTitle: "SoleSearch Gym Leader",
-      intro: "India doesn't have sneaker culture. Build one.",
+      intro: "India doesn't have sneaker culture. You're going to build it from nothing. Tell me why you think you can.",
       hp: 110,
       weakTo: ["Brand", "Capital"],
       resists: ["Search"],
       moves: [
-        { id: "whocare", name: "Who Cares About a Shoe?", type: "Normal", power: 18, pp: 25, accuracy: 100, category: "status", flavor: "The Indian market doesn't get hype culture. Yet." },
-        { id: "nopress", name: "Press Won't Show", type: "Ghost", power: 24, pp: 15, accuracy: 95, category: "special", flavor: "Media only covers what already has momentum." },
-        { id: "auth", name: "Authentication Nightmare", type: "Poison", power: 30, pp: 10, accuracy: 90, category: "physical", flavor: "Fakes flood the market. Trust is everything." },
-        { id: "hype", name: "Hype Dies", type: "Dark", power: 40, pp: 5, accuracy: 85, category: "special", flavor: "Culture is fragile. Build something real underneath.", effect: "crit" },
+        { id: "whocare", name: "Who Cares About a Shoe?", type: "Normal", power: 18, pp: 25, accuracy: 100, category: "status", flavor: "The Indian market doesn't get hype culture. You're going to change that? Go on." },
+        { id: "nopress", name: "Press Won't Show", type: "Ghost", power: 24, pp: 15, accuracy: 95, category: "special", flavor: "Media only covers what already has momentum. You'll have to earn it." },
+        { id: "auth", name: "Authentication Nightmare", type: "Poison", power: 30, pp: 10, accuracy: 90, category: "physical", flavor: "Fakes flood the market. Trust is everything. Can you protect it?" },
+        { id: "hype", name: "Hype Dies", type: "Dark", power: 40, pp: 5, accuracy: 85, category: "special", flavor: "Culture is fragile. You'd better have something real underneath.", effect: "crit" },
       ],
-      victory: "₹26cr+ sold. CNBC on the wall. Culture built.",
+      victory: "₹26cr+ sold. CNBC on the wall. You walked in when there was no culture and walked out with one.",
       leader: "noculture",
     },
+    hiddenItem: { x: 21, y: 15 },
     cliff: {
       era: "2020-24 · Sneakers + Streetwear",
       did: ["$795K raised", "30+ live events", "₹26cr+ yearly sales", "Retail in Mumbai & Hyderabad"],
@@ -455,7 +482,10 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
       { x: 8, y: 17, name: "Fere.ai", role: "AI × Crypto · 2024-25", kind: "engineer", beat: "did",
         quote: "A year-long project with Akshaya Aron — a decade after Octo.\n\nAutonomous AI agents for financial markets. Starting with crypto." },
       { x: 24, y: 15, name: "Full circle", role: "What Fere taught me", kind: "investor", beat: "learned",
-        quote: "When agents act autonomously, you're not selling a product.\n\nYou're building trust in something invisible." },
+        beats: [
+          "When agents act autonomously, you're not selling a product. You're building trust in something invisible.",
+          "If you're a founder or investor reading this — that's exactly the challenge Param solved here.\n\nTrust. Not demo. Trust."
+        ] },
       { x: 4, y: 10, name: "Ethereal Ventures", role: "Lead Investor · Fere $1.3M", kind: "investor", beat: "did",
         quote: "We led the $1.3M round because the thesis was clear and the team had done this before.\n\nSecond-time founders with the same core team. That's the rarest thing." },
     ],
@@ -466,19 +496,20 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     gym: {
       opponentName: "The Black Box",
       opponentTitle: "Fere Gym Leader",
-      intro: "Your product acts on its own. People can't see it. Sell it.",
+      intro: "Your product acts on its own. People can't see it. They can't touch it. Can you make them trust it?",
       hp: 120,
       weakTo: ["Autonomy", "AI"],
       resists: ["Ops"],
       moves: [
-        { id: "dashboard", name: "Show the Dashboard", type: "Electric", power: 20, pp: 25, accuracy: 100, category: "special", flavor: "Users demand visibility. The black box gives none." },
-        { id: "trustagent", name: "Trust an Agent?", type: "Ghost", power: 28, pp: 15, accuracy: 95, category: "special", flavor: "Giving control to AI is a leap of faith most won't make." },
-        { id: "cryptoloud", name: "Crypto is Loud", type: "Sound", power: 34, pp: 10, accuracy: 90, category: "special", flavor: "Every scam makes the real work harder to see." },
-        { id: "invisible", name: "The Invisible Product", type: "Psychic", power: 42, pp: 5, accuracy: 85, category: "special", flavor: "Marketing something nobody can touch.", effect: "crit" },
+        { id: "dashboard", name: "Show the Dashboard", type: "Electric", power: 20, pp: 25, accuracy: 100, category: "special", flavor: "Users demand visibility. The black box gives none. What do you show them?" },
+        { id: "trustagent", name: "Trust an Agent?", type: "Ghost", power: 28, pp: 15, accuracy: 95, category: "special", flavor: "Giving control to AI is a leap of faith. You need to earn that leap." },
+        { id: "cryptoloud", name: "Crypto is Loud", type: "Sound", power: 34, pp: 10, accuracy: 90, category: "special", flavor: "Every scam makes your legitimate work harder to see. Break through." },
+        { id: "invisible", name: "The Invisible Product", type: "Psychic", power: 42, pp: 5, accuracy: 85, category: "special", flavor: "Marketing something nobody can touch. That's your challenge.", effect: "crit" },
       ],
-      victory: "$1.3M raised. 10M+ actions live.",
+      victory: "$1.3M raised. 10M+ actions live. You made people trust the invisible — that's rare.",
       leader: "blackbox",
     },
+    hiddenItem: { x: 5, y: 15 },
     cliff: {
       era: "2024-25 · AI × Crypto",
       did: ["Supported the $1.3M raise (Ethereal Ventures-led)", "10M+ autonomous actions at launch", "Full-circle with Akshaya"],
@@ -513,19 +544,20 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     gym: {
       opponentName: "No Brief",
       opponentTitle: "CCD Gym Leader",
-      intro: "No client. No deck. Make something that has to exist.",
+      intro: "No client. No deck. No permission. Make something that has to exist — if you can explain why.",
       hp: 90,
       weakTo: ["Soul", "Brand"],
       resists: ["Capital"],
       moves: [
-        { id: "kpi", name: "What's the KPI?", type: "Normal", power: 15, pp: 25, accuracy: 100, category: "status", flavor: "Creative work that can't be measured makes clients nervous." },
-        { id: "whofor", name: "Who's It For?", type: "Psychic", power: 22, pp: 15, accuracy: 95, category: "special", flavor: "The eternal question for non-commercial work." },
-        { id: "roi", name: "What's the ROI?", type: "Steel", power: 28, pp: 10, accuracy: 90, category: "special", flavor: "Some things exist because they have to. No spreadsheet required." },
-        { id: "brief", name: "No Brief Accepted", type: "Ghost", power: 35, pp: 5, accuracy: 85, category: "special", flavor: "The hardest boss: creating without permission.", effect: "crit" },
+        { id: "kpi", name: "What's the KPI?", type: "Normal", power: 15, pp: 25, accuracy: 100, category: "status", flavor: "Creative work that can't be measured makes everyone nervous. Including you, maybe?" },
+        { id: "whofor", name: "Who's It For?", type: "Psychic", power: 22, pp: 15, accuracy: 95, category: "special", flavor: "The eternal question for non-commercial work. Your answer should be honest." },
+        { id: "roi", name: "What's the ROI?", type: "Steel", power: 28, pp: 10, accuracy: 90, category: "special", flavor: "Some things exist because they have to. No spreadsheet required — but you still need conviction." },
+        { id: "brief", name: "No Brief Accepted", type: "Ghost", power: 35, pp: 5, accuracy: 85, category: "special", flavor: "The hardest boss: creating without permission. This one's yours to answer.", effect: "crit" },
       ],
-      victory: "The work exists. That's the point.",
+      victory: "The work exists. That's your answer. That's the only answer that matters.",
       leader: "nobrief",
     },
+    hiddenItem: { x: 19, y: 14 },
     cliff: {
       era: "Now · Non-commercial home",
       did: ["Original music", "Pet-forward brand world", "Live events + creative IP"],
@@ -564,19 +596,20 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     gym: {
       opponentName: "The Status Quo",
       opponentTitle: "Champion",
-      intro: "The final boss. Every chapter compounds into this one. Use everything.",
+      intro: "You walked this far. Every chapter, every boss, every badge. Now tell me — what are you going to do with all of it?",
       hp: 180,
       weakTo: ["Stack", "Soul", "Brand", "AI", "Autonomy", "Capital", "Ops", "Search", "Vision"],
       resists: [],
       moves: [
-        { id: "pickone", name: "Pick One Lane", type: "Normal", power: 25, pp: 20, accuracy: 100, category: "status", flavor: "Specialists beat generalists. Or do they?" },
-        { id: "notboth", name: "Strategy OR Execution", type: "Fighting", power: 35, pp: 15, accuracy: 95, category: "physical", flavor: "You can't do both. Choose." },
-        { id: "agencies", name: "Agencies Don't Move Fast", type: "Ice", power: 45, pp: 10, accuracy: 90, category: "special", flavor: "The industry playbook says slow down. Ignore it." },
-        { id: "statusquo", name: "Status Quo", type: "Dark", power: 60, pp: 5, accuracy: 85, category: "special", flavor: "The hardest opponent: the way things are.", effect: "crit" },
+        { id: "pickone", name: "Pick One Lane", type: "Normal", power: 25, pp: 20, accuracy: 100, category: "status", flavor: "Specialists beat generalists — or so they say. You've been both. Use that." },
+        { id: "notboth", name: "Strategy OR Execution", type: "Fighting", power: 35, pp: 15, accuracy: 95, category: "physical", flavor: "You can't do both. Or can you? Prove it." },
+        { id: "agencies", name: "Agencies Don't Move Fast", type: "Ice", power: 45, pp: 10, accuracy: 90, category: "special", flavor: "The industry playbook says slow down. You've been ignoring it for 15 years." },
+        { id: "statusquo", name: "Status Quo", type: "Dark", power: 60, pp: 5, accuracy: 85, category: "special", flavor: "The hardest opponent: the way things are. You've beaten it before. One more time.", effect: "crit" },
       ],
-      victory: "Champion. Quest complete. Now bring me your project.",
+      victory: "Champion. Quest complete. Now — what are you building next? Bring it to Param.",
       leader: "statusquo",
     },
+    hiddenItem: { x: 6, y: 10 },
     cliff: {
       era: "Now · The Boss Fight",
       did: ["AI-native agency built on 15 years of operating", "Strategy + creative + tech in one room"],
@@ -723,14 +756,15 @@ export const PLAYER_SPAWN = {
   dir: "down" as Dir,
 };
 
-export type InteractiveKind = "npc" | "sign" | "badge" | "door" | "mat" | "wild";
+export type InteractiveKind = "npc" | "sign" | "badge" | "door" | "mat" | "wild" | "hidden";
 export type Interactive =
   | { kind: "npc"; zone: Zone; npc: GameNpc; x: number; y: number }
   | { kind: "sign"; zone: Zone; sign: GameSign; x: number; y: number }
   | { kind: "badge"; zone: Zone; badge: GameBadge; x: number; y: number }
   | { kind: "door"; zone: Zone; x: number; y: number }
   | { kind: "mat"; zone: Zone; x: number; y: number }
-  | { kind: "wild"; zone: Zone; creature: Creature; x: number; y: number };
+  | { kind: "wild"; zone: Zone; creature: Creature; x: number; y: number }
+  | { kind: "hidden"; zone: Zone; x: number; y: number };
 
 export function wildPositionFor(zone: Zone): { x: number; y: number } {
   // Place wild creature in lower-right quadrant of zone, away from building
@@ -742,20 +776,45 @@ export function wildPositionFor(zone: Zone): { x: number; y: number } {
 // ─── Route NPCs (one per corridor between zones) ──────────────
 // World coords: route mid-y = zone[i].oy + ZONE_H + ROUTE_H/2 = i*30 + 20 + 5 = i*30 + 25
 // x = 40 (middle of the 6-tile path, PATH_X1=37..PATH_X2=43)
-export type RouteNpc = { x: number; y: number; name: string; role: string; quote: string; kind: NpcKind };
+export type RouteNpc = { x: number; y: number; name: string; role: string; quote: string; kind: NpcKind; trainer?: { hp: number; moves: Move[]; weakTo: string[]; resists: string[]; victoryQuote: string; defeatQuote: string } };
 
 export const ROUTE_NPCS: RouteNpc[] = [
   // Route 1: Home → Origin (y = 0*30 + 25 = 25)
   { x: 40, y: 25,
     name: "Wandering Kid", role: "Route 1 · Pallet → Origin",
     kind: "fan",
-    quote: "You're leaving already?\n\nMost people stay home.\n\nThe ones who leave are the ones who build things." },
+    quote: "You're leaving already?\n\nMost people stay home.\n\nThe ones who leave are the ones who build things.",
+    trainer: {
+      hp: 40,
+      moves: [
+        { id: "wk1", name: "Curiosity Dash", type: "Vision", power: 14, pp: 20, accuracy: 100, category: "physical", flavor: "Runs toward the unknown without looking back." },
+        { id: "wk2", name: "Beginner's Luck", type: "Normal", power: 18, pp: 15, accuracy: 90, category: "special", flavor: "Startling. Unrepeatable. But real." },
+      ],
+      weakTo: ["Ops", "AI"],
+      resists: [],
+      victoryQuote: "You beat me — but you had to try. That's the whole point. Now keep going.",
+      defeatQuote: "See? Even a kid on a route can surprise you. Stay sharp.",
+    }
+  },
 
   // Route 2: Origin → GRP (y = 1*30 + 25 = 55)
   { x: 40, y: 55,
     name: "Street Vendor", role: "Route 2 · Origin → GRP",
     kind: "client",
-    quote: "I've been selling here for ten years.\n\nYou know what every good product has in common?\n\nSomebody had to believe in it before anyone else did." },
+    quote: "I've been selling here for ten years.\n\nYou know what every good product has in common?\n\nSomebody had to believe in it before anyone else did.",
+    trainer: {
+      hp: 55,
+      moves: [
+        { id: "sv1", name: "Hard Sell", type: "Normal", power: 20, pp: 20, accuracy: 100, category: "physical", flavor: "Persistent. Direct. Doesn't take no." },
+        { id: "sv2", name: "First-Mover Price", type: "Search", power: 25, pp: 15, accuracy: 95, category: "special", flavor: "Under-price the market. Build the habit. Then raise it." },
+        { id: "sv3", name: "Repeat Customer", type: "Ops", power: 22, pp: 10, accuracy: 90, category: "special", flavor: "The real metric was always retention." },
+      ],
+      weakTo: ["Brand", "Capital"],
+      resists: ["Normal"],
+      victoryQuote: "You're a quick study. Good. The market rewards people who learn fast.",
+      defeatQuote: "Ten years on this route. I've seen faster. Come back stronger.",
+    }
+  },
 
   // Route 3: GRP → Hab (y = 2*30 + 25 = 85)
   { x: 40, y: 85,
@@ -779,13 +838,39 @@ export const ROUTE_NPCS: RouteNpc[] = [
   { x: 40, y: 175,
     name: "Angel Investor", role: "Route 6 · Investopad → Sole",
     kind: "investor",
-    quote: "I've seen a thousand decks.\n\nThe ones that work all have the same thing:\n\nAn operator who's already done the hard thing once." },
+    quote: "I've seen a thousand decks.\n\nThe ones that work all have the same thing:\n\nAn operator who's already done the hard thing once.",
+    trainer: {
+      hp: 70,
+      moves: [
+        { id: "ai1", name: "Due Diligence", type: "Capital", power: 28, pp: 15, accuracy: 100, category: "special", flavor: "Scrutiny is the process. Every question has a purpose." },
+        { id: "ai2", name: "Dilution Play", type: "Psychic", power: 32, pp: 10, accuracy: 90, category: "special", flavor: "The cap table is a tool. Know how it works." },
+        { id: "ai3", name: "Pattern Match", type: "Search", power: 25, pp: 15, accuracy: 95, category: "special", flavor: "I've seen this before. Have you?" },
+      ],
+      weakTo: ["Vision", "Ops"],
+      resists: ["Normal", "Ghost"],
+      victoryQuote: "You defended your thesis under pressure. That's what I needed to see. Go build something worth backing.",
+      defeatQuote: "The deal flow doesn't stop because you lost one round. Come back with better numbers.",
+    }
+  },
 
   // Route 7: SoleSearch → Fere (y = 6*30 + 25 = 205)
   { x: 40, y: 205,
     name: "Sneaker Collector", role: "Route 7 · Sole → Fere",
     kind: "fan",
-    quote: "I bought my first pair at a SoleSearch event.\n\nThere were 40 people there. Maybe 50.\n\nNow everyone acts like they were always into sneakers." },
+    quote: "I bought my first pair at a SoleSearch event.\n\nThere were 40 people there. Maybe 50.\n\nNow everyone acts like they were always into sneakers.",
+    trainer: {
+      hp: 60,
+      moves: [
+        { id: "sc1", name: "Hype Drop", type: "Brand", power: 26, pp: 15, accuracy: 100, category: "special", flavor: "Scarcity manufactured. Demand real." },
+        { id: "sc2", name: "Culture Check", type: "Soul", power: 24, pp: 20, accuracy: 95, category: "special", flavor: "You either get culture or you don't. It shows." },
+        { id: "sc3", name: "Resale Value", type: "Normal", power: 20, pp: 15, accuracy: 90, category: "physical", flavor: "Everything is an asset if you know what you're holding." },
+      ],
+      weakTo: ["Ops", "Search"],
+      resists: ["Brand"],
+      victoryQuote: "You know what you're doing. Rare. Come to the next SoleSearch event — on me.",
+      defeatQuote: "The culture always wins. I've been in rooms where you couldn't fake it. This was one.",
+    }
+  },
 
   // Route 8: Fere → CCD (y = 7*30 + 25 = 235)
   { x: 40, y: 235,
@@ -822,6 +907,10 @@ export function allInteractives(): Interactive[] {
     if (zone.creature) {
       const w = wildPositionFor(zone);
       list.push({ kind: "wild", zone, creature: zone.creature, x: w.x, y: w.y });
+    }
+    // Hidden item tile — invisible until stepped on
+    if (zone.hiddenItem && zone.skill) {
+      list.push({ kind: "hidden", zone, x: zone.ox + zone.hiddenItem.x, y: zone.oy + zone.hiddenItem.y });
     }
   }
   // Route NPCs — use home zone as the zone reference (nearest zone above each NPC)

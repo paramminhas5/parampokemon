@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { createEngine, TILE } from "@/game/engine";
-import { ZONES, type Interactive, type Zone, type NpcKind, PLAYER_SPAWN, stageForBadges } from "@/game/data";
+import { ZONES, type Interactive, type Zone, type NpcKind, PLAYER_SPAWN, stageForBadges, type RouteNpc } from "@/game/data";
 import { DialogBox } from "./DialogBox";
 import { StartMenu } from "./StartMenu";
 import { Bag } from "./Bag";
@@ -31,7 +31,7 @@ const INIT_W = 20 * TILE;
 const INIT_H = 14 * TILE;
 
 export type GameDialog =
-  | { type: "npc"; name: string; role: string; quote: string; kind?: NpcKind }
+  | { type: "npc"; name: string; role: string; quote: string; beats?: string[]; kind?: NpcKind }
   | { type: "sign"; text: string }
   | { type: "badge"; label: string; outcome: string }
   | null;
@@ -68,6 +68,12 @@ export function Game() {
   const [interiorZone, setInteriorZone] = useState<Zone | null>(null);
   // Phase 5: champion card
   const [championOpen, setChampionOpen] = useState(false);
+  // Trainer battles
+  const [trainerBattle, setTrainerBattle] = useState<RouteNpc | null>(null);
+  const [trainerBattleIntro, setTrainerBattleIntro] = useState<RouteNpc | null>(null);
+  // HUD accent bleed
+  const [hudAccentBleed, setHudAccentBleed] = useState<string | null>(null);
+  const bleedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // pendingSkillLearn: queued after dialog closes — fired once dialog unmounts
   const pendingSkillLearnRef = useRef<{ zone: Zone; npcName: string } | null>(null);
@@ -117,6 +123,7 @@ export function Game() {
       localStorage.setItem("pq_save", JSON.stringify({
         badges: [...badges], creatures: [...creatures],
         skills: [...skills], defeated: [...defeated], visited: [...visited],
+        defeatedTrainers: [...(engineRef.current?.state.defeatedTrainers ?? [])],
       }));
     } catch {}
   }, [badges, creatures, skills, defeated, visited]);
@@ -133,7 +140,7 @@ export function Game() {
     toastTimer.current = setTimeout(() => setToast(null), 2800);
   }, []);
 
-  const isModalOpen = !!(dialog || menuOpen || bagOpen || cliffOpen || mapOpen || worldSelectOpen || battle || battleIntro || catchModal || contactOpen || pressOpen || evolution || victoryZone || skillLearnZone || !titleDone || championOpen || interiorZone);
+  const isModalOpen = !!(dialog || menuOpen || bagOpen || cliffOpen || mapOpen || worldSelectOpen || battle || battleIntro || catchModal || contactOpen || pressOpen || evolution || victoryZone || skillLearnZone || !titleDone || championOpen || interiorZone || trainerBattle || trainerBattleIntro);
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -141,7 +148,7 @@ export function Game() {
       onInteract: (i: Interactive) => {
         if (i.kind === "npc") {
           if (i.npc.special === "contact") { setContactOpen(true); engine.setPaused(true); return; }
-          setDialog({ type: "npc", name: i.npc.name, role: i.npc.role, quote: i.npc.quote, kind: i.npc.kind });
+          setDialog({ type: "npc", name: i.npc.name, role: i.npc.role, quote: i.npc.quote ?? "", beats: i.npc.beats, kind: i.npc.kind });
           engine.setPaused(true);
           // Unlock follower the moment the professor is spoken to
           if (i.npc.kind === "professor") engine.unlockFollower();
@@ -192,12 +199,38 @@ export function Game() {
         setBattleIntro(z);
         playBattleBGM();
         engine.setPaused(true);
+        // Follower jumps on battle entry
+        engine.triggerFollowerAnim("jump");
       },
       onWild: (z: Zone) => { setCatchModal(z); engine.setPaused(true); },
       onDoorEnter: (z: Zone) => {
         setInteriorZone(z);
         engine.setPaused(true);
         playSound("warp");
+      },
+      onHiddenItem: (z: Zone) => {
+        if (!z.skill) return;
+        setSkills(prev => {
+          if (prev.has(z.skill!.id)) return prev;
+          const n = new Set(prev); n.add(z.skill!.id);
+          engine.addSkill(z.skill!.id);
+          pendingSkillLearnRef.current = { zone: z, npcName: "Hidden Discovery" };
+          return n;
+        });
+        engine.triggerFollowerAnim("jump");
+        engine.setPaused(true);
+        setTimeout(() => {
+          if (pendingSkillLearnRef.current) {
+            const pending = pendingSkillLearnRef.current;
+            pendingSkillLearnRef.current = null;
+            setSkillLearnZone(pending);
+          }
+        }, 50);
+      },
+      onTrainerBattle: (npc: RouteNpc) => {
+        setTrainerBattleIntro(npc);
+        playBattleBGM();
+        engine.setPaused(true);
       },
     });
     engineRef.current = engine;
@@ -215,6 +248,7 @@ export function Game() {
         if (s.creatures) s.creatures.forEach((id: string) => engine.state.collectedCreatures.add(id));
         if (s.skills)    s.skills.forEach((id: string) => engine.state.collectedSkills.add(id));
         if (s.defeated)  s.defeated.forEach((id: string) => engine.state.defeatedGyms.add(id));
+        if (s.defeatedTrainers) s.defeatedTrainers.forEach((id: string) => engine.state.defeatedTrainers.add(id));
         // Restore follower if player has already been through tutorial
         const hasMadeProgress = (s.badges?.length ?? 0) > 0 || (s.skills?.length ?? 0) > 0;
         if (hasMadeProgress) engine.unlockFollower();
@@ -267,6 +301,8 @@ export function Game() {
     setDefeated(prev => { const n = new Set(prev); n.add(zone.id); return n; });
     setGotBadge({ label: zone.badge.label, color: zone.badge.color });
     playSound("badge");
+    // Follower spin on badge earn
+    engineRef.current?.triggerFollowerAnim("spin");
     // Resume zone BGM
     playZoneBGM(zone.theme.ground as Parameters<typeof playZoneBGM>[0], zone.id);
     const gymZones = ZONES.filter(z => z.gym);
@@ -282,16 +318,21 @@ export function Game() {
       showToast(`★ CHAMPION! ${zone.badge.label.toUpperCase()}`, "Quest complete.");
       return;
     }
+    // CliffNotes auto-surface ~1.4s after badge flash
+    setTimeout(() => {
+      setGotBadge(null);
+      setCliffOpen(zone);
+      engineRef.current?.setPaused(true);
+    }, 1400);
     // Check for evolution
     const evo = checkEvolution(prevBadgeCount, newBadgeCount);
     if (evo) {
       setTimeout(() => {
-        setGotBadge(null);
+        setCliffOpen(null);
         setEvolution(evo);
         engineRef.current?.setPaused(true);
       }, 1800);
     }
-    setTimeout(() => setGotBadge(null), 3500);
     engineRef.current?.setPaused(false);
     showToast(`★ ${zone.badge.label.toUpperCase()} EARNED`, zone.gym?.victory);
   }
@@ -379,7 +420,8 @@ export function Game() {
         zIndex: 1,
         display: "flex", flexDirection: "column",
         boxShadow: "0 0 80px rgba(0,0,0,0.8), 0 0 2px rgba(124,224,255,0.15)",
-        border: "1px solid rgba(124,224,255,0.06)",
+        border: `1px solid ${hudAccentBleed ? hudAccentBleed + "55" : "rgba(124,224,255,0.06)"}`,
+        transition: hudAccentBleed ? "border-color 0.4s ease-out" : "border-color 2s ease-in",
       }}>
         {/* Canvas */}
         <canvas
@@ -467,10 +509,11 @@ export function Game() {
           <button onClick={() => { const m = !muted; setMuted(m); setMutedState(m); }} style={{
             background: "rgba(4,8,20,0.88)", border: "2px solid #1a2a4a",
             padding: "5px 8px", color: muted ? "#2a3a50" : "#5580aa",
-            fontFamily: "var(--font-pixel)", fontSize: 11,
+            fontFamily: "var(--font-pixel)", fontSize: 7,
             cursor: "pointer", pointerEvents: "auto",
             backdropFilter: "blur(4px)",
-          }}>{muted ? "🔇" : "🔊"}</button>
+            letterSpacing: "0.05em",
+          }}>{muted ? "SFX OFF" : "SFX ON"}</button>
 
           <Link href="/" style={{
             background: "rgba(4,8,20,0.88)", border: "2px solid #1a2a4a",
@@ -488,9 +531,9 @@ export function Game() {
           zIndex: 20,
         }}>
           {[
-            { label: "NOTES", icon: "📋", action: () => { setCliffOpen(currentZone); playSound("menu"); } },
-            { label: "BAG",   icon: "🎒", action: () => { setBagOpen(true);          playSound("menu"); } },
-            { label: "MENU",  icon: "☰",  action: () => { setMenuOpen(true);         playSound("menu"); } },
+            { label: "NOTES", action: () => { setCliffOpen(currentZone); playSound("menu"); } },
+            { label: "BAG",   action: () => { setBagOpen(true);          playSound("menu"); } },
+            { label: "MENU",  action: () => { setMenuOpen(true);         playSound("menu"); } },
           ].map(btn => (
             <button key={btn.label} onClick={btn.action} style={{
               background: `linear-gradient(135deg, rgba(4,8,20,0.92) 0%, rgba(10,16,36,0.88) 100%)`,
@@ -501,7 +544,7 @@ export function Game() {
               cursor: "pointer", minHeight: 42, minWidth: 64,
               backdropFilter: "blur(12px)",
               transition: "all 0.15s cubic-bezier(0.2,0,0,1)",
-              display: "flex", alignItems: "center", justifyContent: "center", gap: 5,
+              display: "flex", alignItems: "center", justifyContent: "center",
               boxShadow: "0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)",
               letterSpacing: "0.06em",
             }}
@@ -520,7 +563,6 @@ export function Game() {
                 el.style.boxShadow = "0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)";
               }}
             >
-              <span style={{ fontSize: 12 }}>{btn.icon}</span>
               {btn.label}
             </button>
           ))}
@@ -628,7 +670,7 @@ export function Game() {
         }} />}
         {menuOpen && <StartMenu badges={badges} creatures={creatures} skills={skills} onClose={() => setMenuOpen(false)} />}
         {bagOpen && <Bag creatures={creatures} skills={skills} badges={badges} onClose={() => setBagOpen(false)} />}
-        {cliffOpen && <CliffNotes zone={cliffOpen} onClose={() => setCliffOpen(null)} />}
+        {cliffOpen && <CliffNotes zone={cliffOpen} onClose={() => { setCliffOpen(null); engineRef.current?.setPaused(false); }} />}
         {/* Battle intro plays first, then real battle */}
         {battleIntro && (
           <BattleIntro
@@ -645,6 +687,65 @@ export function Game() {
               engineRef.current?.setPaused(false);
             }} />
         )}
+
+        {/* Trainer battles — route NPC encounters */}
+        {trainerBattleIntro && (() => {
+          const npc = trainerBattleIntro;
+          const syntheticZone: Zone = {
+            ...currentZone,
+            gym: {
+              opponentName: npc.name,
+              opponentTitle: npc.role,
+              intro: npc.quote,
+              hp: npc.trainer!.hp,
+              weakTo: npc.trainer!.weakTo,
+              resists: npc.trainer!.resists,
+              moves: npc.trainer!.moves,
+              victory: npc.trainer!.victoryQuote,
+              leader: "blankpage",
+            },
+          };
+          return (
+            <BattleIntro
+              zone={syntheticZone}
+              onComplete={() => { setTrainerBattleIntro(null); setTrainerBattle(npc); }}
+            />
+          );
+        })()}
+        {trainerBattle && (() => {
+          const npc = trainerBattle;
+          const syntheticZone: Zone = {
+            ...currentZone,
+            gym: {
+              opponentName: npc.name,
+              opponentTitle: npc.role,
+              intro: npc.quote,
+              hp: npc.trainer!.hp,
+              weakTo: npc.trainer!.weakTo,
+              resists: npc.trainer!.resists,
+              moves: npc.trainer!.moves,
+              victory: npc.trainer!.victoryQuote,
+              leader: "blankpage",
+            },
+          };
+          return (
+            <Battle zone={syntheticZone} ownedSkills={skills} badges={badges}
+              onWin={() => {
+                setTrainerBattle(null);
+                engineRef.current?.markTrainerDefeated(npc.name);
+                stopBattleBGM(currentZone.theme.ground as Parameters<typeof playZoneBGM>[0]);
+                engineRef.current?.setPaused(false);
+                showToast(`★ ${npc.name.toUpperCase()} DEFEATED`, npc.trainer!.victoryQuote);
+              }}
+              onFlee={() => {
+                setTrainerBattle(null);
+                stopBattleBGM(currentZone.theme.ground as Parameters<typeof playZoneBGM>[0]);
+                engineRef.current?.setPaused(false);
+              }}
+            />
+          );
+        })()}
+
         {catchModal && (
           <CatchModal
             zone={catchModal}
@@ -709,9 +810,14 @@ export function Game() {
           <ZoneTitle
             zone={zoneTitle}
             onDone={() => {
+              const zt = zoneTitle;
               setZoneTitle(null);
+              // Zone accent HUD bleed
+              setHudAccentBleed(zt.theme.accent);
+              if (bleedTimerRef.current) clearTimeout(bleedTimerRef.current);
+              bleedTimerRef.current = setTimeout(() => setHudAccentBleed(null), 12000);
               // Open CliffNotes after banner
-              setCliffOpen(zoneTitle);
+              setCliffOpen(zt);
             }}
           />
         )}
