@@ -97,19 +97,11 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
   const r = n(wx, wy);
   switch (code) {
     case T.GRASS: {
-      // Use generated tile texture if loaded, otherwise fall back to procedural
+      // Use generated tile texture — scales the full 512px image into each 16px tile
       const grassUrl = TILE_TEXTURE_URL.grass;
       const grassImg = grassUrl ? getSprite(grassUrl) : null;
       if (grassImg && isReady(grassImg)) {
-        const texSize = grassImg.naturalWidth;
-        const srcX = ((wx * TILE) % texSize + texSize) % texSize;
-        const srcY = ((wy * TILE) % texSize + texSize) % texSize;
-        const sw = Math.min(TILE, texSize - srcX);
-        const sh = Math.min(TILE, texSize - srcY);
-        ctx.drawImage(grassImg, srcX, srcY, sw, sh, px0, py0, sw, sh);
-        if (sw < TILE) ctx.drawImage(grassImg, 0, srcY, TILE - sw, sh, px0 + sw, py0, TILE - sw, sh);
-        if (sh < TILE) ctx.drawImage(grassImg, srcX, 0, sw, TILE - sh, px0, py0 + sh, sw, TILE - sh);
-        if (sw < TILE && sh < TILE) ctx.drawImage(grassImg, 0, 0, TILE - sw, TILE - sh, px0 + sw, py0 + sh, TILE - sw, TILE - sh);
+        ctx.drawImage(grassImg, 0, 0, grassImg.naturalWidth, grassImg.naturalHeight, px0, py0, TILE, TILE);
       } else {
         // Procedural fallback: GBA checkerboard
         const lightCell = ((Math.floor(wx / 2) + Math.floor(wy / 2)) % 2 === 0);
