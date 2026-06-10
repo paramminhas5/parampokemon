@@ -527,6 +527,30 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       }
     }
 
+    // ── Shore foam: where WATER meets land, draw an animated foam lip ──
+    {
+      const foamPhase = Math.sin(now / 500) * 0.5 + 0.5; // 0..1 breathing
+      for (let y = ty0; y < ty1; y++) {
+        for (let x = tx0; x < tx1; x++) {
+          if (world[y][x] !== T.WATER) continue;
+          const sx = x * TILE + offX;
+          const sy = y * TILE + offY;
+          const isLand = (gx: number, gy: number) =>
+            gx < 0 || gy < 0 || gx >= worldW || gy >= worldH || world[gy][gx] !== T.WATER;
+          const fa = (0.5 + foamPhase * 0.4).toFixed(2);
+          ctx.fillStyle = `rgba(220,240,255,${fa})`;
+          // top edge
+          if (isLand(x, y - 1)) { ctx.fillRect(sx, sy, TILE, 2); ctx.fillStyle = `rgba(255,255,255,${(0.3+foamPhase*0.3).toFixed(2)})`; ctx.fillRect(sx + 2, sy, 4, 1); ctx.fillStyle = `rgba(220,240,255,${fa})`; }
+          // bottom edge
+          if (isLand(x, y + 1)) ctx.fillRect(sx, sy + TILE - 2, TILE, 2);
+          // left edge
+          if (isLand(x - 1, y)) ctx.fillRect(sx, sy, 2, TILE);
+          // right edge
+          if (isLand(x + 1, y)) ctx.fillRect(sx + TILE - 2, sy, 2, TILE);
+        }
+      }
+    }
+
     // ── Per-zone color grading ────────────────────────────────────────────
     // Each zone gets its own ambient color wash painted only within its bounds.
     for (const z of ZONES) {
@@ -662,36 +686,60 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
           b.w === 1 ? "solo" : bx === 0 ? "left" : bx === b.w - 1 ? "right" : "mid";
         drawRoof(ctx, wx * TILE + offX, ry * TILE + offY, b.color, b.roof, kind);
       }
+      // ── Chimney with gentle animated smoke (near the left third of roof) ──
+      {
+        const chimX = (b.x + z.ox + Math.max(1, Math.floor(b.w * 0.28))) * TILE + offX;
+        const chimY = ry * TILE + offY;
+        // chimney stack
+        ctx.fillStyle = b.roof;
+        ctx.fillRect(chimX + 4, chimY - 6, 6, 8);
+        ctx.fillStyle = "rgba(0,0,0,0.25)";
+        ctx.fillRect(chimX + 4, chimY - 6, 1, 8);
+        ctx.fillStyle = "#caa";
+        ctx.fillRect(chimX + 3, chimY - 7, 8, 2); // cap
+        // smoke puffs rising + drifting
+        for (let s = 0; s < 3; s++) {
+          const prog = ((now / 1400) + s * 0.33) % 1;
+          const sy = chimY - 7 - prog * 16;
+          const sx = chimX + 7 + Math.sin(prog * 6 + s) * 3;
+          const a = (1 - prog) * 0.28;
+          ctx.fillStyle = `rgba(225,225,235,${a.toFixed(3)})`;
+          const sz = 2 + prog * 3;
+          ctx.beginPath();
+          ctx.arc(sx, sy, sz, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
       ctx.fillStyle = b.color + "22";
       ctx.fillRect((b.x + z.ox) * TILE + offX, (b.y + 1 + z.oy) * TILE + offY, b.w * TILE, (b.h - 1) * TILE);
 
-      // ── Window glow — warm lit windows on building walls ─────────────
-      // Each building gets 2–3 rows of windows with a soft warm glow.
-      // Windows only show on building wall tiles (rows 1..h-2, skip roof row 0)
-      const bScreenX = (b.x + z.ox) * TILE + offX;
-      const bScreenY = (b.y + z.oy) * TILE + offY;
+      // ── Window glow — aligned to the framed windows drawn on wall tiles ──
+      // tiles.ts draws a window when n(wx,wy) > 0.42, centered around (px+4,py+3).
+      // We replicate that hash here so the warm glow lands exactly on real glass.
       const hour2 = new Date().getHours();
       const isNightTime = hour2 < 7 || hour2 >= 18;
-      const winAlpha = isNightTime ? 0.65 : 0.22;
-      const winColor = z.theme.ground === "neon" || z.theme.ground === "crypto"
-        ? `rgba(100,220,255,${winAlpha})`
+      const glowAlpha = isNightTime ? 0.5 : 0.16;
+      const glowColor = z.theme.ground === "neon" || z.theme.ground === "crypto"
+        ? `rgba(120,225,255,${glowAlpha})`
         : z.theme.ground === "studio"
-          ? `rgba(255,200,100,${winAlpha})`
-          : `rgba(255,220,120,${winAlpha})`;
-      // Place 2 windows per wall row, rows 1..(h-2)
+          ? `rgba(255,205,110,${glowAlpha})`
+          : `rgba(255,222,130,${glowAlpha})`;
+      const hashN = (x: number, y: number) => {
+        const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
+        return s - Math.floor(s);
+      };
       for (let wr = 1; wr < b.h - 1; wr++) {
-        for (let wc = 0; wc < 2; wc++) {
-          const winX = bScreenX + Math.floor(b.w * TILE * (wc === 0 ? 0.22 : 0.62));
-          const winY = bScreenY + wr * TILE + 3;
-          // Window frame
-          ctx.fillStyle = winColor;
-          ctx.fillRect(winX, winY, 4, 5);
-          // Soft outer glow
-          const grd = ctx.createRadialGradient(winX + 2, winY + 2, 0, winX + 2, winY + 2, 9);
-          grd.addColorStop(0, winColor.replace(/[\d.]+\)$/, `${winAlpha * 0.5})`));
+        for (let wcx = 1; wcx < b.w - 1; wcx++) {
+          const wWx = b.x + z.ox + wcx;
+          const wWy = b.y + z.oy + wr;
+          if (hashN(wWx, wWy) <= 0.42) continue; // no window on this tile
+          const gx = wWx * TILE + offX + 7; // window centre
+          const gy = wWy * TILE + offY + 6;
+          const grd = ctx.createRadialGradient(gx, gy, 0, gx, gy, 10);
+          grd.addColorStop(0, glowColor);
           grd.addColorStop(1, "rgba(0,0,0,0)");
           ctx.fillStyle = grd;
-          ctx.fillRect(winX - 7, winY - 7, 18, 18);
+          ctx.fillRect(gx - 10, gy - 10, 20, 20);
         }
       }
 

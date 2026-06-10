@@ -89,13 +89,24 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
   const r = n(wx, wy);
   switch (code) {
     case T.GRASS: {
-      fillRect(ctx, px0, py0, TILE, TILE, "#5fb255");
-      for (let i = 0; i < 5; i++) {
-        const dx = (i * 7 + Math.floor(r * 13)) % TILE;
-        const dy = (i * 5 + Math.floor(r * 11)) % TILE;
-        px(ctx, px0 + dx, py0 + dy, "#4a9a44");
+      // Classic GBA checkerboard — alternating light/dark every 2 tiles
+      const lightCell = ((Math.floor(wx / 2) + Math.floor(wy / 2)) % 2 === 0);
+      const baseCol = lightCell ? "#74c466" : "#69ba5b";
+      fillRect(ctx, px0, py0, TILE, TILE, baseCol);
+      // Subtle blade tufts — small "v" marks scattered, seeded so they're stable
+      const tuft = lightCell ? "#5fae51" : "#56a449";
+      if (r > 0.30) {
+        const tx = px0 + 3 + Math.floor(r * 6);
+        const ty = py0 + 4 + Math.floor((r * 13 % 1) * 7);
+        px(ctx, tx, ty, tuft); px(ctx, tx + 1, ty + 1, tuft); px(ctx, tx + 2, ty, tuft);
       }
-      if (r > 0.85) px(ctx, px0 + 8, py0 + 8, "#79c46b");
+      if (r > 0.74) {
+        const tx2 = px0 + 9 + Math.floor((r * 7 % 1) * 4);
+        const ty2 = py0 + 9 + Math.floor((r * 5 % 1) * 5);
+        px(ctx, tx2, ty2, tuft); px(ctx, tx2 + 1, ty2 + 1, tuft); px(ctx, tx2 + 2, ty2, tuft);
+      }
+      // faint top highlight for the light cells gives the mowed-lawn look
+      if (lightCell) px(ctx, px0 + 1, py0 + 1, "#80cf72");
       break;
     }
     case T.GRASS_DARK: {
@@ -108,55 +119,64 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
       break;
     }
     case T.ROUTE_GRASS: {
-      fillRect(ctx, px0, py0, TILE, TILE, "#6cba60");
-      for (let i = 0; i < 3; i++) {
-        const dx = (i * 6 + Math.floor(r * 9)) % TILE;
-        const dy = (i * 5 + Math.floor(r * 7)) % TILE;
-        px(ctx, px0 + dx, py0 + dy, "#56a04a");
+      // Slightly brighter checkerboard for routes — distinguishes from zone grass
+      const lightCell = ((Math.floor(wx / 2) + Math.floor(wy / 2)) % 2 === 0);
+      fillRect(ctx, px0, py0, TILE, TILE, lightCell ? "#7cc868" : "#70be5c");
+      const tuft = lightCell ? "#63b052" : "#59a649";
+      if (r > 0.4) {
+        const tx = px0 + 4 + Math.floor(r * 6);
+        const ty = py0 + 5 + Math.floor((r * 11 % 1) * 6);
+        px(ctx, tx, ty, tuft); px(ctx, tx + 1, ty + 1, tuft); px(ctx, tx + 2, ty, tuft);
       }
       break;
     }
     case T.TALL_GRASS: {
-      // Base ground
-      fillRect(ctx, px0, py0, TILE, TILE, "#5fb255");
-      fillRect(ctx, px0, py0 + 8, TILE, 8, "#3d7a3a");
-      // Swaying grass blades — top half sways with wind
+      // Base ground matches the new checkerboard grass
+      const lightCell = ((Math.floor(wx / 2) + Math.floor(wy / 2)) % 2 === 0);
+      fillRect(ctx, px0, py0, TILE, TILE, lightCell ? "#74c466" : "#69ba5b");
+      // Darker clumpy base (the "you can hide a creature here" look)
+      fillRect(ctx, px0, py0 + 9, TILE, 7, "#357a32");
+      fillRect(ctx, px0, py0 + 9, TILE, 1, "#2a6628");
+      // Swaying blades — top half sways with wind
       const sway = Math.sin(now / 600 + wx * 0.7 + wy * 0.4) * 1.5;
       const swayI = Math.round(sway);
-      // Left blade
       ctx.fillStyle = "#79c46b";
-      ctx.fillRect(px0 + 2 + swayI, py0 + 1, 1, 7);
-      ctx.fillRect(px0 + 2 + swayI, py0 + 1, 2, 2);
-      // Middle blade
+      ctx.fillRect(px0 + 2 + swayI, py0 + 2, 1, 8);
+      ctx.fillRect(px0 + 2 + swayI, py0 + 2, 2, 2);
       ctx.fillStyle = "#5fb255";
-      ctx.fillRect(px0 + 7 - swayI, py0, 1, 8);
-      ctx.fillRect(px0 + 6 - swayI, py0, 3, 2);
-      // Right blade
-      ctx.fillStyle = "#79c46b";
-      ctx.fillRect(px0 + 12 + swayI, py0 + 2, 1, 6);
-      ctx.fillRect(px0 + 11 + swayI, py0 + 2, 2, 2);
-      // Dark base tips (stationary)
-      for (let i = 0; i < 6; i += 2) ctx.fillRect(px0 + i + 2, py0 + 7, 1, 1);
+      ctx.fillRect(px0 + 7 - swayI, py0 + 1, 1, 9);
+      ctx.fillRect(px0 + 6 - swayI, py0 + 1, 3, 2);
+      ctx.fillStyle = "#8ad078";
+      ctx.fillRect(px0 + 12 + swayI, py0 + 3, 1, 7);
+      ctx.fillRect(px0 + 11 + swayI, py0 + 3, 2, 2);
+      // bright blade tips
+      px(ctx, px0 + 2 + swayI, py0 + 1, "#9cdc88");
+      px(ctx, px0 + 12 + swayI, py0 + 2, "#9cdc88");
       break;
     }
     case T.PATH: {
-      fillRect(ctx, px0, py0, TILE, TILE, "#d8b888");
-      for (let i = 0; i < 4; i++) {
-        const dx = (i * 5 + Math.floor(r * 11)) % TILE;
-        const dy = (i * 3 + Math.floor(r * 7)) % TILE;
-        px(ctx, px0 + dx, py0 + dy, "#b89868");
-      }
-      // path edge highlight
-      fillRect(ctx, px0, py0, TILE, 1, "#e8c898");
+      // Warm dirt base with a subtle two-tone to read as packed gravel
+      fillRect(ctx, px0, py0, TILE, TILE, "#dcbd8e");
+      fillRect(ctx, px0, py0 + 8, TILE, 8, "#d4b384");
+      // Scattered pebbles (seeded, stable)
+      const peb = "#c0a070";
+      px(ctx, px0 + 2 + Math.floor(r * 4), py0 + 3, peb);
+      px(ctx, px0 + 9 + Math.floor((r * 7 % 1) * 4), py0 + 6, peb);
+      px(ctx, px0 + 4 + Math.floor((r * 5 % 1) * 6), py0 + 11, peb);
+      px(ctx, px0 + 11, py0 + 13, peb);
+      // light fleck
+      px(ctx, px0 + 6 + Math.floor((r * 9 % 1) * 4), py0 + 8, "#ecd0a4");
+      // top edge highlight band
+      fillRect(ctx, px0, py0, TILE, 1, "#ecd0a4");
       break;
     }
     case T.SAND: {
-      fillRect(ctx, px0, py0, TILE, TILE, "#e6c47a");
-      for (let i = 0; i < 4; i++) {
-        const dx = (i * 4 + Math.floor(r * 9)) % TILE;
-        const dy = (i * 6 + Math.floor(r * 11)) % TILE;
-        px(ctx, px0 + dx, py0 + dy, "#c4a25c");
-      }
+      fillRect(ctx, px0, py0, TILE, TILE, "#e8c982");
+      fillRect(ctx, px0, py0 + 8, TILE, 8, "#e0bf76");
+      // soft speckle
+      px(ctx, px0 + 3 + Math.floor(r * 4), py0 + 4, "#cda85e");
+      px(ctx, px0 + 10, py0 + 9, "#cda85e");
+      px(ctx, px0 + 6 + Math.floor((r * 7 % 1) * 4), py0 + 12, "#f0d89a");
       break;
     }
     case T.STONE: {
@@ -174,57 +194,73 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
     }
     case T.WATER: {
       const t = now / 400;
-      const wave = Math.floor(t) % 4;
-      fillRect(ctx, px0, py0, TILE, TILE, "#2960a8");
-      // Animated shimmer rows
-      fillRect(ctx, px0, py0 + ((wave * 4) % TILE), TILE, 2, "#3b7fc4");
-      fillRect(ctx, px0, py0 + ((wave * 4 + 8) % TILE), TILE, 1, "#4a90d4");
-      // Sparkle highlights
-      const sf = Math.sin(t * 0.7 + wx * 0.5) > 0.7;
+      // Deep base with a vertical gradient feel (darker top, brighter bottom)
+      fillRect(ctx, px0, py0, TILE, TILE, "#2a66b0");
+      fillRect(ctx, px0, py0 + 10, TILE, 6, "#2f6fbc");
+      // Two animated horizontal shimmer bands scrolling at different speeds
+      const b1 = py0 + (Math.floor(t * 4) % TILE);
+      const b2 = py0 + (Math.floor(t * 2 + 6) % TILE);
+      fillRect(ctx, px0, b1, TILE, 2, "#4a92d8");
+      fillRect(ctx, px0, b2, TILE, 1, "#62a8e8");
+      // Sparkle highlights — phase-gated so they twinkle
+      const sf = Math.sin(t * 0.7 + wx * 0.5 + wy * 0.3) > 0.5;
       if (sf) {
-        px(ctx, px0 + (Math.floor(t * 3 + wx) % 14), py0 + 5, "#a8d8f8");
-        px(ctx, px0 + (Math.floor(t * 2 + wy) % 12) + 2, py0 + 11, "#c8e8ff");
+        px(ctx, px0 + (Math.floor(t * 3 + wx) % 13) + 1, py0 + 4, "#bfe4ff");
+        px(ctx, px0 + (Math.floor(t * 2 + wy) % 11) + 3, py0 + 11, "#dcf0ff");
       }
-      // Deep water darkening at edges
-      fillRect(ctx, px0, py0, TILE, 1, "#1a3a78");
-      fillRect(ctx, px0, py0, 1, TILE, "#1a3a78");
       break;
     }
     case T.FLOWER_R:
     case T.FLOWER_Y: {
       drawTile(ctx, T.GRASS, wx, wy, px0, py0, now);
-      const c = code === T.FLOWER_R ? "#e85e5e" : "#f5d24a";
-      // Gentle bob on the flower head
+      const c = code === T.FLOWER_R ? "#ec5a5a" : "#f5cf44";
+      const cDark = code === T.FLOWER_R ? "#c43a3a" : "#d4a82a";
       const fBob = Math.round(Math.sin(now / 700 + wx * 0.8 + wy * 0.6) * 1);
-      px(ctx, px0 + 7, py0 + 7 + fBob, c); px(ctx, px0 + 8, py0 + 7 + fBob, c);
-      px(ctx, px0 + 7, py0 + 8 + fBob, c); px(ctx, px0 + 8, py0 + 8 + fBob, c);
-      px(ctx, px0 + 6, py0 + 8 + fBob, "#fff"); px(ctx, px0 + 9, py0 + 7 + fBob, "#fff");
+      const cx = px0 + 8, cy = py0 + 7 + fBob;
+      // 4 petals around a center (cross arrangement)
+      fillRect(ctx, cx - 1, cy - 3, 2, 2, c);   // top
+      fillRect(ctx, cx - 1, cy + 1, 2, 2, cDark); // bottom (shaded)
+      fillRect(ctx, cx - 3, cy - 1, 2, 2, c);   // left
+      fillRect(ctx, cx + 1, cy - 1, 2, 2, c);   // right
+      // bright center
+      fillRect(ctx, cx - 1, cy - 1, 2, 2, "#fff4c0");
+      px(ctx, cx, cy, "#ffae3a");
+      // tiny stem
+      px(ctx, cx, cy + 3, "#3c8a36");
       break;
     }
     case T.TREE: {
       drawTile(ctx, T.GRASS, wx, wy, px0, py0, now);
+      // Soft cast shadow on the ground (south-east)
+      ctx.fillStyle = "rgba(0,0,0,0.16)";
+      ctx.beginPath();
+      ctx.ellipse(px0 + 9, py0 + 14, 6, 2, 0, 0, Math.PI * 2);
+      ctx.fill();
       // Trunk with shading
-      fillRect(ctx, px0 + 6, py0 + 11, 4, 5, "#5a3a1c");
-      fillRect(ctx, px0 + 6, py0 + 11, 1, 5, "#3a2010");  // shadow side
-      fillRect(ctx, px0 + 9, py0 + 11, 1, 5, "#7a5030");  // light side
-      // Roots
-      fillRect(ctx, px0 + 4, py0 + 14, 2, 2, "#5a3a1c");
-      fillRect(ctx, px0 + 10, py0 + 14, 2, 2, "#5a3a1c");
-      // Main foliage — layered for depth
-      fillRect(ctx, px0 + 2, py0 + 4, 12, 8, "#2e6a2a");   // base
-      fillRect(ctx, px0 + 3, py0 + 2, 10, 4, "#358030");   // mid layer
-      fillRect(ctx, px0 + 5, py0 + 1, 6, 3, "#3a8a34");    // top cap
-      // Highlight blobs (lighter green)
-      fillRect(ctx, px0 + 4, py0 + 3, 3, 2, "#5ab850");
-      fillRect(ctx, px0 + 9, py0 + 5, 3, 2, "#4ea845");
-      fillRect(ctx, px0 + 6, py0 + 2, 2, 2, "#6ac858");
-      // Shadow underside
-      fillRect(ctx, px0 + 2, py0 + 11, 12, 1, "#1e4a1c");
-      // Outline top pixels
-      if (r > 0.6) {
-        px(ctx, px0 + 2, py0 + 6, "#4fa844");
-        px(ctx, px0 + 13, py0 + 8, "#4fa844");
-      }
+      fillRect(ctx, px0 + 6, py0 + 11, 4, 4, "#6a4420");
+      fillRect(ctx, px0 + 6, py0 + 11, 1, 4, "#4a2c12");  // shadow side
+      fillRect(ctx, px0 + 9, py0 + 11, 1, 4, "#85562e");  // light side
+      // ── Round canopy: dark outline ring first, then fill ──
+      // Outline (near-black green) gives the classic GBA tree silhouette
+      ctx.fillStyle = "#194a17";
+      // build a blocky circle
+      fillRect(ctx, px0 + 4, py0 + 0, 8, 12, "#194a17");
+      fillRect(ctx, px0 + 2, py0 + 2, 12, 8, "#194a17");
+      fillRect(ctx, px0 + 3, py0 + 1, 10, 10, "#194a17");
+      // Mid-tone fill inset by 1px from the outline
+      ctx.fillStyle = "#2f7a2b";
+      fillRect(ctx, px0 + 5, py0 + 1, 6, 10, "#2f7a2b");
+      fillRect(ctx, px0 + 3, py0 + 3, 10, 6, "#2f7a2b");
+      fillRect(ctx, px0 + 4, py0 + 2, 8, 8, "#2f7a2b");
+      // Lighter mid blobs (dappled foliage)
+      fillRect(ctx, px0 + 5, py0 + 3, 5, 5, "#3c9636");
+      fillRect(ctx, px0 + 8, py0 + 5, 3, 3, "#3c9636");
+      // Top-left highlight (sun)
+      fillRect(ctx, px0 + 5, py0 + 2, 3, 3, "#5cbd4e");
+      px(ctx, px0 + 5, py0 + 1, "#74cf64");
+      px(ctx, px0 + 6, py0 + 2, "#74cf64");
+      // Bottom inner shadow
+      fillRect(ctx, px0 + 4, py0 + 9, 8, 2, "#235e21");
       break;
     }
     case T.FENCE: {
@@ -235,31 +271,65 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
       break;
     }
     case T.BUILDING_WALL: {
-      fillRect(ctx, px0, py0, TILE, TILE, "#e0d4b8");
-      fillRect(ctx, px0, py0, TILE, 1, "#a08868");
-      fillRect(ctx, px0, py0 + TILE - 1, TILE, 1, "#a08868");
-      for (let y = 2; y < TILE; y += 4) {
-        for (let x = 0; x < TILE; x += 8) {
-          const ox = (y / 4) % 2 === 0 ? 0 : 4;
-          fillRect(ctx, px0 + x + ox, py0 + y, 1, 2, "#a08868");
-        }
+      // Clean plaster siding with horizontal lap-board lines
+      fillRect(ctx, px0, py0, TILE, TILE, "#ece0c6");
+      // lap-board shadow lines
+      fillRect(ctx, px0, py0 + 5, TILE, 1, "#cdbd98");
+      fillRect(ctx, px0, py0 + 11, TILE, 1, "#cdbd98");
+      // top/bottom trim
+      fillRect(ctx, px0, py0, TILE, 1, "#b6a17c");
+      fillRect(ctx, px0, py0 + TILE - 1, TILE, 1, "#b6a17c");
+      // Framed window on ~half the wall tiles (seeded by tile position)
+      if (r > 0.42) {
+        const wxp = px0 + 4, wyp = py0 + 3;
+        // outer frame
+        fillRect(ctx, wxp - 1, wyp - 1, 9, 9, "#7a5a34");
+        // glass
+        fillRect(ctx, wxp, wyp, 7, 7, "#8fd0ef");
+        // glass sheen (diagonal lighter wedge)
+        fillRect(ctx, wxp, wyp, 3, 3, "#b8e6ff");
+        px(ctx, wxp + 4, wyp + 1, "#b8e6ff");
+        // muntin cross bars
+        fillRect(ctx, wxp + 3, wyp, 1, 7, "#5f8fb0");
+        fillRect(ctx, wxp, wyp + 3, 7, 1, "#5f8fb0");
+        // sill
+        fillRect(ctx, wxp - 1, wyp + 8, 9, 1, "#6a4a28");
       }
       break;
     }
     case T.BUILDING_ROOF: {
-      fillRect(ctx, px0, py0, TILE, TILE, "#7a3024");
-      for (let x = 0; x < TILE; x += 4) fillRect(ctx, px0 + x, py0, 1, TILE, "#5a1d18");
-      fillRect(ctx, px0, py0, TILE, 1, "#3a0e0a");
+      // Sloped shingle roof (fallback; engine overlays per-zone colored roof)
+      fillRect(ctx, px0, py0, TILE, TILE, "#a3382c");
+      // shingle rows
+      for (let yy = 0; yy < TILE; yy += 4) {
+        fillRect(ctx, px0, py0 + yy, TILE, 1, "#7d241b");
+        fillRect(ctx, px0, py0 + yy + 1, TILE, 1, "#bd4438");
+      }
+      // ridge highlight
+      fillRect(ctx, px0, py0, TILE, 1, "#d05a4a");
       break;
     }
     case T.DOOR: {
-      fillRect(ctx, px0, py0, TILE, TILE, "#3a2418");
-      fillRect(ctx, px0 + 2, py0 + 2, TILE - 4, TILE - 2, "#6a4028");
-      fillRect(ctx, px0 + 11, py0 + 9, 1, 2, "#f5d24a");
-      fillRect(ctx, px0 + 2, py0 + 7, TILE - 4, 1, "#2a1810");
-      // GYM placard
-      fillRect(ctx, px0 + 4, py0 + 3, 8, 3, "#f5d24a");
-      fillRect(ctx, px0 + 4, py0 + 3, 8, 1, "#a07820");
+      // Wall surround matches plaster siding
+      fillRect(ctx, px0, py0, TILE, TILE, "#ece0c6");
+      fillRect(ctx, px0, py0 + 5, TILE, 1, "#cdbd98");
+      // Striped awning over the door
+      for (let i = 0; i < TILE; i += 4) {
+        fillRect(ctx, px0 + i, py0, 2, 3, "#c43a3a");
+        fillRect(ctx, px0 + i + 2, py0, 2, 3, "#f0e8d0");
+      }
+      fillRect(ctx, px0, py0 + 3, TILE, 1, "#8a2a2a");
+      // Door frame
+      fillRect(ctx, px0 + 2, py0 + 4, TILE - 4, TILE - 4, "#3a2418");
+      // Door panel — warm wood
+      fillRect(ctx, px0 + 3, py0 + 5, TILE - 6, TILE - 5, "#7a4a28");
+      fillRect(ctx, px0 + 3, py0 + 5, TILE - 6, 1, "#9a6238");  // top highlight
+      // panel split + inset lines
+      fillRect(ctx, px0 + 3, py0 + 10, TILE - 6, 1, "#2a1810");
+      fillRect(ctx, px0 + 5, py0 + 6, 1, 3, "#5a3418");
+      fillRect(ctx, px0 + 10, py0 + 6, 1, 3, "#5a3418");
+      // gold knob
+      px(ctx, px0 + 11, py0 + 9, "#f5d24a");
       break;
     }
     case T.MAT: {
