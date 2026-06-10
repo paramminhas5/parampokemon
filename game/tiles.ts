@@ -1,6 +1,7 @@
 // Procedural tile + sprite drawing for Param Quest.
 
 import type { Dir, NpcKind, ZoneTheme } from "./data";
+import { TILE_TEXTURE_URL, getSprite, isReady } from "./sprite-registry";
 
 export const TILE = 16;
 
@@ -96,30 +97,30 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
   const r = n(wx, wy);
   switch (code) {
     case T.GRASS: {
-      // Lush two-tone checkerboard — alternating every 2 tiles like GBA Pokemon
-      const lightCell = ((Math.floor(wx / 2) + Math.floor(wy / 2)) % 2 === 0);
-      const baseCol = lightCell ? "#74c466" : "#68b85a";
-      fillRect(ctx, px0, py0, TILE, TILE, baseCol);
-      // Richer sub-tile detail at larger sizes: multiple blade tufts
-      const tuft = lightCell ? "#5aaa4c" : "#549843";
-      const hi   = lightCell ? "#8ed480" : "#7ec870";
-      // Scatter several small grass blade groups across the tile
-      const offsets = [
-        [2, 3], [7, 1], [12, 5], [4, 10], [10, 12], [14, 8], [1, 13],
-      ] as [number,number][];
-      for (const [ox, oy] of offsets) {
-        const seed = n(wx + ox * 0.1, wy + oy * 0.1);
-        if (seed > 0.35) {
-          const bx = px0 + T16(ox), by = py0 + T16(oy);
-          const w2 = R16(1), h = R16(2 + seed * 2);
-          ctx.fillStyle = tuft;
-          ctx.fillRect(bx, by, w2, h);
-          ctx.fillRect(bx + R16(1.5), by + R16(1), w2, R16(h * 0.6));
-          if (seed > 0.7) { ctx.fillStyle = hi; ctx.fillRect(bx, by, w2, R16(1)); }
+      // Use generated tile texture if loaded, otherwise fall back to procedural
+      const grassUrl = TILE_TEXTURE_URL.grass;
+      const grassImg = grassUrl ? getSprite(grassUrl) : null;
+      if (grassImg && isReady(grassImg)) {
+        const texSize = grassImg.naturalWidth;
+        const srcX = ((wx * TILE) % texSize + texSize) % texSize;
+        const srcY = ((wy * TILE) % texSize + texSize) % texSize;
+        const sw = Math.min(TILE, texSize - srcX);
+        const sh = Math.min(TILE, texSize - srcY);
+        ctx.drawImage(grassImg, srcX, srcY, sw, sh, px0, py0, sw, sh);
+        if (sw < TILE) ctx.drawImage(grassImg, 0, srcY, TILE - sw, sh, px0 + sw, py0, TILE - sw, sh);
+        if (sh < TILE) ctx.drawImage(grassImg, srcX, 0, sw, TILE - sh, px0, py0 + sh, sw, TILE - sh);
+        if (sw < TILE && sh < TILE) ctx.drawImage(grassImg, 0, 0, TILE - sw, TILE - sh, px0 + sw, py0 + sh, TILE - sw, TILE - sh);
+      } else {
+        // Procedural fallback: GBA checkerboard
+        const lightCell = ((Math.floor(wx / 2) + Math.floor(wy / 2)) % 2 === 0);
+        fillRect(ctx, px0, py0, TILE, TILE, lightCell ? "#74c466" : "#68b85a");
+        const tuft = lightCell ? "#5aaa4c" : "#549843";
+        if (r > 0.30) {
+          const tx = px0 + 3 + Math.floor(r * 6);
+          const ty = py0 + 4 + Math.floor((r * 13 % 1) * 7);
+          px(ctx, tx, ty, tuft); px(ctx, tx + 1, ty + 1, tuft); px(ctx, tx + 2, ty, tuft);
         }
       }
-      // top-left corner specular
-      if (lightCell) { ctx.fillStyle = "#8ed480"; ctx.fillRect(px0 + R16(1), py0 + R16(1), R16(2), R16(1)); }
       break;
     }
     case T.GRASS_DARK: {
