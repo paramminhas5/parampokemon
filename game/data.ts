@@ -120,31 +120,35 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     w: 26, h: 20,
     // Cozy cottage top-left with fenced garden; Prof lab top-right
     building: { x: 1, y: 2, w: 9, h: 6, doorX: 4, color: "#d0d8e8", roof: "#b0382c" },
-    sign: { x: 16, y: 16, text: "PALLET TOWN\nA portfolio you can walk through.\n\nSCROLL/ARROWS to walk.\nTAP to walk there.\nSPACE or A to talk.\nMAP to fast-travel anywhere." },
+    sign: { x: 16, y: 16, text: "PARAM QUEST\nA career told as an RPG.\n\n10 worlds · 9 bosses · 15 years\n\nYou are a recruiter. Walk through it.\n\nARROWS/WASD · TAP · SPACE to talk\nMAP to jump anywhere" },
     badge: { x: 22, y: 8, id: "curiosity", label: "Starter Token", color: "#9ad6e8" },
     spawn: { x: 13, y: 14 },
     npcs: [
       { x: 5, y: 15, name: "Mom", role: "Pallet Town", kind: "mom", beat: "did",
-        quote: "Take care out there, sweetheart.",
+        quote: "You've always done things your own way.",
         beats: [
-          "Take care out there, sweetheart. Fifteen years is a long road.",
-          "And if you're reading this — you, the person scrolling through Param's career right now — thanks for being here. This is his life's work.\n\nP.S. — Use WORLD SELECT to jump to any zone. Non-linear is the point."
+          "You've always done things your own way, Param. No shortcuts. No playbook.\n\nEvery time you changed direction, I worried for a week — then you showed me why.",
+          "I'm proud of you. Now go show them what fifteen years of showing up looks like.\n\nThe whole world is waiting outside."
         ] },
       { x: 23, y: 4, name: "Prof. Iterate", role: "Pokémon Professor", kind: "professor", beat: "learned",
-        quote: "Welcome to PARAM QUEST!",
+        quote: "Param. You've built a lot.",
         beats: [
-          "You're holding 15 years of Param's career in your hands.\n\nWalk through it.",
-          "Here — take MERMANDER. He's small, but he grows. Every world drops a SKILL BERRY. Feed them to Mermander and he evolves.\n\nBeat 4 gyms → Mermalion. Beat 8 → Merlord.",
-          "Each gym boss is a real obstacle Param faced. Beat them. Read the CliffNotes after. You'll understand why he built what he built.\n\nHit WORLD SELECT (top-right) to jump anywhere, anytime."
+          "Param. You've built companies, shipped products, led teams — across six completely different industries.\n\nBut the world doesn't just hand you credit for that. You have to go earn it. One badge at a time.",
+          "Here — take MERMANDER. Small now, but he grows with every skill you pick up.\n\nEvery world has a SKILL BERRY hidden in it. Find them. Feed them. Beat 4 gyms and he evolves. Beat 8 and he becomes something else entirely.",
+          "The gym bosses aren't fictional. Every one of them is a real obstacle you faced.\n\nWhen you beat them, read the CliffNotes. That's where the real story lives.\n\nHit WORLD SELECT anytime to jump anywhere. The whole map is open."
         ] },
       { x: 9, y: 17, name: "Rival", role: "Childhood Friend", kind: "rival", beat: "did",
-        quote: "Wait — before you go.",
+        quote: "New industry again? Seriously?",
         beats: [
-          "Wait — before you go.\n\nYou're really just going to walk out there and start building things?",
-          "Fine. But I'll be watching.\n\nWhen you come back with badges — when you've walked through every chapter — I want to see what you've learned.\n\nGo on then. The world's waiting."
+          "New industry again? Seriously, Param.\n\nMost people pick a lane and stay in it. Build a thing, become the expert, repeat.\n\nYou just... don't do that.",
+          "Fine. But I'll be watching every chapter.\n\nWhen you come back with badges — when you've actually walked through every world you built — I want to see what you learned.\n\nGo on then."
         ] },
       { x: 18, y: 14, name: "Neighbour Kid", role: "Pallet Town", kind: "fan", beat: "did",
-        quote: "I heard Param wrote his first line of code at 9.\n\nI can't even do maths.\n\nMaybe I should try." },
+        quote: "He wrote his first line of code at 9.",
+        beats: [
+          "I heard Param wrote his first line of code at 9. And produced music at 14. And started a company at 21.\n\nI can't even do maths.",
+          "Maybe I should just start something.\n\nI think that's the whole point of this place."
+        ] },
     ],
     cliff: {
       era: "Bedroom · Pre-2010",
@@ -163,18 +167,20 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     w: 26, h: 20,
     // Workshop sprawling left side, open workshop feel
     building: { x: 2, y: 3, w: 10, h: 7, doorX: 5, color: "#e6c47a", roof: "#7a4d28" },
-    sign: { x: -99, y: -99, text: "ORIGIN TOWN\nBuilder. Designer. Music producer.\nThe story starts here." },
+    sign: { x: 20, y: 16, text: "ORIGIN TOWN\nBuilder. Designer. Music producer.\n\nFirst product: 19.\nFirst company: 21.\nBuilt before Indian tech had a scene." },
     badge: { x: 22, y: 15, id: "vision", label: "Vision Badge", color: "#f5b78a" },
     npcs: [
       { x: 4, y: 16, name: "Param", role: "Builder · Designer · Director", kind: "trainer-m", beat: "did",
-        quote: "Builder, designer, creative director, music producer.\n\nFifteen years across e-commerce, real estate, AI, sneakers, music, and AI-led marketing." },
-      { x: 20, y: 12, name: "The throughline", role: "What ties it together", kind: "celeb", beat: "learned",
+        quote: "Builder, designer, creative director, music producer.\n\nFifteen years across e-commerce, real estate, AI, sneakers, music, and AI-led marketing.\n\nEvery chapter compounds." },
+      { x: 20, y: 12, name: "The Throughline", role: "What ties it together", kind: "celeb", beat: "learned",
         beats: [
-          "Every chapter compounds into the next. The skills carry over.",
-          "You're walking through that compounding right now. Each zone you visit — that's a real thing Param built, with real stakes.\n\nThe only constant is shipping."
+          "Every skill you pick up here carries over, Param. The code, the design, the music — none of it was wasted.",
+          "The through-line was never the industry. It was always you — the operator who ships.\n\nKeep going. The compounding gets more interesting from here."
         ] },
       { x: 8, y: 8, name: "Old Classmate", role: "Origin Town", kind: "trainer-f", beat: "did",
-        quote: "He was building websites and making music while the rest of us figured out what to study.\n\nNobody called it a career back then. He just called it Tuesday." },
+        quote: "You were building websites and making music while the rest of us figured out what to study.\n\nNobody called it a career back then. You just called it Tuesday." },
+      { x: 22, y: 3, name: "Hidden Sign", role: "Easter egg", kind: "fan", beat: "did",
+        quote: "★ EASTER EGG ★\n\nYou found the hidden corner.\n\nHere's the recruiter TL;DR:\n\nHire him.\n\nparam@catscandance.com" },
     ],
     creature: { id: "spark", name: "Sparkling", type: "Vision", power: 14, color: "#f5b78a", shape: "spark",
       description: "The Blank Page's only minion. Born from doubt.", from: "origin" },
@@ -214,17 +220,17 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     w: 26, h: 20,
     // Market building top-right, stalls and price tags left side
     building: { x: 15, y: 1, w: 9, h: 7, doorX: 4, color: "#a8d39a", roof: "#3f7a3a" },
-    sign: { x: -99, y: -99, text: "GRP MARKET\nIndia's first price-comparison engine.\nBuilt in college." },
+    sign: { x: 5, y: 17, text: "GRP MARKET\nIndia's first price-comparison engine.\n\nFounding team · In college.\nAngel-backed by Sidharth Rao (Webchutney).\nBuilt the catalog + crawl pipeline." },
     badge: { x: 3, y: 15, id: "ship", label: "Search Badge", color: "#a8d39a" },
     npcs: [
       { x: 8, y: 16, name: "GetRightPrice", role: "Founding team · 2010", kind: "trainer-m", beat: "did",
-        quote: "Founding team of one of India's first price-comparison engines for electronics.\n\nAngel-backed by Sidharth Rao of Webchutney." },
-      { x: 23, y: 14, name: "First-mover lessons", role: "What it taught me", kind: "investor", beat: "learned",
-        quote: "Cataloguing, pricing logic, affiliate models, crawling inventory at scale.\n\nFirst proof I could ship." },
+        quote: "Founding team. In college. One of India's first price-comparison engines for electronics.\n\nAngel-backed by Sidharth Rao of Webchutney. You catalogued thousands of SKUs before most people here had smartphones." },
+      { x: 23, y: 14, name: "First-Mover Lessons", role: "What it taught you", kind: "investor", beat: "learned",
+        quote: "Cataloguing. Pricing logic. Affiliate models. Crawling inventory at scale.\n\nFirst proof you could ship something real — in college, with no playbook." },
       { x: 5, y: 9, name: "Sidharth Rao", role: "Angel · Webchutney", kind: "investor", beat: "did",
-        quote: "I backed GetRightPrice because the team was already building before they had a cheque.\n\nThat's always the signal." },
+        quote: "I backed GetRightPrice because the team was already building before they had a cheque.\n\nThat's always the signal. You had it." },
       { x: 17, y: 5, name: "College Batchmate", role: "GRP Market", kind: "fan", beat: "did",
-        quote: "We were in college when this launched.\n\nMost of us were figuring out internships.\n\nThese guys were building India's first price comparison engine." },
+        quote: "We were in college when this launched.\n\nMost of us were figuring out internships.\n\nYou were building India's first price comparison engine." },
     ],
     creature: { id: "crawler", name: "Crawlix", type: "Search", power: 16, color: "#7ac46a", shape: "blob",
       description: "Long Tail's web crawler. Indexes pennies.", from: "grp" },
@@ -264,15 +270,15 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     w: 26, h: 20,
     // Apartment block center-right, brick plants + fences left side
     building: { x: 16, y: 3, w: 8, h: 8, doorX: 3, color: "#c47833", roof: "#5a2c0c" },
-    sign: { x: -99, y: -99, text: "HAB DISTRICT\nBudget rentals. ₹1Cr revenue.\nZero VC money." },
+    sign: { x: 3, y: 17, text: "HAB DISTRICT\nBudget rentals. Bengaluru.\n\nSame problem as OYO.\nNo VC money. ₹1Cr revenue.\nBootstrapped. Sold operations." },
     badge: { x: 3, y: 16, id: "ops", label: "Operator Badge", color: "#f6a268" },
     npcs: [
       { x: 7, y: 17, name: "Hab Housing", role: "Founder · 2012", kind: "trainer-m", beat: "did",
-        quote: "Standardised budget rentals across Bengaluru — same problem OYO solved at the same time, without VC money.\n\nScaled to ₹1Cr revenue on operations alone." },
-      { x: 22, y: 8, name: "What ₹1Cr taught me", role: "Bootstrapping", kind: "tenant", beat: "learned",
-        quote: "Operations, unit economics, customer acquisition, retention — without a safety net.\n\nEvery decision is real when there's no VC money." },
+        quote: "You standardised budget rentals across Bengaluru. Same problem OYO solved at the same time — without VC money.\n\nScaled to ₹1Cr revenue on operations alone. Then sold it cleanly." },
+      { x: 22, y: 8, name: "What ₹1Cr Taught You", role: "Bootstrapping", kind: "tenant", beat: "learned",
+        quote: "Operations, unit economics, acquisition, retention — without a safety net.\n\nEvery decision hit different when it was your own money on the line." },
       { x: 4, y: 9, name: "Former Tenant", role: "Hab District", kind: "tenant", beat: "did",
-        quote: "Hab was the only budget place in Bengaluru that felt professional.\n\nClean rooms. Fair pricing. No nonsense.\n\nI lived there for 18 months." },
+        quote: "Hab was the only budget place in Bengaluru that felt professional.\n\nClean rooms. Fair pricing. No nonsense. I lived there for 18 months." },
     ],
     creature: { id: "rhino", name: "Opsros", type: "Ops", power: 20, color: "#c47833", shape: "rhino",
       description: "Heavy. Reliable. Pays rent on time.", from: "hab" },
@@ -312,15 +318,15 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     w: 26, h: 20,
     // Server room far-left, neon pylon grid fills center; entry from right
     building: { x: 1, y: 1, w: 10, h: 8, doorX: 5, color: "#4a6e9a", roof: "#1f3548" },
-    sign: { x: -99, y: -99, text: "QUARTIC LAB\nBuilt AI before it was a category.\n2013 chatbot · Octo · Quartic.ai" },
+    sign: { x: 20, y: 16, text: "QUARTIC LAB\nBuilt AI before it was a category.\n\nOne of India's first chatbots: 2013.\nCo-built Octo · Acquired by Quartic.ai\nDirector of Marketing post-acquisition." },
     badge: { x: 22, y: 7, id: "ai", label: "Conversation Badge", color: "#9fe8ff" },
     npcs: [
       { x: 5, y: 16, name: "Octo → Quartic", role: "Founding team · 2013", kind: "engineer", beat: "did",
-        quote: "In 2013 we built one of India's first AI chatbots — before the word was common. On top of that we built Octo, an AI marketing platform. Acquired by Quartic.ai.\n\nI led marketing as Director." },
+        quote: "In 2013 you helped build one of India's first AI chatbots — before the word was common.\n\nOn top of that: Octo, an AI marketing platform. Acquired by Quartic.ai. You led marketing as Director." },
       { x: 21, y: 10, name: "Akshaya Aron", role: "Co-founder Octo · CEO Quartic.ai", kind: "trainer-f", beat: "did",
-        quote: "Akshaya and I built Octo together.\n\nA decade later, we're back together at Fere.ai." },
+        quote: "We built Octo together.\n\nA decade later — we're back again at Fere.ai. Some collaborations are just meant to keep going." },
       { x: 7, y: 5, name: "Early Beta User", role: "Quartic Lab · 2013", kind: "client", beat: "did",
-        quote: "The chatbot felt like magic in 2013.\n\nWe didn't have a word for conversational AI yet.\n\nThey just called it the interface of the future." },
+        quote: "That chatbot felt like magic in 2013.\n\nWe didn't even have a word for conversational AI yet.\n\nYou built it anyway." },
     ],
     creature: { id: "botto", name: "Bottoflux", type: "AI", power: 22, color: "#9fe8ff", shape: "spark",
       description: "Pre-Hype's chatbot. Talks back.", from: "ai" },
@@ -364,17 +370,17 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     w: 26, h: 20,
     // Tower center, trophy room right, marble floor left
     building: { x: 5, y: 1, w: 8, h: 10, doorX: 2, color: "#9a6fc4", roof: "#3f2266" },
-    sign: { x: -99, y: -99, text: "INVESTOPAD\nFamily office of Rohan & Arjun Malhotra.\nFund 0 from scratch." },
+    sign: { x: 22, y: 17, text: "INVESTOPAD\nFamily office · Rohan & Arjun Malhotra.\n\nGrowth & Tech Partner.\nBuilt Fund I from scratch.\nPortfolio: Meesho, Entri, Simsim, Amazon, Forbes." },
     badge: { x: 23, y: 16, id: "fund", label: "Capital Badge", color: "#f0c4ff" },
     npcs: [
-      { x: 3, y: 15, name: "Investopad", role: "Growth & Tech Partner · Fund 0", kind: "investor", beat: "did",
-        quote: "Partner for Growth and Technology.\n\nHelped build Fund I — deal sourcing, portfolio analysis, founder relationships, growth strategy. I didn't write the cheques, but I was in the room while most of our companies raised theirs." },
+      { x: 3, y: 15, name: "Investopad", role: "Growth & Tech Partner · Fund I", kind: "investor", beat: "did",
+        quote: "Partner for Growth and Technology.\n\nHelped build Fund I — deal sourcing, portfolio analysis, founder relationships, growth strategy. You didn't write the cheques, but you were in the room while most of the portfolio raised theirs." },
       { x: 22, y: 12, name: "Portfolio", role: "Companies worked with", kind: "client", beat: "did",
-        quote: "Meesho, Entri, Simsim, Amazon, Forbes.\n\nAcross growth, brand, and product strategy." },
+        quote: "Meesho, Entri, Simsim, Amazon, Forbes.\n\nAcross growth, brand, and product strategy. The range is the point." },
       { x: 9, y: 7, name: "Rohan Malhotra", role: "Investopad · Family Office", kind: "investor", beat: "learned",
         beats: [
-          "The best growth partners don't just execute. They think like founders.",
-          "If you're looking at this portfolio — you, right now — ask yourself: do you want someone who's been on both sides of the table?\n\nParam was in the room when it mattered."
+          "Being on this side of the table changes how you see everything, Param.",
+          "You understand how investors think now. You understand how founders look from the other side of the room.\n\nThat's not something you can learn from a book."
         ] },
     ],
     creature: { id: "falcon", name: "Capitalcon", type: "Capital", power: 24, color: "#f0c4ff", shape: "bird",
@@ -420,15 +426,15 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     w: 26, h: 20,
     // Mall building center-wide, neon arches flank; sneaker racks behind sign
     building: { x: 3, y: 2, w: 12, h: 6, doorX: 3, color: "#c0388c", roof: "#4a1240" },
-    sign: { x: -99, y: -99, text: "SOLESEARCH MALL\nIndia's sneaker & streetwear platform.\n$795K raised · CNBC-TV18." },
+    sign: { x: 20, y: 17, text: "SOLESEARCH MALL\nIndia's leading sneaker platform.\n\n$795K raised · 30+ events\n₹26Cr+ yearly sales\nRetail: Mumbai & Hyderabad · CNBC-TV18" },
     badge: { x: 23, y: 10, id: "ceo", label: "Culture Badge", color: "#ff9fd4" },
     npcs: [
       { x: 4, y: 17, name: "SoleSearch", role: "Co-founder & CEO · 2020-24", kind: "celeb", beat: "did",
-        quote: "Co-founded India's leading sneaker and streetwear platform with Prabal Baghla. Joined by Rannvijay Singha. Raised $795K.\n\nStores in Mumbai and Hyderabad. CNBC-TV18." },
+        quote: "You co-founded India's leading sneaker and streetwear platform with Prabal Baghla. Rannvijay Singha came on board. $795K raised.\n\nStores in Mumbai and Hyderabad. CNBC-TV18 feature. ₹26Cr+ yearly sales." },
       { x: 22, y: 16, name: "Prabal Baghla", role: "Co-founder · SoleSearch", kind: "trainer-m", beat: "learned",
-        quote: "Built the operations and retail presence together.\n\nMumbai and Hyderabad stores, 30+ events, ₹26cr+ annual sales." },
+        quote: "We built the operations and retail presence together.\n\nMumbai, Hyderabad, 30+ events, ₹26Cr+ — and you ran it all as CEO. That's the job." },
       { x: 8, y: 8, name: "Sneakerhead", role: "SoleSearch Mall", kind: "fan", beat: "did",
-        quote: "I've been to 12 SoleSearch events.\n\nThe first one was 40 people in a parking lot.\n\nThe last one had a queue around the block." },
+        quote: "I've been to 12 SoleSearch events.\n\nThe first one was 40 people in a parking lot.\n\nThe last one had a queue around the block. You built that." },
       { x: 18, y: 13, name: "Rannvijay Singha", role: "Brand Partner · SoleSearch", kind: "celeb", beat: "did",
         quote: "I joined because it was real.\n\nNot another influencer deal — an actual platform building India's streetwear culture from the ground up." },
     ],
@@ -476,18 +482,18 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     w: 26, h: 20,
     // Trading floor right side; candlestick forest left; sign bottom-center
     building: { x: 16, y: 2, w: 9, h: 7, doorX: 4, color: "#1a8c6e", roof: "#053d2c" },
-    sign: { x: -99, y: -99, text: "FERE DISTRICT\nAutonomous AI agents.\n$1.3M raised." },
+    sign: { x: 3, y: 17, text: "FERE DISTRICT\nAutonomous AI agents · Crypto.\n\nRejoined Akshaya Aron a decade later.\n$1.3M raised · Ethereal Ventures.\n10M+ agent actions at launch." },
     badge: { x: 5, y: 9, id: "agent", label: "Autonomy Badge", color: "#00e8a0" },
     npcs: [
       { x: 8, y: 17, name: "Fere.ai", role: "AI × Crypto · 2024-25", kind: "engineer", beat: "did",
-        quote: "A year-long project with Akshaya Aron — a decade after Octo.\n\nAutonomous AI agents for financial markets. Starting with crypto." },
-      { x: 24, y: 15, name: "Full circle", role: "What Fere taught me", kind: "investor", beat: "learned",
+        quote: "A year-long project with Akshaya Aron — a decade after Octo.\n\nAutonomous AI agents for financial markets. Starting with crypto. You led growth and marketing through the $1.3M raise." },
+      { x: 24, y: 15, name: "Full Circle", role: "What Fere taught you", kind: "investor", beat: "learned",
         beats: [
           "When agents act autonomously, you're not selling a product. You're building trust in something invisible.",
-          "If you're a founder or investor reading this — that's exactly the challenge Param solved here.\n\nTrust. Not demo. Trust."
+          "That's exactly what you figured out here.\n\nTrust before demo. Not the other way around."
         ] },
       { x: 4, y: 10, name: "Ethereal Ventures", role: "Lead Investor · Fere $1.3M", kind: "investor", beat: "did",
-        quote: "We led the $1.3M round because the thesis was clear and the team had done this before.\n\nSecond-time founders with the same core team. That's the rarest thing." },
+        quote: "We led the round because the team understood both sides — the AI and the user.\n\nThat combination is rarer than most people think." },
     ],
     creature: { id: "wisp", name: "Agentwisp", type: "Autonomy", power: 28, color: "#00e8a0", shape: "wisp",
       description: "Black Box's agent. Acts on its own.", from: "fere" },
@@ -527,15 +533,15 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     w: 26, h: 20,
     // Studio building top-left, speakers and record player scattered right
     building: { x: 1, y: 1, w: 9, h: 7, doorX: 4, color: "#c47844", roof: "#5a2c10" },
-    sign: { x: -99, y: -99, text: "CATS CAN DANCE\nMusic label · Pet-forward brand.\nNo brief. No client." },
+    sign: { x: 20, y: 16, text: "CATS CAN DANCE\nMusic label · Pet-forward brand.\n\nOriginal music · Brand world · Live events.\nNo brief. No client.\nThe work that has to exist." },
     badge: { x: 22, y: 15, id: "soul", label: "Soul Badge", color: "#ffd29a" },
     npcs: [
       { x: 3, y: 16, name: "Cats Can Dance", role: "Music label · Pet brand", kind: "client", beat: "did",
-        quote: "A music label and pet-forward brand. Original music, brand world, live events.\n\nNo brief. No client. The work that exists because it has to." },
+        quote: "A music label and pet-forward brand. Original music, brand world, live events.\n\nNo brief. No client. This is the work that exists because it has to — not because someone commissioned it." },
       { x: 21, y: 11, name: "A cat", role: "Studio resident", kind: "fan", beat: "did",
         quote: "Mrrrp." },
       { x: 8, y: 16, name: "Music Fan", role: "CCD Live Event", kind: "fan", beat: "did",
-        quote: "I discovered Cats Can Dance at a live show.\n\nThere's something about music made without a brief.\n\nIt sounds different. More honest." },
+        quote: "I discovered Cats Can Dance at a live show.\n\nMusic made without a brief sounds different.\n\nMore honest. You can tell nobody told them what to make." },
     ],
     creature: { id: "cat", name: "Discocat", type: "Soul", power: 22, color: "#ffd29a", shape: "cat",
       description: "No Brief's loyal cat. Dances unprompted.", from: "ccd" },
@@ -575,11 +581,11 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     w: 26, h: 20,
     // HQ building top-right with trophy wall; champion archway center; contact left
     building: { x: 15, y: 1, w: 10, h: 8, doorX: 4, color: "#4a8cc4", roof: "#1a3858" },
-    sign: { x: -99, y: -99, text: "ITERATE HQ\nAI-native marketing agency.\nFifteen years pointed at one target." },
+    sign: { x: 3, y: 17, text: "ITERATE HQ\nAI-native marketing agency.\n\nStrategy + Creative + Technology.\n15 years of operator instinct.\nMoving at the speed of AI." },
     badge: { x: 4, y: 15, id: "champion", label: "Champion Badge", color: "#7ce0ff" },
     npcs: [
       { x: 6, y: 17, name: "Iterate", role: "Founder · AI-native agency", kind: "engineer", beat: "did",
-        quote: "An AI-native marketing agency built on 15 years of operating across brand, technology, and growth.\n\nStrategy, creative, and technology in one room — moving at the speed of AI." },
+        quote: "An AI-native marketing agency built on 15 years of operating across brand, technology, and growth.\n\nStrategy, creative, and technology in one room — moving at the speed of AI.\n\nThis is what everything was pointing toward." },
       { x: 22, y: 15, name: "Work with us", role: "Founder partners only", kind: "trainer-m", beat: "did",
         quote: "We take a small number of founder partners per quarter.\n\nTalk to me: param@catscandance.com",
         special: "contact" },
@@ -587,7 +593,9 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
         quote: "Send me something interesting.\n\nparam@catscandance.com",
         special: "contact" },
       { x: 7, y: 12, name: "Former Client", role: "Iterate Partner", kind: "client", beat: "did",
-        quote: "We hired Iterate for a three-month sprint.\n\nThey moved faster than our internal team and shipped things we'd been planning for a year.\n\nAI-native isn't a pitch. It's how they actually work." },
+        quote: "We hired Iterate for a three-month sprint.\n\nThey moved faster than our internal team and shipped things we'd been planning for a year.\n\nAI-native isn't a pitch — it's how they actually work." },
+      { x: 12, y: 15, name: "Rival", role: "Old friend · Final chapter", kind: "rival", beat: "did",
+        quote: "...I've been watching the whole time.\n\nEvery world. Every boss. Every industry switch.\n\nOkay fine. I'll say it:\n\nYou were right. The range is the point.\n\nAnd whoever's reading this — so were you for making it this far." },
     ],
     creature: { id: "core", name: "Iteratron", type: "Stack", power: 40, color: "#7ce0ff", shape: "core",
       description: "Status Quo's last defense. The system itself.", from: "iterate" },
@@ -883,6 +891,12 @@ export const ROUTE_NPCS: RouteNpc[] = [
     name: "Music Producer", role: "Route 9 · CCD → Iterate",
     kind: "celeb",
     quote: "Cats Can Dance is doing something real.\n\nOriginal music. Brand world. Events.\n\nNo brief. That's the hardest kind of work there is." },
+
+  // Easter egg: Old Fisher at the very end of the last route
+  { x: 40, y: 278,
+    name: "Old Fisher", role: "Somewhere between worlds",
+    kind: "fan",
+    quote: "I've been watching builders come through here for years.\n\nMost of them know one thing very well.\n\nThis one knows six things well. That's different.\n\nJust saying." },
 ];
 
 export function allInteractives(): Interactive[] {

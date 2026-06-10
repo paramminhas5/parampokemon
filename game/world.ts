@@ -14,7 +14,7 @@ const PATH_X2 = 43; // exclusive — 6 tiles total
 
 // ─── Per-zone props (thematic decorations) ─────────────────────────────────
 const ZONE_PROPS: Record<string, TileCode[]> = {
-  home:       [T.PROP_DECKCHAIR, T.FLOWER_Y, T.FLOWER_R, T.FENCE],
+  home:       [T.PROP_DECKCHAIR, T.FLOWER_Y, T.FLOWER_R, T.FLOWER_Y],
   origin:     [T.PROP_CART, T.FLOWER_Y, T.PROP_DECKCHAIR, T.FLOWER_R],
   grp:        [T.PROP_PRICETAG, T.PROP_CART, T.PROP_PRICETAG, T.FLOWER_Y],
   hab:        [T.PROP_BRICK_PLANT, T.PROP_BRICK_PLANT, T.FENCE, T.PROP_BRICK_PLANT],
@@ -29,7 +29,7 @@ const ZONE_PROPS: Record<string, TileCode[]> = {
 // ─── Per-zone unique fence / water / perimeter patterns ───────────────────
 // Each zone gets a distinct "edge treatment" along its interior walls
 const ZONE_BORDER_STYLE: Record<string, "fence" | "water" | "flowers" | "mixed" | "none"> = {
-  home:       "fence",
+  home:       "flowers",
   origin:     "flowers",
   grp:        "mixed",
   hab:        "fence",
@@ -320,12 +320,7 @@ function addZoneTreeClusters(grid: TileCode[][], z: typeof ZONES[0], w: number, 
 
   switch (z.id) {
     case "home": {
-      // Fence row along right edge at x=ox+22..24, y=oy+2..12
-      for (let gy = oy + 2; gy < oy + 12; gy++) {
-        placeProp(ox + 22, gy, T.FENCE);
-        placeProp(ox + 23, gy, T.FENCE);
-      }
-      // Small flower garden in lower left
+      // Flower garden in lower-left quadrant
       for (let gy = oy + 13; gy < oy + 17; gy++) {
         for (let gx = ox + 2; gx < ox + 7; gx++) {
           if (safe(gx, gy)) {
@@ -334,6 +329,25 @@ function addZoneTreeClusters(grid: TileCode[][], z: typeof ZONES[0], w: number, 
             else if (r < 0.7) grid[gy][gx] = T.FLOWER_R;
           }
         }
+      }
+      // Tree cluster — top-left corner, away from Prof and spawn
+      for (let gy = oy + 1; gy <= oy + 3; gy++) {
+        for (let gx = ox + 1; gx <= ox + 3; gx++) {
+          placeTree(gx, gy);
+        }
+      }
+      // Tree cluster — bottom-right corner (decorative)
+      for (let gy = oy + zh - 4; gy < oy + zh - 2; gy++) {
+        for (let gx = ox + zw - 5; gx < ox + zw - 3; gx++) {
+          placeTree(gx, gy);
+        }
+      }
+      // Clear path from spawn (ox+13, oy+14) north to Prof (ox+23, oy+4)
+      // Ensure NPC tiles and tiles adjacent to them are walkable base ground
+      for (let gy = oy + 3; gy <= oy + 15; gy++) {
+        const gx = ox + 22;
+        if (gx >= 0 && gy >= 0 && gx < w && gy < h) grid[gy][gx] = base;
+        if (gx + 1 < w) grid[gy][gx + 1] = base;
       }
       break;
     }
