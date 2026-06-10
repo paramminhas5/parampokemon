@@ -488,32 +488,28 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
     const offY = Math.round(-camYSmooth * TILE) + shakeY;
 
     ctx.fillStyle = "#08101a";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, VIEW_TILES_X * TILE, VIEW_TILES_Y * TILE);
 
     // Day/night ambient tint based on local clock hour
     const hour = new Date().getHours();
     let ambientColor: string;
     let ambientAlpha: number;
     if (hour >= 6 && hour < 9) {
-      // Sunrise: warm amber
       ambientColor = "rgba(255,180,80,";
       ambientAlpha = 0.08;
     } else if (hour >= 9 && hour < 17) {
-      // Day: neutral (no tint)
       ambientColor = "rgba(255,255,200,";
       ambientAlpha = 0.02;
     } else if (hour >= 17 && hour < 20) {
-      // Dusk: blue-orange
       ambientColor = "rgba(80,120,220,";
       ambientAlpha = 0.10;
     } else {
-      // Night: deep blue
       ambientColor = "rgba(10,20,80,";
       ambientAlpha = 0.18;
     }
     if (ambientAlpha > 0) {
       ctx.fillStyle = `${ambientColor}${ambientAlpha})`;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillRect(0, 0, VIEW_TILES_X * TILE, VIEW_TILES_Y * TILE);
     }
 
     const tx0 = Math.max(0, Math.floor(cx));
@@ -1013,8 +1009,8 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
     }
 
     // Edge vignette — subtle darkening at canvas borders
-    const vgW = canvas.width;
-    const vgH = canvas.height;
+    const vgW = VIEW_TILES_X * TILE;
+    const vgH = VIEW_TILES_Y * TILE;
     const vg = ctx.createRadialGradient(vgW/2, vgH/2, vgH*0.3, vgW/2, vgH/2, vgH*0.85);
     vg.addColorStop(0, "rgba(0,0,0,0)");
     vg.addColorStop(1, "rgba(2,5,14,0.55)");
@@ -1026,15 +1022,18 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
     // Match canvas backing buffer to its CSS-displayed size, in TILE units.
     const cssW = canvas.clientWidth || canvas.parentElement?.clientWidth || DEFAULT_VIEW_TILES_X * TILE;
     const cssH = canvas.clientHeight || canvas.parentElement?.clientHeight || DEFAULT_VIEW_TILES_Y * TILE;
+    // Use devicePixelRatio for crisp rendering on HiDPI displays
+    const dpr = Math.min(window.devicePixelRatio || 1, 3); // cap at 3x for perf
     // Target a roomy on-screen tile size so the world feels close, not tiny:
-    // ~36px/tile on phones (≈11 tiles across a 390px screen), 28px/tile on
-    // tablets, 24px/tile on desktop. The canvas backing buffer is
-    // VIEW_TILES * 16; CSS stretches it to fill.
     const targetTilePx = cssW < 520 ? 36 : cssW < 900 ? 30 : 26;
     VIEW_TILES_X = Math.max(9, Math.min(28, Math.floor(cssW / targetTilePx)));
     VIEW_TILES_Y = Math.max(11, Math.min(22, Math.floor(cssH / targetTilePx)));
-    canvas.width = VIEW_TILES_X * TILE;
-    canvas.height = VIEW_TILES_Y * TILE;
+    canvas.width = Math.round(VIEW_TILES_X * TILE * dpr);
+    canvas.height = Math.round(VIEW_TILES_Y * TILE * dpr);
+    canvas.style.width = `${VIEW_TILES_X * TILE}px`;
+    canvas.style.height = `${VIEW_TILES_Y * TILE}px`;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.imageSmoothingEnabled = false;
   }
   resize();
   const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => resize()) : null;

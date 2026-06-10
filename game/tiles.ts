@@ -85,28 +85,41 @@ function px(ctx: Ctx, x: number, y: number, color: string) {
   ctx.fillStyle = color; ctx.fillRect(x, y, 1, 1);
 }
 
+// ─── Scale helper: converts a 16-px-grid offset to current TILE size ────────
+// All procedural drawing is authored at a 16-unit grid then scaled to TILE.
+// T16(v) maps a 0..16 value to 0..TILE in real canvas pixels.
+const S = TILE / 16; // scale factor (1 at 16px, 3 at 48px …)
+function T16(v: number) { return Math.round(v * S); }
+function R16(v: number) { return Math.max(1, Math.round(v * S)); } // for sizes (min 1)
+
 export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: number, py0: number, now: number = 0) {
   const r = n(wx, wy);
   switch (code) {
     case T.GRASS: {
-      // Classic GBA checkerboard — alternating light/dark every 2 tiles
+      // Lush two-tone checkerboard — alternating every 2 tiles like GBA Pokemon
       const lightCell = ((Math.floor(wx / 2) + Math.floor(wy / 2)) % 2 === 0);
-      const baseCol = lightCell ? "#74c466" : "#69ba5b";
+      const baseCol = lightCell ? "#74c466" : "#68b85a";
       fillRect(ctx, px0, py0, TILE, TILE, baseCol);
-      // Subtle blade tufts — small "v" marks scattered, seeded so they're stable
-      const tuft = lightCell ? "#5fae51" : "#56a449";
-      if (r > 0.30) {
-        const tx = px0 + 3 + Math.floor(r * 6);
-        const ty = py0 + 4 + Math.floor((r * 13 % 1) * 7);
-        px(ctx, tx, ty, tuft); px(ctx, tx + 1, ty + 1, tuft); px(ctx, tx + 2, ty, tuft);
+      // Richer sub-tile detail at larger sizes: multiple blade tufts
+      const tuft = lightCell ? "#5aaa4c" : "#549843";
+      const hi   = lightCell ? "#8ed480" : "#7ec870";
+      // Scatter several small grass blade groups across the tile
+      const offsets = [
+        [2, 3], [7, 1], [12, 5], [4, 10], [10, 12], [14, 8], [1, 13],
+      ] as [number,number][];
+      for (const [ox, oy] of offsets) {
+        const seed = n(wx + ox * 0.1, wy + oy * 0.1);
+        if (seed > 0.35) {
+          const bx = px0 + T16(ox), by = py0 + T16(oy);
+          const w2 = R16(1), h = R16(2 + seed * 2);
+          ctx.fillStyle = tuft;
+          ctx.fillRect(bx, by, w2, h);
+          ctx.fillRect(bx + R16(1.5), by + R16(1), w2, R16(h * 0.6));
+          if (seed > 0.7) { ctx.fillStyle = hi; ctx.fillRect(bx, by, w2, R16(1)); }
+        }
       }
-      if (r > 0.74) {
-        const tx2 = px0 + 9 + Math.floor((r * 7 % 1) * 4);
-        const ty2 = py0 + 9 + Math.floor((r * 5 % 1) * 5);
-        px(ctx, tx2, ty2, tuft); px(ctx, tx2 + 1, ty2 + 1, tuft); px(ctx, tx2 + 2, ty2, tuft);
-      }
-      // faint top highlight for the light cells gives the mowed-lawn look
-      if (lightCell) px(ctx, px0 + 1, py0 + 1, "#80cf72");
+      // top-left corner specular
+      if (lightCell) { ctx.fillStyle = "#8ed480"; ctx.fillRect(px0 + R16(1), py0 + R16(1), R16(2), R16(1)); }
       break;
     }
     case T.GRASS_DARK: {
