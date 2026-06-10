@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ZONES, CONTACT, PRESS } from "@/game/data";
 import { CareerCard } from "@/components/home/CareerCard";
+import { CreatureStrip } from "@/components/home/CreatureStrip";
 
 const SNAPSHOT = [
   { label: "YEARS", value: "15+" },
@@ -25,17 +26,7 @@ export default function Home() {
         textAlign: "center", position: "relative",
       }}>
         {/* Creature strip behind hero */}
-        <div style={{
-          position: "absolute", top: 20, left: 0, right: 0,
-          display: "flex", justifyContent: "center", gap: 0,
-          opacity: 0.06, pointerEvents: "none",
-          overflow: "hidden",
-        }}>
-          {careerZones.filter(z => z.creature).map(z => (
-            <img key={z.id} src={`/sprites/creatures/${z.id}.png`} alt=""
-              style={{ width: 80, height: 80, imageRendering: "pixelated" }} />
-          ))}
-        </div>
+        <CreatureStrip zones={careerZones} />
 
         <div style={{
           fontFamily: "var(--font-pixel)", fontSize: 9,

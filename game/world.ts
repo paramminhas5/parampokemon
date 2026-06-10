@@ -407,7 +407,7 @@ function placeZoneContent(grid: TileCode[][], w: number, h: number) {
     // Press wall
     if (z.pressWall) {
       const px2 = z.ox + z.pressWall.x, py2 = z.oy + z.pressWall.y;
-      if (px2 >= 0 && py2 >= 0 && px2 < w && py2 < h) grid[py2][px2] = T.BADGE;
+      if (px2 >= 0 && py2 >= 0 && px2 < w && py2 < h) grid[py2][px2] = T.WARPPAD;
     }
 
     // NPCs — ensure standing tile is walkable ground

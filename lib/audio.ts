@@ -61,7 +61,7 @@ function tone(
   osc.stop(c.currentTime + delay + duration + 0.01);
 }
 
-type SoundName = "step" | "hit" | "super" | "crit" | "victory" | "badge" | "catch" | "faint" | "menu" | "warp";
+type SoundName = "step" | "hit" | "super" | "crit" | "victory" | "badge" | "catch" | "faint" | "menu" | "warp" | "hptick";
 
 export function playSound(name: SoundName) {
   if (muted) return;
@@ -111,6 +111,9 @@ export function playSound(name: SoundName) {
       [196, 262, 330, 392, 494, 659].forEach((f, i) => {
         tone(f, 0.08, 0.2, "sine", i * 0.06);
       });
+      break;
+    case "hptick":
+      tone(440 + Math.random() * 80, 0.03, 0.02, "square");
       break;
   }
 }
