@@ -14,7 +14,7 @@ const PATH_X2 = 43; // exclusive — 6 tiles total
 
 // ─── Per-zone props (thematic decorations) ─────────────────────────────────
 const ZONE_PROPS: Record<string, TileCode[]> = {
-  home:       [T.PROP_DECKCHAIR, T.FLOWER_Y, T.FLOWER_R, T.FENCE],
+  home:       [T.PROP_DECKCHAIR, T.FLOWER_Y, T.FLOWER_R, T.FLOWER_Y],
   origin:     [T.PROP_CART, T.FLOWER_Y, T.PROP_DECKCHAIR, T.FLOWER_R],
   grp:        [T.PROP_PRICETAG, T.PROP_CART, T.PROP_PRICETAG, T.FLOWER_Y],
   hab:        [T.PROP_BRICK_PLANT, T.PROP_BRICK_PLANT, T.FENCE, T.PROP_BRICK_PLANT],
@@ -29,7 +29,7 @@ const ZONE_PROPS: Record<string, TileCode[]> = {
 // ─── Per-zone unique fence / water / perimeter patterns ───────────────────
 // Each zone gets a distinct "edge treatment" along its interior walls
 const ZONE_BORDER_STYLE: Record<string, "fence" | "water" | "flowers" | "mixed" | "none"> = {
-  home:       "fence",
+  home:       "flowers",
   origin:     "flowers",
   grp:        "mixed",
   hab:        "fence",
@@ -320,18 +320,34 @@ function addZoneTreeClusters(grid: TileCode[][], z: typeof ZONES[0], w: number, 
 
   switch (z.id) {
     case "home": {
-      // Fence row along right edge at x=ox+22..24, y=oy+2..12
-      for (let gy = oy + 2; gy < oy + 12; gy++) {
-        placeProp(ox + 22, gy, T.FENCE);
-        placeProp(ox + 23, gy, T.FENCE);
-      }
-      // Small flower garden in lower left
+      // Flower garden in lower-left quadrant (cozy home feel)
       for (let gy = oy + 13; gy < oy + 17; gy++) {
         for (let gx = ox + 2; gx < ox + 7; gx++) {
           if (safe(gx, gy)) {
             const r = sr(gx, gy, 99);
             if (r < 0.4) grid[gy][gx] = T.FLOWER_Y;
             else if (r < 0.7) grid[gy][gx] = T.FLOWER_R;
+          }
+        }
+      }
+      // Decorative tree cluster — top-left only, away from Prof and spawn
+      for (let gy = oy + 1; gy <= oy + 3; gy++) {
+        for (let gx = ox + 1; gx <= ox + 3; gx++) {
+          placeTree(gx, gy);
+        }
+      }
+      // Small tree cluster bottom-right corner (decorative only)
+      for (let gy = oy + zh - 4; gy < oy + zh - 2; gy++) {
+        for (let gx = ox + zw - 5; gx < ox + zw - 3; gx++) {
+          placeTree(gx, gy);
+        }
+      }
+      // CRITICAL: Clear walkable strip so Prof. Iterate (ox+23, oy+4) is reachable.
+      // Wipe any props/trees in the corridor ox+20..24, oy+2..15
+      for (let gy = oy + 2; gy <= oy + 15; gy++) {
+        for (let gx = ox + 20; gx <= ox + 24; gx++) {
+          if (gx >= 0 && gy >= 0 && gx < w && gy < h) {
+            if (grid[gy][gx] !== base) grid[gy][gx] = base;
           }
         }
       }
@@ -602,9 +618,10 @@ function placeZoneContent(grid: TileCode[][], w: number, h: number) {
           // Don't place on or adjacent to path corridor
           if (px3 >= PATH_X1 - 2 && px3 < PATH_X2 + 2) continue;
           const seed = sr(px3, py, z.id.charCodeAt(0));
-          // 18% prop density (up from 12%)
-          if (seed < 0.18) {
-            const propIdx = Math.floor(seed * props.length / 0.18) % props.length;
+          // Home zone gets lower density (8%) — cleaner starting area
+          const density = z.id === "home" ? 0.08 : 0.18;
+          if (seed < density) {
+            const propIdx = Math.floor(seed * props.length / density) % props.length;
             grid[py][px3] = props[propIdx];
           }
         }

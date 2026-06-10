@@ -64,13 +64,11 @@ export function Interior({
     if (x < 0 || y < 0 || x >= INTERIOR_W || y >= INTERIOR_H) return true;
     const code = interior.tiles[y][x];
     if (SOLID.has(code)) return true;
-    // Exit door tile is passable
+    // Exit door tile is always passable (triggers exit)
     if (code === T.DOOR) return false;
-    // NPC positions are solid when dialog not open
-    if (!dialogRef.current) {
-      for (const npc of interior.npcs) {
-        if (npc.x === x && npc.y === y) return true;
-      }
+    // NPC positions are solid (player walks up to them, not through)
+    for (const npc of interior.npcs) {
+      if (npc.x === x && npc.y === y) return true;
     }
     return false;
   }, [interior]);
@@ -121,27 +119,40 @@ export function Interior({
       return;
     }
     const s = playerRef.current;
+
+    // Check facing tile
     let fx = s.tx, fy = s.ty;
     if (s.dir === "up")    fy--;
     if (s.dir === "down")  fy++;
     if (s.dir === "left")  fx--;
     if (s.dir === "right") fx++;
 
-    // Exit door interact
-    if (fx === INTERIOR_EXIT_X && fy === INTERIOR_EXIT_Y) {
+    // Exit door interact (facing or standing on)
+    if ((fx === INTERIOR_EXIT_X && fy === INTERIOR_EXIT_Y) ||
+        (s.tx === INTERIOR_EXIT_X && s.ty === INTERIOR_EXIT_Y)) {
       setFadeOut(true);
       setTimeout(() => onExit(), 350);
       playSound("warp");
       return;
     }
 
+    // Check all adjacent tiles (up/down/left/right) for NPCs — not just facing
+    const candidates = [
+      { x: s.tx,     y: s.ty - 1 },
+      { x: s.tx,     y: s.ty + 1 },
+      { x: s.tx - 1, y: s.ty     },
+      { x: s.tx + 1, y: s.ty     },
+    ];
+
     for (const npc of interior.npcs) {
-      if (npc.x === fx && npc.y === fy) {
+      const isAdjacent = candidates.some(c => c.x === npc.x && c.y === npc.y);
+      if (!isAdjacent) continue;
+
+      const startDialog = () => {
         const d: DialogState = { name: npc.name, role: npc.role, quote: npc.quote, shown: 0, done: false };
         dialogRef.current = d;
         setDialog(d);
         playSound("menu");
-        // Start typewriter
         let i = 0;
         const tick = () => {
           i++;
@@ -159,8 +170,10 @@ export function Interior({
           setTimeout(tick, 22);
         };
         setTimeout(tick, 22);
-        return;
-      }
+      };
+
+      startDialog();
+      return;
     }
   }, [interior, onExit]);
 
