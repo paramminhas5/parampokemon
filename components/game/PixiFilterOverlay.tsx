@@ -76,15 +76,16 @@ export function PixiFilterOverlay({
 
       // Mount PixiJS canvas over the game canvas
       const pixiCanvas = app.canvas as HTMLCanvasElement;
-      pixiCanvas.style.cssText = [
-        "position:absolute",
-        "inset:0",
-        "width:100%",
-        "height:100%",
-        "pointer-events:none",
-        "image-rendering:pixelated",
-        "z-index:5",                  // above game canvas (z:1) but below React UI (z:20+)
-      ].join(";");
+      pixiCanvas.style.position = "absolute";
+      pixiCanvas.style.inset = "0";
+      pixiCanvas.style.width = "100%";
+      pixiCanvas.style.height = "100%";
+      pixiCanvas.style.pointerEvents = "none";
+      pixiCanvas.style.imageRendering = "pixelated";
+      pixiCanvas.style.zIndex = "5";
+      // Critical: also set the attribute so no browser interprets it as interactive
+      pixiCanvas.setAttribute("aria-hidden", "true");
+      pixiCanvas.tabIndex = -1;
       overlayRef.current!.appendChild(pixiCanvas);
 
       // ── Sprite that shows a copy of the game canvas each frame ──────────

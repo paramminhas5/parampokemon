@@ -81,6 +81,10 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
   let shakeUntil = 0;
   let shakeAmp = 0;
 
+  // ── Footstep dust particles ──────────────────────────────────
+  type DustParticle = { x: number; y: number; vx: number; vy: number; alpha: number; size: number };
+  const dustParticles: DustParticle[] = [];
+
   const world = buildWorld();
   const worldH = world.length;
   const worldW = world[0].length;
@@ -148,6 +152,18 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
     state.stepCount++;
     state.frame = (state.stepCount % 2 === 0 ? 1 : 2) as 1 | 2;
     if (state.stepCount % 2 === 0) playSound("step");
+    // Spawn footstep dust
+    for (let d = 0; d < 3; d++) {
+      dustParticles.push({
+        x: state.tx * TILE + TILE / 2 + (Math.random() - 0.5) * TILE * 0.6,
+        y: state.ty * TILE + TILE - 2,
+        vx: (Math.random() - 0.5) * 0.6,
+        vy: -(Math.random() * 0.5 + 0.2),
+        alpha: 0.55 + Math.random() * 0.2,
+        size: 1 + Math.random() * 1.5,
+      });
+    }
+    if (dustParticles.length > 60) dustParticles.splice(0, dustParticles.length - 60);
     if (typeof navigator !== "undefined" && navigator.vibrate) {
       navigator.vibrate(40);
     }
@@ -241,7 +257,8 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
           const routeNpc = ROUTE_NPCS.find(rn => rn.name === npc.npc.name && rn.trainer);
           if (routeNpc && routeNpc.trainer && !state.defeatedTrainers.has(routeNpc.name)) {
             cb.onTrainerBattle(routeNpc);
-          } else {
+          } else if (npc.npc.kind !== "mom") {
+            // Mom only responds to manual interact (Space/A), not auto-proximity
             cb.onInteract(npc);
           }
           return;
@@ -510,6 +527,130 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       }
     }
 
+    // ── Per-zone color grading ────────────────────────────────────────────
+    // Each zone gets its own ambient color wash painted only within its bounds.
+    for (const z of ZONES) {
+      if (z.oy + z.h < ty0 || z.oy > ty1) continue;
+      const zx0 = (z.ox * TILE) + offX;
+      const zy0 = (z.oy * TILE) + offY;
+      const zw  = z.w * TILE;
+      const zh  = z.h * TILE;
+      let zoneColor = "";
+      switch (z.theme.ground) {
+        case "neon":   zoneColor = "rgba(30,60,120,0.10)"; break;   // ai — cool blue wash
+        case "crypto": zoneColor = "rgba(0,40,20,0.12)";   break;   // fere — deep green
+        case "dusk":   zoneColor = "rgba(60,20,80,0.10)";  break;   // investopad — purple
+        case "mall":   zoneColor = "rgba(60,0,40,0.09)";   break;   // sole — pink dark
+        case "studio": zoneColor = "rgba(60,30,0,0.10)";   break;   // ccd — amber warm
+        case "night":  zoneColor = "rgba(0,20,60,0.12)";   break;   // iterate — deep navy
+        case "sand":   zoneColor = "rgba(40,20,0,0.08)";   break;   // origin — warm sand
+        case "stone":  zoneColor = "rgba(20,10,0,0.08)";   break;   // hab — earthy
+        case "snow":   zoneColor = "rgba(200,220,255,0.08)"; break; // snow — icy blue-white
+        default: break;
+      }
+      if (zoneColor) {
+        ctx.fillStyle = zoneColor;
+        ctx.fillRect(zx0, zy0, zw, zh);
+      }
+    }
+
+    // ── Per-zone weather particles ────────────────────────────────────────
+    for (const z of ZONES) {
+      if (z.oy + z.h < ty0 - 2 || z.oy > ty1 + 2) continue;
+      const zx0 = z.ox * TILE + offX;
+      const zy0 = z.oy * TILE + offY;
+      const zw  = z.w  * TILE;
+      const zh  = z.h  * TILE;
+      // Clip weather to zone bounds
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(zx0, zy0, zw, zh);
+      ctx.clip();
+      switch (z.theme.ground) {
+        case "neon": {
+          // ai — falling hex/data rain
+          for (let p = 0; p < 18; p++) {
+            const seed = z.id.charCodeAt(0) * 31 + p * 17;
+            const col  = zx0 + (seed * 53 % zw);
+            const spd  = 0.04 + (seed % 5) * 0.012;
+            const ypos = zy0 + ((now * spd + seed * 43) % zh);
+            const chr  = ["0","1","#",">","<","[","]"][p % 7];
+            ctx.fillStyle = `rgba(0,232,160,${0.18 + (p % 3) * 0.06})`;
+            ctx.font = "bold 7px monospace";
+            ctx.fillText(chr, col, ypos);
+          }
+          break;
+        }
+        case "crypto": {
+          // fere — green matrix rain columns
+          for (let p = 0; p < 14; p++) {
+            const seed = z.id.charCodeAt(1) * 29 + p * 19;
+            const col  = zx0 + (seed * 61 % zw);
+            const spd  = 0.05 + (seed % 4) * 0.015;
+            const ypos = zy0 + ((now * spd + seed * 37) % zh);
+            ctx.fillStyle = `rgba(0,255,120,${0.10 + (p % 3) * 0.04})`;
+            ctx.fillRect(col, ypos, 1, 6 + p % 8);
+          }
+          break;
+        }
+        case "studio": {
+          // ccd — floating musical notes
+          for (let p = 0; p < 8; p++) {
+            const seed  = z.id.charCodeAt(0) * 23 + p * 41;
+            const noteX = zx0 + (seed * 47 % zw);
+            const floatY = Math.sin(now / 1800 + p * 0.9) * 12;
+            const noteY  = zy0 + (seed * 31 % zh) + floatY;
+            const alpha  = 0.12 + Math.sin(now / 900 + p) * 0.06;
+            ctx.fillStyle = `rgba(255,210,140,${alpha})`;
+            ctx.font = "10px serif";
+            ctx.fillText(["♩","♪","♫","♬"][p % 4], noteX, noteY);
+          }
+          break;
+        }
+        case "snow": {
+          // snow — falling snowflakes
+          for (let p = 0; p < 22; p++) {
+            const seed = z.id.charCodeAt(0) * 37 + p * 13;
+            const spd  = 0.018 + (seed % 5) * 0.006;
+            const wx2  = zx0 + (seed * 59 % zw) + Math.sin(now / 1200 + p) * 4;
+            const wy2  = zy0 + ((now * spd + seed * 51) % zh);
+            const alpha = 0.25 + (p % 3) * 0.08;
+            ctx.fillStyle = `rgba(220,235,255,${alpha})`;
+            ctx.fillRect(wx2, wy2, p % 3 === 0 ? 2 : 1, p % 3 === 0 ? 2 : 1);
+          }
+          break;
+        }
+        case "mall": {
+          // sole mall — rising glitter/sparkle motes
+          for (let p = 0; p < 12; p++) {
+            const seed  = z.id.charCodeAt(0) * 43 + p * 23;
+            const spd   = 0.015 + (seed % 4) * 0.007;
+            const mx    = zx0 + (seed * 67 % zw);
+            const my    = zy0 + zh - ((now * spd + seed * 29) % zh);
+            const alpha = 0.10 + Math.sin(now / 400 + p * 1.3) * 0.07;
+            ctx.fillStyle = `rgba(255,180,230,${alpha})`;
+            ctx.fillRect(mx, my, 2, 2);
+          }
+          break;
+        }
+        case "dusk": {
+          // investopad — slow drifting gold motes
+          for (let p = 0; p < 8; p++) {
+            const seed  = z.id.charCodeAt(0) * 53 + p * 31;
+            const drift = Math.sin(now / 2200 + p * 1.1) * 8;
+            const mx    = zx0 + (seed * 71 % zw) + drift;
+            const my    = zy0 + (seed * 43 % zh) + Math.sin(now / 1600 + p) * 6;
+            const alpha = 0.08 + Math.sin(now / 800 + p) * 0.04;
+            ctx.fillStyle = `rgba(240,196,255,${alpha})`;
+            ctx.fillRect(mx, my, 2, 2);
+          }
+          break;
+        }
+        default: break;
+      }
+      ctx.restore();
+    }
+
     // roofs colored per zone
     for (const z of ZONES) {
       const b = z.building;
@@ -523,6 +664,36 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       }
       ctx.fillStyle = b.color + "22";
       ctx.fillRect((b.x + z.ox) * TILE + offX, (b.y + 1 + z.oy) * TILE + offY, b.w * TILE, (b.h - 1) * TILE);
+
+      // ── Window glow — warm lit windows on building walls ─────────────
+      // Each building gets 2–3 rows of windows with a soft warm glow.
+      // Windows only show on building wall tiles (rows 1..h-2, skip roof row 0)
+      const bScreenX = (b.x + z.ox) * TILE + offX;
+      const bScreenY = (b.y + z.oy) * TILE + offY;
+      const hour2 = new Date().getHours();
+      const isNightTime = hour2 < 7 || hour2 >= 18;
+      const winAlpha = isNightTime ? 0.65 : 0.22;
+      const winColor = z.theme.ground === "neon" || z.theme.ground === "crypto"
+        ? `rgba(100,220,255,${winAlpha})`
+        : z.theme.ground === "studio"
+          ? `rgba(255,200,100,${winAlpha})`
+          : `rgba(255,220,120,${winAlpha})`;
+      // Place 2 windows per wall row, rows 1..(h-2)
+      for (let wr = 1; wr < b.h - 1; wr++) {
+        for (let wc = 0; wc < 2; wc++) {
+          const winX = bScreenX + Math.floor(b.w * TILE * (wc === 0 ? 0.22 : 0.62));
+          const winY = bScreenY + wr * TILE + 3;
+          // Window frame
+          ctx.fillStyle = winColor;
+          ctx.fillRect(winX, winY, 4, 5);
+          // Soft outer glow
+          const grd = ctx.createRadialGradient(winX + 2, winY + 2, 0, winX + 2, winY + 2, 9);
+          grd.addColorStop(0, winColor.replace(/[\d.]+\)$/, `${winAlpha * 0.5})`));
+          grd.addColorStop(1, "rgba(0,0,0,0)");
+          ctx.fillStyle = grd;
+          ctx.fillRect(winX - 7, winY - 7, 18, 18);
+        }
+      }
 
       // landmark for this zone (only when on-screen)
       if (z.oy + z.h >= ty0 - 4 && z.oy <= ty1 + 4) {
@@ -775,6 +946,22 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
           drawFollower(ctx, state.playerStage as "mermander" | "mermalion" | "merlord", fbx, fby, followerFrame);
         }
       }
+    }
+
+    // ── Footstep dust particles ─────────────────────────────────────────
+    for (let d = dustParticles.length - 1; d >= 0; d--) {
+      const dp = dustParticles[d];
+      dp.x     += dp.vx;
+      dp.y     += dp.vy;
+      dp.vy    += 0.04;   // gravity
+      dp.alpha -= 0.028;
+      if (dp.alpha <= 0) { dustParticles.splice(d, 1); continue; }
+      ctx.fillStyle = `rgba(200,180,140,${dp.alpha.toFixed(2)})`;
+      ctx.fillRect(
+        Math.round(dp.x + offX - state.px * TILE + state.tx * TILE),
+        Math.round(dp.y + offY - state.py * TILE + state.ty * TILE),
+        Math.ceil(dp.size), Math.ceil(dp.size),
+      );
     }
 
     // Edge vignette — subtle darkening at canvas borders
