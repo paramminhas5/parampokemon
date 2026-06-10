@@ -284,7 +284,181 @@ function paintZoneArches(grid: TileCode[][], h: number) {
   }
 }
 
-// ─── Building painter ─────────────────────────────────────────────────────
+// ─── Per-zone tree cluster variety ────────────────────────────────────────
+// Adds distinctive tree/prop clusters per zone so each zone looks unique.
+// Constraints: never block the path corridor, building, badge, or NPC tiles.
+function addZoneTreeClusters(grid: TileCode[][], z: typeof ZONES[0], w: number, h: number) {
+  const ox = z.ox;
+  const oy = z.oy;
+  const zw = z.w;
+  const zh = z.h;
+  const base = groundTileFor(z.theme.ground);
+
+  function safe(gx: number, gy: number): boolean {
+    if (gx < ox + 1 || gy < oy + 1 || gx >= ox + zw - 1 || gy >= oy + zh - 1) return false;
+    if (gx < 0 || gy < 0 || gx >= w || gy >= h) return false;
+    // Never on path corridor
+    if (gx >= PATH_X1 - 1 && gx < PATH_X2 + 1) return false;
+    // Never overwrite building
+    const bx1 = ox + z.building.x, bx2 = ox + z.building.x + z.building.w;
+    const by1 = oy + z.building.y, by2 = oy + z.building.y + z.building.h + 2;
+    if (gx >= bx1 - 1 && gx <= bx2 + 1 && gy >= by1 - 1 && gy <= by2 + 1) return false;
+    // Never on badge position
+    if (gx === ox + z.badge.x && gy === oy + z.badge.y) return false;
+    // Never overwrite non-base tiles (sign, badge, etc.)
+    if (grid[gy][gx] !== base) return false;
+    return true;
+  }
+
+  function placeTree(gx: number, gy: number) {
+    if (safe(gx, gy)) grid[gy][gx] = T.TREE;
+  }
+
+  function placeProp(gx: number, gy: number, tile: TileCode) {
+    if (safe(gx, gy)) grid[gy][gx] = tile;
+  }
+
+  switch (z.id) {
+    case "home": {
+      // Fence row along right edge at x=ox+22..24, y=oy+2..12
+      for (let gy = oy + 2; gy < oy + 12; gy++) {
+        placeProp(ox + 22, gy, T.FENCE);
+        placeProp(ox + 23, gy, T.FENCE);
+      }
+      // Small flower garden in lower left
+      for (let gy = oy + 13; gy < oy + 17; gy++) {
+        for (let gx = ox + 2; gx < ox + 7; gx++) {
+          if (safe(gx, gy)) {
+            const r = sr(gx, gy, 99);
+            if (r < 0.4) grid[gy][gx] = T.FLOWER_Y;
+            else if (r < 0.7) grid[gy][gx] = T.FLOWER_R;
+          }
+        }
+      }
+      break;
+    }
+    case "origin": {
+      // Trees at top-left cluster ox+1..3, oy+1..4
+      for (let gy = oy + 1; gy <= oy + 4; gy++) {
+        for (let gx = ox + 1; gx <= ox + 4; gx++) {
+          placeTree(gx, gy);
+        }
+      }
+      // Price tags scattered right side
+      for (let pi = 0; pi < 4; pi++) {
+        placeProp(ox + 18 + pi * 2, oy + 10 + pi, T.PROP_CART);
+      }
+      break;
+    }
+    case "grp": {
+      // Trees at bottom-right corner ox+w-4..w-1, oy+h-4..h-1
+      for (let gy = oy + zh - 5; gy < oy + zh - 2; gy++) {
+        for (let gx = ox + zw - 5; gx < ox + zw - 2; gx++) {
+          placeTree(gx, gy);
+        }
+      }
+      // Price tag row left side
+      for (let gy = oy + 6; gy < oy + 14; gy += 3) {
+        placeProp(ox + 2, gy, T.PROP_PRICETAG);
+        placeProp(ox + 3, gy, T.PROP_PRICETAG);
+      }
+      break;
+    }
+    case "hab": {
+      // Brick plants scattered in open areas (right quadrant)
+      for (let gy = oy + 5; gy < oy + 15; gy += 2) {
+        placeProp(ox + 8, gy, T.PROP_BRICK_PLANT);
+        placeProp(ox + 11, gy + 1, T.PROP_BRICK_PLANT);
+      }
+      // Tree row along top
+      for (let gx = ox + 2; gx < ox + 14; gx += 2) {
+        placeTree(gx, oy + 2);
+      }
+      break;
+    }
+    case "ai": {
+      // Neon pylons in a 3×2 grid in left quadrant
+      const pylonCols = [ox + 3, ox + 6, ox + 9];
+      const pylonRows = [oy + 5, oy + 10];
+      for (const gc of pylonCols) {
+        for (const gr of pylonRows) {
+          placeProp(gc, gr, T.PROP_NEON_PYLON);
+        }
+      }
+      // Server props scattered
+      placeProp(ox + 3, oy + 15, T.PROP_SERVER);
+      placeProp(ox + 6, oy + 15, T.PROP_SERVER);
+      break;
+    }
+    case "investopad": {
+      // Trophy props in right half
+      for (let gy = oy + 4; gy < oy + 16; gy += 4) {
+        placeProp(ox + 18, gy, T.PROP_TROPHY);
+        placeProp(ox + 20, gy + 2, T.PROP_NEON_PYLON);
+      }
+      // Trees top-right
+      for (let gx = ox + 16; gx < ox + zw - 3; gx += 2) {
+        placeTree(gx, oy + 1);
+        placeTree(gx + 1, oy + 2);
+      }
+      break;
+    }
+    case "sole": {
+      // Rack props scattered both sides
+      for (let gy = oy + 3; gy < oy + 18; gy += 4) {
+        placeProp(ox + 2, gy, T.PROP_RACK);
+        placeProp(ox + 2, gy + 2, T.PROP_RACK);
+      }
+      // Speaker on stage area
+      placeProp(ox + 20, oy + 14, T.PROP_SPEAKER);
+      placeProp(ox + 22, oy + 14, T.PROP_SPEAKER);
+      break;
+    }
+    case "fere": {
+      // Candlestick props for crypto trading floor feel — left quadrant 
+      for (let gy = oy + 4; gy < oy + 14; gy += 2) {
+        placeProp(ox + 3, gy, T.PROP_CANDLESTICK);
+        placeProp(ox + 5, gy + 1, T.PROP_CANDLESTICK);
+        placeProp(ox + 7, gy, T.PROP_CANDLESTICK);
+      }
+      // Neon pylons right side
+      placeProp(ox + 12, oy + 5, T.PROP_NEON_PYLON);
+      placeProp(ox + 12, oy + 12, T.PROP_NEON_PYLON);
+      break;
+    }
+    case "ccd": {
+      // Speaker props in studio — left and right sides
+      for (let gy = oy + 4; gy < oy + 16; gy += 4) {
+        placeProp(ox + 2, gy, T.PROP_SPEAKER);
+        placeProp(ox + 21, gy, T.PROP_SPEAKER);
+      }
+      // Tree row top for acoustic treatment feel
+      for (let gx = ox + 3; gx < ox + 10; gx += 2) {
+        placeTree(gx, oy + 2);
+      }
+      break;
+    }
+    case "iterate": {
+      // Trophy + server props for final zone
+      const trophyCols = [ox + 3, ox + 7, ox + 11];
+      for (const gc of trophyCols) {
+        placeProp(gc, oy + 5, T.PROP_TROPHY);
+        placeProp(gc + 1, oy + 12, T.PROP_SERVER);
+      }
+      // Extra tree cluster bottom-left for variety
+      for (let gy = oy + zh - 5; gy < oy + zh - 2; gy++) {
+        for (let gx = ox + 2; gx < ox + 6; gx++) {
+          placeTree(gx, gy);
+        }
+      }
+      break;
+    }
+    default:
+      break;
+  }
+}
+
+
 function paintBuilding(
   grid: TileCode[][],
   b: { x: number; y: number; w: number; h: number; doorX: number; color: string; roof: string },
@@ -415,6 +589,9 @@ function placeZoneContent(grid: TileCode[][], w: number, h: number) {
       const nx = z.ox + npc.x, ny = z.oy + npc.y;
       if (nx >= 0 && ny >= 0 && nx < w && ny < h) grid[ny][nx] = base;
     }
+
+    // ── Per-zone tree cluster variety ────────────────────────────────────
+    addZoneTreeClusters(grid, z, w, h);
 
     // ── Dense thematic props (higher density than before) ────────────────
     if (props.length > 0) {

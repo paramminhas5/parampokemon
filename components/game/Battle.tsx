@@ -36,57 +36,38 @@ function pickLeaderMove(gym: Gym, ctx: StrategyCtx): number {
 
   switch (gym.leader) {
     case "blankpage":
-      // Stall: low power when player is healthy; escalate when wounded
       return withPPFallback(myHp / myMaxHp > 0.6 ? lowestPowerIdx() : highestPowerIdx(), moves);
-
     case "longtail":
-      // Flood: alternate 0/2 every turn; every 4th use move 3
       if (turn % 4 === 3) return withPPFallback(Math.min(3, moves.length - 1), moves);
       return withPPFallback(turn % 2 === 0 ? 0 : Math.min(2, moves.length - 1), moves);
-
     case "zerorunway":
-      // Fast-pressure: always highest power
       return withPPFallback(highestPowerIdx(), moves);
-
     case "prehype":
-      // Educational: cycle all 4 in order so player sees every type
       return withPPFallback(turn % moves.length, moves);
-
     case "termsheet": {
-      // Probe: turn 0 → Normal, turn 1 → 2nd move, turn 2+ → weakness match or highest power
       if (turn === 0) return withPPFallback(0, moves);
       if (turn === 1) return withPPFallback(1, moves);
-      // From turn 2: prefer moves that match any weakness keyword in the move's type
       const weakIdx = moves.findIndex(m =>
         m.type === "Search" || m.type === "Vision" || m.type === "Ops"
       );
       return withPPFallback(weakIdx >= 0 ? weakIdx : highestPowerIdx(), moves);
     }
-
     case "noculture":
-      // Hype-build: soft start, escalate
       if (turn < 2) return withPPFallback(Math.min(turn, moves.length - 1), moves);
       if (turn === 2) return withPPFallback(Math.min(2, moves.length - 1), moves);
       return withPPFallback(Math.min(3, moves.length - 1), moves);
-
     case "blackbox":
-      // Unpredictable: random
       return withPPFallback(Math.floor(Math.random() * moves.length), moves);
-
     case "nobrief":
-      // Artistic: pick the move with the longest flavor text
       return withPPFallback(
         moves.reduce((best, m, i) => m.flavor.length > moves[best].flavor.length ? i : best, 0),
         moves
       );
-
     case "statusquo": {
-      // Champion: even rotation first 2 turns; then highest power when player < 50% HP
       if (turn < 2) return withPPFallback(turn % moves.length, moves);
       if (myHp / myMaxHp < 0.5) return withPPFallback(highestPowerIdx(), moves);
       return withPPFallback(turn % moves.length, moves);
     }
-
     default:
       return withPPFallback(turn % moves.length, moves);
   }
@@ -151,6 +132,15 @@ const BATTLE_STYLES = `
   70%  { opacity: 1; transform: scale(1); }
   100% { opacity: 0; transform: scale(0.9); }
 }
+@keyframes finish-flash {
+  0%   { opacity: 0.85; }
+  40%  { opacity: 0.92; }
+  100% { opacity: 0; }
+}
+@keyframes arena-flash {
+  0%   { opacity: 1; }
+  100% { opacity: 0; }
+}
 `;
 
 // ─── HP Bar with animated drain ─────────────────────────────────────────────
@@ -178,7 +168,8 @@ function HPBar({ current, max, label, color, shaking }: {
   }, [current]);
 
   const pct      = Math.max(0, displayed / max);
-  const barColor = pct > 0.5 ? "#4ade80" : pct > 0.25 ? "#facc15" : "#ef4444";
+  // Use zone accent for high HP, yellow/red as warning zones
+  const barColor = pct > 0.5 ? color : pct > 0.25 ? "#facc15" : "#ef4444";
   return (
     <div style={{ animation: shaking ? "hp-shake 0.4s ease-out" : "none" }}>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
@@ -187,13 +178,13 @@ function HPBar({ current, max, label, color, shaking }: {
           {displayed}/{max}
         </span>
       </div>
-      <div style={{ height: 7, background: "#0d1527", border: "1px solid rgba(255,255,255,0.1)", overflow: "hidden", borderRadius: 2 }}>
+      <div style={{ height: 7, background: "#0d1527", border: "1px solid rgba(255,255,255,0.1)", overflow: "hidden", borderRadius: 0 }}>
         <div style={{
           height: "100%", width: `${pct * 100}%`,
           background: `linear-gradient(90deg, ${barColor}cc, ${barColor})`,
           transition: "width 0.5s cubic-bezier(0.4,0,0.2,1)",
           boxShadow: `0 0 8px ${barColor}90`,
-          borderRadius: 2,
+          borderRadius: 0,
         }} />
       </div>
     </div>
@@ -230,7 +221,7 @@ function MoveButton({ move, disabled, ppLeft, onClick }: {
         transition: "all 0.12s",
         position: "relative",
         boxShadow: (!inactive && hovered) ? `0 0 12px ${color}40` : "none",
-        borderRadius: 3,
+        borderRadius: 0,
       }}
     >
       <div style={{ fontFamily: "var(--font-pixel)", fontSize: 8, color: inactive ? "#2a3a50" : color, marginBottom: 4, letterSpacing: "0.05em" }}>
@@ -243,15 +234,15 @@ function MoveButton({ move, disabled, ppLeft, onClick }: {
           border: `1px solid ${inactive ? "#1a2040" : color + "50"}`,
           padding: "2px 5px",
           color: inactive ? "#2a3a50" : color,
-          borderRadius: 99,
+          borderRadius: 0,
           letterSpacing: "0.04em",
         }}>{move.type}</span>
-        <div style={{ flex: 1, height: 3, background: "#0d1527", borderRadius: 2, overflow: "hidden" }}>
+        <div style={{ flex: 1, height: 3, background: "#0d1527", borderRadius: 0, overflow: "hidden" }}>
           <div style={{
             height: "100%", width: `${powerPct * 100}%`,
             background: inactive ? "#1a2040" : color,
             opacity: inactive ? 0.3 : 0.7,
-            borderRadius: 2,
+            borderRadius: 0,
           }} />
         </div>
         <span style={{ fontFamily: "var(--font-pixel)", fontSize: 6, color: ppLeft < 3 ? "#ef4444" : "#2a3a50", marginLeft: 2 }}>
@@ -290,8 +281,9 @@ const LOG_COLORS: Record<LogKind, string> = {
 };
 
 // ─── Main Battle component ───────────────────────────────────────────────────
-export function Battle({ zone, ownedSkills, badges, onWin, onFlee }: {
+export function Battle({ zone, ownedSkills, badges, onWin, onFlee, onFinishingBlow }: {
   zone: Zone; ownedSkills: Set<string>; badges: Set<string>; onWin: () => void; onFlee: () => void;
+  onFinishingBlow?: () => void;
 }) {
   const gym = zone.gym!;
   const stage = stageForBadges(badges.size);
@@ -312,6 +304,8 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee }: {
   const [superEffectText, setSuperEffectText] = useState<string | null>(null);
   const [oppHpShake, setOppHpShake] = useState(false);
   const [myHpShake, setMyHpShake] = useState(false);
+  const [finishFlash, setFinishFlash] = useState(false);
+  const [arenaFlash, setArenaFlash] = useState(false);
   const logEndRef = useRef<HTMLDivElement>(null);
   const meRef = useRef<HTMLCanvasElement>(null);
   const oppRef = useRef<HTMLCanvasElement>(null);
@@ -351,20 +345,22 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee }: {
           c.drawImage(myBackImg, 4, 4 + bob, 120, 120);
         }
       }
-      // oppRef now draws the LEADER PNG large — creature is shown as HP card thumbnail
+      // oppRef draws the CREATURE large on the field
       if (oppRef.current) {
         const c = oppRef.current.getContext("2d")!;
         c.imageSmoothingEnabled = false; c.clearRect(0, 0, 240, 240);
-        if (leaderImg && isReady(leaderImg)) {
+        // Show the creature as the main battle sprite; fall back to leader portrait
+        const drawImg = oppCreatureImg && isReady(oppCreatureImg) ? oppCreatureImg : leaderImg;
+        if (drawImg && isReady(drawImg)) {
           const bob = Math.sin(now / 420) * 3;
-          c.drawImage(leaderImg, 4, 4 + bob, 232, 232);
+          c.drawImage(drawImg, 8, 8 + bob, 224, 224);
         }
       }
       rafRef.current = requestAnimationFrame(loop);
     };
     rafRef.current = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [stage.id, leaderImg, myBackImg, battleBgImg]);
+  }, [stage.id, leaderImg, oppCreatureImg, myBackImg, battleBgImg]);
 
   useEffect(() => { logEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [log]);
 
@@ -418,13 +414,23 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee }: {
       setOppHp(nextOppHp);
       setOppHpShake(true);
       setTimeout(() => setOppHpShake(false), 500);
-      if (isSuper) { setSuperEffectText("SUPER EFFECTIVE!"); setTimeout(() => setSuperEffectText(null), 900); }
-      if (isCrit)  { setSuperEffectText("CRITICAL HIT!"); setTimeout(() => setSuperEffectText(null), 900); }
+      if (isSuper) {
+        setSuperEffectText("SUPER EFFECTIVE!");
+        setArenaFlash(true);
+        setTimeout(() => setSuperEffectText(null), 900);
+        setTimeout(() => setArenaFlash(false), 300);
+      }
+      if (isCrit) { setSuperEffectText("CRITICAL HIT!"); setTimeout(() => setSuperEffectText(null), 900); }
       if (nextOppHp === 0) {
         addLog(`${gym.opponentName} was defeated!`, "super");
         addLog(gym.victory, "info");
         setDone(true); playSound("victory");
-        setTimeout(onWin, 2000); setAnimating(false); return;
+        // Finishing blow drama: signal parent for canvas shake, flash arena
+        onFinishingBlow?.();
+        setFinishFlash(true);
+        setTimeout(() => setFinishFlash(false), 400);
+        setTimeout(onWin, 1800);
+        setAnimating(false); return;
       }
       const leaderMoveIdx = pickLeaderMove(gym, {
         turn, myHp, myMaxHp: stage.hp,
@@ -454,7 +460,7 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee }: {
         } else setAnimating(false);
       }, 900);
     }, 600);
-  }, [animating, done, gym, stage, oppHp, myHp, turn, ppUsed, addLog, onWin]);
+  }, [animating, done, gym, stage, oppHp, myHp, turn, ppUsed, addLog, onWin, onFinishingBlow]);
 
   return (
     <div style={{
@@ -474,12 +480,22 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee }: {
         }} />
       )}
 
+      {/* Finishing blow flash overlay */}
+      {finishFlash && (
+        <div style={{
+          position: "absolute", inset: 0, zIndex: 59, pointerEvents: "none",
+          background: "rgba(255,255,255,0.85)",
+          animation: "finish-flash 0.4s ease-out forwards",
+        }} />
+      )}
+
       {/* Zone header */}
       <div style={{
         flexShrink: 0, padding: "5px 14px",
         background: `linear-gradient(90deg, ${accent}20 0%, transparent 70%)`,
-        borderBottom: `1px solid ${accent}28`,
+        borderBottom: `1px solid ${accent}50`,
         display: "flex", justifyContent: "space-between", alignItems: "center",
+        borderRadius: 0,
       }}>
         <span style={{ fontSize: 7, color: accent, letterSpacing: "0.12em" }}>⚔ {zone.name.toUpperCase()}</span>
         <span style={{ fontSize: 6, color: accent, opacity: 0.55 }}>{gym.opponentTitle.toUpperCase()}</span>
@@ -489,10 +505,12 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee }: {
       <div style={{
         display: "grid", gridTemplateColumns: "1fr 1fr",
         flexShrink: 0,
-        borderBottom: `2px solid ${accent}35`,
+        borderBottom: `2px solid ${accent}80`,
         minHeight: 260, position: "relative", overflow: "hidden",
+        background: arenaFlash ? `${accent}18` : "transparent",
+        transition: "background 0.3s ease-out",
       }}>
-        {/* Battle background PNG (Batch C) */}
+        {/* Battle background PNG */}
         <canvas ref={bgRef} width={800} height={260} style={{
           position: "absolute", inset: 0, width: "100%", height: "100%",
           zIndex: 0, background: arenaBg,
@@ -505,7 +523,7 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee }: {
             position: "absolute", top: "50%", left: "50%",
             transform: "translate(-50%,-50%)",
             zIndex: 10, pointerEvents: "none",
-            fontFamily: "var(--font-pixel)", fontSize: 13,
+            fontFamily: "var(--font-pixel)", fontSize: 11,
             color: superEffectText.includes("CRIT") ? "#ffd24a" : "#4ade80",
             textShadow: superEffectText.includes("CRIT")
               ? "0 0 20px #ffd24a, 0 0 40px #ffd24a88"
@@ -517,13 +535,13 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee }: {
 
         {/* Player side */}
         <div style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: "8px 12px 0 16px", position: "relative", zIndex: 2 }}>
-          <div style={{ background: "rgba(3,7,18,0.92)", border: "2px solid #1a2a4a", padding: "8px 10px", marginBottom: 4, backdropFilter: "blur(4px)", borderRadius: 3 }}>
+          <div style={{ background: "rgba(3,7,18,0.92)", border: "2px solid #1a2a4a", padding: "8px 10px", marginBottom: 4, backdropFilter: "blur(4px)", borderRadius: 0 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
               {/* Player pokemon PNG thumbnail in HP card */}
               <img
                 src={PLAYER_FRONT_URL[stage.id] ?? PLAYER_FRONT_URL.mermander}
                 alt={stage.name}
-                style={{ width: 22, height: 22, imageRendering: "pixelated", border: "1px solid #1a2a4a", flexShrink: 0, borderRadius: 1 }}
+                style={{ width: 22, height: 22, imageRendering: "pixelated", border: "1px solid #1a2a4a", flexShrink: 0, borderRadius: 0 }}
                 onError={e => (e.currentTarget.style.display = "none")}
               />
               <HPBar current={myHp} max={stage.hp} label={stage.name} color={stage.color} shaking={myHpShake} />
@@ -540,11 +558,11 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee }: {
           <div style={{ transform: oppShake ? "none" : "none", animation: `${oppShake ? "opp-shake 0.45s ease-out" : "sprite-enter-right 0.45s cubic-bezier(0.2,0.8,0.4,1)"}`, filter: `drop-shadow(0 0 28px ${accent}90)` }}>
             <canvas ref={oppRef} width={240} height={240} style={{ imageRendering: "pixelated", width: 240, height: 240 }} />
           </div>
-          <div style={{ background: "rgba(3,7,18,0.92)", border: `2px solid ${accent}45`, padding: "8px 10px", width: "100%", backdropFilter: "blur(4px)", borderRadius: 3 }}>
+          <div style={{ background: "rgba(3,7,18,0.92)", border: `2px solid ${accent}99`, padding: "8px 10px", width: "100%", backdropFilter: "blur(4px)", borderRadius: 0 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-              {/* Creature PNG thumbnail in HP card */}
-              {oppCreatureImg && isReady(oppCreatureImg) && oppCreatureUrl && (
-                <img src={oppCreatureUrl} alt="" style={{ width: 22, height: 22, imageRendering: "pixelated", border: `1px solid ${accent}40`, flexShrink: 0, borderRadius: 1 }} />
+              {/* Leader portrait as small thumbnail in HP card */}
+              {leaderImg && isReady(leaderImg) && LEADER_URL[gym.leader] && (
+                <img src={LEADER_URL[gym.leader]} alt="" style={{ width: 22, height: 22, imageRendering: "pixelated", border: `1px solid ${accent}60`, flexShrink: 0, borderRadius: 0 }} />
               )}
               <div style={{ fontSize: 6, color: "#3a5070" }}>{gym.opponentTitle.toUpperCase()}</div>
             </div>
@@ -582,14 +600,14 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee }: {
                       background: (TYPE_COLORS[l.type] ?? "#7ce0ff") + "20",
                       border: `1px solid ${(TYPE_COLORS[l.type] ?? "#7ce0ff")}45`,
                       color: TYPE_COLORS[l.type] ?? "#7ce0ff",
-                      padding: "1px 5px", borderRadius: 99, flexShrink: 0,
+                      padding: "1px 5px", borderRadius: 0, flexShrink: 0,
                     }}>{l.type}</span>
                   )}
                 </div>
               ) : isFlavor ? (
                 /* Flavor text — italic, slightly smaller, muted — this is the story moment */
                 <div style={{
-                  fontFamily: "var(--font-mono)", fontSize: 13,
+                  fontFamily: "var(--font-mono)", fontSize: 11,
                   color: "#6a88b0", fontStyle: "italic",
                   paddingLeft: 12, lineHeight: 1.55,
                   borderLeft: "2px solid #1a2a40",
@@ -615,7 +633,7 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee }: {
                 </div>
               ) : (
                 /* Generic system line — small, muted */
-                <div style={{ fontFamily: "var(--font-pixel)", fontSize: 7, color: "#3a5070", lineHeight: 1.6 }}>
+                <div style={{ fontFamily: "var(--font-pixel)", fontSize: 9, color: "#3a5070", lineHeight: 1.6 }}>
                   {l.text}
                 </div>
               )}
@@ -637,7 +655,7 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee }: {
         </div>
         <button
           onClick={onFlee}
-          style={{ marginTop: 8, alignSelf: "flex-end", background: "transparent", border: "1px solid #0d1a2a", color: "#1a2a3a", padding: "6px 18px", fontFamily: "var(--font-pixel)", fontSize: 7, cursor: "pointer", borderRadius: 3, transition: "all 0.12s" }}
+          style={{ marginTop: 8, alignSelf: "flex-end", background: "transparent", border: "1px solid #0d1a2a", color: "#1a2a3a", padding: "6px 18px", fontFamily: "var(--font-pixel)", fontSize: 7, cursor: "pointer", borderRadius: 0, transition: "all 0.12s" }}
           onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#ef444450"; (e.currentTarget as HTMLButtonElement).style.color = "#ef4444"; }}
           onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#0d1a2a"; (e.currentTarget as HTMLButtonElement).style.color = "#1a2a3a"; }}
         >↩ FLEE</button>

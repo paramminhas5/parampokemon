@@ -158,7 +158,9 @@ export function DialogBox({ dialog, onClose }: { dialog: NonNullable<GameDialog>
       <div style={{
         maxWidth: 720, width: "100%",
         background: "var(--color-dialog-bg)",
-        border: `2px solid ${accentColor}40`,
+        border: `2px solid ${accentColor}cc`,
+        outline: `1px solid ${accentColor}25`,
+        outlineOffset: `-4px`,
         boxShadow: `inset 0 -2px 0 rgba(0,0,0,0.4), 0 0 20px ${accentColor}15`,
         position: "relative",
       }}>
@@ -166,7 +168,7 @@ export function DialogBox({ dialog, onClose }: { dialog: NonNullable<GameDialog>
         <div style={{
           display: "flex", alignItems: "center", gap: 10,
           padding: "8px 12px",
-          borderBottom: `1px solid ${accentColor}25`,
+          borderBottom: `1px solid ${accentColor}50`,
           background: `linear-gradient(135deg, ${accentColor}10 0%, transparent 60%)`,
         }}>
           {isNpc && dialog.kind && (

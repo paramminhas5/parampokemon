@@ -421,7 +421,7 @@ export function Game() {
         display: "flex", flexDirection: "column",
         boxShadow: "0 0 80px rgba(0,0,0,0.8), 0 0 2px rgba(124,224,255,0.15)",
         border: `1px solid ${hudAccentBleed ? hudAccentBleed + "55" : "rgba(124,224,255,0.06)"}`,
-        transition: hudAccentBleed ? "border-color 0.4s ease-out" : "border-color 2s ease-in",
+        transition: "border-color 0.35s ease-out",
       }}>
         {/* Canvas */}
         <canvas
@@ -681,6 +681,7 @@ export function Game() {
         {battle && (
           <Battle zone={battle} ownedSkills={skills} badges={badges}
             onWin={() => handleBattleWin(battle)}
+            onFinishingBlow={() => engineRef.current?.triggerShake(400)}
             onFlee={() => {
               setBattle(null);
               stopBattleBGM(battle.theme.ground as Parameters<typeof playZoneBGM>[0]);
