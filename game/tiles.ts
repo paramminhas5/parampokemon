@@ -44,6 +44,7 @@ export const T = {
   PROP_TROPHY: 36,
   PROP_CART: 37,
   PROP_DECKCHAIR: 38,
+  WARPPAD: 39,
 } as const;
 export type TileCode = number;
 
@@ -569,6 +570,36 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
       fillRect(ctx, px0 + 3, py0 + 11, 10, 1, "#5a2418");
       fillRect(ctx, px0 + 3, py0 + 12, 1, 3, "#5a2418");
       fillRect(ctx, px0 + 12, py0 + 12, 1, 3, "#5a2418");
+      break;
+    }
+    case T.WARPPAD: {
+      // Warp pad — glowing circular portal on floor
+      drawTile(ctx, T.ROUTE_GRASS, wx, wy, px0, py0, now);
+      // Outer ring
+      const pulse = Math.sin(now / 300 + wx * 0.5 + wy * 0.7) * 0.5 + 0.5;
+      const r2 = 6 + pulse * 2;
+      ctx.strokeStyle = `rgba(255,210,74,${0.5 + pulse * 0.4})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(px0 + 8, py0 + 8, r2, 0, Math.PI * 2);
+      ctx.stroke();
+      // Inner filled circle
+      ctx.fillStyle = `rgba(255,210,74,${0.12 + pulse * 0.1})`;
+      ctx.beginPath();
+      ctx.arc(px0 + 8, py0 + 8, 4, 0, Math.PI * 2);
+      ctx.fill();
+      // Center dot
+      ctx.fillStyle = `rgba(255,210,74,${0.8 + pulse * 0.2})`;
+      ctx.fillRect(px0 + 7, py0 + 7, 2, 2);
+      // Sparkle corners
+      const sparkPhase = Math.floor(now / 200 + wx + wy) % 4;
+      const corners = [[1,1],[14,1],[1,14],[14,14]];
+      corners.forEach(([cx2, cy2], ci) => {
+        if (ci === sparkPhase) {
+          ctx.fillStyle = "#ffd24a";
+          ctx.fillRect(px0 + cx2, py0 + cy2, 1, 1);
+        }
+      });
       break;
     }
     case T.EMPTY:

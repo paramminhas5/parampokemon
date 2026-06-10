@@ -135,6 +135,9 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
     state.stepCount++;
     state.frame = (state.stepCount % 2 === 0 ? 1 : 2) as 1 | 2;
     if (state.stepCount % 2 === 0) playSound("step");
+    if (typeof navigator !== "undefined" && navigator.vibrate) {
+      navigator.vibrate(40);
+    }
   }
 
   function stepPath() {

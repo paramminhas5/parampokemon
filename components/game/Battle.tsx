@@ -77,6 +77,7 @@ function HPBar({ current, max, label, color, shaking }: {
       step++;
       const t = step / steps;
       setDisplayed(Math.round(from + (to - from) * t));
+      if (step % 3 === 0) playSound("hptick");
       if (step >= steps) { clearInterval(id); setDisplayed(to); }
     }, stepMs);
     return () => clearInterval(id);
