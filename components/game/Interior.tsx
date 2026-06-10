@@ -64,13 +64,11 @@ export function Interior({
     if (x < 0 || y < 0 || x >= INTERIOR_W || y >= INTERIOR_H) return true;
     const code = interior.tiles[y][x];
     if (SOLID.has(code)) return true;
-    // Exit door tile is passable
+    // Exit door tile is always passable
     if (code === T.DOOR) return false;
-    // NPC positions are solid when dialog not open
-    if (!dialogRef.current) {
-      for (const npc of interior.npcs) {
-        if (npc.x === x && npc.y === y) return true;
-      }
+    // NPC positions are always solid (player walks up to them, interact handles dialog)
+    for (const npc of interior.npcs) {
+      if (npc.x === x && npc.y === y) return true;
     }
     return false;
   }, [interior]);
@@ -127,40 +125,47 @@ export function Interior({
     if (s.dir === "left")  fx--;
     if (s.dir === "right") fx++;
 
-    // Exit door interact
-    if (fx === INTERIOR_EXIT_X && fy === INTERIOR_EXIT_Y) {
+    // Exit door interact (facing or standing on it)
+    if ((fx === INTERIOR_EXIT_X && fy === INTERIOR_EXIT_Y) ||
+        (s.tx === INTERIOR_EXIT_X && s.ty === INTERIOR_EXIT_Y)) {
       setFadeOut(true);
       setTimeout(() => onExit(), 350);
       playSound("warp");
       return;
     }
 
+    // Check ALL four adjacent tiles for NPCs — not just facing direction
+    const adjacent = [
+      { x: s.tx,     y: s.ty - 1 },
+      { x: s.tx,     y: s.ty + 1 },
+      { x: s.tx - 1, y: s.ty     },
+      { x: s.tx + 1, y: s.ty     },
+    ];
+
     for (const npc of interior.npcs) {
-      if (npc.x === fx && npc.y === fy) {
-        const d: DialogState = { name: npc.name, role: npc.role, quote: npc.quote, shown: 0, done: false };
-        dialogRef.current = d;
-        setDialog(d);
-        playSound("menu");
-        // Start typewriter
-        let i = 0;
-        const tick = () => {
-          i++;
-          const current = dialogRef.current;
-          if (!current) return;
-          if (i >= npc.quote.length) {
-            const done: DialogState = { ...current, shown: npc.quote.length, done: true };
-            dialogRef.current = done;
-            setDialog(done);
-            return;
-          }
-          const next: DialogState = { ...current, shown: i };
-          dialogRef.current = next;
-          setDialog({ ...next });
-          setTimeout(tick, 22);
-        };
+      if (!adjacent.some(c => c.x === npc.x && c.y === npc.y)) continue;
+      const d: DialogState = { name: npc.name, role: npc.role, quote: npc.quote, shown: 0, done: false };
+      dialogRef.current = d;
+      setDialog(d);
+      playSound("menu");
+      let i = 0;
+      const tick = () => {
+        i++;
+        const current = dialogRef.current;
+        if (!current) return;
+        if (i >= npc.quote.length) {
+          const done: DialogState = { ...current, shown: npc.quote.length, done: true };
+          dialogRef.current = done;
+          setDialog(done);
+          return;
+        }
+        const next: DialogState = { ...current, shown: i };
+        dialogRef.current = next;
+        setDialog({ ...next });
         setTimeout(tick, 22);
-        return;
-      }
+      };
+      setTimeout(tick, 22);
+      return;
     }
   }, [interior, onExit]);
 

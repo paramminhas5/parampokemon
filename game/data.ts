@@ -120,34 +120,34 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     w: 26, h: 20,
     // Cozy cottage top-left with fenced garden; Prof lab top-right
     building: { x: 1, y: 2, w: 9, h: 6, doorX: 4, color: "#d0d8e8", roof: "#b0382c" },
-    sign: { x: 16, y: 16, text: "PARAM QUEST\nA career told as an RPG.\n\n10 worlds · 9 bosses · 15 years\n\nYou are a recruiter. Walk through it.\n\nARROWS/WASD · TAP · SPACE to talk\nMAP to jump anywhere" },
+    sign: { x: 16, y: 16, text: "PARAM QUEST\nA career told as an RPG.\n\nYou are a recruiter.\nWalk through it.\n\nARROWS/WASD to move\nTAP to walk there\nSPACE to talk\nMAP to jump anywhere" },
     badge: { x: 22, y: 8, id: "curiosity", label: "Starter Token", color: "#9ad6e8" },
     spawn: { x: 13, y: 14 },
     npcs: [
       { x: 5, y: 15, name: "Mom", role: "Pallet Town", kind: "mom", beat: "did",
-        quote: "You've always done things your own way.",
+        quote: "Param. You're leaving already?",
         beats: [
-          "You've always done things your own way, Param. No shortcuts. No playbook.\n\nEvery time you changed direction, I worried for a week — then you showed me why.",
-          "I'm proud of you. Now go show them what fifteen years of showing up looks like.\n\nThe whole world is waiting outside."
+          "Param. You're leaving already?\n\nI knew this day was coming. You've had that look since you were nine years old — always building something, always asking what's next.",
+          "Take care of yourself out there.\n\nAnd come home with something to show me.\n\nI'll be right here."
         ] },
       { x: 23, y: 4, name: "Prof. Iterate", role: "Pokémon Professor", kind: "professor", beat: "learned",
-        quote: "Param. You've built a lot.",
+        quote: "Ah — Param. I've been waiting.",
         beats: [
-          "Param. You've built companies, shipped products, led teams — across six completely different industries.\n\nBut the world doesn't just hand you credit for that. You have to go earn it. One badge at a time.",
-          "Here — take MERMANDER. Small now, but he grows with every skill you pick up.\n\nEvery world has a SKILL BERRY hidden in it. Find them. Feed them. Beat 4 gyms and he evolves. Beat 8 and he becomes something else entirely.",
-          "The gym bosses aren't fictional. Every one of them is a real obstacle you faced.\n\nWhen you beat them, read the CliffNotes. That's where the real story lives.\n\nHit WORLD SELECT anytime to jump anywhere. The whole map is open."
+          "Ah — Param. I've been waiting.\n\nYou're about to step into something big. Not just one world — ten of them. Each one a real chapter. A real challenge.",
+          "Every world has a gym. A boss that represents something you'll actually have to face.\n\nYou'll know it when you get there.\n\nHere — take MERMANDER. He starts small. So does every good thing.",
+          "One more thing.\n\nWhen you beat a gym, read the CliffNotes. That's where the lesson lives.\n\nAnd use WORLD SELECT to jump anywhere — the whole map is open. This isn't linear. Neither is the journey."
         ] },
       { x: 9, y: 17, name: "Rival", role: "Childhood Friend", kind: "rival", beat: "did",
-        quote: "New industry again? Seriously?",
+        quote: "You're actually doing this.",
         beats: [
-          "New industry again? Seriously, Param.\n\nMost people pick a lane and stay in it. Build a thing, become the expert, repeat.\n\nYou just... don't do that.",
-          "Fine. But I'll be watching every chapter.\n\nWhen you come back with badges — when you've actually walked through every world you built — I want to see what you learned.\n\nGo on then."
+          "You're actually doing this.\n\nI keep thinking you'll pick one thing and stick with it. Like a normal person.\n\nBut no. You're going to walk through ten worlds, aren't you.",
+          "Fine. Go on then.\n\nBut when you come back — when you've got something real to show — I want to hear every chapter.\n\nI'll be watching."
         ] },
       { x: 18, y: 14, name: "Neighbour Kid", role: "Pallet Town", kind: "fan", beat: "did",
-        quote: "He wrote his first line of code at 9.",
+        quote: "Are you really leaving?",
         beats: [
-          "I heard Param wrote his first line of code at 9. And produced music at 14. And started a company at 21.\n\nI can't even do maths.",
-          "Maybe I should just start something.\n\nI think that's the whole point of this place."
+          "Are you really leaving?\n\nMy brother says you wrote your first line of code when you were nine.\n\nIs that actually true?",
+          "I want to build something too someday.\n\nMaybe I'll follow you out there."
         ] },
     ],
     cliff: {
