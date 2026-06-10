@@ -1,91 +1,121 @@
-// Web Audio API sound engine — no files, pure synthesis.
-// Generates all game sounds and background music programmatically.
+// Web Audio sound engine — powered by Howler.js for audio context management,
+// mobile unlock, and global volume/mute control.
+// All sounds are synthesized via Web Audio API oscillators (no audio files).
+// Howler provides: automatic mobile AudioContext unlock, global mute, master gain.
 
-let ctx: AudioContext | null = null;
-let muted = false;
+import { Howler } from "howler";
 
-// ─── Master gain (controls BGM volume globally) ─────────────────
-let masterGain: GainNode | null = null;
-
+// ─── Howler bootstrap ───────────────────────────────────────────
+// Touching Howler.ctx forces it to create + unlock the AudioContext
+// on first user interaction. We wire our synth nodes through it.
 function getCtx(): AudioContext | null {
   if (typeof window === "undefined") return null;
-  if (!ctx) {
-    ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-    masterGain = ctx.createGain();
-    masterGain.gain.value = 1;
-    masterGain.connect(ctx.destination);
-  }
+  // Howler lazily creates its AudioContext on first access
+  const ctx = Howler.ctx as AudioContext | null;
+  if (!ctx) return null;
   if (ctx.state === "suspended") ctx.resume();
   return ctx;
 }
 
-function getMaster(): GainNode | null {
-  getCtx();
-  return masterGain;
+// Ensure Howler's AudioContext exists by creating a silent placeholder sound.
+// Called on first user interaction so mobile browsers unlock audio.
+let _bootstrapped = false;
+function bootstrap() {
+  if (_bootstrapped || typeof window === "undefined") return;
+  _bootstrapped = true;
+  // Warm up Howler's AudioContext without playing any audible sound
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (Howler as any)._setupAudioContext?.();
+  } catch {
+    // Howler may not expose this — that's fine, ctx is created on first Howl
+  }
 }
 
+// ─── Mute / volume — delegated entirely to Howler ───────────────
+let _muted = false;
+
 export function setMuted(m: boolean) {
-  muted = m;
+  _muted = m;
   if (typeof localStorage !== "undefined") localStorage.setItem("pq_muted", m ? "1" : "0");
-  if (masterGain) masterGain.gain.value = m ? 0 : 1;
+  Howler.mute(m);
   if (m) stopBGM(); else resumeBGM();
 }
 
-export function isMuted(): boolean { return muted; }
+export function isMuted(): boolean { return _muted; }
 
 export function loadMutePref() {
   if (typeof localStorage !== "undefined") {
-    muted = localStorage.getItem("pq_muted") === "1";
+    _muted = localStorage.getItem("pq_muted") === "1";
   }
-  return muted;
+  Howler.mute(_muted);
+  return _muted;
+}
+
+// ─── Master gain helper ─────────────────────────────────────────
+// Howler exposes masterGain — we connect our BGM gain chain through it
+// so global mute/volume controls everything uniformly.
+function getMasterGain(): GainNode | null {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (Howler as any).masterGain as GainNode | null ?? null;
 }
 
 // ─── SFX tone helper ────────────────────────────────────────────
+// All SFX are pure oscillator synthesis — Howler manages the AudioContext
+// so mobile unlock happens automatically before any tone plays.
 function tone(
-  frequency: number, duration: number,
-  volume = 0.3, type: OscillatorType = "square", delay = 0,
+  frequency: number,
+  duration: number,
+  volume = 0.3,
+  type: OscillatorType = "square",
+  delay = 0,
   dest?: AudioNode,
 ) {
+  bootstrap();
   const c = getCtx();
-  if (!c || muted) return;
-  const osc = c.createOscillator();
+  if (!c || _muted) return;
+  const osc  = c.createOscillator();
   const gain = c.createGain();
   osc.connect(gain);
-  gain.connect(dest ?? c.destination);
+  // Route through Howler master gain so global mute/volume applies
+  gain.connect(dest ?? getMasterGain() ?? c.destination);
   osc.type = type;
   osc.frequency.setValueAtTime(frequency, c.currentTime + delay);
-  gain.gain.setValueAtTime(0, c.currentTime + delay);
+  gain.gain.setValueAtTime(0,      c.currentTime + delay);
   gain.gain.linearRampToValueAtTime(volume, c.currentTime + delay + 0.01);
   gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + delay + duration);
   osc.start(c.currentTime + delay);
-  osc.stop(c.currentTime + delay + duration + 0.01);
+  osc.stop( c.currentTime + delay + duration + 0.01);
 }
 
-type SoundName = "step" | "hit" | "super" | "crit" | "victory" | "badge" | "catch" | "faint" | "menu" | "warp" | "hptick";
+type SoundName =
+  | "step" | "hit" | "super" | "crit" | "victory"
+  | "badge" | "catch" | "faint" | "menu" | "warp" | "hptick";
 
 export function playSound(name: SoundName) {
-  if (muted) return;
+  if (_muted) return;
+  bootstrap();
   switch (name) {
     case "step":
       tone(220, 0.04, 0.06, "square");
       break;
     case "hit":
       tone(180, 0.12, 0.25, "sawtooth");
-      tone(140, 0.08, 0.2, "square", 0.05);
+      tone(140, 0.08, 0.20, "square", 0.05);
       break;
     case "super":
-      tone(440, 0.08, 0.3, "square");
-      tone(660, 0.08, 0.3, "square", 0.1);
-      tone(880, 0.12, 0.25, "square", 0.2);
+      tone(440, 0.08, 0.30, "square");
+      tone(660, 0.08, 0.30, "square", 0.10);
+      tone(880, 0.12, 0.25, "square", 0.20);
       break;
     case "crit":
-      tone(660, 0.06, 0.4, "square");
-      tone(880, 0.06, 0.4, "square", 0.06);
-      tone(1100, 0.1, 0.35, "square", 0.12);
+      tone(660,  0.06, 0.40, "square");
+      tone(880,  0.06, 0.40, "square", 0.06);
+      tone(1100, 0.10, 0.35, "square", 0.12);
       break;
     case "victory":
       [392, 440, 494, 523, 587, 659, 698, 784].forEach((f, i) => {
-        tone(f, 0.12, 0.3, "square", i * 0.1);
+        tone(f, 0.12, 0.30, "square", i * 0.10);
       });
       break;
     case "badge":
@@ -94,22 +124,22 @@ export function playSound(name: SoundName) {
       });
       break;
     case "catch":
-      tone(330, 0.08, 0.3, "square");
-      tone(262, 0.08, 0.3, "square", 0.12);
-      tone(330, 0.2, 0.25, "square", 0.24);
+      tone(330, 0.08, 0.30, "square");
+      tone(262, 0.08, 0.30, "square", 0.12);
+      tone(330, 0.20, 0.25, "square", 0.24);
       break;
     case "faint":
-      tone(440, 0.1, 0.3, "sawtooth");
-      tone(330, 0.1, 0.3, "sawtooth", 0.12);
-      tone(220, 0.1, 0.3, "sawtooth", 0.24);
-      tone(165, 0.3, 0.25, "sawtooth", 0.36);
+      tone(440, 0.10, 0.30, "sawtooth");
+      tone(330, 0.10, 0.30, "sawtooth", 0.12);
+      tone(220, 0.10, 0.30, "sawtooth", 0.24);
+      tone(165, 0.30, 0.25, "sawtooth", 0.36);
       break;
     case "menu":
       tone(440, 0.06, 0.15, "square");
       break;
     case "warp":
       [196, 262, 330, 392, 494, 659].forEach((f, i) => {
-        tone(f, 0.08, 0.2, "sine", i * 0.06);
+        tone(f, 0.08, 0.20, "sine", i * 0.06);
       });
       break;
     case "hptick":
@@ -120,110 +150,123 @@ export function playSound(name: SoundName) {
 
 // ─── BGM engine ────────────────────────────────────────────────
 // Looping background music built entirely from Web Audio API oscillators.
-// Each zone has a distinct mood: melody notes, bass line, beat pattern.
-// All sequences loop via recursive setTimeout scheduling.
+// BGM gain node is connected through Howler's masterGain so global
+// mute/volume from Howler applies to BGM automatically.
 
 interface BgmTrack {
-  melody: number[];    // note frequencies (0 = rest)
-  bass: number[];      // bass line frequencies (0 = rest)
-  tempo: number;       // ms per beat
-  melodyVol: number;
-  bassVol: number;
+  melody:     number[];
+  bass:       number[];
+  tempo:      number;
+  melodyVol:  number;
+  bassVol:    number;
   melodyType: OscillatorType;
-  bassType: OscillatorType;
-  swing: boolean;      // slight swing/shuffle timing
+  bassType:   OscillatorType;
+  swing:      boolean;
 }
 
-// Zone ground → BGM track definition
 const BGM_TRACKS: Record<string, BgmTrack> = {
-  // HOME — gentle lullaby, slow, soft
   grass: {
-    melody: [523, 587, 659, 698, 659, 587, 523, 494, 523, 0, 440, 494, 523, 587, 523, 0],
-    bass:   [262, 0, 294, 0, 330, 0, 294, 0, 262, 0, 220, 0, 262, 0, 0, 0],
+    melody: [523,587,659,698,659,587,523,494,523,0,440,494,523,587,523,0],
+    bass:   [262,0,294,0,330,0,294,0,262,0,220,0,262,0,0,0],
     tempo: 320, melodyVol: 0.09, bassVol: 0.06,
     melodyType: "triangle", bassType: "sine", swing: false,
   },
-  // SAND — Pune morning, upbeat folk
   sand: {
-    melody: [659, 698, 784, 659, 587, 523, 587, 659, 698, 784, 880, 784, 698, 659, 0, 0],
-    bass:   [330, 0, 349, 0, 392, 0, 330, 0, 294, 0, 330, 0, 349, 0, 330, 0],
-    tempo: 260, melodyVol: 0.1, bassVol: 0.07,
+    melody: [659,698,784,659,587,523,587,659,698,784,880,784,698,659,0,0],
+    bass:   [330,0,349,0,392,0,330,0,294,0,330,0,349,0,330,0],
+    tempo: 260, melodyVol: 0.10, bassVol: 0.07,
     melodyType: "square", bassType: "triangle", swing: true,
   },
-  // STONE — brick, grounded, real-estate ops feel
   stone: {
-    melody: [392, 440, 392, 370, 392, 415, 392, 0, 349, 392, 415, 392, 370, 349, 330, 0],
-    bass:   [196, 0, 196, 0, 220, 0, 196, 0, 175, 0, 196, 0, 220, 0, 196, 0],
+    melody: [392,440,392,370,392,415,392,0,349,392,415,392,370,349,330,0],
+    bass:   [196,0,196,0,220,0,196,0,175,0,196,0,220,0,196,0],
     tempo: 300, melodyVol: 0.08, bassVol: 0.07,
     melodyType: "square", bassType: "sawtooth", swing: false,
   },
-  // NEON — synthwave AI lab, driving pulse
   neon: {
-    melody: [880, 0, 988, 0, 1047, 0, 988, 880, 0, 784, 0, 880, 0, 988, 0, 0],
-    bass:   [110, 110, 0, 0, 147, 147, 0, 0, 110, 110, 0, 0, 123, 123, 0, 0],
-    tempo: 200, melodyVol: 0.1, bassVol: 0.09,
+    melody: [880,0,988,0,1047,0,988,880,0,784,0,880,0,988,0,0],
+    bass:   [110,110,0,0,147,147,0,0,110,110,0,0,123,123,0,0],
+    tempo: 200, melodyVol: 0.10, bassVol: 0.09,
     melodyType: "sawtooth", bassType: "sawtooth", swing: false,
   },
-  // DUSK — venture capital, sophisticated, minor key
   dusk: {
-    melody: [622, 0, 554, 0, 466, 0, 554, 0, 622, 0, 698, 622, 554, 0, 466, 0],
-    bass:   [311, 0, 0, 277, 233, 0, 0, 277, 311, 0, 349, 0, 311, 0, 233, 0],
+    melody: [622,0,554,0,466,0,554,0,622,0,698,622,554,0,466,0],
+    bass:   [311,0,0,277,233,0,0,277,311,0,349,0,311,0,233,0],
     tempo: 280, melodyVol: 0.09, bassVol: 0.07,
     melodyType: "triangle", bassType: "sine", swing: true,
   },
-  // NIGHT — Iterate HQ, atmospheric, sparse
   night: {
-    melody: [784, 0, 0, 698, 0, 0, 784, 0, 880, 0, 784, 0, 698, 0, 0, 0],
-    bass:   [196, 0, 0, 0, 220, 0, 0, 0, 196, 0, 0, 0, 175, 0, 0, 0],
+    melody: [784,0,0,698,0,0,784,0,880,0,784,0,698,0,0,0],
+    bass:   [196,0,0,0,220,0,0,0,196,0,0,0,175,0,0,0],
     tempo: 350, melodyVol: 0.08, bassVol: 0.06,
     melodyType: "triangle", bassType: "sine", swing: false,
   },
-  // MALL — SoleSearch, bright pop energy
   mall: {
-    melody: [1047, 988, 880, 988, 1047, 0, 880, 0, 784, 880, 988, 1047, 988, 880, 784, 0],
-    bass:   [262, 0, 294, 0, 330, 0, 294, 0, 262, 0, 220, 0, 262, 294, 0, 0],
-    tempo: 220, melodyVol: 0.1, bassVol: 0.08,
+    melody: [1047,988,880,988,1047,0,880,0,784,880,988,1047,988,880,784,0],
+    bass:   [262,0,294,0,330,0,294,0,262,0,220,0,262,294,0,0],
+    tempo: 220, melodyVol: 0.10, bassVol: 0.08,
     melodyType: "square", bassType: "triangle", swing: true,
   },
-  // CRYPTO — Fere.ai, bass-heavy, tense
   crypto: {
-    melody: [440, 0, 415, 0, 370, 0, 392, 0, 440, 0, 466, 440, 415, 0, 370, 0],
-    bass:   [55, 55, 0, 55, 0, 55, 55, 0, 55, 55, 0, 55, 0, 55, 55, 0],
-    tempo: 230, melodyVol: 0.09, bassVol: 0.1,
+    melody: [440,0,415,0,370,0,392,0,440,0,466,440,415,0,370,0],
+    bass:   [55,55,0,55,0,55,55,0,55,55,0,55,0,55,55,0],
+    tempo: 230, melodyVol: 0.09, bassVol: 0.10,
     melodyType: "sawtooth", bassType: "sawtooth", swing: false,
   },
-  // STUDIO — CCD, lo-fi warmth, jazz-adjacent
   studio: {
-    melody: [698, 0, 659, 0, 622, 0, 659, 698, 0, 784, 0, 698, 659, 0, 622, 0],
-    bass:   [349, 0, 330, 0, 311, 0, 330, 0, 349, 0, 392, 0, 349, 0, 330, 0],
+    melody: [698,0,659,0,622,0,659,698,0,784,0,698,659,0,622,0],
+    bass:   [349,0,330,0,311,0,330,0,349,0,392,0,349,0,330,0],
     tempo: 290, melodyVol: 0.09, bassVol: 0.07,
     melodyType: "triangle", bassType: "sine", swing: true,
   },
-  // SNOW (unused ground but handle gracefully)
   snow: {
-    melody: [659, 0, 587, 0, 523, 0, 587, 0, 659, 0, 698, 0, 659, 0, 587, 0],
-    bass:   [330, 0, 294, 0, 262, 0, 294, 0, 330, 0, 349, 0, 330, 0, 294, 0],
+    melody: [659,0,587,0,523,0,587,0,659,0,698,0,659,0,587,0],
+    bass:   [330,0,294,0,262,0,294,0,330,0,349,0,330,0,294,0],
     tempo: 340, melodyVol: 0.07, bassVol: 0.05,
     melodyType: "triangle", bassType: "sine", swing: false,
   },
 };
 
-// ─── Battle music track ─────────────────────────────────────────
 const BATTLE_TRACK: BgmTrack = {
-  melody: [784, 0, 880, 784, 698, 784, 0, 880, 988, 0, 880, 784, 698, 784, 0, 0,
-           784, 880, 784, 0, 698, 0, 784, 880, 988, 880, 784, 698, 659, 698, 0, 0],
-  bass:   [196, 0, 0, 196, 0, 220, 0, 0, 247, 0, 0, 220, 0, 196, 0, 0,
-           196, 0, 220, 0, 196, 0, 247, 0, 196, 0, 220, 0, 196, 220, 0, 0],
-  tempo: 175, melodyVol: 0.12, bassVol: 0.1,
+  melody: [784,0,880,784,698,784,0,880,988,0,880,784,698,784,0,0,
+           784,880,784,0,698,0,784,880,988,880,784,698,659,698,0,0],
+  bass:   [196,0,0,196,0,220,0,0,247,0,0,220,0,196,0,0,
+           196,0,220,0,196,0,247,0,196,0,220,0,196,220,0,0],
+  tempo: 175, melodyVol: 0.12, bassVol: 0.10,
   melodyType: "square", bassType: "sawtooth", swing: false,
 };
 
+const ZONE_BGM_OVERRIDES: Partial<Record<string, BgmTrack>> = {
+  home:   BGM_TRACKS.grass,
+  origin: BGM_TRACKS.sand,
+  grp: {
+    melody: [784,880,784,698,784,880,988,880,784,698,659,698,784,0,659,0],
+    bass:   [392,0,440,0,392,0,349,0,392,0,330,0,392,0,330,0],
+    tempo: 245, melodyVol: 0.10, bassVol: 0.07,
+    melodyType: "square", bassType: "triangle", swing: true,
+  },
+  hab:        BGM_TRACKS.stone,
+  ai:         BGM_TRACKS.neon,
+  investopad: BGM_TRACKS.dusk,
+  sole:       BGM_TRACKS.mall,
+  fere:       BGM_TRACKS.crypto,
+  ccd:        BGM_TRACKS.studio,
+  iterate: {
+    melody: [988,0,0,880,0,784,0,880,988,0,880,0,0,784,0,0,
+             880,0,784,0,698,0,784,880,988,0,0,880,784,0,0,0],
+    bass:   [247,0,0,0,262,0,0,0,247,0,0,0,220,0,0,0,
+             233,0,0,0,196,0,0,0,247,0,0,0,220,0,0,0],
+    tempo: 330, melodyVol: 0.09, bassVol: 0.065,
+    melodyType: "triangle", bassType: "sine", swing: false,
+  },
+};
+
 // ─── BGM player state ───────────────────────────────────────────
-let bgmTimer: ReturnType<typeof setTimeout> | null = null;
-let bgmGain: GainNode | null = null;
-let currentBgmId: string | null = null;
-let bgmActive = false;
-let bgmBeat = 0;
+let bgmTimer:    ReturnType<typeof setTimeout> | null = null;
+let bgmGain:     GainNode | null = null;
+let currentBgmId: string | null  = null;
+let bgmActive    = false;
+let bgmBeat      = 0;
 let currentTrack: BgmTrack | null = null;
 
 function stopBgmTimer() {
@@ -240,19 +283,19 @@ function fadeBgmGain(targetVol: number, durationMs = 300) {
 }
 
 function scheduleBeat(track: BgmTrack) {
-  if (!bgmActive || muted) return;
+  if (!bgmActive || _muted) return;
   const c = getCtx();
   if (!c || !bgmGain) return;
 
-  const beat = bgmBeat % track.melody.length;
+  const beat        = bgmBeat % track.melody.length;
   const swingOffset = track.swing && beat % 2 === 1 ? track.tempo * 0.06 : 0;
-  const beatDur = (track.tempo + swingOffset) / 1000;
+  const beatDur     = (track.tempo + swingOffset) / 1000;
 
   // Melody note
   const mFreq = track.melody[beat];
   if (mFreq > 0) {
     const osc = c.createOscillator();
-    const g = c.createGain();
+    const g   = c.createGain();
     osc.connect(g);
     g.connect(bgmGain);
     osc.type = track.melodyType;
@@ -264,11 +307,11 @@ function scheduleBeat(track: BgmTrack) {
     osc.stop(c.currentTime + beatDur);
   }
 
-  // Bass note — plays every 2 beats for thickness
+  // Bass note
   const bFreq = track.bass[beat];
   if (bFreq > 0) {
     const osc = c.createOscillator();
-    const g = c.createGain();
+    const g   = c.createGain();
     osc.connect(g);
     g.connect(bgmGain);
     osc.type = track.bassType;
@@ -289,14 +332,15 @@ function startTrack(track: BgmTrack, trackId: string, fadeInMs = 400) {
   if (!c) return;
 
   stopBgmTimer();
-  bgmActive = true;
-  bgmBeat = 0;
+  bgmActive    = true;
+  bgmBeat      = 0;
   currentTrack = track;
   currentBgmId = trackId;
 
   if (!bgmGain) {
     bgmGain = c.createGain();
-    bgmGain.connect(getMaster() ?? c.destination);
+    // Connect through Howler's masterGain so Howler.mute() silences BGM too
+    bgmGain.connect(getMasterGain() ?? c.destination);
   }
 
   bgmGain.gain.cancelScheduledValues(c.currentTime);
@@ -314,7 +358,7 @@ export function stopBGM(fadeOutMs = 400) {
 }
 
 export function resumeBGM() {
-  if (muted || !currentTrack || bgmActive) return;
+  if (_muted || !currentTrack || bgmActive) return;
   bgmActive = true;
   scheduleBeat(currentTrack);
 }
@@ -322,63 +366,20 @@ export function resumeBGM() {
 // ─── Public BGM API ─────────────────────────────────────────────
 type ZoneGround = "grass" | "sand" | "stone" | "neon" | "dusk" | "night" | "mall" | "crypto" | "studio" | "snow";
 
-// Per-zone unique BGM overrides — zones that share a ground type
-// get their own distinct melody so no two zones ever sound the same.
-const ZONE_BGM_OVERRIDES: Partial<Record<string, BgmTrack>> = {
-  // Home (grass) — gentle, nostalgic lullaby
-  home: BGM_TRACKS.grass,
-
-  // Origin (sand) — scrappy, upbeat builder energy
-  origin: BGM_TRACKS.sand,
-
-  // GRP (grass) — busier than home, market energy, upbeat
-  grp: {
-    melody: [784, 880, 784, 698, 784, 880, 988, 880, 784, 698, 659, 698, 784, 0, 659, 0],
-    bass:   [392, 0, 440, 0, 392, 0, 349, 0, 392, 0, 330, 0, 392, 0, 330, 0],
-    tempo: 245, melodyVol: 0.1, bassVol: 0.07,
-    melodyType: "square", bassType: "triangle", swing: true,
-  },
-
-  // Hab (stone) — heavy, operational, rhythmic
-  hab: BGM_TRACKS.stone,
-
-  // AI / Quartic (neon) — synthwave, driving
-  ai: BGM_TRACKS.neon,
-
-  // Investopad (dusk) — sophisticated, minor key VC vibes
-  investopad: BGM_TRACKS.dusk,
-
-  // SoleSearch (mall) — hype, pop energy
-  sole: BGM_TRACKS.mall,
-
-  // Fere (crypto) — tense, bass-heavy trading floor
-  fere: BGM_TRACKS.crypto,
-
-  // CCD (studio) — lo-fi warmth, jazz-adjacent
-  ccd: BGM_TRACKS.studio,
-
-  // Iterate (night) — unique final zone: sparse, forward-looking
-  iterate: {
-    melody: [988, 0, 0, 880, 0, 784, 0, 880, 988, 0, 880, 0, 0, 784, 0, 0,
-             880, 0, 784, 0, 698, 0, 784, 880, 988, 0, 0, 880, 784, 0, 0, 0],
-    bass:   [247, 0, 0, 0, 262, 0, 0, 0, 247, 0, 0, 0, 220, 0, 0, 0,
-             233, 0, 0, 0, 196, 0, 0, 0, 247, 0, 0, 0, 220, 0, 0, 0],
-    tempo: 330, melodyVol: 0.09, bassVol: 0.065,
-    melodyType: "triangle", bassType: "sine", swing: false,
-  },
-};
-
 export function playZoneBGM(ground: ZoneGround, zoneId?: string) {
-  if (muted) return;
-  // Use zone-specific track if available, fall back to ground type
+  if (_muted) return;
+  bootstrap();
   const trackId = zoneId ? `zone:${zoneId}` : `zone:${ground}`;
   if (currentBgmId === trackId && bgmActive) return;
-  const track = (zoneId !== undefined ? ZONE_BGM_OVERRIDES[zoneId] : undefined) ?? BGM_TRACKS[ground] ?? BGM_TRACKS.grass;
+  const track = (zoneId !== undefined ? ZONE_BGM_OVERRIDES[zoneId] : undefined)
+    ?? BGM_TRACKS[ground]
+    ?? BGM_TRACKS.grass;
   startTrack(track, trackId, 500);
 }
 
 export function playBattleBGM() {
-  if (muted) return;
+  if (_muted) return;
+  bootstrap();
   const trackId = "battle";
   if (currentBgmId === trackId && bgmActive) return;
   startTrack(BATTLE_TRACK, trackId, 200);
