@@ -42,7 +42,7 @@ const FEATURED_IN: BrandItem[] = [
 ];
 
 // img.logo.dev renders clean PNG logos by domain
-const LOGO_TOKEN = "pk_a8JjRklcTcKMFIy0bbCHSA";
+const LOGO_TOKEN = "pk_Dejxeb8bQ1y_EPVl1q5VAg";
 
 function BrandLogo({ brand, index, accent }: { brand: BrandItem; index: number; accent: string }) {
   const { ref, visible } = useScrollReveal<HTMLDivElement>({ threshold: 0.1 });

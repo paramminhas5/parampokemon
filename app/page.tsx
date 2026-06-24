@@ -106,6 +106,34 @@ function SectionHeader({ text, delay = 0 }: { text: string; delay?: number }) {
 }
 
 
+// ─── Press section with expand ────────────────────────────────────────────────
+function PressSection() {
+  const [expanded, setExpanded] = useState(false);
+  const visiblePress = expanded ? PRESS : PRESS.slice(0, 4);
+
+  return (
+    <div className="pq-panel">
+      <div className="pq-panel-inner">
+        {visiblePress.map((p, i) => (
+          <PressRow key={i} p={p} i={i} total={visiblePress.length} />
+        ))}
+        {!expanded && PRESS.length > 4 && (
+          <button
+            onClick={() => setExpanded(true)}
+            className="pq-btn"
+            style={{
+              marginTop: 12, fontSize: 8, padding: "8px 16px",
+              width: "100%", justifyContent: "center",
+            }}
+          >
+            SHOW ALL {PRESS.length} ARTICLES ↓
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── Press row ────────────────────────────────────────────────────────────────
 function PressRow({ p, i, total }: { p: { outlet: string; title: string; url: string }; i: number; total: number }) {
   const { ref, visible } = useScrollReveal<HTMLDivElement>({ threshold: 0.1 });
@@ -397,7 +425,7 @@ export default function Home() {
               fontFamily: "var(--font-mono)", fontSize: 20,
               color: "#8aa0c0", margin: "0 0 4px", lineHeight: 1.4,
             }}>
-              Founder & Creative Director
+              Builder · Designer · Creative Director
             </p>
             <p style={{
               fontFamily: "var(--font-mono)", fontSize: 14,
@@ -473,15 +501,9 @@ export default function Home() {
       </section>
 
       {/* ── PRESS ── */}
-      <section style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 32px" }}>
+      <section style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 32px", position: "relative", zIndex: 1 }}>
         <SectionHeader text="★ SELECTED PRESS" />
-        <div className="pq-panel">
-          <div className="pq-panel-inner">
-            {PRESS.map((p, i) => (
-              <PressRow key={i} p={p} i={i} total={PRESS.length} />
-            ))}
-          </div>
-        </div>
+        <PressSection />
       </section>
 
       {/* ── CONTACT ── */}
