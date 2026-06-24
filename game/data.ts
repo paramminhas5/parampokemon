@@ -212,8 +212,8 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
   },
   {
     id: "grp", index: 2, name: "GRP Market", org: "GetRightPrice", role: "Founding Team Member",
-    subtitle: "2010-11 · First Startup",
-    years: "2010-11",
+    subtitle: "2011-12 · First Startup",
+    years: "2011–2012",
     outcome: "India's first price-comparison engine. Angel-backed by Sidharth Rao (Webchutney).",
     bullets: ["Founding team, joined in college", "Angel-backed by Sidharth Rao (founder, Webchutney)", "Built the product catalog and crawl pipeline"],
     theme: { ground: "grass", accent: "#a8d39a", landmark: "market" },
@@ -261,9 +261,9 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     },
   },
   {
-    id: "hab", index: 3, name: "Hab District", org: "Hab Housing", role: "Founder",
-    subtitle: "2012-13 · Real Estate",
-    years: "2012-13",
+    id: "hab", index: 3, name: "Hab District", org: "Hab Housing", role: "Founder & CEO",
+    subtitle: "2012-15 · Hospitality",
+    years: "2012–2015",
     outcome: "$120K+ revenue. Bootstrapped. 16-person team across three cities.",
     bullets: ["One of India's first branded budget-hospitality startups", "$120K+ in revenue, fully bootstrapped", "Grew from sole founder to 16-person team across three cities", "The category OYO later scaled nationally"],
     theme: { ground: "stone", accent: "#f6a268", landmark: "rentals" },
@@ -309,9 +309,9 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     },
   },
   {
-    id: "ai", index: 4, name: "Quartic Lab", org: "Octo → Quartic.ai", role: "Founding Team, Head of Growth → Director of Marketing",
-    subtitle: "2013-20 · AI before AI",
-    years: "2013-20",
+    id: "ai", index: 4, name: "Quartic Lab", org: "Octo.ai", role: "Head of Growth",
+    subtitle: "2016-17 · Conversational AI",
+    years: "2016–2017",
     outcome: "Co-built one of India's first conversational AI platforms in 2013. Octo acquired by Quartic.ai.",
     bullets: ["Co-built with Akshaya Aron, backed by Good Capital", "Built AI products before 'AI' was a category", "Built and ran entire marketing function from scratch", "Rebuilt product dashboard end-to-end, working directly with engineering", "Director of Marketing at Quartic.ai post-acquisition"],
     theme: { ground: "neon", accent: "#9fe8ff", landmark: "lab" },
@@ -357,9 +357,9 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     },
   },
   {
-    id: "investopad", index: 5, name: "Investopad Tower", org: "Investopad → Good Capital", role: "Partner, Growth & Technology",
+    id: "investopad", index: 5, name: "Investopad Tower", org: "Investopad → Good Capital", role: "VP Growth → Partner, Technology & Marketing",
     subtitle: "2017-20 · Family Office → Fund I",
-    years: "2017-20",
+    years: "2017–2020",
     outcome: "Helped build the fund from family office to Fund I. Portfolio: Meesho, Entri, Simsim, Amazon, Forbes.",
     bullets: [
       "Partner for Tech & Growth as family office evolved into institutional Fund I",
@@ -413,8 +413,8 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
   },
   {
     id: "sole", index: 6, name: "SoleSearch Mall", org: "SoleSearch", role: "Founder & CEO",
-    subtitle: "2020-24 · Sneakers & Streetwear",
-    years: "2020-24",
+    subtitle: "2022-24 · Sneakers & Streetwear",
+    years: "2022–Dec 2024",
     outcome: "$6M+ revenue. 350K+ community. $795K raised. 30+ events. Team of 40.",
     bullets: [
       "Founded SoleSearch; joined by Prabal Baghla and Rannvijay Singha. Led a team of 40.",
@@ -471,8 +471,8 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
   },
   {
     id: "fere", index: 7, name: "Fere District", org: "Fere.ai", role: "CMO",
-    subtitle: "2024-25 · AI Agents",
-    years: "2024-25",
+    subtitle: "Jan 2025 · AI Agents",
+    years: "Jan 2025",
     outcome: "CMO at autonomous AI agent platform. Rejoined Akshaya Aron. Funded by Ethereal Ventures.",
     bullets: [
       "Rejoined long-time collaborator Akshaya Aron",
@@ -528,8 +528,8 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
   },
   {
     id: "ccd", index: 8, name: "Cats Can Dance", org: "Cats Can Dance", role: "Founder · Culture Platform",
-    subtitle: "2026 – Present · Music, Fashion & Pet Care",
-    years: "2026–Present",
+    subtitle: "Mar 2026 – Present · Music, Fashion & Pet Care",
+    years: "Mar 2026–Present",
     outcome: "Culture-discovery platform. Artist directory, event booking, music-production learning. Live show at Social w/ Impresario.",
     bullets: ["Designed and built a culture-discovery platform end-to-end", "Artist directory, event booking, music-production learning product", "Produced flagship live show at Social, in partnership with Impresario", "Launched under Iterate"],
     theme: { ground: "studio", accent: "#ffd29a", landmark: "studio" },
@@ -576,8 +576,8 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
   },
   {
     id: "iterate", index: 9, name: "Iterate HQ", org: "Iterate", role: "Founder & Creative Director",
-    subtitle: "2024 – Present · AI-native Marketing",
-    years: "2024–Present",
+    subtitle: "Jan 2026 – Present · AI-native Marketing",
+    years: "Jan 2026–Present",
     outcome: "AI-native marketing agency. 90-person network. Clients: ChargeZone, Noida Airport, PickYourTrail, Billione, Monkspace.",
     bullets: ["Leads a 90-person network across strategy, creative, and engineering", "Clients: ChargeZone, Noida International Airport, PickYourTrail, Billione, Monkspace", "Launched Cats Can Dance — culture platform (music, fashion & pet care)", "Built on 15 years of operator instinct"],
     theme: { ground: "night", accent: "#7ce0ff", landmark: "agency" },
@@ -734,8 +734,8 @@ export const KEY_PEOPLE: Record<string, { name: string; relevance: string }[]> =
     { name: "16-person team", relevance: "Grew from sole founder across three cities, bootstrapped" },
   ],
   ai: [
-    { name: "Akshaya Aron", relevance: "Co-builder of Octo, later CEO of Quartic.ai — decade-long collaborator" },
-    { name: "Good Capital (Rohan & Arjun Malhotra)", relevance: "Backers of Octo, later partners at Investopad" },
+    { name: "Akshaya Aron", relevance: "Co-builder of Octo — decade-long collaborator" },
+    { name: "Good Capital (Rohan & Arjun Malhotra)", relevance: "Backers of Octo" },
   ],
   investopad: [
     { name: "Rohan & Arjun Malhotra", relevance: "Built the fund together — family office to institutional Fund I" },
