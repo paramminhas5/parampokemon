@@ -417,11 +417,12 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     years: "2020-24",
     outcome: "$6M+ revenue. 350K+ community. $795K raised. 30+ events. Team of 40.",
     bullets: [
-      "Co-founded with Prabal Baghla; later joined by Rannvijay Singha",
+      "Co-founded with Prabal Baghla; later joined by Rannvijay Singha. Led a team of 40.",
       "$795K raised from Venture Catalysts, Anthill Ventures, Cornerstone Ventures",
+      "Three pillars: (1) collectibles marketplace, (2) aggregated e-commerce brands under one store, (3) events",
       "$6M+ in total revenue over four years, omnichannel retail in Mumbai & Hyderabad",
-      "350,000+ follower community, 30+ live events including SneakinOut — India's first sneaker convention",
-      "Press: VICE, CNBC-TV18, Storyboard18, Economic Times, Inc42, Business of Fashion",
+      "350,000+ follower community. SneakinOut — India's first sneaker convention format, 3 seasons with Swiggy SteppinOut",
+      "Press: VICE, CNBC-TV18, Storyboard18, Economic Times, Open Magazine, The Established, Business of Fashion",
     ],
     theme: { ground: "mall", accent: "#ff9fd4", landmark: "mall" },
     w: 26, h: 20,
@@ -695,26 +696,61 @@ export const CONTACT = {
   twitter: "https://twitter.com/paramminhas",
   github: "https://github.com/paramminhas5",
   iterate: "https://hyperiterate.com",
-  fere: "https://fereai.xyz",
+  iterateWork: "https://preview--iterateblack.lovable.app/work",
+  fere: "https://www.fereai.xyz/app",
+  quartic: "https://www.quartic.ai",
+  investopad: "https://wellfound.com/company/investopad/people",
   spotify: "https://open.spotify.com/artist/catscandance",
 };
 
 export const PRESS: { outlet: string; title: string; url: string }[] = [
-  { outlet: "VICE", title: "India's sneaker culture is finally getting its own marketplace",
-    url: "https://www.vice.com/en/article/solesearch-india-sneaker-marketplace/" },
-  { outlet: "CNBC-TV18", title: "SoleSearch: Building India's sneaker culture from the ground up",
-    url: "https://www.cnbctv18.com/business/companies/solesearch-sneaker-streetwear-india-param-minhas-rannvijay-singha-funding-19324691.htm" },
-  { outlet: "Business of Fashion", title: "India's streetwear scene: Param Minhas, SoleSearch",
-    url: "https://www.businessoffashion.com/articles/retail/india-streetwear-sneakers-solesearch-param-minhas/" },
-  { outlet: "Storyboard18", title: "From sneakers to AI-native marketing: The Param Minhas story",
-    url: "https://www.storyboard18.com/how-it-works/solesearch-param-minhas-sneaker-culture-india/" },
-  { outlet: "Inc42", title: "SoleSearch raises $795K to scale India's first sneaker marketplace",
-    url: "https://inc42.com/buzz/sneaker-marketplace-solesearch-raises-795k-from-venture-catalysts-others/" },
-  { outlet: "Economic Times", title: "Rannvijay Singha backs SoleSearch",
-    url: "https://economictimes.indiatimes.com/tech/funding/rannvijay-singha-backs-sneaker-startup-solesearch/articleshow/103267218.cms" },
-  { outlet: "YourStory", title: "From Bengaluru to boardroom: Param Minhas on 15 years of building",
-    url: "https://yourstory.com/2023/09/solesearch-sneaker-streetwear-marketplace-rannvijay-singha-param-minhas" },
+  { outlet: "VICE", title: "Inside the Secret Lives of India's Gen Z Sneaker Resellers",
+    url: "https://www.vice.com/en/article/india-genz-sneakerheads-sneaker-resellers-hype/" },
+  { outlet: "CNBC-TV18", title: "Broadcast interview — Param Minhas & Prabal Baghla on India's sneaker culture",
+    url: "https://in.linkedin.com/company/solesearch" },
+  { outlet: "Images BoF", title: "Rapport x SoleSearch collaborative store in Hyderabad",
+    url: "https://www.imagesbof.in/rapport-x-solesearch-collaborative-store-in-hyderabad-brings-best-of-streetwear-footwear/" },
+  { outlet: "Storyboard18", title: "Sneaker Culture in India: Women buying as many sneakers as men, says SoleSearch's Param Minhas",
+    url: "https://www.storyboard18.com/how-it-works/sneaker-culture-in-india-women-are-buying-as-many-sneakers-as-men-says-solesearchs-param-minhas-2518.htm" },
+  { outlet: "Storyboard18", title: "Sneakers are now collectibles — Rannvijay Singha on SoleSearch funding",
+    url: "https://www.storyboard18.com/brand-makers/sneakers-are-now-considered-collectibles-with-a-passionate-following-among-gen-z-and-millennials-rannvijay-singha-8232.htm" },
+  { outlet: "Open Magazine", title: "Second Coming — India's pre-owned luxury & sneaker resale",
+    url: "https://openthemagazine.com/feature/second-coming-2/" },
+  { outlet: "The Established", title: "Can India's sneaker reseller business survive the global hype crash?",
+    url: "https://www.theestablished.com/style/sneakers/can-indias-sneaker-reseller-business-survive-the-global-sneaker-hype-crash" },
+  { outlet: "Economic Times", title: "SoleSearch raises Rs 6 crore in debut funding round",
+    url: "https://in.linkedin.com/posts/solesearch_solesearch-raises-rs-6-crore-funding-from-activity-7060149811924131841-k78l" },
+  { outlet: "Entrackr", title: "Street culture brand SoleSearch raises maiden fund",
+    url: "https://entrackr.com/2023/05/street-culture-brand-solesearch-raises-maiden-fund/" },
+  { outlet: "Indian Retailer", title: "SoleSearch Bags $730,000 in Debut Funding Round",
+    url: "https://www.indianretailer.com/news/funding-alert-solesearch-bags-730000-debut-funding-round" },
 ];
+
+export const COMPANY_LINKS: Record<string, { url: string; label?: string }[]> = {
+  investopad: [
+    { url: "https://wellfound.com/company/investopad/people", label: "Wellfound" },
+  ],
+  ai: [
+    { url: "https://www.slideshare.net/slideshow/param-minhas-octo-marketing-deck/71004948", label: "Octo Marketing Deck" },
+    { url: "https://www.slideshare.net/slideshow/param-minhas-project-alia/71004863", label: "Project Alia" },
+    { url: "https://www.slideshare.net/slideshow/param-minhas-sales-presentation/71004651", label: "Octo Sales Deck — Meet Joe" },
+    { url: "https://www.quartic.ai", label: "Quartic.ai" },
+  ],
+  fere: [
+    { url: "https://www.fereai.xyz/app", label: "Fere.ai App" },
+  ],
+  ccd: [
+    { url: "https://catscandance.com", label: "catscandance.com" },
+  ],
+  iterate: [
+    { url: "https://hyperiterate.com", label: "hyperiterate.com" },
+    { url: "https://preview--iterateblack.lovable.app/work", label: "Our Work" },
+  ],
+  sole: [
+    { url: "https://www.vice.com/en/article/india-genz-sneakerheads-sneaker-resellers-hype/", label: "VICE Feature" },
+    { url: "https://www.storyboard18.com/how-it-works/sneaker-culture-in-india-women-are-buying-as-many-sneakers-as-men-says-solesearchs-param-minhas-2518.htm", label: "Storyboard18 Interview" },
+  ],
+};
 
 // ─── Starter creature + base moves ────────────────────────────
 export type StarterStage = {

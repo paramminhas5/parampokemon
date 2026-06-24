@@ -3,7 +3,7 @@ import { useScrollReveal } from "@/lib/useScrollReveal";
 
 type BrandItem = {
   name: string;
-  domain?: string; // for clearbit logo
+  domain?: string;
   url?: string;
 };
 
@@ -17,26 +17,27 @@ const CURRENT_CLIENTS: BrandItem[] = [
 
 const BUILT_BACKED: BrandItem[] = [
   { name: "Meesho", domain: "meesho.com", url: "https://meesho.com" },
-  { name: "Fere.ai", domain: "fereai.xyz", url: "https://fereai.xyz" },
-  { name: "Quartic.ai", domain: "quartic.ai", url: "https://quartic.ai" },
+  { name: "Fere.ai", domain: "fereai.xyz", url: "https://www.fereai.xyz/app" },
+  { name: "Quartic.ai", domain: "quartic.ai", url: "https://www.quartic.ai" },
   { name: "SoleSearch", domain: "solesearch.in" },
   { name: "Good Capital", domain: "goodcap.co" },
 ];
 
 const FEATURED_IN: BrandItem[] = [
-  { name: "VICE", domain: "vice.com", url: "https://vice.com" },
+  { name: "VICE", domain: "vice.com", url: "https://www.vice.com/en/article/india-genz-sneakerheads-sneaker-resellers-hype/" },
   { name: "CNBC-TV18", domain: "cnbctv18.com", url: "https://cnbctv18.com" },
-  { name: "Business of Fashion", domain: "businessoffashion.com", url: "https://businessoffashion.com" },
-  { name: "Economic Times", domain: "economictimes.com", url: "https://economictimes.indiatimes.com" },
-  { name: "Inc42", domain: "inc42.com", url: "https://inc42.com" },
+  { name: "Business of Fashion", domain: "imagesbof.in", url: "https://www.imagesbof.in" },
+  { name: "Economic Times", domain: "economictimes.indiatimes.com", url: "https://economictimes.indiatimes.com" },
+  { name: "Storyboard18", domain: "storyboard18.com", url: "https://www.storyboard18.com" },
   { name: "Forbes India", domain: "forbesindia.com", url: "https://forbesindia.com" },
 ];
 
 function BrandLogo({ brand, index, accent }: { brand: BrandItem; index: number; accent: string }) {
   const { ref, visible } = useScrollReveal<HTMLDivElement>({ threshold: 0.1 });
 
+  // Use img.logo.dev which is more reliable than clearbit
   const logoUrl = brand.domain
-    ? `https://logo.clearbit.com/${brand.domain}`
+    ? `https://img.logo.dev/${brand.domain}?token=pk_a8JjRklcTcKMFIy0bbCHSA`
     : null;
 
   return (
@@ -46,14 +47,14 @@ function BrandLogo({ brand, index, accent }: { brand: BrandItem; index: number; 
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        padding: "12px 16px",
+        padding: "14px 16px",
         background: "rgba(10,18,38,0.5)",
         border: "1px solid rgba(42,58,80,0.4)",
         borderRadius: 6,
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(12px)",
         transition: `opacity 0.4s ease ${index * 60}ms, transform 0.4s ease ${index * 60}ms`,
-        minHeight: 48,
+        minHeight: 52,
         cursor: brand.url ? "pointer" : "default",
       }}
       onClick={() => brand.url && window.open(brand.url, "_blank")}
@@ -64,38 +65,33 @@ function BrandLogo({ brand, index, accent }: { brand: BrandItem; index: number; 
           src={logoUrl}
           alt={brand.name}
           style={{
-            height: 24,
-            maxWidth: 100,
+            height: 28,
+            maxWidth: 110,
             objectFit: "contain",
-            filter: "brightness(0.9) contrast(1.1)",
+            filter: "brightness(0.95) contrast(1.05)",
           }}
           onError={(e) => {
-            // Fallback to text if logo fails
+            // Fallback to styled text wordmark
             const target = e.target as HTMLImageElement;
             target.style.display = "none";
-            const parent = target.parentElement;
-            if (parent) {
-              const fallback = document.createElement("span");
-              fallback.textContent = brand.name;
-              fallback.style.fontFamily = "var(--font-pixel)";
-              fallback.style.fontSize = "7px";
-              fallback.style.color = accent;
-              fallback.style.letterSpacing = "0.05em";
-              parent.appendChild(fallback);
+            if (target.nextElementSibling) {
+              (target.nextElementSibling as HTMLElement).style.display = "block";
             }
           }}
         />
-      ) : (
-        <span style={{
-          fontFamily: "var(--font-pixel)",
-          fontSize: 7,
-          color: accent,
-          letterSpacing: "0.05em",
-          textAlign: "center",
-        }}>
-          {brand.name}
-        </span>
-      )}
+      ) : null}
+      {/* Text fallback — always present but hidden when image loads */}
+      <span style={{
+        display: logoUrl ? "none" : "block",
+        fontFamily: "var(--font-pixel)",
+        fontSize: 7,
+        color: accent,
+        letterSpacing: "0.05em",
+        textAlign: "center",
+        lineHeight: 1.3,
+      }}>
+        {brand.name}
+      </span>
     </div>
   );
 }
@@ -118,7 +114,7 @@ function BrandRow({ title, brands, accent }: { title: string; brands: BrandItem[
       </div>
       <div style={{
         display: "grid",
-        gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))",
+        gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
         gap: 8,
       }}>
         {brands.map((brand, i) => (

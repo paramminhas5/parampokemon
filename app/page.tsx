@@ -111,141 +111,62 @@ const GYM_CHAPTERS = [
   { num: "04", gym: "Investopad \u2192 Good Capital", type: "VENTURE", typeEmoji: "\u{1F4BC}", leader: "Rohan & Arjun Malhotra", leaderTitle: "Family Office \u2192 Fund I", badge: "Capital Lens Badge", badgeStat: "Meesho, Amazon, Forbes in portfolio", accent: "#f0c4ff", quote: "Being on this side of the table changes how you see everything." },
   { num: "05", gym: "SoleSearch", type: "BRAND", typeEmoji: "\u{1F525}", leader: "Prabal Baghla + Rannvijay Singha", leaderTitle: "Co-founder + Brand Partner", badge: "CEO Badge", badgeStat: "$6M revenue \u00B7 $795K raised \u00B7 350K community", accent: "#ff9fd4", quote: "You walked in when there was no culture and walked out with one." },
   { num: "06", gym: "Fere.ai", type: "AI AGENT", typeEmoji: "\u{1F916}", leader: "Akshaya Aron", leaderTitle: "Reunited, a decade later", badge: "AI-Native Ops Badge", badgeStat: "CMO \u00B7 Fere.ai \u00B7 Ethereal Ventures", accent: "#00e8a0", quote: "You made people trust the invisible \u2014 that's rare." },
-  { num: "07", gym: "Cats Can Dance", type: "CULTURE", typeEmoji: "\u{1F3B5}", leader: "Self", leaderTitle: "No brief, no client", badge: "Creative Sovereignty Badge", badgeStat: "Culture platform \u00B7 live shows \u00B7 Impresario partnership", accent: "#ffd29a", quote: "The work exists. That's the only answer that matters." },
-  { num: "08", gym: "Iterate", type: "GTM", typeEmoji: "\u2192", leader: "90-person network", leaderTitle: "Strategy + Creative + Engineering", badge: "Full-Stack Operator Badge", badgeStat: "AI-native agency \u00B7 hyperiterate.com \u00B7 running now", accent: "#7ce0ff", quote: "Every chapter compounds." },
+  { num: "07", gym: "Cats Can Dance", type: "CULTURE", typeEmoji: "\u{1F3B5}", leader: "The Audience", leaderTitle: "Creating without a brief or client", badge: "Creative Sovereignty Badge", badgeStat: "Culture platform \u00B7 live shows \u00B7 Impresario partnership", accent: "#ffd29a", quote: "The work exists. That's the only answer that matters." },
+  { num: "08", gym: "Iterate", type: "GTM", typeEmoji: "\u2192", leader: "The Status Quo", leaderTitle: "The way things have always been done", badge: "Full-Stack Operator Badge", badgeStat: "AI-native agency \u00B7 hyperiterate.com \u00B7 running now", accent: "#7ce0ff", quote: "Every chapter compounds." },
 ];
 
 
-function GymChapterCard({ chapter, index }: { chapter: typeof GYM_CHAPTERS[0]; index: number }) {
-  const { ref, visible } = useScrollReveal<HTMLDivElement>({ threshold: 0.08 });
-  const [hovered, setHovered] = useState(false);
+function GymChapterMini({ chapter, index }: { chapter: typeof GYM_CHAPTERS[0]; index: number }) {
+  const { ref, visible } = useScrollReveal<HTMLDivElement>({ threshold: 0.1 });
 
   return (
     <div
       ref={ref}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
       style={{
-        background: hovered
-          ? `linear-gradient(135deg, ${chapter.accent}12 0%, rgba(4,8,20,0.98) 100%)`
-          : "rgba(6,12,24,0.95)",
-        border: `1px solid ${hovered ? chapter.accent + "55" : chapter.accent + "22"}`,
-        borderRadius: 8,
-        padding: "20px 20px 18px",
+        background: "rgba(6,12,24,0.95)",
+        border: `1px solid ${chapter.accent}22`,
+        borderRadius: 6,
+        padding: "12px 12px 10px",
         opacity: visible ? 1 : 0,
-        transform: visible
-          ? hovered ? "translateY(-2px) rotate(0.3deg)" : "translateY(0)"
-          : "translateY(24px)",
-        transition: `opacity 0.45s ease ${index * 70}ms, transform 0.45s ease ${index * 70}ms, border-color 0.2s, background 0.2s, box-shadow 0.2s`,
-        boxShadow: hovered
-          ? `0 0 30px ${chapter.accent}18, 0 4px 20px rgba(0,0,0,0.3)`
-          : "0 2px 8px rgba(0,0,0,0.2)",
-        position: "relative",
-        overflow: "hidden",
+        transform: visible ? "scale(1)" : "scale(0.8)",
+        transition: `opacity 0.35s ease ${index * 60}ms, transform 0.35s cubic-bezier(0.34,1.56,0.64,1) ${index * 60}ms`,
+        textAlign: "center",
       }}
     >
-      {/* Top row: type badge + gym number */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-        <div style={{
-          fontFamily: "var(--font-pixel)", fontSize: 7,
-          color: chapter.accent,
-          background: `${chapter.accent}15`,
-          border: `1px solid ${chapter.accent}40`,
-          padding: "4px 10px",
-          borderRadius: 3,
-          letterSpacing: "0.08em",
-        }}>
-          {chapter.typeEmoji} {chapter.type}
-        </div>
-        <div style={{
-          fontFamily: "var(--font-pixel)", fontSize: 7,
-          color: "#3a5070",
-          letterSpacing: "0.1em",
-        }}>
-          GYM #{chapter.num}
-        </div>
-      </div>
-
-      {/* Gym name */}
       <div style={{
-        fontFamily: "var(--font-pixel)", fontSize: 12,
-        color: "#c8d8f0",
-        marginBottom: 14,
+        fontFamily: "var(--font-pixel)", fontSize: 6,
+        color: "#3a5070", letterSpacing: "0.1em", marginBottom: 6,
+      }}>
+        GYM #{chapter.num}
+      </div>
+      <div style={{
+        fontFamily: "var(--font-pixel)", fontSize: 7,
+        color: chapter.accent, marginBottom: 4,
+        lineHeight: 1.3,
+      }}>
+        {chapter.leader}
+      </div>
+      <div style={{
+        fontFamily: "var(--font-mono)", fontSize: 10,
+        color: "#4a6888", marginBottom: 8,
         lineHeight: 1.3,
       }}>
         {chapter.gym}
       </div>
-
-      {/* Divider */}
-      <div style={{ height: 1, background: `${chapter.accent}20`, marginBottom: 14 }} />
-
-      {/* Gym Leader */}
-      <div style={{ marginBottom: 14 }}>
-        <div style={{
-          fontFamily: "var(--font-pixel)", fontSize: 6,
-          color: "#4a6888", letterSpacing: "0.15em", marginBottom: 6,
-        }}>
-          GYM LEADER
-        </div>
-        <div style={{
-          fontFamily: "var(--font-pixel)", fontSize: 9,
-          color: chapter.accent, marginBottom: 3,
-        }}>
-          {chapter.leader}
-        </div>
-        <div style={{
-          fontFamily: "var(--font-mono)", fontSize: 13,
-          color: "#5a7a9a",
-        }}>
-          {chapter.leaderTitle}
-        </div>
-      </div>
-
-      {/* Quote */}
       <div style={{
-        fontFamily: "var(--font-mono)", fontSize: 13,
-        color: "#4a6888", fontStyle: "italic",
-        lineHeight: 1.5, marginBottom: 14,
-        paddingLeft: 12,
-        borderLeft: `2px solid ${chapter.accent}30`,
+        display: "inline-flex", alignItems: "center", gap: 4,
+        background: `${chapter.accent}10`,
+        border: `1px solid ${chapter.accent}30`,
+        padding: "3px 8px",
+        borderRadius: 3,
       }}>
-        &ldquo;{chapter.quote}&rdquo;
-      </div>
-
-      {/* Divider */}
-      <div style={{ height: 1, background: `${chapter.accent}20`, marginBottom: 14 }} />
-
-      {/* Badge earned */}
-      <div>
-        <div style={{
-          fontFamily: "var(--font-pixel)", fontSize: 6,
-          color: "#4a6888", letterSpacing: "0.15em", marginBottom: 6,
+        <span style={{ color: chapter.accent, fontSize: 8 }}>★</span>
+        <span style={{
+          fontFamily: "var(--font-pixel)", fontSize: 5,
+          color: chapter.accent,
         }}>
-          BADGE EARNED
-        </div>
-        <div style={{
-          display: "inline-flex", alignItems: "center", gap: 8,
-          background: `${chapter.accent}10`,
-          border: `1px solid ${chapter.accent}${hovered ? "60" : "35"}`,
-          padding: "6px 12px",
-          borderRadius: 4,
-          transition: "border-color 0.2s, box-shadow 0.3s",
-          boxShadow: hovered ? `0 0 12px ${chapter.accent}30` : "none",
-        }}>
-          <span style={{ color: chapter.accent, fontSize: 12 }}>★</span>
-          <span style={{
-            fontFamily: "var(--font-pixel)", fontSize: 7,
-            color: chapter.accent,
-          }}>
-            {chapter.badge}
-          </span>
-        </div>
-        <div style={{
-          fontFamily: "var(--font-mono)", fontSize: 12,
-          color: "#3a5070", marginTop: 6,
-        }}>
-          {chapter.badgeStat}
-        </div>
+          {chapter.badge}
+        </span>
       </div>
     </div>
   );
@@ -549,16 +470,16 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── GYM LEADERS — CHAPTER CARDS ── */}
+      {/* ── GYM LEADERS — COMPACT STRIP ── */}
       <section style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 40px" }}>
-        <SectionHeader text="★ THE GYM LEADERS · WHO I MET & WHAT I EARNED" />
+        <SectionHeader text="★ WHO I MET & WHAT I EARNED" />
         <div style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))",
-          gap: 12,
+          gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
+          gap: 8,
         }}>
           {GYM_CHAPTERS.map((chapter, i) => (
-            <GymChapterCard key={chapter.num} chapter={chapter} index={i} />
+            <GymChapterMini key={chapter.num} chapter={chapter} index={i} />
           ))}
         </div>
       </section>
