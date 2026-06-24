@@ -1,46 +1,18 @@
 "use client";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Zone } from "@/game/data";
 import { COMPANY_LINKS, KEY_PEOPLE } from "@/game/data";
 
-// ─── Challenge & Impact text ─────────────────────────────────────────────────
 const ZONE_NARRATIVE: Record<string, { challenge: string; impact: string }> = {
-  grp: {
-    challenge: "Building India's first price-comparison engine in college — zero playbook, no smartphones yet.",
-    impact: "First product shipped. Angel-backed. Built catalog + crawl pipeline from scratch.",
-  },
-  hab: {
-    challenge: "Branded budget hospitality with zero capital — same market OYO later raised billions for.",
-    impact: "$120K+ revenue bootstrapped. 16-person team, 3 cities. Unit economics proven without a safety net.",
-  },
-  ai: {
-    challenge: "Selling AI in 2016 before anyone searched for the term. Pure missionary selling, zero market awareness.",
-    impact: "Built and ran entire marketing function. Rebuilt product dashboard end-to-end. Octo acquired by Quartic.ai.",
-  },
-  investopad: {
-    challenge: "Operator → investor transition. Building a venture fund from family office to institutional.",
-    impact: "Fund I built. Portfolio: Meesho (now India's largest e-commerce), Entri, Simsim.",
-  },
-  quartic: {
-    challenge: "Joining a post-acquisition enterprise AI company and building marketing from zero in San Jose.",
-    impact: "Built brand identity, website, collateral, press strategy. Led team of 5.",
-  },
-  sole: {
-    challenge: "Creating sneaker culture in India from nothing — no existing market, no playbook.",
-    impact: "$6M+ revenue. 350K+ community. $795K raised. SneakinOut: India's first sneaker convention.",
-  },
-  fere: {
-    challenge: "Marketing invisible autonomous AI agents in a noisy crypto-adjacent market.",
-    impact: "AI-native ops model proven. Lean team via AI systems. Proving ground for Iterate.",
-  },
-  ccd: {
-    challenge: "Creating without a brief or client — building because it needed to exist.",
-    impact: "Platform live. Series of live shows pan-India with Impresario. Creative sovereignty.",
-  },
-  iterate: {
-    challenge: "Competing against traditional agencies — slow, headcount-heavy, not scalable.",
-    impact: "90-person network. National clients (airport, EV network). AI-native at scale.",
-  },
+  grp: { challenge: "Building India's first price-comparison engine in college — zero playbook, no smartphones yet.", impact: "First product shipped. Angel-backed. Built catalog + crawl pipeline from scratch." },
+  hab: { challenge: "Branded budget hospitality with zero capital — same market OYO later raised billions for.", impact: "$120K+ revenue bootstrapped. 16-person team, 3 cities. Unit economics proven without a safety net." },
+  ai: { challenge: "Selling AI in 2016 before anyone searched for the term. Pure missionary selling, zero market awareness.", impact: "Built and ran entire marketing function. Rebuilt product dashboard end-to-end. Octo acquired by Quartic.ai." },
+  investopad: { challenge: "Operator → investor transition. Building a venture fund from family office to institutional.", impact: "Fund I built. Portfolio: Meesho (now India's largest e-commerce), Entri, Simsim." },
+  quartic: { challenge: "Joining a post-acquisition enterprise AI company and building marketing from zero in San Jose.", impact: "Built brand identity, website, collateral, press strategy. Led team of 5." },
+  sole: { challenge: "Creating sneaker culture in India from nothing — no existing market, no playbook.", impact: "$6M+ revenue. 350K+ community. $795K raised. SneakinOut: India's first sneaker convention." },
+  fere: { challenge: "Marketing invisible autonomous AI agents in a noisy crypto-adjacent market.", impact: "AI-native ops model proven. Lean team via AI systems. Proving ground for Iterate." },
+  ccd: { challenge: "Creating without a brief or client — building because it needed to exist.", impact: "Platform live. Series of live shows pan-India with Impresario. Creative sovereignty." },
+  iterate: { challenge: "Competing against traditional agencies — slow, headcount-heavy, not scalable.", impact: "90-person network. National clients (airport, EV network). AI-native at scale." },
 };
 
 const QUARTIC_PEOPLE = [
@@ -53,51 +25,48 @@ type Props = {
   z: Zone;
   i: number;
   overrideId?: string;
-  onBecameActive?: (accent: string) => void;
+  isOpen: boolean;
+  onEnterViewport: () => void;
+  onClick: () => void;
 };
 
-export function CareerCard({ z, i, overrideId, onBecameActive }: Props) {
-  const [open, setOpen] = useState(false);
+export function CareerCard({ z, i, overrideId, isOpen, onEnterViewport, onClick }: Props) {
   const [contentVisible, setContentVisible] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const hasFired = useRef(false);
   const accent = z.theme.accent;
   const cardId = overrideId || z.id;
 
-  // Open once on scroll — never auto-closes
+  // Fire onEnterViewport when 40% visible (once)
   useEffect(() => {
     const el = cardRef.current;
     if (!el) return;
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (mq.matches) { setOpen(true); setContentVisible(true); return; }
+    if (mq.matches) { onEnterViewport(); return; }
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && entry.intersectionRatio >= 0.3 && !hasFired.current) {
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.4 && !hasFired.current) {
           hasFired.current = true;
-          setTimeout(() => {
-            setOpen(true);
-            setTimeout(() => setContentVisible(true), 250);
-            onBecameActive?.(accent);
-          }, 400);
+          setTimeout(() => onEnterViewport(), 350);
         }
       },
-      { threshold: [0.3], rootMargin: "0px 0px -50px 0px" }
+      { threshold: [0.4], rootMargin: "0px 0px -40px 0px" }
     );
     observer.observe(el);
     return () => observer.disconnect();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Click to toggle
-  const handleClick = useCallback(() => {
-    setOpen(o => {
-      const next = !o;
-      if (next) setTimeout(() => setContentVisible(true), 200);
-      else setContentVisible(false);
-      return next;
-    });
-  }, []);
+  // Content stagger when opening
+  useEffect(() => {
+    if (isOpen) {
+      const id = setTimeout(() => setContentVisible(true), 250);
+      return () => clearTimeout(id);
+    } else {
+      setContentVisible(false);
+    }
+  }, [isOpen]);
 
   const links = cardId === "quartic" ? QUARTIC_LINKS : (COMPANY_LINKS[cardId] || []);
   const people = cardId === "quartic" ? QUARTIC_PEOPLE : (KEY_PEOPLE[cardId] || []);
@@ -109,20 +78,19 @@ export function CareerCard({ z, i, overrideId, onBecameActive }: Props) {
       style={{
         position: "relative",
         background: "rgba(6,12,24,0.92)",
-        border: `1px solid ${open ? accent + "45" : accent + "15"}`,
-        borderLeft: `4px solid ${open ? accent : accent + "25"}`,
+        border: `1px solid ${isOpen ? accent + "45" : accent + "15"}`,
+        borderLeft: `4px solid ${isOpen ? accent : accent + "25"}`,
         borderRadius: 10,
         transition: "all 0.5s cubic-bezier(0.4,0,0.2,1)",
-        boxShadow: open
-          ? `0 8px 48px ${accent}18, 0 0 0 1px ${accent}15`
+        boxShadow: isOpen
+          ? `0 8px 48px ${accent}18, 0 0 0 1px ${accent}12`
           : `0 1px 4px rgba(0,0,0,0.2)`,
         overflow: "hidden",
         cursor: "pointer",
       }}
-      onClick={handleClick}
+      onClick={onClick}
     >
-      {/* Left border glow when open */}
-      {open && (
+      {isOpen && (
         <div style={{
           position: "absolute", left: 0, top: 0, bottom: 0, width: 4,
           background: accent,
@@ -132,14 +100,11 @@ export function CareerCard({ z, i, overrideId, onBecameActive }: Props) {
         }} />
       )}
 
-      {/* ─── HEADER ─── */}
+      {/* HEADER */}
       <div style={{ padding: "22px 24px", position: "relative", zIndex: 1 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
           <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
-            <h3 style={{
-              fontFamily: "var(--font-pixel)", fontSize: 16, margin: 0,
-              color: accent, letterSpacing: "0.03em",
-            }}>
+            <h3 style={{ fontFamily: "var(--font-pixel)", fontSize: 16, margin: 0, color: accent, letterSpacing: "0.03em" }}>
               {cardId === "quartic" ? "Quartic.ai" : z.org}
             </h3>
             <span style={{ fontFamily: "var(--font-pixel)", fontSize: 8, color: "#5a7a9a" }}>
@@ -148,7 +113,7 @@ export function CareerCard({ z, i, overrideId, onBecameActive }: Props) {
           </div>
           <span style={{
             fontFamily: "var(--font-pixel)", fontSize: 9, color: accent, opacity: 0.5,
-            transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.3s",
+            transform: isOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.3s",
           }}>▼</span>
         </div>
         <div style={{ fontFamily: "var(--font-mono)", fontSize: 16, color: "#b0c8e0", marginBottom: 4, fontWeight: 500 }}>
@@ -159,58 +124,49 @@ export function CareerCard({ z, i, overrideId, onBecameActive }: Props) {
         </div>
       </div>
 
-      {/* ─── EXPANDED ─── */}
-      <div
-        onClick={e => e.stopPropagation()}
-        style={{
-          overflow: "hidden",
-          maxHeight: open ? 1600 : 0,
-          opacity: open ? 1 : 0,
-          transition: "max-height 0.6s cubic-bezier(0.4,0,0.2,1), opacity 0.4s ease 0.1s",
-          cursor: "default",
-        }}
-      >
+      {/* EXPANDED */}
+      <div onClick={e => e.stopPropagation()} style={{
+        overflow: "hidden",
+        maxHeight: isOpen ? 1600 : 0,
+        opacity: isOpen ? 1 : 0,
+        transition: "max-height 0.6s cubic-bezier(0.4,0,0.2,1), opacity 0.4s ease 0.1s",
+        cursor: "default",
+      }}>
         <div style={{ borderTop: `1px solid ${accent}18`, padding: "22px 24px 28px" }}>
 
-          <CardSection visible={contentVisible} delay={0} accent={accent} title="WHAT I DID">
+          <Sec visible={contentVisible} delay={0} accent={accent} title="WHAT I DID">
             {(cardId === "quartic"
               ? ["Led team of 5. Backed by Good Capital, Celesta Capital, Michael Marks.", "Rejoined at direct invitation of Good Capital partners post-acquisition.", "Built marketing from zero: brand identity, website, collateral, press strategy."]
               : z.cliff.did
             ).map((d, di) => (
-              <div key={di} style={{
-                fontFamily: "var(--font-mono)", fontSize: 13,
-                color: "#7a98b8", marginBottom: 6, lineHeight: 1.6,
-                paddingLeft: 16, position: "relative",
-              }}>
-                <span style={{ position: "absolute", left: 0, color: accent, fontSize: 10, top: 3 }}>▸</span>
-                {d}
+              <div key={di} style={{ fontFamily: "var(--font-mono)", fontSize: 13, color: "#7a98b8", marginBottom: 6, lineHeight: 1.6, paddingLeft: 16, position: "relative" }}>
+                <span style={{ position: "absolute", left: 0, color: accent, fontSize: 10, top: 3 }}>▸</span>{d}
               </div>
             ))}
-          </CardSection>
+          </Sec>
 
           {people.length > 0 && (
-            <CardSection visible={contentVisible} delay={80} accent={accent} title="KEY PEOPLE">
+            <Sec visible={contentVisible} delay={80} accent={accent} title="KEY PEOPLE">
               {people.map((p, pi) => (
                 <div key={pi} style={{ display: "flex", gap: 10, marginBottom: 7, alignItems: "baseline", flexWrap: "wrap" }}>
                   <span style={{ fontFamily: "var(--font-pixel)", fontSize: 9, color: "#c8d8f0" }}>{p.name}</span>
                   <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "#5a7a9a" }}>— {p.relevance}</span>
                 </div>
               ))}
-            </CardSection>
+            </Sec>
           )}
 
           {narrative && (
             <div style={{
               display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 22,
-              opacity: contentVisible ? 1 : 0,
-              transform: contentVisible ? "translateY(0)" : "translateY(10px)",
+              opacity: contentVisible ? 1 : 0, transform: contentVisible ? "translateY(0)" : "translateY(10px)",
               transition: "opacity 0.4s ease 160ms, transform 0.4s ease 160ms",
             }}>
-              <div style={{ padding: "14px 16px", background: `${accent}08`, borderLeft: `3px solid ${accent}35`, borderRadius: 6 }}>
+              <div style={{ padding: "14px 16px", background: `${accent}06`, borderLeft: `3px solid ${accent}30`, borderRadius: 6 }}>
                 <div style={{ fontFamily: "var(--font-pixel)", fontSize: 8, color: accent, marginBottom: 10, letterSpacing: "0.12em" }}>★ THE CHALLENGE</div>
                 <div style={{ fontFamily: "var(--font-mono)", fontSize: 12.5, color: "#7a98b8", lineHeight: 1.6 }}>{narrative.challenge}</div>
               </div>
-              <div style={{ padding: "14px 16px", background: `${accent}08`, borderLeft: `3px solid ${accent}35`, borderRadius: 6 }}>
+              <div style={{ padding: "14px 16px", background: `${accent}06`, borderLeft: `3px solid ${accent}30`, borderRadius: 6 }}>
                 <div style={{ fontFamily: "var(--font-pixel)", fontSize: 8, color: accent, marginBottom: 10, letterSpacing: "0.12em" }}>★ IMPACT</div>
                 <div style={{ fontFamily: "var(--font-mono)", fontSize: 12.5, color: "#a0c0d8", lineHeight: 1.6, fontWeight: 600 }}>{narrative.impact}</div>
               </div>
@@ -218,24 +174,17 @@ export function CareerCard({ z, i, overrideId, onBecameActive }: Props) {
           )}
 
           {links.length > 0 && (
-            <CardSection visible={contentVisible} delay={240} accent={accent} title="LINKS">
+            <Sec visible={contentVisible} delay={240} accent={accent} title="LINKS">
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                 {links.map((link, li) => (
-                  <a key={li} href={link.url} target="_blank" rel="noopener noreferrer"
-                    onClick={e => e.stopPropagation()}
-                    style={{
-                      fontFamily: "var(--font-mono)", fontSize: 12,
-                      color: "#7ce0ff", textDecoration: "none",
-                      background: "rgba(124,224,255,0.06)",
-                      border: "1.5px solid rgba(124,224,255,0.22)",
-                      padding: "8px 14px", borderRadius: 5,
-                    }}
-                  >
-                    {link.label} ↗
-                  </a>
+                  <a key={li} href={link.url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} style={{
+                    fontFamily: "var(--font-mono)", fontSize: 12, color: "#7ce0ff", textDecoration: "none",
+                    background: "rgba(124,224,255,0.06)", border: "1.5px solid rgba(124,224,255,0.22)",
+                    padding: "8px 14px", borderRadius: 5,
+                  }}>{link.label} ↗</a>
                 ))}
               </div>
-            </CardSection>
+            </Sec>
           )}
         </div>
       </div>
@@ -248,20 +197,10 @@ export function CareerCard({ z, i, overrideId, onBecameActive }: Props) {
   );
 }
 
-function CardSection({ visible, delay, accent, title, children }: {
-  visible: boolean; delay: number; accent: string; title: string; children: React.ReactNode;
-}) {
+function Sec({ visible, delay, accent, title, children }: { visible: boolean; delay: number; accent: string; title: string; children: React.ReactNode }) {
   return (
-    <div style={{
-      marginBottom: 22,
-      opacity: visible ? 1 : 0,
-      transform: visible ? "translateY(0)" : "translateY(10px)",
-      transition: `opacity 0.4s ease ${delay}ms, transform 0.4s ease ${delay}ms`,
-    }}>
-      <div style={{
-        fontFamily: "var(--font-pixel)", fontSize: 8,
-        color: accent, marginBottom: 10, letterSpacing: "0.12em",
-      }}>★ {title}</div>
+    <div style={{ marginBottom: 22, opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(10px)", transition: `opacity 0.4s ease ${delay}ms, transform 0.4s ease ${delay}ms` }}>
+      <div style={{ fontFamily: "var(--font-pixel)", fontSize: 8, color: accent, marginBottom: 10, letterSpacing: "0.12em" }}>★ {title}</div>
       {children}
     </div>
   );
