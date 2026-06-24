@@ -32,24 +32,24 @@ const styles = StyleSheet.create({
 
 
 const EXPERIENCE = [
-  { company: "Iterate", role: "Founder & Creative Director", type: "AI-native marketing agency", period: "2024 – Present", location: "Bengaluru, India", url: "hyperiterate.com",
+  { company: "Iterate", role: "Founder & Creative Director", type: "AI-native marketing agency", period: "Jan 2026 – Present", location: "Bengaluru, India", url: "hyperiterate.com",
     bullets: ["Leads a 90-person network across strategy, creative, and engineering.", "Clients include ChargeZone, Noida International Airport, PickYourTrail, Billione, and Monkspace."],
-    sub: { company: "Cats Can Dance", desc: "Culture platform (music, fashion & pet care)", period: "2026 – Present",
-      bullets: ["Designed and built a culture-discovery platform end-to-end — artist directory, event booking, and a music-production learning product.", "Produced a flagship live show at Social, in partnership with Impresario."] }
+    sub: { company: "Cats Can Dance", desc: "Culture platform (music, fashion & pet care)", period: "Mar 2026 – Present",
+      bullets: ["Designed and built a culture-discovery platform end-to-end — artist directory, event booking, and a music-production learning product.", "Produced a series of live shows pan-India, in partnership with Impresario."] }
   },
-  { company: "Fere.ai", role: "CMO", type: "Autonomous AI agent platform, funded by Ethereal Ventures", period: "2024 – 2025", location: "India", url: "fereai.xyz",
+  { company: "Fere.ai", role: "CMO", type: "Autonomous AI agent platform, funded by Ethereal Ventures", period: "Jan 2025", location: "India", url: "fereai.xyz",
     bullets: ["Joined early to build the growth and marketing function, rejoining long-time collaborator Akshaya Aron.", "Restructured marketing to run lean — sustained by AI systems and a small team.", "Used that operating model as the proving ground for launching Iterate."] },
-  { company: "SoleSearch", role: "Co-Founder & CEO", type: "Sneaker, streetwear & collectibles marketplace", period: "2020 – 2024", location: "India",
-    bullets: ["Co-founded with Prabal Baghla; later joined by Rannvijay Singha. Led a team of 40. Raised $795K from Venture Catalysts, Anthill Ventures, and Cornerstone Ventures.", "Generated $6M+ in total revenue over four years, with omnichannel retail in Mumbai and Hyderabad.", "Built a 350,000+ follower community and ran 30+ live events, including SneakinOut — India's first sneaker convention.", "Secured press in VICE, CNBC-TV18, Storyboard18, Economic Times, Inc42, and Business of Fashion."] },
+  { company: "SoleSearch", role: "Founder & CEO", type: "Sneaker, streetwear & collectibles marketplace", period: "2022 – Dec 2024", location: "India",
+    bullets: ["Founded SoleSearch; joined by Prabal Baghla and Rannvijay Singha. Led a team of 40. Raised $795K from Venture Catalysts, Anthill Ventures, and Cornerstone Ventures.", "Generated $6M+ in total revenue over four years, with omnichannel retail in Mumbai and Hyderabad.", "Built a 350,000+ follower community and ran 30+ live events, including SneakinOut — India's first sneaker convention.", "Secured press in VICE, CNBC-TV18, Storyboard18, Economic Times, Inc42, and Business of Fashion."] },
   { company: "Investopad → Good Capital", role: "Partner, Growth & Technology", type: "Family office turned venture fund", period: "2017 – 2020", location: "New Delhi, India",
     bullets: ["Partner for Tech & Growth as family office evolved into Good Capital, an institutional Fund I.", "Helped build the fund — sourcing, diligence, founder support — for a portfolio including Meesho, Entri, Simsim, Amazon, and Forbes."] },
-  { company: "Quartic.ai", role: "Director of Marketing", type: "Enterprise AI platform", period: "2019 – 2020", location: "San Jose, CA (HQ)",
+  { company: "Quartic.ai", role: "Director of Marketing", type: "Enterprise AI platform", period: "2020 – 2022", location: "San Jose, CA (HQ)",
     bullets: ["Led a team of 5. Backed by Good Capital, Celesta Capital, and Michael Marks.", "Built the marketing function from zero: brand identity, website, collateral, and press strategy."] },
-  { company: "Octo", role: "Founding Team, Head of Growth", type: "Conversational AI platform, acquired by Quartic.ai", period: "2013 – 2017", location: "New Delhi, India",
+  { company: "Octo", role: "Founding Team, Head of Growth", type: "Conversational AI platform, acquired by Quartic.ai", period: "2016 – 2017", location: "New Delhi, India",
     bullets: ["Co-built with Akshaya Aron, backed by Good Capital — built AI products before \"AI\" was a market category.", "Built and ran the entire marketing function from scratch and rebuilt the product dashboard end-to-end."] },
-  { company: "Hab Housing", role: "Founder", type: "Branded budget hospitality", period: "2012 – 2013", location: "Pune, India",
+  { company: "Hab Housing", role: "Founder", type: "Branded budget hospitality", period: "2012 – 2015", location: "Pune, India",
     bullets: ["Built one of India's first branded budget-hospitality startups — the category OYO later scaled nationally.", "$120K+ in revenue, fully bootstrapped. Grew from sole founder to a 16-person team across three cities."] },
-  { company: "GetRightPrice", role: "Founding Team Member", type: "India's first price-comparison engine", period: "2010 – 2011", location: "Delhi, India",
+  { company: "GetRightPrice", role: "Founding Team Member", type: "India's first price-comparison engine", period: "2011 – 2012", location: "Delhi, India",
     bullets: ["Joined the founding team in college, angel-backed by Sidharth Rao (founder, Webchutney). Built the product catalog and crawl pipeline."] },
 ];
 

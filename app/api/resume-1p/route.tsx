@@ -74,7 +74,7 @@ function OnePageResumePDF() {
               <Text style={styles.expRole}>Founder & Creative Director</Text>
               <Text style={styles.expCompany}> — Iterate</Text>
             </View>
-            <Text style={styles.expPeriod}>2024 – Present</Text>
+            <Text style={styles.expPeriod}>Jan 2026 – Present</Text>
           </View>
           <Text style={styles.expMeta}>AI-native marketing agency | Bengaluru | hyperiterate.com</Text>
           <Text style={styles.bullet}>• Leads a 90-person network across strategy, creative, and engineering.</Text>
@@ -89,7 +89,7 @@ function OnePageResumePDF() {
               <Text style={styles.expRole}>Co-Founder & CEO</Text>
               <Text style={styles.expCompany}> — SoleSearch</Text>
             </View>
-            <Text style={styles.expPeriod}>2020 – 2024</Text>
+            <Text style={styles.expPeriod}>2022 – Dec 2024</Text>
           </View>
           <Text style={styles.expMeta}>Sneaker, streetwear & collectibles marketplace | India</Text>
           <Text style={styles.bullet}>• $6M+ total revenue, $795K raised (Venture Catalysts, Anthill, Cornerstone). Team of 40.</Text>
@@ -104,7 +104,7 @@ function OnePageResumePDF() {
               <Text style={styles.expRole}>CMO</Text>
               <Text style={styles.expCompany}> — Fere.ai</Text>
             </View>
-            <Text style={styles.expPeriod}>2024 – 2025</Text>
+            <Text style={styles.expPeriod}>Jan 2025</Text>
           </View>
           <Text style={styles.expMeta}>Autonomous AI agent platform | Funded by Ethereal Ventures | fereai.xyz</Text>
           <Text style={styles.bullet}>• Built growth function from scratch. Restructured to run lean on AI systems.</Text>
@@ -115,7 +115,7 @@ function OnePageResumePDF() {
         <View style={{ marginTop: 6, marginBottom: 2 }}>
           <Text style={{ fontSize: 8.5, color: "#4a4a6a", fontFamily: "Helvetica-Bold", marginBottom: 4 }}>ALSO:</Text>
           <Text style={{ fontSize: 8.5, color: "#2a2a4a", lineHeight: 1.5 }}>
-            Partner, Growth & Technology at Investopad → Good Capital (2017–20, portfolio incl. Meesho) · Director of Marketing at Quartic.ai (2019–20) · Founding Team, Head of Growth at Octo (2013–17, acq. by Quartic) · Founder, Hab Housing (2012–13, $120K bootstrapped) · Founding Team, GetRightPrice (2010–11, angel-backed)
+            Partner, Growth & Technology at Investopad → Good Capital (2017–20, portfolio incl. Meesho) · Director of Marketing at Quartic.ai (2020–22) · Head of Growth at Octo (2016–17, acq. by Quartic) · Founder, Hab Housing (2012–15, $120K bootstrapped) · Founding Team, GetRightPrice (2011–12, angel-backed)
           </Text>
         </View>
 
