@@ -66,7 +66,7 @@ function BrandLogo({ brand, index, accent }: { brand: BrandItem; index: number; 
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(12px)",
         transition: `opacity 0.4s ease ${index * 50}ms, transform 0.4s ease ${index * 50}ms`,
-        minHeight: 64,
+        minHeight: 76,
         cursor: brand.url ? "pointer" : "default",
         gap: 6,
       }}
@@ -78,8 +78,8 @@ function BrandLogo({ brand, index, accent }: { brand: BrandItem; index: number; 
           src={logoUrl}
           alt={brand.name}
           style={{
-            height: 24,
-            maxWidth: 80,
+            height: 36,
+            maxWidth: 100,
             objectFit: "contain",
           }}
           onError={(e) => {
