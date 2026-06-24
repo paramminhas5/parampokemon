@@ -763,6 +763,9 @@ export const COMPANY_LINKS: Record<string, { url: string; label?: string }[]> = 
   investopad: [
     { url: "https://wellfound.com/company/investopad/people", label: "Wellfound" },
   ],
+  hab: [
+    { url: "https://tracxn.com/d/companies/hab-housing/__e1-Y8yk6fIQg8I52LcHihc_D17fv5S22nK1cO0xNuXA#about-the-company", label: "Tracxn Profile" },
+  ],
   ai: [
     { url: "https://www.slideshare.net/slideshow/param-minhas-octo-marketing-deck/71004948", label: "Octo Marketing Deck" },
     { url: "https://www.slideshare.net/slideshow/param-minhas-project-alia/71004863", label: "Project Alia" },
