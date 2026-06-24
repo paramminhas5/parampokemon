@@ -27,17 +27,17 @@ type Props = {
   overrideId?: string;
   isOpen: boolean;
   onEnterViewport: () => void;
+  onLeaveViewport: () => void;
   onClick: () => void;
 };
 
-export function CareerCard({ z, i, overrideId, isOpen, onEnterViewport, onClick }: Props) {
+export function CareerCard({ z, i, overrideId, isOpen, onEnterViewport, onLeaveViewport, onClick }: Props) {
   const [contentVisible, setContentVisible] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
-  const hasFired = useRef(false);
   const accent = z.theme.accent;
   const cardId = overrideId || z.id;
 
-  // Fire onEnterViewport when 40% visible (once)
+  // Fire onEnterViewport when 40% visible, fire onLeaveViewport when fully out of view
   useEffect(() => {
     const el = cardRef.current;
     if (!el) return;
@@ -46,12 +46,13 @@ export function CareerCard({ z, i, overrideId, isOpen, onEnterViewport, onClick 
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && entry.intersectionRatio >= 0.4 && !hasFired.current) {
-          hasFired.current = true;
-          setTimeout(() => onEnterViewport(), 350);
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.35) {
+          onEnterViewport();
+        } else if (!entry.isIntersecting && entry.intersectionRatio === 0) {
+          onLeaveViewport();
         }
       },
-      { threshold: [0.4], rootMargin: "0px 0px -40px 0px" }
+      { threshold: [0, 0.35] }
     );
     observer.observe(el);
     return () => observer.disconnect();

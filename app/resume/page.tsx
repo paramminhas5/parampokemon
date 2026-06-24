@@ -61,20 +61,6 @@ const EXPERIENCE = [
     ],
   },
   {
-    company: "Investopad → Good Capital",
-    role: "Partner, Growth & Technology",
-    type: "Family office turned venture fund",
-    period: "2017 – 2020",
-    location: "New Delhi, India",
-    url: "wellfound.com/company/investopad",
-    link: "https://wellfound.com/company/investopad/people",
-    bullets: [
-      "Partner for Tech & Growth as Investopad's family office evolved into Good Capital, an institutional Fund I.",
-      "Helped build the fund from family office to Fund I — sourcing, diligence, founder support.",
-      "Portfolio including Meesho (now one of India's largest e-commerce companies), Entri, Simsim, Amazon, and Forbes.",
-    ],
-  },
-  {
     company: "Quartic.ai",
     role: "Director of Marketing",
     type: "Enterprise AI platform",
@@ -86,6 +72,20 @@ const EXPERIENCE = [
       "Led a team of 5. Backed by Good Capital, Celesta Capital, and Michael Marks.",
       "Rejoined at the direct invitation of the Good Capital partners following Octo's acquisition.",
       "Built the marketing function from zero: brand identity, website, collateral, and press strategy.",
+    ],
+  },
+  {
+    company: "Investopad → Good Capital",
+    role: "Partner, Growth & Technology",
+    type: "Family office turned venture fund",
+    period: "2017 – 2020",
+    location: "New Delhi, India",
+    url: "wellfound.com/company/investopad",
+    link: "https://wellfound.com/company/investopad/people",
+    bullets: [
+      "Partner for Tech & Growth as Investopad's family office evolved into Good Capital, an institutional Fund I.",
+      "Helped build the fund from family office to Fund I — sourcing, diligence, founder support.",
+      "Portfolio including Meesho (now one of India's largest e-commerce companies), Entri, Simsim, Amazon, and Forbes.",
     ],
   },
   {
