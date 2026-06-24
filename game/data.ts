@@ -782,6 +782,11 @@ export const COMPANY_LINKS: Record<string, { url: string; label?: string }[]> = 
   sole: [
     { url: "https://www.vice.com/en/article/india-genz-sneakerheads-sneaker-resellers-hype/", label: "VICE Feature" },
     { url: "https://www.storyboard18.com/how-it-works/sneaker-culture-in-india-women-are-buying-as-many-sneakers-as-men-says-solesearchs-param-minhas-2518.htm", label: "Storyboard18 Interview" },
+    { url: "https://in.linkedin.com/company/solesearch", label: "CNBC-TV18" },
+    { url: "https://openthemagazine.com/feature/second-coming-2/", label: "Open Magazine" },
+    { url: "https://www.theestablished.com/style/sneakers/can-indias-sneaker-reseller-business-survive-the-global-sneaker-hype-crash", label: "The Established" },
+    { url: "https://entrackr.com/2023/05/street-culture-brand-solesearch-raises-maiden-fund/", label: "Entrackr" },
+    { url: "https://www.indianretailer.com/news/funding-alert-solesearch-bags-730000-debut-funding-round", label: "Indian Retailer" },
   ],
 };
 
