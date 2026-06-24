@@ -37,7 +37,7 @@ const EXPERIENCE = [
     sub: { company: "Cats Can Dance", desc: "Culture platform (music, fashion & pet care)", period: "Mar 2026 – Present",
       bullets: ["Designed and built a culture-discovery platform end-to-end — artist directory, event booking, and a music-production learning product.", "Produced a series of live shows pan-India, in partnership with Impresario."] }
   },
-  { company: "Fere.ai", role: "CMO", type: "Autonomous AI agent platform, funded by Ethereal Ventures", period: "Jan 2025", location: "India", url: "fereai.xyz",
+  { company: "Fere.ai", role: "CMO", type: "Autonomous AI agent platform, funded by Ethereal Ventures", period: "Jan 2025 – Dec 2025", location: "India", url: "fereai.xyz",
     bullets: ["Joined early to build the growth and marketing function, rejoining long-time collaborator Akshaya Aron.", "Restructured marketing to run lean — sustained by AI systems and a small team.", "Used that operating model as the proving ground for launching Iterate."] },
   { company: "SoleSearch", role: "Founder & CEO", type: "Sneaker, streetwear & collectibles marketplace", period: "2022 – Dec 2024", location: "India",
     bullets: ["Founded SoleSearch; joined by Prabal Baghla and Rannvijay Singha. Led a team of 40. Raised $795K from Venture Catalysts, Anthill Ventures, and Cornerstone Ventures.", "Generated $6M+ in total revenue over four years, with omnichannel retail in Mumbai and Hyderabad.", "Built a 350,000+ follower community and ran 30+ live events, including SneakinOut — India's first sneaker convention.", "Secured press in VICE, CNBC-TV18, Storyboard18, Economic Times, Inc42, and Business of Fashion."] },

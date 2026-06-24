@@ -104,7 +104,7 @@ function OnePageResumePDF() {
               <Text style={styles.expRole}>CMO</Text>
               <Text style={styles.expCompany}> — Fere.ai</Text>
             </View>
-            <Text style={styles.expPeriod}>Jan 2025</Text>
+            <Text style={styles.expPeriod}>Jan 2025 – Dec 2025</Text>
           </View>
           <Text style={styles.expMeta}>Autonomous AI agent platform | Funded by Ethereal Ventures | fereai.xyz</Text>
           <Text style={styles.bullet}>• Built growth function from scratch. Restructured to run lean on AI systems.</Text>

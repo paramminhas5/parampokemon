@@ -35,7 +35,7 @@ const EXPERIENCE = [
     company: "Fere.ai",
     role: "CMO",
     type: "Autonomous AI agent platform, funded by Ethereal Ventures",
-    period: "Jan 2025",
+    period: "Jan 2025 – Dec 2025",
     location: "India",
     url: "fereai.xyz",
     link: "https://www.fereai.xyz/app",
