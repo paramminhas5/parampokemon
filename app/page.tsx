@@ -338,6 +338,12 @@ const BG_ANIMATIONS = `
   75% { transform: translate(20px, -35px) scale(1.2); opacity: 0.6; }
   100% { transform: translate(-5px, -60px) scale(1); opacity: 0.15; }
 }
+
+@keyframes accent-pulse {
+  0% { opacity: 0; transform: scale(0.8); }
+  30% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.2); }
+}
 `;
 
 
@@ -345,10 +351,22 @@ const BG_ANIMATIONS = `
 export default function Home() {
   const careerZones = ZONES.filter(z => z.id !== "home" && z.id !== "origin");
   const [heroVisible, setHeroVisible] = useState(false);
+  const [accentPulse, setAccentPulse] = useState<string | null>(null);
 
   useEffect(() => {
     const id = setTimeout(() => setHeroVisible(true), 80);
     return () => clearTimeout(id);
+  }, []);
+
+  // Listen for zone-enter events from cards
+  useEffect(() => {
+    function handleZoneEnter(e: Event) {
+      const color = (e as CustomEvent).detail;
+      setAccentPulse(color);
+      setTimeout(() => setAccentPulse(null), 1200);
+    }
+    window.addEventListener("zone-enter", handleZoneEnter);
+    return () => window.removeEventListener("zone-enter", handleZoneEnter);
   }, []);
 
   return (
@@ -375,6 +393,15 @@ export default function Home() {
           }} />
         ))}
       </div>
+
+      {/* Accent pulse overlay — flashes on zone entry */}
+      {accentPulse && (
+        <div style={{
+          position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0,
+          background: `radial-gradient(ellipse at center, ${accentPulse}20 0%, transparent 70%)`,
+          animation: "accent-pulse 1.2s ease-out forwards",
+        }} />
+      )}
 
       {/* ── HERO ── */}
       <section style={{
@@ -477,7 +504,7 @@ export default function Home() {
       {/* ── CAREER ── */}
       <section style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 40px", position: "relative", zIndex: 1 }}>
         <SectionHeader text="★ THE CAREER · CHAPTER BY CHAPTER" />
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 48 }}>
           {(() => {
             // Build card list: inject Quartic after Investopad, using the ai zone as base
             const cards: { zone: typeof ZONES[0]; overrideId?: string }[] = [];
