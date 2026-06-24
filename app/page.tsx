@@ -230,18 +230,17 @@ function HowToPlay() {
 
 
 // ─── Career zones section ─────────────────────────────────────────────────────
-function CareerZoneRow({ z, i }: { z: typeof ZONES[0]; i: number }) {
-  const { ref, visible } = useScrollReveal<HTMLDivElement>({ threshold: 0.08 });
+function CareerZoneRow({ z, i, overrideId }: { z: typeof ZONES[0]; i: number; overrideId?: string }) {
+  const { ref, visible } = useScrollReveal<HTMLDivElement>({ threshold: 0.05 });
   return (
     <div
       ref={ref}
       style={{
         opacity: visible ? 1 : 0,
-        transform: visible ? "translateX(0)" : "translateX(-24px)",
-        transition: `opacity 0.45s ease ${i * 60}ms, transform 0.45s ease ${i * 60}ms`,
+        transition: `opacity 0.3s ease ${i * 40}ms`,
       }}
     >
-      <CareerCard z={z} i={i} />
+      <CareerCard z={z} i={i} overrideId={overrideId} />
     </div>
   );
 }
@@ -475,13 +474,24 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── CAREER ZONES ── */}
-      <section style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 40px" }}>
+      {/* ── CAREER ── */}
+      <section style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 40px", position: "relative", zIndex: 1 }}>
         <SectionHeader text="★ THE CAREER · CHAPTER BY CHAPTER" />
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          {careerZones.map((z, i) => (
-            <CareerZoneRow key={z.id} z={z} i={i} />
-          ))}
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {(() => {
+            // Build card list: inject Quartic after Investopad, using the ai zone as base
+            const cards: { zone: typeof ZONES[0]; overrideId?: string }[] = [];
+            const aiZone = ZONES.find(z => z.id === "ai")!;
+            for (const z of careerZones) {
+              cards.push({ zone: z });
+              if (z.id === "investopad") {
+                cards.push({ zone: aiZone, overrideId: "quartic" });
+              }
+            }
+            return cards.map((c, i) => (
+              <CareerZoneRow key={c.overrideId || c.zone.id} z={c.zone} i={i} overrideId={c.overrideId} />
+            ));
+          })()}
         </div>
       </section>
 
