@@ -1,187 +1,426 @@
 import Link from "next/link";
-import { ZONES, CONTACT, PRESS } from "@/game/data";
 import type { Metadata } from "next";
-import { ExperienceEntry } from "@/components/resume/ExperienceEntry";
 
 export const metadata: Metadata = {
-  title: "CV — Param Minhas",
-  description: "15 years of building across e-commerce, AI, real estate, sneakers, music and AI-native marketing.",
+  title: "Resume — Param Minhas",
+  description: "Founder and creative director who builds growth, brand, and marketing functions from zero. 15+ years, $6M+ revenue, 350K+ community, 90-person network.",
 };
 
-const HIGHLIGHTS = [
-  { label: "EXPERIENCE", value: "15+ yrs" },
-  { label: "ANNUAL REV", value: "₹30Cr+" },
-  { label: "RAISED", value: "$795K" },
-  { label: "SUPPORTED", value: "$1.3M" },
-  { label: "AI SINCE", value: "2013" },
-  { label: "BOOTSTRAPPED", value: "₹1Cr" },
+const EXPERIENCE = [
+  {
+    company: "Iterate",
+    role: "Founder & Creative Director",
+    type: "AI-native marketing agency",
+    period: "2024 – Present",
+    location: "Bengaluru, India",
+    url: "hyperiterate.com",
+    bullets: [
+      "Leads a 90-person network across strategy, creative, and engineering.",
+      "Clients include ChargeZone, Noida International Airport, PickYourTrail, Billione, and Monkspace.",
+    ],
+    sub: {
+      company: "Cats Can Dance",
+      desc: "Culture platform (music, fashion & pet care), launched under Iterate",
+      period: "2026 – Present",
+      url: "catscandance.com",
+      bullets: [
+        "Designed and built a culture-discovery platform end-to-end — artist directory, event booking, and a music-production learning product.",
+        "Produced a flagship live show at Social, in partnership with Impresario.",
+      ],
+    },
+  },
+  {
+    company: "Fere.ai",
+    role: "CMO",
+    type: "Autonomous AI agent platform, funded by Ethereal Ventures",
+    period: "2024 – 2025",
+    location: "India",
+    url: "fereai.xyz",
+    bullets: [
+      "Joined early to build the growth and marketing function, rejoining long-time collaborator and co-founder Akshaya Aron.",
+      "Restructured marketing to run lean — sustained by AI systems and a small team rather than headcount.",
+      "Used that operating model as the proving ground for launching Iterate.",
+    ],
+  },
+  {
+    company: "SoleSearch",
+    role: "Co-Founder & CEO",
+    type: "Sneaker, streetwear & collectibles marketplace",
+    period: "2020 – 2024",
+    location: "India",
+    bullets: [
+      "Co-founded with Prabal Baghla; later joined by Rannvijay Singha. Led a team of 40.",
+      "Raised $795K from Venture Catalysts, Anthill Ventures, and Cornerstone Ventures.",
+      "Generated $6M+ in total revenue over four years, with omnichannel retail in Mumbai and Hyderabad.",
+      "Built a 350,000+ follower community and ran 30+ live events, including SneakinOut — India's first sneaker convention format.",
+      "Secured press in VICE, CNBC-TV18, Storyboard18, Economic Times, Inc42, and Business of Fashion.",
+    ],
+  },
+  {
+    company: "Investopad → Good Capital",
+    role: "Partner, Growth & Technology",
+    type: "Family office turned venture fund",
+    period: "2017 – 2020",
+    location: "New Delhi, India",
+    url: "wellfound.com/company/investopad",
+    bullets: [
+      "Partner for Tech & Growth as Investopad's family office evolved into Good Capital, an institutional Fund I.",
+      "Helped build the fund from family office to Fund I — sourcing, diligence, founder support.",
+      "Portfolio including Meesho (now one of India's largest e-commerce companies), Entri, Simsim, Amazon, and Forbes.",
+    ],
+  },
+
+  {
+    company: "Quartic.ai",
+    role: "Director of Marketing",
+    type: "Enterprise AI platform",
+    period: "2019 – 2020",
+    location: "San Jose, California (HQ)",
+    url: "quartic.ai",
+    bullets: [
+      "Led a team of 5. Backed by Good Capital, Celesta Capital, and Michael Marks.",
+      "Rejoined at the direct invitation of the Good Capital partners following Octo's acquisition.",
+      "Built the marketing function from zero: brand identity, website, collateral, and press strategy.",
+    ],
+  },
+  {
+    company: "Octo",
+    role: "Founding Team, Head of Growth",
+    type: "Conversational AI platform, acquired by Quartic.ai",
+    period: "2013 – 2017",
+    location: "New Delhi, India",
+    bullets: [
+      "Co-built with Akshaya Aron, backed by Good Capital — built AI products before \"AI\" was a market category.",
+      "Built and ran the entire marketing function from scratch and rebuilt the product dashboard end-to-end, working directly with engineering.",
+    ],
+  },
+  {
+    company: "Hab Housing",
+    role: "Founder",
+    type: "Branded budget hospitality",
+    period: "2012 – 2013",
+    location: "Pune, India",
+    bullets: [
+      "Built one of India's first branded budget-hospitality startups — the category OYO later scaled nationally.",
+      "$120K+ in revenue, fully bootstrapped. Grew from sole founder to a 16-person team across three cities.",
+    ],
+  },
+  {
+    company: "GetRightPrice",
+    role: "Founding Team Member",
+    type: "India's first price-comparison engine",
+    period: "2010 – 2011",
+    location: "Delhi, India",
+    bullets: [
+      "Joined the founding team in college, angel-backed by Sidharth Rao (founder, Webchutney).",
+      "Built the product catalog and crawl pipeline.",
+    ],
+  },
 ];
 
-const SKILL_GROUPS = [
-  { group: "Strategy", items: ["GTM strategy", "Positioning & narrative", "ICP definition", "Fundraising decks", "Cap-table reading", "Founder coaching"] },
-  { group: "Brand & Creative", items: ["Brand identity systems", "Creative direction", "Copywriting", "Editorial & content design", "Press & PR strategy"] },
-  { group: "Growth", items: ["Performance marketing", "SEO & content", "Influencer partnerships", "Community building", "Event marketing (30+ events)"] },
-  { group: "Product & Design", items: ["Product strategy", "Figma · prototyping", "UX research", "Design systems"] },
-  { group: "Engineering", items: ["Web (HTML/CSS/JS · React)", "AI workflows (LLMs · agents)", "Shopify / Webflow", "Crawling & data pipelines"] },
-  { group: "Operations", items: ["Unit economics", "Retail ops", "Bootstrapped P&L", "Hiring & team building"] },
+
+const SKILLS = [
+  { group: "Growth & Marketing", items: ["Go-to-market strategy", "Demand generation", "Performance marketing", "SEO & GEO", "Community building", "Event marketing"] },
+  { group: "Brand & Creative", items: ["Brand identity systems", "Creative direction", "Copywriting", "PR & press strategy"] },
+  { group: "Strategy", items: ["Positioning", "ICP definition", "Pricing & packaging", "Fundraising", "GTM planning"] },
+  { group: "AI & Engineering", items: ["AI-native marketing", "Conversational AI & agent development", "Full-stack web (Next.js, React)", "WhatsApp/bot integrations", "Prompt engineering", "Data pipelines"] },
+  { group: "Leadership", items: ["Team building (5 to 90+)", "Hiring", "Founder coaching"] },
+  { group: "Tools", items: ["Notion", "Linear", "Figma", "Cursor", "Claude", "Webflow", "Shopify", "Meta/Google Ads", "GA4", "n8n", "Zapier"] },
+];
+
+const PRESS_ITEMS = [
+  "VICE", "Storyboard18 (syndicated to Forbes India)", "CNBC-TV18", "The Established",
+  "Economic Times", "Entrackr", "Indian Retailer", "YourStory",
+  "CB Insights", "Crunchbase", "PitchBook",
 ];
 
 export default function ResumePage() {
-  const careerZones = ZONES.filter(z => z.id !== "home");
-  const gymZones = ZONES.filter(z => z.gym);
-
   return (
     <div style={{
       minHeight: "100vh",
-      background: "linear-gradient(180deg, #04080f 0%, #070e1a 40%, #0a1428 100%)",
-      padding: "24px 16px",
+      background: "#ffffff",
+      color: "#1a1a2e",
+      fontFamily: "'Space Mono', monospace",
     }}>
-      <div style={{ maxWidth: 860, margin: "0 auto" }}>
+      {/* ── Sticky download bar ── */}
+      <div style={{
+        position: "sticky",
+        top: 0,
+        zIndex: 100,
+        background: "rgba(255,255,255,0.95)",
+        backdropFilter: "blur(8px)",
+        borderBottom: "1px solid #e8e8ec",
+        padding: "10px 20px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 12,
+        flexWrap: "wrap",
+      }}>
+        <a
+          href="/api/resume-pdf"
+          style={{
+            display: "inline-flex", alignItems: "center", gap: 6,
+            padding: "8px 16px",
+            background: "#1a1a2e", color: "#ffffff",
+            fontSize: 11, fontFamily: "'Press Start 2P', monospace",
+            textDecoration: "none", borderRadius: 4,
+            letterSpacing: "0.03em",
+          }}
+        >
+          ⬇ Full Resume PDF
+        </a>
+        <a
+          href="/api/resume-1p"
+          style={{
+            display: "inline-flex", alignItems: "center", gap: 6,
+            padding: "8px 16px",
+            background: "#ffffff", color: "#1a1a2e",
+            border: "1.5px solid #1a1a2e",
+            fontSize: 11, fontFamily: "'Press Start 2P', monospace",
+            textDecoration: "none", borderRadius: 4,
+            letterSpacing: "0.03em",
+          }}
+        >
+          ⬇ 1-Pager PDF
+        </a>
+        <Link
+          href="/play"
+          style={{
+            display: "inline-flex", alignItems: "center", gap: 6,
+            padding: "8px 16px",
+            background: "#f0f4ff", color: "#4a5a8a",
+            border: "1.5px solid #d0d8e8",
+            fontSize: 11, fontFamily: "'Press Start 2P', monospace",
+            textDecoration: "none", borderRadius: 4,
+            letterSpacing: "0.03em",
+          }}
+        >
+          ▶ Back to Game
+        </Link>
+      </div>
 
-        {/* Nav */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 28 }}>
-          <Link href="/" className="pq-label" style={{ color: "#3a5070", textDecoration: "none", fontSize: 9 }}>← BACK</Link>
-          <Link href="/play" className="pq-btn pq-btn-primary" style={{ fontSize: 10, padding: "8px 14px" }}>▶ PLAY</Link>
-        </div>
 
-        {/* ── Hero header ── */}
-        <header style={{ marginBottom: 32 }}>
-          <div style={{ fontFamily: "var(--font-pixel)", fontSize: 7, color: "#3a5a80", letterSpacing: "0.2em", marginBottom: 12 }}>
-            ★ INTERACTIVE CV
+      <div style={{ maxWidth: 780, margin: "0 auto", padding: "48px 24px 64px" }}>
+
+        {/* ── HEADER ── */}
+        <header style={{ marginBottom: 36, borderBottom: "2px solid #1a1a2e", paddingBottom: 24 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+            <h1 style={{
+              fontSize: 28, fontWeight: 700, margin: 0,
+              fontFamily: "'Space Mono', monospace",
+              color: "#1a1a2e",
+            }}>
+              PARAM MINHAS
+            </h1>
+            <span style={{
+              display: "inline-flex", alignItems: "center", gap: 4,
+              background: "#e8f5e9", color: "#2e7d32",
+              fontSize: 8, fontFamily: "'Press Start 2P', monospace",
+              padding: "3px 8px", borderRadius: 3,
+              letterSpacing: "0.05em",
+            }}>
+              ◆ SAVE FILE
+            </span>
           </div>
-          <h1 style={{
-            fontFamily: "var(--font-pixel)",
-            fontSize: "clamp(22px, 5vw, 38px)",
-            color: "#c8d8f0",
-            lineHeight: 1.1, margin: "0 0 12px",
-            textShadow: "0 4px 0 #0a2040",
+
+          <p style={{
+            fontSize: 14, color: "#4a4a6a", margin: "0 0 12px",
+            lineHeight: 1.4, fontWeight: 700,
           }}>
-            PARAM MINHAS
-          </h1>
-          <p style={{ fontFamily: "var(--font-mono)", fontSize: 18, color: "#8aa0c0", lineHeight: 1.5, maxWidth: 600, margin: "0 0 20px" }}>
-            Builder · Designer · Creative Director · Founder.<br />
-            Fifteen years across e-commerce, AI, real estate, sneakers, music and AI-native marketing.<br />
-            <span style={{ color: "#5570aa" }}>Pune → Bengaluru → Mumbai.</span>
+            Founder & Creative Director
+          </p>
+          <p style={{
+            fontSize: 12, color: "#6a6a8a", margin: "0 0 16px",
+            lineHeight: 1.4,
+          }}>
+            Growth & Brand Leadership | GTM | AI-Native Marketing | Creative Direction | Product
           </p>
 
-          {/* Stats grid */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginBottom: 20 }}>
-            {HIGHLIGHTS.map(h => (
-              <div key={h.label} className="pq-panel">
-                <div className="pq-panel-inner" style={{ textAlign: "center", padding: "10px 8px" }}>
-                  <div style={{ fontFamily: "var(--font-pixel)", fontSize: 7, color: "#3a5070", marginBottom: 4 }}>{h.label}</div>
-                  <div style={{ fontFamily: "var(--font-pixel)", fontSize: 14, color: "#c8d8f0" }}>{h.value}</div>
-                </div>
-              </div>
-            ))}
+          {/* Contact bar */}
+          <div style={{
+            display: "flex", flexWrap: "wrap", gap: "6px 16px",
+            fontSize: 12, color: "#4a5a7a", marginBottom: 16,
+          }}>
+            <a href="mailto:minhas.param@gmail.com" style={{ color: "#2a4a8a", textDecoration: "none" }}>minhas.param@gmail.com</a>
+            <a href="https://linkedin.com/in/paramminhas" target="_blank" rel="noopener noreferrer" style={{ color: "#2a4a8a", textDecoration: "none" }}>linkedin.com/in/paramminhas</a>
+            <a href="https://catscandance.com" target="_blank" rel="noopener noreferrer" style={{ color: "#2a4a8a", textDecoration: "none" }}>catscandance.com</a>
+            <span>Bengaluru, India</span>
           </div>
 
-          {/* ── Badge strip ── */}
-          <div className="pq-panel" style={{ marginBottom: 0 }}>
-            <div className="pq-panel-inner">
-              <div style={{ fontFamily: "var(--font-pixel)", fontSize: 7, color: "#3a5070", marginBottom: 10, letterSpacing: "0.12em" }}>
-                ★ ALL BADGES — EARNED IN GAME
+          {/* 5-metric strip */}
+          <div style={{
+            display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 8,
+          }}>
+            {[
+              { label: "Experience", value: "15+ Years" },
+              { label: "Revenue", value: "$6M+" },
+              { label: "Community", value: "350K+" },
+              { label: "Network Led", value: "90-Person" },
+              { label: "Raised", value: "$795K" },
+            ].map(m => (
+              <div key={m.label} style={{
+                textAlign: "center", padding: "10px 6px",
+                background: "#f8f9fc", border: "1px solid #e8e8ec",
+                borderRadius: 4,
+              }}>
+                <div style={{ fontSize: 10, color: "#8a8aa0", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>{m.label}</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#1a1a2e" }}>{m.value}</div>
               </div>
-              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
-                {gymZones.map(z => (
-                  <div key={z.id} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                    <div style={{
-                      width: 32, height: 32, borderRadius: "50%",
-                      background: `${z.badge.color}22`,
-                      border: `2px solid ${z.badge.color}60`,
-                      boxShadow: `0 0 8px ${z.badge.color}40`,
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      fontSize: 14, color: z.badge.color,
-                    }}>★</div>
-                    <div style={{ fontFamily: "var(--font-pixel)", fontSize: 5, color: z.theme.accent, maxWidth: 40, textAlign: "center", lineHeight: 1.3 }}>
-                      {z.badge.label.split(" ")[0]}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            ))}
           </div>
         </header>
 
-        {/* ── Experience — with creature sprites ── */}
+
+        {/* ── SUMMARY ── */}
         <section style={{ marginBottom: 32 }}>
-          <div style={{ fontFamily: "var(--font-pixel)", fontSize: 8, color: "#3a5070", marginBottom: 16, letterSpacing: "0.15em" }}>
-            ★ EXPERIENCE
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-            {careerZones.map((z, i) => (
-              <ExperienceEntry key={z.id} z={z} i={i} isLast={i === careerZones.length - 1} />
-            ))}
-          </div>
+          <h2 style={{ fontSize: 11, fontFamily: "'Press Start 2P', monospace", color: "#1a1a2e", letterSpacing: "0.1em", marginBottom: 12 }}>
+            SUMMARY
+          </h2>
+          <p style={{ fontSize: 14, lineHeight: 1.7, color: "#2a2a4a", margin: 0 }}>
+            Founder and creative director who builds growth, brand, and marketing functions from zero, then ships the product underneath them. Operator across the full GTM stack — positioning, demand generation, brand systems, performance — with a rare engineering hand: built AI products before &ldquo;AI&rdquo; was a category, co-building one of India&apos;s first conversational AI platforms in 2013. Has led teams from 5 to 90+. Built one company to $6M+ in revenue and a 350,000+ community on a $795K raise; now runs an AI-native marketing agency serving clients including a national airport and a national EV charging network. Based in Bengaluru.
+          </p>
         </section>
 
-        {/* ── Skills ── */}
+        {/* ── EXPERIENCE ── */}
         <section style={{ marginBottom: 32 }}>
-          <div style={{ fontFamily: "var(--font-pixel)", fontSize: 8, color: "#3a5070", marginBottom: 16, letterSpacing: "0.15em" }}>★ SKILLS</div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 10 }}>
-            {SKILL_GROUPS.map(sg => (
-              <div key={sg.group} className="pq-panel">
-                <div className="pq-panel-inner">
-                  <div style={{ fontFamily: "var(--font-pixel)", fontSize: 8, color: "#5570aa", marginBottom: 8 }}>{sg.group.toUpperCase()}</div>
-                  {sg.items.map((item, i) => (
-                    <div key={i} style={{ fontFamily: "var(--font-mono)", fontSize: 15, color: "#7a90b0", marginTop: 3 }}>▸ {item}</div>
+          <h2 style={{ fontSize: 11, fontFamily: "'Press Start 2P', monospace", color: "#1a1a2e", letterSpacing: "0.1em", marginBottom: 16 }}>
+            EXPERIENCE
+          </h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            {EXPERIENCE.map((exp, i) => (
+              <div key={i} style={{ borderLeft: "3px solid #e0e4ec", paddingLeft: 16 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8, marginBottom: 4 }}>
+                  <div>
+                    <span style={{ fontSize: 15, fontWeight: 700, color: "#1a1a2e" }}>{exp.role}</span>
+                    <span style={{ fontSize: 14, color: "#4a5a7a" }}> — {exp.company}</span>
+                  </div>
+                  <span style={{ fontSize: 12, color: "#8a8aa0", whiteSpace: "nowrap" }}>{exp.period}</span>
+                </div>
+                <div style={{ fontSize: 12, color: "#6a6a8a", marginBottom: 8 }}>
+                  {exp.type} | {exp.location}
+                  {exp.url && <> | <a href={`https://${exp.url}`} target="_blank" rel="noopener noreferrer" style={{ color: "#2a4a8a", textDecoration: "none" }}>{exp.url}</a></>}
+                </div>
+                <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
+                  {exp.bullets.map((b, bi) => (
+                    <li key={bi} style={{ fontSize: 13, color: "#2a2a4a", lineHeight: 1.6, marginBottom: 3, paddingLeft: 14, position: "relative" }}>
+                      <span style={{ position: "absolute", left: 0, color: "#b0b0c0" }}>•</span>
+                      {b}
+                    </li>
                   ))}
+                </ul>
+                {exp.sub && (
+                  <div style={{ marginTop: 12, paddingLeft: 12, borderLeft: "2px solid #f0f0f4" }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#2a2a4a", marginBottom: 2 }}>
+                      {exp.sub.company} <span style={{ fontWeight: 400, color: "#6a6a8a" }}>— {exp.sub.desc}</span>
+                    </div>
+                    <div style={{ fontSize: 11, color: "#8a8aa0", marginBottom: 6 }}>
+                      {exp.sub.period} | {exp.sub.url}
+                    </div>
+                    <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
+                      {exp.sub.bullets.map((b, bi) => (
+                        <li key={bi} style={{ fontSize: 13, color: "#2a2a4a", lineHeight: 1.6, marginBottom: 3, paddingLeft: 14, position: "relative" }}>
+                          <span style={{ position: "absolute", left: 0, color: "#b0b0c0" }}>•</span>
+                          {b}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+
+
+        {/* ── SKILLS ── */}
+        <section style={{ marginBottom: 32 }}>
+          <h2 style={{ fontSize: 11, fontFamily: "'Press Start 2P', monospace", color: "#1a1a2e", letterSpacing: "0.1em", marginBottom: 16 }}>
+            SKILLS
+          </h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 12 }}>
+            {SKILLS.map(sg => (
+              <div key={sg.group} style={{
+                background: "#f8f9fc", border: "1px solid #e8e8ec",
+                borderRadius: 6, padding: "14px 16px",
+              }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#1a1a2e", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                  {sg.group}
+                </div>
+                <div style={{ fontSize: 12, color: "#4a4a6a", lineHeight: 1.6 }}>
+                  {sg.items.join(", ")}
                 </div>
               </div>
             ))}
           </div>
         </section>
 
-        {/* ── Selected Press ── */}
+        {/* ── EDUCATION ── */}
         <section style={{ marginBottom: 32 }}>
-          <div style={{ fontFamily: "var(--font-pixel)", fontSize: 8, color: "#3a5070", marginBottom: 16, letterSpacing: "0.15em" }}>★ SELECTED PRESS</div>
-          <div className="pq-panel">
-            <div className="pq-panel-inner">
-              {PRESS.map((p, i) => (
-                <div key={i} style={{
-                  padding: "10px 0",
-                  borderBottom: i < PRESS.length - 1 ? "1px solid #0d1a2a" : "none",
-                  display: "flex", gap: 12, alignItems: "flex-start",
-                }}>
-                  <span style={{ fontFamily: "var(--font-pixel)", fontSize: 7, color: "#5570aa", flexShrink: 0, paddingTop: 2, minWidth: 90 }}>{p.outlet}</span>
-                  <a href={p.url} target="_blank" rel="noopener noreferrer"
-                    style={{ fontFamily: "var(--font-mono)", fontSize: 16, color: "#7ce0ff", textDecoration: "none", lineHeight: 1.4 }}
-                    className="story-link">
-                    {p.title} ↗
-                  </a>
-                </div>
-              ))}
+          <h2 style={{ fontSize: 11, fontFamily: "'Press Start 2P', monospace", color: "#1a1a2e", letterSpacing: "0.1em", marginBottom: 12 }}>
+            EDUCATION
+          </h2>
+          <p style={{ fontSize: 13, color: "#2a2a4a", lineHeight: 1.6 }}>
+            Self-taught across software, design, and music production since before 2010. Shipped first commercial product at 19; founded first company at 21.
+          </p>
+        </section>
+
+        {/* ── PRESS & RECOGNITION ── */}
+        <section style={{ marginBottom: 32 }}>
+          <h2 style={{ fontSize: 11, fontFamily: "'Press Start 2P', monospace", color: "#1a1a2e", letterSpacing: "0.1em", marginBottom: 12 }}>
+            PRESS & RECOGNITION
+          </h2>
+          <div style={{ fontSize: 13, color: "#2a2a4a", lineHeight: 1.8 }}>
+            <div style={{ marginBottom: 6 }}>
+              <span style={{ fontWeight: 700 }}>Major features:</span> {PRESS_ITEMS.slice(0, 4).join(", ")}
+            </div>
+            <div style={{ marginBottom: 6 }}>
+              <span style={{ fontWeight: 700 }}>Funding coverage:</span> {PRESS_ITEMS.slice(4, 8).join(", ")}
+            </div>
+            <div>
+              <span style={{ fontWeight: 700 }}>Profiles:</span> {PRESS_ITEMS.slice(8).join(", ")}
             </div>
           </div>
         </section>
 
-        {/* ── Contact ── */}
-        <section style={{ marginBottom: 48 }}>
-          <div className="pq-panel">
-            <div className="pq-panel-inner">
-              <div style={{ fontFamily: "var(--font-pixel)", fontSize: 8, color: "#3a5070", marginBottom: 12 }}>★ CONTACT</div>
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: 16, color: "#8aa0c0", marginBottom: 12 }}>
-                Working on something? Bring it.
-              </div>
-              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                <a href={`mailto:${CONTACT.email}`} className="pq-btn" style={{ fontSize: 10 }}>{CONTACT.email}</a>
-                <a href={CONTACT.linkedin} className="pq-btn" style={{ fontSize: 10 }}>LINKEDIN ↗</a>
-                <a href={CONTACT.twitter} className="pq-btn" style={{ fontSize: 10 }}>TWITTER ↗</a>
-                <a href={CONTACT.site} className="pq-btn" style={{ fontSize: 10 }}>CATSCANDANCE.COM ↗</a>
-              </div>
-            </div>
+        {/* ── OPEN TO ── */}
+        <section style={{
+          marginBottom: 0,
+          padding: "20px 24px",
+          background: "#f0f4ff",
+          border: "1px solid #d0d8ec",
+          borderRadius: 8,
+        }}>
+          <h2 style={{ fontSize: 11, fontFamily: "'Press Start 2P', monospace", color: "#1a1a2e", letterSpacing: "0.1em", marginBottom: 10 }}>
+            OPEN TO
+          </h2>
+          <p style={{ fontSize: 13, color: "#2a2a4a", lineHeight: 1.6, margin: 0 }}>
+            Senior operating and CMO-track roles, fractional/advisory mandates, and operator-investor partnerships — at AI-native, brand-led, or culture-driven companies.
+          </p>
+          <div style={{ marginTop: 12, display: "flex", gap: 12, flexWrap: "wrap" }}>
+            <a href="mailto:minhas.param@gmail.com" style={{
+              fontSize: 12, color: "#2a4a8a", textDecoration: "none",
+              padding: "6px 12px", background: "#ffffff", border: "1px solid #d0d8ec",
+              borderRadius: 4,
+            }}>
+              minhas.param@gmail.com
+            </a>
+            <a href="https://linkedin.com/in/paramminhas" target="_blank" rel="noopener noreferrer" style={{
+              fontSize: 12, color: "#2a4a8a", textDecoration: "none",
+              padding: "6px 12px", background: "#ffffff", border: "1px solid #d0d8ec",
+              borderRadius: 4,
+            }}>
+              LinkedIn
+            </a>
+            <a href="https://hyperiterate.com" target="_blank" rel="noopener noreferrer" style={{
+              fontSize: 12, color: "#2a4a8a", textDecoration: "none",
+              padding: "6px 12px", background: "#ffffff", border: "1px solid #d0d8ec",
+              borderRadius: 4,
+            }}>
+              hyperiterate.com
+            </a>
           </div>
         </section>
-
-        {/* Footer */}
-        <div style={{ textAlign: "center", paddingBottom: 8 }}>
-          <Link href="/play" className="pq-btn pq-btn-primary" style={{ fontSize: 11, padding: "14px 28px" }}>
-            ▶ PLAY PARAM QUEST
-          </Link>
-          <div style={{ fontFamily: "var(--font-pixel)", fontSize: 6, color: "#1a2a40", marginTop: 12 }}>
-            © PARAM MINHAS · param@catscandance.com
-          </div>
-        </div>
       </div>
     </div>
   );
