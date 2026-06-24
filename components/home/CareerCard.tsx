@@ -56,6 +56,7 @@ export function CareerCard({ z, overrideId }: { z: Zone; i: number; overrideId?:
   const [entered, setEntered] = useState(false);
   const [open, setOpen] = useState(false);
   const [contentVisible, setContentVisible] = useState(false);
+  const [showZoneTag, setShowZoneTag] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const accent = z.theme.accent;
   const cardId = overrideId || z.id;
@@ -71,8 +72,10 @@ export function CareerCard({ z, overrideId }: { z: Zone; i: number; overrideId?:
       (entries) => {
         const entry = entries[0];
         if (entry.isIntersecting && entry.intersectionRatio >= 0.1) {
-          // Stage 1: card enters (slides up)
+          // Stage 1: card enters (slides up) + zone tag appears
           setEntered(true);
+          setShowZoneTag(true);
+          setTimeout(() => setShowZoneTag(false), 1800);
         }
         if (entry.isIntersecting && entry.intersectionRatio >= 0.25) {
           // Stage 2: card opens
@@ -124,6 +127,23 @@ export function CareerCard({ z, overrideId }: { z: Zone; i: number; overrideId?:
         transform: entered ? "translateY(0) scale(1)" : "translateY(24px) scale(0.97)",
       }}
     >
+      {/* Zone entry tag — "ENTERING: ZONE" */}
+      {showZoneTag && (
+        <div style={{
+          position: "absolute", top: -28, left: 20, zIndex: 10,
+          fontFamily: "var(--font-pixel)", fontSize: 7,
+          color: accent,
+          background: `${accent}15`,
+          border: `1px solid ${accent}40`,
+          padding: "4px 12px",
+          borderRadius: 4,
+          animation: "zone-tag-in 0.4s ease-out, zone-tag-out 0.4s ease-in 1.4s forwards",
+          letterSpacing: "0.1em",
+        }}>
+          ENTERING: {(cardId === "quartic" ? "QUARTIC.AI" : z.org).toUpperCase()}
+        </div>
+      )}
+
       {/* Left border glow */}
       {open && (
         <div style={{
@@ -131,6 +151,16 @@ export function CareerCard({ z, overrideId }: { z: Zone; i: number; overrideId?:
           background: accent,
           boxShadow: `0 0 12px ${accent}, 0 0 24px ${accent}50`,
           animation: "border-pulse 3s ease-in-out infinite",
+          pointerEvents: "none",
+        }} />
+      )}
+
+      {/* Entry sweep — one-time left border flash */}
+      {entered && !open && (
+        <div style={{
+          position: "absolute", left: 0, top: 0, width: 4, height: "100%",
+          background: `linear-gradient(180deg, transparent, ${accent}, transparent)`,
+          animation: "border-sweep 0.8s ease-out forwards",
           pointerEvents: "none",
         }} />
       )}
@@ -202,29 +232,33 @@ export function CareerCard({ z, overrideId }: { z: Zone; i: number; overrideId?:
             </CardSection>
           )}
 
-          {/* ★ THE CHALLENGE */}
+          {/* ★ THE CHALLENGE + ★ IMPACT — side by side */}
           {narrative && (
-            <CardSection visible={contentVisible} delay={160} accent={accent} title="THE CHALLENGE">
+            <div style={{
+              display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 22,
+              opacity: contentVisible ? 1 : 0,
+              transform: contentVisible ? "translateY(0)" : "translateY(10px)",
+              transition: "opacity 0.4s ease 160ms, transform 0.4s ease 160ms",
+            }}>
               <div style={{
-                fontFamily: "var(--font-mono)", fontSize: 13,
-                color: "#7a98b8", lineHeight: 1.65,
-                paddingLeft: 16, borderLeft: `2px solid ${accent}30`,
+                padding: "14px 16px",
+                background: `${accent}08`,
+                borderLeft: `3px solid ${accent}35`,
+                borderRadius: 6,
               }}>
-                {narrative.challenge}
+                <div style={{ fontFamily: "var(--font-pixel)", fontSize: 8, color: accent, marginBottom: 10, letterSpacing: "0.12em" }}>★ THE CHALLENGE</div>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: 12.5, color: "#7a98b8", lineHeight: 1.6 }}>{narrative.challenge}</div>
               </div>
-            </CardSection>
-          )}
-
-          {/* ★ IMPACT */}
-          {narrative && (
-            <CardSection visible={contentVisible} delay={240} accent={accent} title="IMPACT">
               <div style={{
-                fontFamily: "var(--font-mono)", fontSize: 13,
-                color: "#a0c0d8", lineHeight: 1.65, fontWeight: 600,
+                padding: "14px 16px",
+                background: `${accent}08`,
+                borderLeft: `3px solid ${accent}35`,
+                borderRadius: 6,
               }}>
-                {narrative.impact}
+                <div style={{ fontFamily: "var(--font-pixel)", fontSize: 8, color: accent, marginBottom: 10, letterSpacing: "0.12em" }}>★ IMPACT</div>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: 12.5, color: "#a0c0d8", lineHeight: 1.6, fontWeight: 600 }}>{narrative.impact}</div>
               </div>
-            </CardSection>
+            </div>
           )}
 
           {/* 🔗 LINKS */}
@@ -255,6 +289,19 @@ export function CareerCard({ z, overrideId }: { z: Zone; i: number; overrideId?:
       <style>{`@keyframes border-pulse {
         0%, 100% { box-shadow: 0 0 8px ${accent}, 0 0 16px ${accent}35; }
         50% { box-shadow: 0 0 16px ${accent}, 0 0 32px ${accent}50; }
+      }
+      @keyframes zone-tag-in {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes zone-tag-out {
+        from { opacity: 1; }
+        to { opacity: 0; transform: translateY(-4px); }
+      }
+      @keyframes border-sweep {
+        0% { height: 0%; top: 50%; opacity: 0; }
+        50% { height: 100%; top: 0%; opacity: 1; }
+        100% { height: 100%; top: 0%; opacity: 0; }
       }`}</style>
     </article>
   );

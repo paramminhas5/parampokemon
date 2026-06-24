@@ -530,8 +530,8 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     id: "ccd", index: 8, name: "Cats Can Dance", org: "Cats Can Dance", role: "Founder · Culture Platform",
     subtitle: "Mar 2026 – Present · Music, Fashion & Pet Care",
     years: "Mar 2026–Present",
-    outcome: "Culture-discovery platform. Artist directory, event booking, music-production learning. Live show at Social w/ Impresario.",
-    bullets: ["Designed and built a culture-discovery platform end-to-end", "Artist directory, event booking, music-production learning product", "Produced flagship live show at Social, in partnership with Impresario", "Launched under Iterate"],
+    outcome: "Culture-discovery platform. Artist directory, event booking, music-production learning. Live show series pan-India w/ Impresario.",
+    bullets: ["Designed and built a culture-discovery platform end-to-end", "Artist directory, event booking, music-production learning product", "Produced a series of live shows pan-India, in partnership with Impresario", "Launched under Iterate"],
     theme: { ground: "studio", accent: "#ffd29a", landmark: "studio" },
     w: 26, h: 20,
     // Studio building top-left, speakers and record player scattered right
@@ -569,7 +569,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     hiddenItem: { x: 19, y: 14 },
     cliff: {
       era: "2026–Present · Culture Platform",
-      did: ["Culture-discovery platform end-to-end", "Artist directory, event booking, music-production learning", "Flagship live show at Social w/ Impresario"],
+      did: ["Culture-discovery platform end-to-end", "Artist directory, event booking, music-production learning", "Series of live shows pan-India w/ Impresario"],
       learned: ["Every commercial career needs a non-commercial home", "Soul work compounds"],
       metrics: [{ label: "LAUNCHED", value: "2026" }, { label: "PARTNERSHIP", value: "Impresario" }],
     },
@@ -751,7 +751,7 @@ export const KEY_PEOPLE: Record<string, { name: string; relevance: string }[]> =
     { name: "Ethereal Ventures", relevance: "Lead investor" },
   ],
   ccd: [
-    { name: "Impresario (Social)", relevance: "Partnership for flagship live shows" },
+    { name: "Impresario (Social)", relevance: "Partnership for pan-India live show series" },
   ],
   iterate: [
     { name: "90-person network", relevance: "Strategy, creative, and engineering across all client work" },
