@@ -268,6 +268,51 @@ const PRESS_START_GLOW = `
 }
 `;
 
+const BG_ANIMATIONS = `
+.nebula-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.035;
+  animation: nebula-float 25s ease-in-out infinite alternate;
+}
+.nebula-1 { width: 500px; height: 500px; background: #7ce0ff; top: 10%; left: -10%; animation-delay: 0s; }
+.nebula-2 { width: 400px; height: 400px; background: #f0c4ff; top: 40%; right: -8%; animation-delay: -8s; }
+.nebula-3 { width: 350px; height: 350px; background: #00e8a0; bottom: 15%; left: 20%; animation-delay: -16s; }
+
+@keyframes nebula-float {
+  0% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -20px) scale(1.05); }
+  66% { transform: translate(-20px, 15px) scale(0.95); }
+  100% { transform: translate(15px, -10px) scale(1.02); }
+}
+
+.bg-particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: rgba(124, 224, 255, 0.4);
+  border-radius: 50%;
+  animation: particle-drift 18s ease-in-out infinite alternate;
+}
+.particle-0 { animation-duration: 22s; background: rgba(124,224,255,0.3); }
+.particle-1 { animation-duration: 18s; background: rgba(240,196,255,0.3); width: 3px; height: 3px; }
+.particle-2 { animation-duration: 25s; background: rgba(0,232,160,0.25); }
+.particle-3 { animation-duration: 20s; background: rgba(255,210,154,0.3); width: 2px; height: 2px; }
+.particle-4 { animation-duration: 16s; background: rgba(124,224,255,0.35); width: 1px; height: 1px; }
+.particle-5 { animation-duration: 28s; background: rgba(255,159,212,0.2); width: 3px; height: 3px; }
+.particle-6 { animation-duration: 19s; background: rgba(124,224,255,0.25); }
+.particle-7 { animation-duration: 24s; background: rgba(168,211,154,0.3); width: 2px; height: 2px; }
+
+@keyframes particle-drift {
+  0% { transform: translate(0, 0) scale(1); opacity: 0.2; }
+  25% { transform: translate(15px, -25px) scale(1.5); opacity: 0.5; }
+  50% { transform: translate(-10px, -50px) scale(0.8); opacity: 0.3; }
+  75% { transform: translate(20px, -35px) scale(1.2); opacity: 0.6; }
+  100% { transform: translate(-5px, -60px) scale(1); opacity: 0.15; }
+}
+`;
+
 
 // ─── PAGE ─────────────────────────────────────────────────────────────────────
 export default function Home() {
@@ -283,13 +328,31 @@ export default function Home() {
     <div style={{
       minHeight: "100vh",
       background: "linear-gradient(180deg, #04080f 0%, #070e1a 30%, #0a1428 70%, #0c1830 100%)",
+      position: "relative",
+      overflow: "hidden",
     }}>
-      <style>{PRESS_START_GLOW}</style>
+      <style>{PRESS_START_GLOW}{BG_ANIMATIONS}</style>
+
+      {/* Animated background layers */}
+      <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0 }}>
+        {/* Nebula blobs */}
+        <div className="nebula-blob nebula-1" />
+        <div className="nebula-blob nebula-2" />
+        <div className="nebula-blob nebula-3" />
+        {/* Floating particles */}
+        {Array.from({ length: 24 }).map((_, pi) => (
+          <div key={pi} className={`bg-particle particle-${pi % 8}`} style={{
+            left: `${(pi * 4.2 + 3) % 100}%`,
+            top: `${(pi * 7.3 + 10) % 100}%`,
+            animationDelay: `${pi * 0.7}s`,
+          }} />
+        ))}
+      </div>
 
       {/* ── HERO ── */}
       <section style={{
         maxWidth: 860, margin: "0 auto", padding: "60px 20px 40px",
-        textAlign: "center", position: "relative",
+        textAlign: "center", position: "relative", zIndex: 1,
       }}>
         {/* Scanline grid texture */}
         <div style={{
@@ -405,7 +468,7 @@ export default function Home() {
 
       {/* ── BRAND LOGOS ── */}
       <section style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 40px" }}>
-        <SectionHeader text="★ BRANDS" />
+        <SectionHeader text="★ BRANDS I WORKED WITH" />
         <BrandLogos />
       </section>
 
