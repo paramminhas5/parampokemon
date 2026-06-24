@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { ZONES, CONTACT, PRESS } from "@/game/data";
 import { CareerCard } from "@/components/home/CareerCard";
 import { CreatureStrip } from "@/components/home/CreatureStrip";
-import { BadgeCase } from "@/components/home/BadgeCase";
 import { BrandLogos } from "@/components/home/BrandLogos";
+import { ContactForm } from "@/components/home/ContactForm";
 import { useScrollReveal } from "@/lib/useScrollReveal";
 
 // ─── Typewriter hook ──────────────────────────────────────────────────────────
@@ -27,18 +27,21 @@ function useTypewriter(text: string, speed = 38, trigger = true) {
 
 // ─── Counter hook ─────────────────────────────────────────────────────────────
 function useCountUp(target: string, trigger: boolean, duration = 700) {
-  const [val, setVal] = useState("0");
+  const [val, setVal] = useState(target);
   useEffect(() => {
     if (!trigger) return;
-    const num = parseFloat(target.replace(/[^0-9.]/g, ""));
+    // Extract prefix (like $) and suffix (like +, K+, M+)
+    const match = target.match(/^([^0-9]*)([0-9.]+)(.*)$/);
+    if (!match) { setVal(target); return; }
+    const [, prefix, numStr, suffix] = match;
+    const num = parseFloat(numStr);
     if (isNaN(num)) { setVal(target); return; }
-    const suffix = target.replace(/[0-9.]/g, "");
     const start = performance.now();
     const tick = (now: number) => {
       const p = Math.min((now - start) / duration, 1);
       const ease = 1 - Math.pow(1 - p, 3);
       const cur = p < 1 ? Math.floor(ease * num) : num;
-      setVal(`${cur % 1 === 0 ? cur : cur.toFixed(1)}${suffix}`);
+      setVal(`${prefix}${cur % 1 === 0 ? cur : cur.toFixed(1)}${suffix}`);
       if (p < 1) requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
@@ -98,76 +101,6 @@ function SectionHeader({ text, delay = 0 }: { text: string; delay?: number }) {
       }}
     >
       {typed || "\u00a0"}
-    </div>
-  );
-}
-
-
-// ─── Gym Chapter Card — theatrical dark card ──────────────────────────────────
-const GYM_CHAPTERS = [
-  { num: "01", gym: "GetRightPrice", type: "PRODUCT", typeEmoji: "\u{1F331}", leader: "Sidharth Rao", leaderTitle: "Angel Investor · Founder, Webchutney", badge: "First Ship Badge", badgeStat: "Angel-backed, in college · 2010", accent: "#a8d39a", quote: "I backed it because the team was already building before they had a cheque." },
-  { num: "02", gym: "Hab Housing", type: "REVENUE", typeEmoji: "\u{1F4B0}", leader: "The Market", leaderTitle: "Solo, Bootstrapped", badge: "Bootstrapper Badge", badgeStat: "$120K revenue, zero capital · 16-person team", accent: "#f6a268", quote: "Build a real business or the lights go out. Your choice." },
-  { num: "03", gym: "Octo \u2192 Quartic.ai", type: "AI", typeEmoji: "\u26A1", leader: "Akshaya Aron", leaderTitle: "Co-builder \u00B7 CEO, Quartic.ai", badge: "AI Pioneer Badge", badgeStat: "India's first conversational AI platform, 2013", accent: "#9fe8ff", quote: "Built AI before it was a category. Twelve years later, still at it together." },
-  { num: "04", gym: "Investopad \u2192 Good Capital", type: "VENTURE", typeEmoji: "\u{1F4BC}", leader: "Rohan & Arjun Malhotra", leaderTitle: "Family Office \u2192 Fund I", badge: "Capital Lens Badge", badgeStat: "Meesho, Amazon, Forbes in portfolio", accent: "#f0c4ff", quote: "Being on this side of the table changes how you see everything." },
-  { num: "05", gym: "SoleSearch", type: "BRAND", typeEmoji: "\u{1F525}", leader: "Prabal Baghla + Rannvijay Singha", leaderTitle: "Co-founder + Brand Partner", badge: "CEO Badge", badgeStat: "$6M revenue \u00B7 $795K raised \u00B7 350K community", accent: "#ff9fd4", quote: "You walked in when there was no culture and walked out with one." },
-  { num: "06", gym: "Fere.ai", type: "AI AGENT", typeEmoji: "\u{1F916}", leader: "Akshaya Aron", leaderTitle: "Reunited, a decade later", badge: "AI-Native Ops Badge", badgeStat: "CMO \u00B7 Fere.ai \u00B7 Ethereal Ventures", accent: "#00e8a0", quote: "You made people trust the invisible \u2014 that's rare." },
-  { num: "07", gym: "Cats Can Dance", type: "CULTURE", typeEmoji: "\u{1F3B5}", leader: "The Audience", leaderTitle: "Creating without a brief or client", badge: "Creative Sovereignty Badge", badgeStat: "Culture platform \u00B7 live shows \u00B7 Impresario partnership", accent: "#ffd29a", quote: "The work exists. That's the only answer that matters." },
-  { num: "08", gym: "Iterate", type: "GTM", typeEmoji: "\u2192", leader: "The Status Quo", leaderTitle: "The way things have always been done", badge: "Full-Stack Operator Badge", badgeStat: "AI-native agency \u00B7 hyperiterate.com \u00B7 running now", accent: "#7ce0ff", quote: "Every chapter compounds." },
-];
-
-
-function GymChapterMini({ chapter, index }: { chapter: typeof GYM_CHAPTERS[0]; index: number }) {
-  const { ref, visible } = useScrollReveal<HTMLDivElement>({ threshold: 0.1 });
-
-  return (
-    <div
-      ref={ref}
-      style={{
-        background: "rgba(6,12,24,0.95)",
-        border: `1px solid ${chapter.accent}22`,
-        borderRadius: 6,
-        padding: "12px 12px 10px",
-        opacity: visible ? 1 : 0,
-        transform: visible ? "scale(1)" : "scale(0.8)",
-        transition: `opacity 0.35s ease ${index * 60}ms, transform 0.35s cubic-bezier(0.34,1.56,0.64,1) ${index * 60}ms`,
-        textAlign: "center",
-      }}
-    >
-      <div style={{
-        fontFamily: "var(--font-pixel)", fontSize: 6,
-        color: "#3a5070", letterSpacing: "0.1em", marginBottom: 6,
-      }}>
-        GYM #{chapter.num}
-      </div>
-      <div style={{
-        fontFamily: "var(--font-pixel)", fontSize: 7,
-        color: chapter.accent, marginBottom: 4,
-        lineHeight: 1.3,
-      }}>
-        {chapter.leader}
-      </div>
-      <div style={{
-        fontFamily: "var(--font-mono)", fontSize: 10,
-        color: "#4a6888", marginBottom: 8,
-        lineHeight: 1.3,
-      }}>
-        {chapter.gym}
-      </div>
-      <div style={{
-        display: "inline-flex", alignItems: "center", gap: 4,
-        background: `${chapter.accent}10`,
-        border: `1px solid ${chapter.accent}30`,
-        padding: "3px 8px",
-        borderRadius: 3,
-      }}>
-        <span style={{ color: chapter.accent, fontSize: 8 }}>★</span>
-        <span style={{
-          fontFamily: "var(--font-pixel)", fontSize: 5,
-          color: chapter.accent,
-        }}>
-          {chapter.badge}
-        </span>
-      </div>
     </div>
   );
 }
@@ -338,7 +271,7 @@ const PRESS_START_GLOW = `
 
 // ─── PAGE ─────────────────────────────────────────────────────────────────────
 export default function Home() {
-  const careerZones = ZONES.filter(z => z.id !== "home");
+  const careerZones = ZONES.filter(z => z.id !== "home" && z.id !== "origin");
   const [heroVisible, setHeroVisible] = useState(false);
 
   useEffect(() => {
@@ -452,7 +385,7 @@ export default function Home() {
             { label: "YEARS BUILDING", value: "15+" },
             { label: "REVENUE",        value: "$6M+" },
             { label: "COMMUNITY",      value: "350K+" },
-            { label: "NETWORK",        value: "90" },
+            { label: "TEAM & NETWORK LED", value: "90+" },
             { label: "RAISED",         value: "$795K" },
           ].map((s, i) => (
             <SnapshotPill key={s.label} label={s.label} value={s.value} delay={i * 60} />
@@ -462,32 +395,12 @@ export default function Home() {
 
       {/* ── CAREER ZONES ── */}
       <section style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 40px" }}>
-        <SectionHeader text="★ TEN WORLDS · THE FULL CAREER" />
+        <SectionHeader text="★ THE CAREER · CHAPTER BY CHAPTER" />
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {careerZones.map((z, i) => (
             <CareerZoneRow key={z.id} z={z} i={i} />
           ))}
         </div>
-      </section>
-
-      {/* ── GYM LEADERS — COMPACT STRIP ── */}
-      <section style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 40px" }}>
-        <SectionHeader text="★ WHO I MET & WHAT I EARNED" />
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
-          gap: 8,
-        }}>
-          {GYM_CHAPTERS.map((chapter, i) => (
-            <GymChapterMini key={chapter.num} chapter={chapter} index={i} />
-          ))}
-        </div>
-      </section>
-
-      {/* ── BADGE CASE ── */}
-      <section style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 40px" }}>
-        <SectionHeader text="★ BADGE CASE" />
-        <BadgeCase />
       </section>
 
       {/* ── BRAND LOGOS ── */}
@@ -506,6 +419,12 @@ export default function Home() {
             ))}
           </div>
         </div>
+      </section>
+
+      {/* ── CONTACT ── */}
+      <section style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 40px" }}>
+        <SectionHeader text="★ LET'S TALK" />
+        <ContactForm />
       </section>
 
       {/* ── HOW TO PLAY ── */}

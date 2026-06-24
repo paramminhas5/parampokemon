@@ -412,12 +412,12 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     },
   },
   {
-    id: "sole", index: 6, name: "SoleSearch Mall", org: "SoleSearch", role: "Co-Founder & CEO",
+    id: "sole", index: 6, name: "SoleSearch Mall", org: "SoleSearch", role: "Founder & CEO",
     subtitle: "2020-24 · Sneakers & Streetwear",
     years: "2020-24",
     outcome: "$6M+ revenue. 350K+ community. $795K raised. 30+ events. Team of 40.",
     bullets: [
-      "Co-founded with Prabal Baghla; later joined by Rannvijay Singha. Led a team of 40.",
+      "Founded SoleSearch; joined by Prabal Baghla and Rannvijay Singha. Led a team of 40.",
       "$795K raised from Venture Catalysts, Anthill Ventures, Cornerstone Ventures",
       "Three pillars: (1) collectibles marketplace, (2) aggregated e-commerce brands under one store, (3) events",
       "$6M+ in total revenue over four years, omnichannel retail in Mumbai & Hyderabad",
@@ -725,6 +725,39 @@ export const PRESS: { outlet: string; title: string; url: string }[] = [
   { outlet: "Indian Retailer", title: "SoleSearch Bags $730,000 in Debut Funding Round",
     url: "https://www.indianretailer.com/news/funding-alert-solesearch-bags-730000-debut-funding-round" },
 ];
+
+export const KEY_PEOPLE: Record<string, { name: string; relevance: string }[]> = {
+  grp: [
+    { name: "Sidharth Rao", relevance: "Angel investor — founder of Webchutney (India's first digital agency)" },
+  ],
+  hab: [
+    { name: "16-person team", relevance: "Grew from sole founder across three cities, bootstrapped" },
+  ],
+  ai: [
+    { name: "Akshaya Aron", relevance: "Co-builder of Octo, later CEO of Quartic.ai — decade-long collaborator" },
+    { name: "Good Capital (Rohan & Arjun Malhotra)", relevance: "Backers of Octo, later partners at Investopad" },
+  ],
+  investopad: [
+    { name: "Rohan & Arjun Malhotra", relevance: "Built the fund together — family office to institutional Fund I" },
+    { name: "Portfolio founders (Meesho, Entri, Simsim)", relevance: "Sourced, supported, and grew alongside" },
+  ],
+  sole: [
+    { name: "Prabal Baghla", relevance: "Joined as co-founder — built retail ops and community together" },
+    { name: "Rannvijay Singha", relevance: "Joined as co-founder & advisor — brought brand and cultural reach" },
+    { name: "Venture Catalysts, Anthill, Cornerstone", relevance: "Led the $795K raise" },
+  ],
+  fere: [
+    { name: "Akshaya Aron", relevance: "Reunited a decade after Octo — long-time collaborator and co-founder" },
+    { name: "Ethereal Ventures", relevance: "Lead investor" },
+  ],
+  ccd: [
+    { name: "Impresario (Social)", relevance: "Partnership for flagship live shows" },
+  ],
+  iterate: [
+    { name: "90-person network", relevance: "Strategy, creative, and engineering across all client work" },
+    { name: "ChargeZone, Noida Airport, PickYourTrail, Billione, Monkspace", relevance: "Current clients" },
+  ],
+};
 
 export const COMPANY_LINKS: Record<string, { url: string; label?: string }[]> = {
   investopad: [

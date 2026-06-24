@@ -19,8 +19,17 @@ const BUILT_BACKED: BrandItem[] = [
   { name: "Meesho", domain: "meesho.com", url: "https://meesho.com" },
   { name: "Fere.ai", domain: "fereai.xyz", url: "https://www.fereai.xyz/app" },
   { name: "Quartic.ai", domain: "quartic.ai", url: "https://www.quartic.ai" },
-  { name: "SoleSearch", domain: "solesearch.in" },
+  { name: "SoleSearch" },
   { name: "Good Capital", domain: "goodcap.co" },
+];
+
+const PARTNERED_WITH: BrandItem[] = [
+  { name: "Royal Enfield", domain: "royalenfield.com", url: "https://www.royalenfield.com" },
+  { name: "Casa Bacardi", domain: "bacardi.com", url: "https://www.bacardi.com" },
+  { name: "boAt", domain: "boat-lifestyle.com", url: "https://www.boat-lifestyle.com" },
+  { name: "Swiggy SteppinOut", domain: "swiggy.com", url: "https://www.swiggy.com" },
+  { name: "Rapport", domain: "rapportthebrand.com" },
+  { name: "Gully Gang", domain: "gullygangindia.com" },
 ];
 
 const FEATURED_IN: BrandItem[] = [
@@ -32,12 +41,14 @@ const FEATURED_IN: BrandItem[] = [
   { name: "Forbes India", domain: "forbesindia.com", url: "https://forbesindia.com" },
 ];
 
+// img.logo.dev renders clean PNG logos by domain
+const LOGO_TOKEN = "pk_a8JjRklcTcKMFIy0bbCHSA";
+
 function BrandLogo({ brand, index, accent }: { brand: BrandItem; index: number; accent: string }) {
   const { ref, visible } = useScrollReveal<HTMLDivElement>({ threshold: 0.1 });
 
-  // Use img.logo.dev which is more reliable than clearbit
   const logoUrl = brand.domain
-    ? `https://img.logo.dev/${brand.domain}?token=pk_a8JjRklcTcKMFIy0bbCHSA`
+    ? `https://img.logo.dev/${brand.domain}?token=${LOGO_TOKEN}`
     : null;
 
   return (
@@ -53,7 +64,7 @@ function BrandLogo({ brand, index, accent }: { brand: BrandItem; index: number; 
         borderRadius: 6,
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(12px)",
-        transition: `opacity 0.4s ease ${index * 60}ms, transform 0.4s ease ${index * 60}ms`,
+        transition: `opacity 0.4s ease ${index * 50}ms, transform 0.4s ease ${index * 50}ms`,
         minHeight: 52,
         cursor: brand.url ? "pointer" : "default",
       }}
@@ -61,37 +72,49 @@ function BrandLogo({ brand, index, accent }: { brand: BrandItem; index: number; 
       title={brand.name}
     >
       {logoUrl ? (
-        <img
-          src={logoUrl}
-          alt={brand.name}
-          style={{
-            height: 28,
-            maxWidth: 110,
-            objectFit: "contain",
-            filter: "brightness(0.95) contrast(1.05)",
-          }}
-          onError={(e) => {
-            // Fallback to styled text wordmark
-            const target = e.target as HTMLImageElement;
-            target.style.display = "none";
-            if (target.nextElementSibling) {
-              (target.nextElementSibling as HTMLElement).style.display = "block";
-            }
-          }}
-        />
-      ) : null}
-      {/* Text fallback — always present but hidden when image loads */}
-      <span style={{
-        display: logoUrl ? "none" : "block",
-        fontFamily: "var(--font-pixel)",
-        fontSize: 7,
-        color: accent,
-        letterSpacing: "0.05em",
-        textAlign: "center",
-        lineHeight: 1.3,
-      }}>
-        {brand.name}
-      </span>
+        <>
+          <img
+            src={logoUrl}
+            alt={brand.name}
+            style={{
+              height: 28,
+              maxWidth: 110,
+              objectFit: "contain",
+              filter: "brightness(0.95) contrast(1.05)",
+            }}
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.style.display = "none";
+              if (target.nextElementSibling) {
+                (target.nextElementSibling as HTMLElement).style.display = "block";
+              }
+            }}
+          />
+          {/* Text fallback — hidden unless image fails */}
+          <span style={{
+            display: "none",
+            fontFamily: "var(--font-pixel)",
+            fontSize: 7,
+            color: accent,
+            letterSpacing: "0.05em",
+            textAlign: "center",
+            lineHeight: 1.3,
+          }}>
+            {brand.name}
+          </span>
+        </>
+      ) : (
+        <span style={{
+          fontFamily: "var(--font-pixel)",
+          fontSize: 7,
+          color: accent,
+          letterSpacing: "0.05em",
+          textAlign: "center",
+          lineHeight: 1.3,
+        }}>
+          {brand.name}
+        </span>
+      )}
     </div>
   );
 }
@@ -131,6 +154,7 @@ export function BrandLogos() {
       <div className="pq-panel-inner" style={{ padding: "20px 16px" }}>
         <BrandRow title="★ CURRENT CLIENTS" brands={CURRENT_CLIENTS} accent="#7ce0ff" />
         <BrandRow title="★ BUILT & BACKED" brands={BUILT_BACKED} accent="#f0c4ff" />
+        <BrandRow title="★ PARTNERED WITH" brands={PARTNERED_WITH} accent="#ff9fd4" />
         <BrandRow title="★ FEATURED IN" brands={FEATURED_IN} accent="#ffd29a" />
       </div>
     </div>

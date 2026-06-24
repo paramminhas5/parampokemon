@@ -14,6 +14,7 @@ const EXPERIENCE = [
     period: "2024 – Present",
     location: "Bengaluru, India",
     url: "hyperiterate.com",
+    link: "https://hyperiterate.com",
     bullets: [
       "Leads a 90-person network across strategy, creative, and engineering.",
       "Clients include ChargeZone, Noida International Airport, PickYourTrail, Billione, and Monkspace.",
@@ -23,6 +24,7 @@ const EXPERIENCE = [
       desc: "Culture platform (music, fashion & pet care), launched under Iterate",
       period: "2026 – Present",
       url: "catscandance.com",
+      link: "https://catscandance.com",
       bullets: [
         "Designed and built a culture-discovery platform end-to-end — artist directory, event booking, and a music-production learning product.",
         "Produced a flagship live show at Social, in partnership with Impresario.",
@@ -36,6 +38,7 @@ const EXPERIENCE = [
     period: "2024 – 2025",
     location: "India",
     url: "fereai.xyz",
+    link: "https://www.fereai.xyz/app",
     bullets: [
       "Joined early to build the growth and marketing function, rejoining long-time collaborator and co-founder Akshaya Aron.",
       "Restructured marketing to run lean — sustained by AI systems and a small team rather than headcount.",
@@ -44,12 +47,13 @@ const EXPERIENCE = [
   },
   {
     company: "SoleSearch",
-    role: "Co-Founder & CEO",
+    role: "Founder & CEO",
     type: "Sneaker, streetwear & collectibles marketplace",
     period: "2020 – 2024",
     location: "India",
+    link: "https://www.vice.com/en/article/india-genz-sneakerheads-sneaker-resellers-hype/",
     bullets: [
-      "Co-founded with Prabal Baghla; later joined by Rannvijay Singha. Led a team of 40.",
+      "Founded SoleSearch; joined by Prabal Baghla and Rannvijay Singha. Led a team of 40.",
       "Raised $795K from Venture Catalysts, Anthill Ventures, and Cornerstone Ventures.",
       "Generated $6M+ in total revenue over four years, with omnichannel retail in Mumbai and Hyderabad.",
       "Built a 350,000+ follower community and ran 30+ live events, including SneakinOut — India's first sneaker convention format.",
@@ -63,13 +67,13 @@ const EXPERIENCE = [
     period: "2017 – 2020",
     location: "New Delhi, India",
     url: "wellfound.com/company/investopad",
+    link: "https://wellfound.com/company/investopad/people",
     bullets: [
       "Partner for Tech & Growth as Investopad's family office evolved into Good Capital, an institutional Fund I.",
       "Helped build the fund from family office to Fund I — sourcing, diligence, founder support.",
       "Portfolio including Meesho (now one of India's largest e-commerce companies), Entri, Simsim, Amazon, and Forbes.",
     ],
   },
-
   {
     company: "Quartic.ai",
     role: "Director of Marketing",
@@ -77,6 +81,7 @@ const EXPERIENCE = [
     period: "2019 – 2020",
     location: "San Jose, California (HQ)",
     url: "quartic.ai",
+    link: "https://www.quartic.ai",
     bullets: [
       "Led a team of 5. Backed by Good Capital, Celesta Capital, and Michael Marks.",
       "Rejoined at the direct invitation of the Good Capital partners following Octo's acquisition.",
@@ -89,6 +94,7 @@ const EXPERIENCE = [
     type: "Conversational AI platform, acquired by Quartic.ai",
     period: "2013 – 2017",
     location: "New Delhi, India",
+    link: "https://www.slideshare.net/slideshow/param-minhas-octo-marketing-deck/71004948",
     bullets: [
       "Co-built with Akshaya Aron, backed by Good Capital — built AI products before \"AI\" was a market category.",
       "Built and ran the entire marketing function from scratch and rebuilt the product dashboard end-to-end, working directly with engineering.",
@@ -313,7 +319,12 @@ export default function ResumePage() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8, marginBottom: 4 }}>
                   <div>
                     <span style={{ fontSize: 15, fontWeight: 700, color: "#1a1a2e" }}>{exp.role}</span>
-                    <span style={{ fontSize: 14, color: "#4a5a7a" }}> — {exp.company}</span>
+                    <span style={{ fontSize: 14, color: "#4a5a7a" }}> — </span>
+                    {exp.link ? (
+                      <a href={exp.link} target="_blank" rel="noopener noreferrer" style={{ fontSize: 14, color: "#2a4a8a", textDecoration: "none", fontWeight: 600 }}>{exp.company} ↗</a>
+                    ) : (
+                      <span style={{ fontSize: 14, color: "#4a5a7a" }}>{exp.company}</span>
+                    )}
                   </div>
                   <span style={{ fontSize: 12, color: "#8a8aa0", whiteSpace: "nowrap" }}>{exp.period}</span>
                 </div>
@@ -332,10 +343,15 @@ export default function ResumePage() {
                 {exp.sub && (
                   <div style={{ marginTop: 12, paddingLeft: 12, borderLeft: "2px solid #f0f0f4" }}>
                     <div style={{ fontSize: 13, fontWeight: 700, color: "#2a2a4a", marginBottom: 2 }}>
-                      {exp.sub.company} <span style={{ fontWeight: 400, color: "#6a6a8a" }}>— {exp.sub.desc}</span>
+                      {exp.sub.link ? (
+                        <a href={exp.sub.link} target="_blank" rel="noopener noreferrer" style={{ color: "#2a4a8a", textDecoration: "none" }}>{exp.sub.company} ↗</a>
+                      ) : (
+                        exp.sub.company
+                      )}
+                      {" "}<span style={{ fontWeight: 400, color: "#6a6a8a" }}>— {exp.sub.desc}</span>
                     </div>
                     <div style={{ fontSize: 11, color: "#8a8aa0", marginBottom: 6 }}>
-                      {exp.sub.period} | {exp.sub.url}
+                      {exp.sub.period} | <a href={`https://${exp.sub.url}`} target="_blank" rel="noopener noreferrer" style={{ color: "#2a4a8a", textDecoration: "none" }}>{exp.sub.url}</a>
                     </div>
                     <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
                       {exp.sub.bullets.map((b, bi) => (
