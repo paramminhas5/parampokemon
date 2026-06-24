@@ -229,10 +229,9 @@ function HowToPlay() {
 }
 
 
-// ─── Career zones section — ACCORDION (one card at a time) ───────────────────
+// ─── Career section with page backlight ──────────────────────────────────────
 function CareerSection({ zones }: { zones: typeof ZONES }) {
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const [manualClose, setManualClose] = useState<Set<number>>(new Set());
+  const [backlightColor, setBacklightColor] = useState<string | null>(null);
 
   // Build card list: inject Quartic after Investopad
   const aiZone = ZONES.find(z => z.id === "ai")!;
@@ -244,75 +243,26 @@ function CareerSection({ zones }: { zones: typeof ZONES }) {
     }
   }
 
-  const handleEnterViewport = (index: number) => {
-    // Only auto-open if not manually closed
-    if (!manualClose.has(index)) {
-      setActiveIndex(index);
-    }
-  };
-
-  const handleClick = (index: number) => {
-    if (activeIndex === index) {
-      // Close it
-      setActiveIndex(null);
-      setManualClose(prev => new Set(prev).add(index));
-    } else {
-      // Open it (manual click override)
-      setActiveIndex(index);
-      setManualClose(prev => { const s = new Set(prev); s.delete(index); return s; });
-    }
-  };
-
-  // Get current accent for background
-  const currentAccent = activeIndex !== null ? cards[activeIndex]?.zone.theme.accent : null;
-
   return (
     <>
-      {/* Background gradient that shifts per active zone */}
+      {/* Page backlight — soft ambient glow behind everything */}
       <div style={{
         position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0,
-        background: currentAccent
-          ? `radial-gradient(ellipse at 50% 40%, ${currentAccent}18 0%, transparent 55%)`
+        background: backlightColor
+          ? `radial-gradient(ellipse at 50% 50%, ${backlightColor}12 0%, transparent 50%)`
           : "transparent",
-        transition: "background 1.2s ease",
+        transition: "background 1.5s ease",
       }} />
 
       <div style={{ display: "flex", flexDirection: "column", gap: 48 }}>
         {cards.map((c, i) => (
-          <div key={c.overrideId || c.zone.id} style={{ position: "relative" }}>
-            {/* Zone divider — shows when this card is active */}
-            {activeIndex === i && (
-              <div style={{
-                position: "absolute", top: -28, left: 0, right: 0, zIndex: 10,
-                display: "flex", alignItems: "center", gap: 12,
-                animation: "zone-divider-in 0.5s ease-out",
-              }}>
-                <div style={{ flex: 1, height: 2, background: `linear-gradient(90deg, transparent, ${c.zone.theme.accent}80)` }} />
-                <span style={{
-                  fontFamily: "var(--font-pixel)", fontSize: 11,
-                  color: c.zone.theme.accent,
-                  letterSpacing: "0.15em",
-                  textShadow: `0 0 12px ${c.zone.theme.accent}80`,
-                  whiteSpace: "nowrap",
-                  padding: "4px 16px",
-                  background: `${c.zone.theme.accent}10`,
-                  border: `1px solid ${c.zone.theme.accent}30`,
-                  borderRadius: 4,
-                }}>
-                  {(c.overrideId === "quartic" ? "QUARTIC.AI" : c.zone.org).toUpperCase()}
-                </span>
-                <div style={{ flex: 1, height: 2, background: `linear-gradient(90deg, ${c.zone.theme.accent}80, transparent)` }} />
-              </div>
-            )}
-            <CareerCard
-              z={c.zone}
-              i={i}
-              overrideId={c.overrideId}
-              isOpen={activeIndex === i}
-              onEnterViewport={() => handleEnterViewport(i)}
-              onClick={() => handleClick(i)}
-            />
-          </div>
+          <CareerCard
+            key={c.overrideId || c.zone.id}
+            z={c.zone}
+            i={i}
+            overrideId={c.overrideId}
+            onBecameActive={(color) => setBacklightColor(color)}
+          />
         ))}
       </div>
     </>

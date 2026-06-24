@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import type { Zone } from "@/game/data";
 import { COMPANY_LINKS, KEY_PEOPLE } from "@/game/data";
 
@@ -53,53 +53,51 @@ type Props = {
   z: Zone;
   i: number;
   overrideId?: string;
-  isOpen: boolean;
-  onEnterViewport: () => void;
-  onClick: () => void;
+  onBecameActive?: (accent: string) => void;
 };
 
-export function CareerCard({ z, i, overrideId, isOpen, onEnterViewport, onClick }: Props) {
-  const [entered, setEntered] = useState(false);
+export function CareerCard({ z, i, overrideId, onBecameActive }: Props) {
+  const [open, setOpen] = useState(false);
   const [contentVisible, setContentVisible] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
-  const hasFiredEnter = useRef(false);
+  const hasFired = useRef(false);
   const accent = z.theme.accent;
   const cardId = overrideId || z.id;
 
-  // Scroll detection — fires onEnterViewport when card hits 40% visible
+  // Open once on scroll — never auto-closes
   useEffect(() => {
     const el = cardRef.current;
     if (!el) return;
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (mq.matches) { setEntered(true); onEnterViewport(); return; }
+    if (mq.matches) { setOpen(true); setContentVisible(true); return; }
 
     const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        if (entry.isIntersecting && entry.intersectionRatio >= 0.1 && !entered) {
-          setEntered(true);
-        }
-        if (entry.isIntersecting && entry.intersectionRatio >= 0.4 && !hasFiredEnter.current) {
-          hasFiredEnter.current = true;
-          setTimeout(() => onEnterViewport(), 400);
+      ([entry]) => {
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.3 && !hasFired.current) {
+          hasFired.current = true;
+          setTimeout(() => {
+            setOpen(true);
+            setTimeout(() => setContentVisible(true), 250);
+            onBecameActive?.(accent);
+          }, 400);
         }
       },
-      { threshold: [0.1, 0.4], rootMargin: "0px 0px -30px 0px" }
+      { threshold: [0.3], rootMargin: "0px 0px -50px 0px" }
     );
     observer.observe(el);
     return () => observer.disconnect();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [entered]);
+  }, []);
 
-  // Stagger content when card opens
-  useEffect(() => {
-    if (isOpen) {
-      const id = setTimeout(() => setContentVisible(true), 250);
-      return () => clearTimeout(id);
-    } else {
-      setContentVisible(false);
-    }
-  }, [isOpen]);
+  // Click to toggle
+  const handleClick = useCallback(() => {
+    setOpen(o => {
+      const next = !o;
+      if (next) setTimeout(() => setContentVisible(true), 200);
+      else setContentVisible(false);
+      return next;
+    });
+  }, []);
 
   const links = cardId === "quartic" ? QUARTIC_LINKS : (COMPANY_LINKS[cardId] || []);
   const people = cardId === "quartic" ? QUARTIC_PEOPLE : (KEY_PEOPLE[cardId] || []);
@@ -110,31 +108,25 @@ export function CareerCard({ z, i, overrideId, isOpen, onEnterViewport, onClick 
       ref={cardRef}
       style={{
         position: "relative",
-        background: isOpen
-          ? `linear-gradient(145deg, ${accent}10 0%, rgba(4,8,20,0.96) 100%)`
-          : "rgba(6,12,24,0.9)",
-        border: `1px solid ${isOpen ? accent + "50" : entered ? accent + "20" : accent + "10"}`,
-        borderLeft: `4px solid ${isOpen ? accent : entered ? accent + "50" : accent + "20"}`,
+        background: "rgba(6,12,24,0.92)",
+        border: `1px solid ${open ? accent + "45" : accent + "15"}`,
+        borderLeft: `4px solid ${open ? accent : accent + "25"}`,
         borderRadius: 10,
         transition: "all 0.5s cubic-bezier(0.4,0,0.2,1)",
-        boxShadow: isOpen
-          ? `0 8px 48px ${accent}20, inset 4px 0 24px ${accent}0a`
-          : entered
-          ? `0 2px 12px rgba(0,0,0,0.3)`
-          : `0 1px 4px rgba(0,0,0,0.15)`,
+        boxShadow: open
+          ? `0 8px 48px ${accent}18, 0 0 0 1px ${accent}15`
+          : `0 1px 4px rgba(0,0,0,0.2)`,
         overflow: "hidden",
-        opacity: entered ? 1 : 0,
-        transform: entered ? "translateY(0) scale(1)" : "translateY(30px) scale(0.96)",
         cursor: "pointer",
       }}
-      onClick={onClick}
+      onClick={handleClick}
     >
       {/* Left border glow when open */}
-      {isOpen && (
+      {open && (
         <div style={{
           position: "absolute", left: 0, top: 0, bottom: 0, width: 4,
           background: accent,
-          boxShadow: `0 0 14px ${accent}, 0 0 28px ${accent}60`,
+          boxShadow: `0 0 14px ${accent}, 0 0 28px ${accent}50`,
           animation: "border-pulse 3s ease-in-out infinite",
           pointerEvents: "none",
         }} />
@@ -145,7 +137,7 @@ export function CareerCard({ z, i, overrideId, isOpen, onEnterViewport, onClick 
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
           <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
             <h3 style={{
-              fontFamily: "var(--font-pixel)", fontSize: 18, margin: 0,
+              fontFamily: "var(--font-pixel)", fontSize: 16, margin: 0,
               color: accent, letterSpacing: "0.03em",
             }}>
               {cardId === "quartic" ? "Quartic.ai" : z.org}
@@ -155,8 +147,8 @@ export function CareerCard({ z, i, overrideId, isOpen, onEnterViewport, onClick 
             </span>
           </div>
           <span style={{
-            fontFamily: "var(--font-pixel)", fontSize: 9, color: accent, opacity: 0.6,
-            transform: isOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.3s",
+            fontFamily: "var(--font-pixel)", fontSize: 9, color: accent, opacity: 0.5,
+            transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.3s",
           }}>▼</span>
         </div>
         <div style={{ fontFamily: "var(--font-mono)", fontSize: 16, color: "#b0c8e0", marginBottom: 4, fontWeight: 500 }}>
@@ -167,20 +159,19 @@ export function CareerCard({ z, i, overrideId, isOpen, onEnterViewport, onClick 
         </div>
       </div>
 
-      {/* ─── EXPANDED CONTENT ─── */}
+      {/* ─── EXPANDED ─── */}
       <div
         onClick={e => e.stopPropagation()}
         style={{
           overflow: "hidden",
-          maxHeight: isOpen ? 1600 : 0,
-          opacity: isOpen ? 1 : 0,
+          maxHeight: open ? 1600 : 0,
+          opacity: open ? 1 : 0,
           transition: "max-height 0.6s cubic-bezier(0.4,0,0.2,1), opacity 0.4s ease 0.1s",
           cursor: "default",
         }}
       >
         <div style={{ borderTop: `1px solid ${accent}18`, padding: "22px 24px 28px" }}>
 
-          {/* ★ WHAT I DID */}
           <CardSection visible={contentVisible} delay={0} accent={accent} title="WHAT I DID">
             {(cardId === "quartic"
               ? ["Led team of 5. Backed by Good Capital, Celesta Capital, Michael Marks.", "Rejoined at direct invitation of Good Capital partners post-acquisition.", "Built marketing from zero: brand identity, website, collateral, press strategy."]
@@ -197,7 +188,6 @@ export function CareerCard({ z, i, overrideId, isOpen, onEnterViewport, onClick 
             ))}
           </CardSection>
 
-          {/* ★ KEY PEOPLE */}
           {people.length > 0 && (
             <CardSection visible={contentVisible} delay={80} accent={accent} title="KEY PEOPLE">
               {people.map((p, pi) => (
@@ -209,7 +199,6 @@ export function CareerCard({ z, i, overrideId, isOpen, onEnterViewport, onClick 
             </CardSection>
           )}
 
-          {/* ★ CHALLENGE + ★ IMPACT — side by side */}
           {narrative && (
             <div style={{
               display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 22,
@@ -217,43 +206,30 @@ export function CareerCard({ z, i, overrideId, isOpen, onEnterViewport, onClick 
               transform: contentVisible ? "translateY(0)" : "translateY(10px)",
               transition: "opacity 0.4s ease 160ms, transform 0.4s ease 160ms",
             }}>
-              <div style={{
-                padding: "14px 16px",
-                background: `${accent}08`,
-                borderLeft: `3px solid ${accent}35`,
-                borderRadius: 6,
-              }}>
+              <div style={{ padding: "14px 16px", background: `${accent}08`, borderLeft: `3px solid ${accent}35`, borderRadius: 6 }}>
                 <div style={{ fontFamily: "var(--font-pixel)", fontSize: 8, color: accent, marginBottom: 10, letterSpacing: "0.12em" }}>★ THE CHALLENGE</div>
                 <div style={{ fontFamily: "var(--font-mono)", fontSize: 12.5, color: "#7a98b8", lineHeight: 1.6 }}>{narrative.challenge}</div>
               </div>
-              <div style={{
-                padding: "14px 16px",
-                background: `${accent}08`,
-                borderLeft: `3px solid ${accent}35`,
-                borderRadius: 6,
-              }}>
+              <div style={{ padding: "14px 16px", background: `${accent}08`, borderLeft: `3px solid ${accent}35`, borderRadius: 6 }}>
                 <div style={{ fontFamily: "var(--font-pixel)", fontSize: 8, color: accent, marginBottom: 10, letterSpacing: "0.12em" }}>★ IMPACT</div>
                 <div style={{ fontFamily: "var(--font-mono)", fontSize: 12.5, color: "#a0c0d8", lineHeight: 1.6, fontWeight: 600 }}>{narrative.impact}</div>
               </div>
             </div>
           )}
 
-          {/* 🔗 LINKS */}
           {links.length > 0 && (
             <CardSection visible={contentVisible} delay={240} accent={accent} title="LINKS">
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                 {links.map((link, li) => (
-                  <a key={li} href={link.url} target="_blank" rel="noopener noreferrer" style={{
-                    fontFamily: "var(--font-mono)", fontSize: 12,
-                    color: "#7ce0ff", textDecoration: "none",
-                    background: "rgba(124,224,255,0.06)",
-                    border: "1.5px solid rgba(124,224,255,0.22)",
-                    padding: "8px 14px", borderRadius: 5,
-                    transition: "background 0.2s, border-color 0.2s, box-shadow 0.2s",
-                  }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(124,224,255,0.5)"; e.currentTarget.style.boxShadow = "0 0 10px rgba(124,224,255,0.15)"; }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(124,224,255,0.22)"; e.currentTarget.style.boxShadow = "none"; }}
-                  onClick={e => e.stopPropagation()}
+                  <a key={li} href={link.url} target="_blank" rel="noopener noreferrer"
+                    onClick={e => e.stopPropagation()}
+                    style={{
+                      fontFamily: "var(--font-mono)", fontSize: 12,
+                      color: "#7ce0ff", textDecoration: "none",
+                      background: "rgba(124,224,255,0.06)",
+                      border: "1.5px solid rgba(124,224,255,0.22)",
+                      padding: "8px 14px", borderRadius: 5,
+                    }}
                   >
                     {link.label} ↗
                   </a>
