@@ -48,7 +48,7 @@ function BrandLogo({ brand, index, accent }: { brand: BrandItem; index: number; 
   const { ref, visible } = useScrollReveal<HTMLDivElement>({ threshold: 0.1 });
 
   const logoUrl = brand.domain
-    ? `https://img.logo.dev/${brand.domain}?token=${LOGO_TOKEN}`
+    ? `https://img.logo.dev/${brand.domain}?token=${LOGO_TOKEN}&format=png`
     : null;
 
   return (
@@ -56,65 +56,48 @@ function BrandLogo({ brand, index, accent }: { brand: BrandItem; index: number; 
       ref={ref}
       style={{
         display: "flex",
+        flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        padding: "14px 16px",
+        padding: "14px 12px 10px",
         background: "rgba(10,18,38,0.5)",
         border: "1px solid rgba(42,58,80,0.4)",
         borderRadius: 6,
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(12px)",
         transition: `opacity 0.4s ease ${index * 50}ms, transform 0.4s ease ${index * 50}ms`,
-        minHeight: 52,
+        minHeight: 64,
         cursor: brand.url ? "pointer" : "default",
+        gap: 6,
       }}
       onClick={() => brand.url && window.open(brand.url, "_blank")}
       title={brand.name}
     >
-      {logoUrl ? (
-        <>
-          <img
-            src={logoUrl}
-            alt={brand.name}
-            style={{
-              height: 28,
-              maxWidth: 110,
-              objectFit: "contain",
-              filter: "brightness(0.95) contrast(1.05)",
-            }}
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.style.display = "none";
-              if (target.nextElementSibling) {
-                (target.nextElementSibling as HTMLElement).style.display = "block";
-              }
-            }}
-          />
-          {/* Text fallback — hidden unless image fails */}
-          <span style={{
-            display: "none",
-            fontFamily: "var(--font-pixel)",
-            fontSize: 7,
-            color: accent,
-            letterSpacing: "0.05em",
-            textAlign: "center",
-            lineHeight: 1.3,
-          }}>
-            {brand.name}
-          </span>
-        </>
-      ) : (
-        <span style={{
-          fontFamily: "var(--font-pixel)",
-          fontSize: 7,
-          color: accent,
-          letterSpacing: "0.05em",
-          textAlign: "center",
-          lineHeight: 1.3,
-        }}>
-          {brand.name}
-        </span>
+      {logoUrl && (
+        <img
+          src={logoUrl}
+          alt={brand.name}
+          style={{
+            height: 24,
+            maxWidth: 80,
+            objectFit: "contain",
+          }}
+          onError={(e) => {
+            (e.target as HTMLImageElement).style.display = "none";
+          }}
+        />
       )}
+      <span style={{
+        fontFamily: "var(--font-pixel)",
+        fontSize: 6,
+        color: accent,
+        letterSpacing: "0.04em",
+        textAlign: "center",
+        lineHeight: 1.3,
+        opacity: 0.85,
+      }}>
+        {brand.name}
+      </span>
     </div>
   );
 }
