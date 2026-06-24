@@ -232,7 +232,6 @@ function HowToPlay() {
 // ─── Career section — accordion + zone dividers + backlight ──────────────────
 function CareerSection({ zones }: { zones: typeof ZONES }) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const [manualClose, setManualClose] = useState<Set<number>>(new Set());
 
   const aiZone = ZONES.find(z => z.id === "ai")!;
   const cards: { zone: typeof ZONES[0]; overrideId?: string }[] = [];
@@ -243,22 +242,20 @@ function CareerSection({ zones }: { zones: typeof ZONES }) {
     }
   }
 
+  // Sequential scroll-based opening: each card opens when it enters viewport.
+  // Only one card is open at a time — the most recently scrolled-into card.
   const handleEnterViewport = (index: number) => {
-    if (manualClose.has(index)) return;
-    // Sequential gating: only open if it's the next card after current (or first)
-    if (activeIndex === null || index === activeIndex + 1 || index > (activeIndex ?? -1)) {
-      setActiveIndex(index);
-    }
+    setActiveIndex(index);
   };
 
+  // Close when card leaves the viewport completely
+  const handleLeaveViewport = (index: number) => {
+    setActiveIndex(prev => (prev === index ? null : prev));
+  };
+
+  // Click to toggle manually
   const handleClick = (index: number) => {
-    if (activeIndex === index) {
-      setActiveIndex(null);
-      setManualClose(prev => new Set(prev).add(index));
-    } else {
-      setActiveIndex(index);
-      setManualClose(prev => { const s = new Set(prev); s.delete(index); return s; });
-    }
+    setActiveIndex(prev => (prev === index ? null : index));
   };
 
   const currentAccent = activeIndex !== null ? cards[activeIndex]?.zone.theme.accent : null;
@@ -307,6 +304,7 @@ function CareerSection({ zones }: { zones: typeof ZONES }) {
               overrideId={c.overrideId}
               isOpen={activeIndex === i}
               onEnterViewport={() => handleEnterViewport(i)}
+              onLeaveViewport={() => handleLeaveViewport(i)}
               onClick={() => handleClick(i)}
             />
           </div>
