@@ -27,17 +27,16 @@ type Props = {
   overrideId?: string;
   isOpen: boolean;
   onEnterViewport: () => void;
-  onLeaveViewport: () => void;
-  onClick: () => void;
 };
 
-export function CareerCard({ z, i, overrideId, isOpen, onEnterViewport, onLeaveViewport, onClick }: Props) {
+export function CareerCard({ z, i, overrideId, isOpen, onEnterViewport }: Props) {
   const [contentVisible, setContentVisible] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+  const hasFired = useRef(false);
   const accent = z.theme.accent;
   const cardId = overrideId || z.id;
 
-  // Fire onEnterViewport when 40% visible, fire onLeaveViewport when fully out of view
+  // Fire onEnterViewport once when 30% visible
   useEffect(() => {
     const el = cardRef.current;
     if (!el) return;
@@ -46,13 +45,13 @@ export function CareerCard({ z, i, overrideId, isOpen, onEnterViewport, onLeaveV
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && entry.intersectionRatio >= 0.35) {
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.3 && !hasFired.current) {
+          hasFired.current = true;
           onEnterViewport();
-        } else if (!entry.isIntersecting && entry.intersectionRatio === 0) {
-          onLeaveViewport();
+          observer.disconnect();
         }
       },
-      { threshold: [0, 0.35] }
+      { threshold: [0.3] }
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -87,9 +86,7 @@ export function CareerCard({ z, i, overrideId, isOpen, onEnterViewport, onLeaveV
           ? `0 8px 48px ${accent}18, 0 0 0 1px ${accent}12`
           : `0 1px 4px rgba(0,0,0,0.2)`,
         overflow: "hidden",
-        cursor: "pointer",
       }}
-      onClick={onClick}
     >
       {isOpen && (
         <div style={{
@@ -114,7 +111,6 @@ export function CareerCard({ z, i, overrideId, isOpen, onEnterViewport, onLeaveV
           </div>
           <span style={{
             fontFamily: "var(--font-pixel)", fontSize: 9, color: accent, opacity: 0.5,
-            transform: isOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.3s",
           }}>▼</span>
         </div>
         <div style={{ fontFamily: "var(--font-mono)", fontSize: 16, color: "#b0c8e0", marginBottom: 4, fontWeight: 500 }}>
@@ -126,12 +122,11 @@ export function CareerCard({ z, i, overrideId, isOpen, onEnterViewport, onLeaveV
       </div>
 
       {/* EXPANDED */}
-      <div onClick={e => e.stopPropagation()} style={{
+      <div style={{
         overflow: "hidden",
         maxHeight: isOpen ? 1600 : 0,
         opacity: isOpen ? 1 : 0,
         transition: "max-height 0.6s cubic-bezier(0.4,0,0.2,1), opacity 0.4s ease 0.1s",
-        cursor: "default",
       }}>
         <div style={{ borderTop: `1px solid ${accent}18`, padding: "22px 24px 28px" }}>
 
@@ -178,7 +173,7 @@ export function CareerCard({ z, i, overrideId, isOpen, onEnterViewport, onLeaveV
             <Sec visible={contentVisible} delay={240} accent={accent} title="LINKS">
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                 {links.map((link, li) => (
-                  <a key={li} href={link.url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} style={{
+                  <a key={li} href={link.url} target="_blank" rel="noopener noreferrer" style={{
                     fontFamily: "var(--font-mono)", fontSize: 12, color: "#7ce0ff", textDecoration: "none",
                     background: "rgba(124,224,255,0.06)", border: "1.5px solid rgba(124,224,255,0.22)",
                     padding: "8px 14px", borderRadius: 5,

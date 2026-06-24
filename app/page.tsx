@@ -229,9 +229,11 @@ function HowToPlay() {
 }
 
 
-// ─── Career section — accordion + zone dividers + backlight ──────────────────
+// ─── Career section — scroll-reveal cards that stay open ─────────────────────
 function CareerSection({ zones }: { zones: typeof ZONES }) {
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [openSet, setOpenSet] = useState<Set<number>>(new Set());
+  const lastOpenTime = useRef<number>(0);
+  const STAGGER_MS = 400; // minimum ms between consecutive card opens
 
   const aiZone = ZONES.find(z => z.id === "ai")!;
   const cards: { zone: typeof ZONES[0]; overrideId?: string }[] = [];
@@ -242,23 +244,26 @@ function CareerSection({ zones }: { zones: typeof ZONES }) {
     }
   }
 
-  // Sequential scroll-based opening: each card opens when it enters viewport.
-  // Only one card is open at a time — the most recently scrolled-into card.
+  // When a card enters the viewport, stagger it open
   const handleEnterViewport = (index: number) => {
-    setActiveIndex(index);
+    const now = Date.now();
+    const elapsed = now - lastOpenTime.current;
+    const delay = Math.max(0, STAGGER_MS - elapsed);
+
+    setTimeout(() => {
+      setOpenSet(prev => {
+        if (prev.has(index)) return prev;
+        const next = new Set(prev);
+        next.add(index);
+        return next;
+      });
+      lastOpenTime.current = Date.now();
+    }, delay);
   };
 
-  // Close when card leaves the viewport completely
-  const handleLeaveViewport = (index: number) => {
-    setActiveIndex(prev => (prev === index ? null : prev));
-  };
-
-  // Click to toggle manually
-  const handleClick = (index: number) => {
-    setActiveIndex(prev => (prev === index ? null : index));
-  };
-
-  const currentAccent = activeIndex !== null ? cards[activeIndex]?.zone.theme.accent : null;
+  // Find the latest opened card for backlight accent
+  const latestOpen = Array.from(openSet).sort((a, b) => b - a)[0] ?? null;
+  const currentAccent = latestOpen !== null ? cards[latestOpen]?.zone.theme.accent : null;
 
   return (
     <>
@@ -275,7 +280,7 @@ function CareerSection({ zones }: { zones: typeof ZONES }) {
         {cards.map((c, i) => (
           <div key={c.overrideId || c.zone.id} style={{ position: "relative" }}>
             {/* Zone divider */}
-            {activeIndex === i && (
+            {openSet.has(i) && (
               <div style={{
                 position: "absolute", top: -26, left: 0, right: 0, zIndex: 10,
                 display: "flex", alignItems: "center", gap: 12,
@@ -302,10 +307,8 @@ function CareerSection({ zones }: { zones: typeof ZONES }) {
               z={c.zone}
               i={i}
               overrideId={c.overrideId}
-              isOpen={activeIndex === i}
+              isOpen={openSet.has(i)}
               onEnterViewport={() => handleEnterViewport(i)}
-              onLeaveViewport={() => handleLeaveViewport(i)}
-              onClick={() => handleClick(i)}
             />
           </div>
         ))}
