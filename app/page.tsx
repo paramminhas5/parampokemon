@@ -456,15 +456,6 @@ export default function Home() {
               READ CV
             </Link>
           </div>
-
-          <div style={{
-            fontFamily: "var(--font-pixel)", fontSize: 7, color: "#2a3a50",
-            marginTop: 14, letterSpacing: "0.15em",
-            opacity: heroVisible ? 1 : 0,
-            transition: "opacity 0.5s ease 560ms",
-          }}>
-            ARROWS · WASD · TAP · SWIPE · SPACE
-          </div>
         </div>
       </section>
 

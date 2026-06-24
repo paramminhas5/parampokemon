@@ -43,54 +43,31 @@ export function CareerCard({ z }: { z: Zone; i: number }) {
   const [open, setOpen] = useState(false);
   const [contentVisible, setContentVisible] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
-  const lastScrollY = useRef(0);
-  const hasAutoOpened = useRef(false);
   const accent = z.theme.accent;
 
-  // Scroll direction tracking
-  useEffect(() => {
-    const handleScroll = () => { lastScrollY.current = window.scrollY; };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // Open on scroll DOWN into view, close when scrolled past, stay closed on scroll back up
+  // Opens ONCE on scroll into viewport, stays open. Simple timeline reveal.
   useEffect(() => {
     const el = cardRef.current;
     if (!el) return;
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     if (mq.matches) { setOpen(true); setContentVisible(true); return; }
 
-    let prevY = 0;
     const observer = new IntersectionObserver(
       ([entry]) => {
-        const currentScrollY = window.scrollY;
-        const scrollingDown = currentScrollY > prevY;
-        prevY = currentScrollY;
-
         if (entry.isIntersecting) {
-          // Only auto-open on first encounter scrolling down
-          if (scrollingDown && !hasAutoOpened.current) {
-            setOpen(true);
-            setContentVisible(true);
-            hasAutoOpened.current = true;
-          }
-        } else {
-          // Close when leaving viewport (scrolled past)
-          if (hasAutoOpened.current && open) {
-            setOpen(false);
-            setContentVisible(false);
-          }
+          setOpen(true);
+          setTimeout(() => setContentVisible(true), 250);
+          observer.disconnect(); // Once opened, done.
         }
       },
-      { threshold: 0.2, rootMargin: "0px 0px -40px 0px" }
+      { threshold: 0.15, rootMargin: "0px 0px -60px 0px" }
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [open]);
+  }, []);
 
-  // Click to toggle manually
-  const handleClick = useCallback(() => {
+  // Click header to manually toggle
+  const handleToggle = useCallback(() => {
     setOpen(o => {
       const next = !o;
       if (next) setTimeout(() => setContentVisible(true), 200);
@@ -104,7 +81,7 @@ export function CareerCard({ z }: { z: Zone; i: number }) {
   const narrative = ZONE_NARRATIVE[z.id];
 
   return (
-    <div
+    <article
       ref={cardRef}
       style={{
         position: "relative",
@@ -120,9 +97,7 @@ export function CareerCard({ z }: { z: Zone; i: number }) {
           : `0 1px 4px rgba(0,0,0,0.2)`,
         overflow: "hidden",
         transform: open ? "scale(1)" : "scale(0.985)",
-        cursor: "pointer",
       }}
-      onClick={handleClick}
     >
       {/* Left border glow pulse on open */}
       {open && (
@@ -136,8 +111,11 @@ export function CareerCard({ z }: { z: Zone; i: number }) {
         }} />
       )}
 
-      {/* Header row */}
-      <div style={{ padding: "18px 20px", position: "relative", zIndex: 1 }}>
+      {/* Header row — clickable to toggle */}
+      <div
+        onClick={handleToggle}
+        style={{ padding: "18px 20px", position: "relative", zIndex: 1, cursor: "pointer" }}
+      >
         <div style={{
           display: "flex", alignItems: "baseline", justifyContent: "space-between",
           gap: 10, flexWrap: "wrap", marginBottom: 5,
@@ -158,8 +136,8 @@ export function CareerCard({ z }: { z: Zone; i: number }) {
           </div>
           <span style={{
             fontFamily: "var(--font-pixel)", fontSize: 7,
-            color: accent, opacity: open ? 1 : 0.5,
-            transition: "transform 0.3s, opacity 0.3s",
+            color: accent, opacity: 0.6,
+            transition: "transform 0.3s",
             transform: open ? "rotate(180deg)" : "rotate(0deg)",
           }}>▼</span>
         </div>
@@ -178,29 +156,23 @@ export function CareerCard({ z }: { z: Zone; i: number }) {
       </div>
 
       {/* Expanded content */}
-      <div
-        onClick={e => e.stopPropagation()}
-        style={{
-          overflow: "hidden",
-          maxHeight: open ? 1400 : 0,
-          opacity: open ? 1 : 0,
-          transition: "max-height 0.55s cubic-bezier(0.4,0,0.2,1), opacity 0.35s ease 0.1s",
-          cursor: "default",
-        }}
-      >
+      <div style={{
+        overflow: "hidden",
+        maxHeight: open ? 1400 : 0,
+        opacity: open ? 1 : 0,
+        transition: "max-height 0.55s cubic-bezier(0.4,0,0.2,1), opacity 0.35s ease 0.1s",
+      }}>
         <div style={{
           borderTop: `1px solid ${accent}15`,
           padding: "20px 20px 24px",
         }}>
 
-          {/* WHAT I DID */}
           <AnimSection visible={contentVisible} delay={0} accent={accent} title="WHAT I DID">
             {z.cliff.did.map((d, di) => (
               <Bullet key={di} accent={accent}>{d}</Bullet>
             ))}
           </AnimSection>
 
-          {/* KEY PEOPLE */}
           {people.length > 0 && (
             <AnimSection visible={contentVisible} delay={60} accent={accent} title="KEY PEOPLE">
               {people.map((p, pi) => (
@@ -212,7 +184,6 @@ export function CareerCard({ z }: { z: Zone; i: number }) {
             </AnimSection>
           )}
 
-          {/* THE CHALLENGE */}
           {narrative && (
             <AnimSection visible={contentVisible} delay={120} accent={accent} title="THE CHALLENGE">
               <div style={{
@@ -225,20 +196,17 @@ export function CareerCard({ z }: { z: Zone; i: number }) {
             </AnimSection>
           )}
 
-          {/* IMPACT */}
           {narrative && (
             <AnimSection visible={contentVisible} delay={180} accent={accent} title="IMPACT">
               <div style={{
                 fontFamily: "var(--font-mono)", fontSize: 13,
-                color: "#9ab8d0", lineHeight: 1.6,
-                fontWeight: 500,
+                color: "#9ab8d0", lineHeight: 1.6, fontWeight: 500,
               }}>
                 {narrative.impact}
               </div>
             </AnimSection>
           )}
 
-          {/* LINKS (unified — company links + press all in one place) */}
           {links.length > 0 && (
             <AnimSection visible={contentVisible} delay={240} accent={accent} title="LINKS">
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
@@ -249,7 +217,6 @@ export function CareerCard({ z }: { z: Zone; i: number }) {
                     background: "rgba(124,224,255,0.05)",
                     border: "1px solid rgba(124,224,255,0.18)",
                     padding: "4px 10px", borderRadius: 3,
-                    transition: "background 0.2s",
                   }}>
                     {link.label} ↗
                   </a>
@@ -266,11 +233,9 @@ export function CareerCard({ z }: { z: Zone; i: number }) {
           50% { box-shadow: 0 0 14px ${accent}, 0 0 28px ${accent}55; }
         }
       `}</style>
-    </div>
+    </article>
   );
 }
-
-// ─── Helper components ───────────────────────────────────────────────────────
 
 function AnimSection({ visible, delay, accent, title, children }: {
   visible: boolean; delay: number; accent: string; title: string; children: React.ReactNode;
@@ -284,8 +249,7 @@ function AnimSection({ visible, delay, accent, title, children }: {
     }}>
       <div style={{
         fontFamily: "var(--font-pixel)", fontSize: 7,
-        color: accent, marginBottom: 9,
-        letterSpacing: "0.12em",
+        color: accent, marginBottom: 9, letterSpacing: "0.12em",
       }}>★ {title}</div>
       {children}
     </div>
