@@ -471,8 +471,8 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
   },
   {
     id: "fere", index: 7, name: "Fere District", org: "Fere.ai", role: "CMO",
-    subtitle: "Jan 2025 · AI Agents",
-    years: "Jan 2025",
+    subtitle: "Jan–Dec 2025 · AI Agents",
+    years: "Jan–Dec 2025",
     outcome: "CMO at autonomous AI agent platform. Rejoined Akshaya Aron. Funded by Ethereal Ventures.",
     bullets: [
       "Rejoined long-time collaborator Akshaya Aron",
