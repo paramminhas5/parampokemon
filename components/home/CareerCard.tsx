@@ -61,7 +61,7 @@ export function CareerCard({ z, overrideId }: { z: Zone; i: number; overrideId?:
   const accent = z.theme.accent;
   const cardId = overrideId || z.id;
 
-  // 2-stage scroll animation: enter → then open
+  // 2-stage scroll animation: enter → pause → open (dramatic)
   useEffect(() => {
     const el = cardRef.current;
     if (!el) return;
@@ -71,26 +71,28 @@ export function CareerCard({ z, overrideId }: { z: Zone; i: number; overrideId?:
     const observer = new IntersectionObserver(
       (entries) => {
         const entry = entries[0];
-        if (entry.isIntersecting && entry.intersectionRatio >= 0.1) {
-          // Stage 1: card enters (slides up) + zone tag appears
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.1 && !entered) {
+          // Stage 1: card slides in, zone tag appears
           setEntered(true);
           setShowZoneTag(true);
-          setTimeout(() => setShowZoneTag(false), 1800);
+          setTimeout(() => setShowZoneTag(false), 2500);
+          // Fire accent pulse event to page
+          window.dispatchEvent(new CustomEvent("zone-enter", { detail: accent }));
         }
-        if (entry.isIntersecting && entry.intersectionRatio >= 0.25) {
-          // Stage 2: card opens
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.4 && !open) {
+          // Stage 2: card OPENS — delayed 600ms after hitting 40% threshold
           setTimeout(() => {
             setOpen(true);
-            setTimeout(() => setContentVisible(true), 200);
-          }, 150);
+            setTimeout(() => setContentVisible(true), 250);
+          }, 600);
           observer.disconnect();
         }
       },
-      { threshold: [0.1, 0.25], rootMargin: "0px 0px -40px 0px" }
+      { threshold: [0.1, 0.4], rootMargin: "0px 0px -30px 0px" }
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [entered, open, accent]);
 
   const handleToggle = useCallback(() => {
     setOpen(o => {
@@ -127,20 +129,24 @@ export function CareerCard({ z, overrideId }: { z: Zone; i: number; overrideId?:
         transform: entered ? "translateY(0) scale(1)" : "translateY(24px) scale(0.97)",
       }}
     >
-      {/* Zone entry tag — "ENTERING: ZONE" */}
+      {/* Zone entry tag — chapter divider */}
       {showZoneTag && (
         <div style={{
-          position: "absolute", top: -28, left: 20, zIndex: 10,
-          fontFamily: "var(--font-pixel)", fontSize: 7,
-          color: accent,
-          background: `${accent}15`,
-          border: `1px solid ${accent}40`,
-          padding: "4px 12px",
-          borderRadius: 4,
-          animation: "zone-tag-in 0.4s ease-out, zone-tag-out 0.4s ease-in 1.4s forwards",
-          letterSpacing: "0.1em",
+          position: "absolute", top: -20, left: 0, right: 0, zIndex: 10,
+          display: "flex", alignItems: "center", gap: 10,
+          animation: "zone-tag-in 0.5s ease-out, zone-tag-out 0.5s ease-in 2s forwards",
         }}>
-          ENTERING: {(cardId === "quartic" ? "QUARTIC.AI" : z.org).toUpperCase()}
+          <div style={{ flex: 1, height: 1, background: `linear-gradient(90deg, transparent, ${accent}60)` }} />
+          <span style={{
+            fontFamily: "var(--font-pixel)", fontSize: 9,
+            color: accent,
+            letterSpacing: "0.15em",
+            textShadow: `0 0 8px ${accent}60`,
+            whiteSpace: "nowrap",
+          }}>
+            ENTERING: {(cardId === "quartic" ? "QUARTIC.AI" : z.org).toUpperCase()}
+          </span>
+          <div style={{ flex: 1, height: 1, background: `linear-gradient(90deg, ${accent}60, transparent)` }} />
         </div>
       )}
 

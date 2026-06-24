@@ -271,6 +271,7 @@ export default function ResumePage() {
             <a href="mailto:minhas.param@gmail.com" style={{ color: "#2a4a8a", textDecoration: "none" }}>minhas.param@gmail.com</a>
             <a href="https://linkedin.com/in/paramminhas" target="_blank" rel="noopener noreferrer" style={{ color: "#2a4a8a", textDecoration: "none" }}>linkedin.com/in/paramminhas</a>
             <a href="https://catscandance.com" target="_blank" rel="noopener noreferrer" style={{ color: "#2a4a8a", textDecoration: "none" }}>catscandance.com</a>
+            <a href="https://hyperiterate.com" target="_blank" rel="noopener noreferrer" style={{ color: "#2a4a8a", textDecoration: "none" }}>hyperiterate.com</a>
             <span>Bengaluru, India</span>
           </div>
 
