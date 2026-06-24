@@ -157,6 +157,20 @@ export default function ResumePage() {
         gap: 12,
         flexWrap: "wrap",
       }}>
+        <Link
+          href="/"
+          style={{
+            display: "inline-flex", alignItems: "center", gap: 6,
+            padding: "8px 16px",
+            background: "#ffffff", color: "#4a5a8a",
+            border: "1.5px solid #d0d8e8",
+            fontSize: 11, fontFamily: "'Press Start 2P', monospace",
+            textDecoration: "none", borderRadius: 4,
+            letterSpacing: "0.03em",
+          }}
+        >
+          ← Home
+        </Link>
         <a
           href="/api/resume-pdf"
           style={{
@@ -196,7 +210,7 @@ export default function ResumePage() {
             letterSpacing: "0.03em",
           }}
         >
-          ▶ Back to Game
+          ▶ Play Game
         </Link>
       </div>
 
@@ -213,15 +227,21 @@ export default function ResumePage() {
             }}>
               PARAM MINHAS
             </h1>
-            <span style={{
-              display: "inline-flex", alignItems: "center", gap: 4,
-              background: "#e8f5e9", color: "#2e7d32",
-              fontSize: 8, fontFamily: "'Press Start 2P', monospace",
-              padding: "3px 8px", borderRadius: 3,
-              letterSpacing: "0.05em",
-            }}>
+            <a
+              href="/api/resume-pdf"
+              style={{
+                display: "inline-flex", alignItems: "center", gap: 4,
+                background: "#e8f5e9", color: "#2e7d32",
+                fontSize: 8, fontFamily: "'Press Start 2P', monospace",
+                padding: "3px 8px", borderRadius: 3,
+                letterSpacing: "0.05em",
+                textDecoration: "none",
+                transition: "background 0.2s, transform 0.1s",
+              }}
+              title="Download full resume as PDF"
+            >
               ◆ SAVE FILE
-            </span>
+            </a>
           </div>
 
           <p style={{
@@ -261,11 +281,11 @@ export default function ResumePage() {
             ].map(m => (
               <div key={m.label} style={{
                 textAlign: "center", padding: "10px 6px",
-                background: "#f8f9fc", border: "1px solid #e8e8ec",
+                background: "#f0f4ff", border: "1px solid #d0d8f0",
                 borderRadius: 4,
               }}>
-                <div style={{ fontSize: 10, color: "#8a8aa0", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>{m.label}</div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: "#1a1a2e" }}>{m.value}</div>
+                <div style={{ fontSize: 10, color: "#6a7a9a", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>{m.label}</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#2a4a8a" }}>{m.value}</div>
               </div>
             ))}
           </div>
@@ -274,7 +294,7 @@ export default function ResumePage() {
 
         {/* ── SUMMARY ── */}
         <section style={{ marginBottom: 32 }}>
-          <h2 style={{ fontSize: 11, fontFamily: "'Press Start 2P', monospace", color: "#1a1a2e", letterSpacing: "0.1em", marginBottom: 12 }}>
+          <h2 style={{ fontSize: 11, fontFamily: "'Press Start 2P', monospace", color: "#2a4a8a", letterSpacing: "0.1em", marginBottom: 12 }}>
             SUMMARY
           </h2>
           <p style={{ fontSize: 14, lineHeight: 1.7, color: "#2a2a4a", margin: 0 }}>
@@ -284,12 +304,12 @@ export default function ResumePage() {
 
         {/* ── EXPERIENCE ── */}
         <section style={{ marginBottom: 32 }}>
-          <h2 style={{ fontSize: 11, fontFamily: "'Press Start 2P', monospace", color: "#1a1a2e", letterSpacing: "0.1em", marginBottom: 16 }}>
+          <h2 style={{ fontSize: 11, fontFamily: "'Press Start 2P', monospace", color: "#2a4a8a", letterSpacing: "0.1em", marginBottom: 16 }}>
             EXPERIENCE
           </h2>
           <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
             {EXPERIENCE.map((exp, i) => (
-              <div key={i} style={{ borderLeft: "3px solid #e0e4ec", paddingLeft: 16 }}>
+              <div key={i} style={{ borderLeft: "3px solid #4a7adb", paddingLeft: 16 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8, marginBottom: 4 }}>
                   <div>
                     <span style={{ fontSize: 15, fontWeight: 700, color: "#1a1a2e" }}>{exp.role}</span>
@@ -335,7 +355,7 @@ export default function ResumePage() {
 
         {/* ── SKILLS ── */}
         <section style={{ marginBottom: 32 }}>
-          <h2 style={{ fontSize: 11, fontFamily: "'Press Start 2P', monospace", color: "#1a1a2e", letterSpacing: "0.1em", marginBottom: 16 }}>
+          <h2 style={{ fontSize: 11, fontFamily: "'Press Start 2P', monospace", color: "#2a4a8a", letterSpacing: "0.1em", marginBottom: 16 }}>
             SKILLS
           </h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 12 }}>
@@ -357,7 +377,7 @@ export default function ResumePage() {
 
         {/* ── EDUCATION ── */}
         <section style={{ marginBottom: 32 }}>
-          <h2 style={{ fontSize: 11, fontFamily: "'Press Start 2P', monospace", color: "#1a1a2e", letterSpacing: "0.1em", marginBottom: 12 }}>
+          <h2 style={{ fontSize: 11, fontFamily: "'Press Start 2P', monospace", color: "#2a4a8a", letterSpacing: "0.1em", marginBottom: 12 }}>
             EDUCATION
           </h2>
           <p style={{ fontSize: 13, color: "#2a2a4a", lineHeight: 1.6 }}>
@@ -367,7 +387,7 @@ export default function ResumePage() {
 
         {/* ── PRESS & RECOGNITION ── */}
         <section style={{ marginBottom: 32 }}>
-          <h2 style={{ fontSize: 11, fontFamily: "'Press Start 2P', monospace", color: "#1a1a2e", letterSpacing: "0.1em", marginBottom: 12 }}>
+          <h2 style={{ fontSize: 11, fontFamily: "'Press Start 2P', monospace", color: "#2a4a8a", letterSpacing: "0.1em", marginBottom: 12 }}>
             PRESS & RECOGNITION
           </h2>
           <div style={{ fontSize: 13, color: "#2a2a4a", lineHeight: 1.8 }}>
@@ -391,7 +411,7 @@ export default function ResumePage() {
           border: "1px solid #d0d8ec",
           borderRadius: 8,
         }}>
-          <h2 style={{ fontSize: 11, fontFamily: "'Press Start 2P', monospace", color: "#1a1a2e", letterSpacing: "0.1em", marginBottom: 10 }}>
+          <h2 style={{ fontSize: 11, fontFamily: "'Press Start 2P', monospace", color: "#2a4a8a", letterSpacing: "0.1em", marginBottom: 10 }}>
             OPEN TO
           </h2>
           <p style={{ fontSize: 13, color: "#2a2a4a", lineHeight: 1.6, margin: 0 }}>

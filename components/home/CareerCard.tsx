@@ -1,14 +1,39 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Zone } from "@/game/data";
+import { COMPANY_LINKS } from "@/game/data";
 
 export function CareerCard({ z, i }: { z: Zone; i: number }) {
   const [open, setOpen] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
   const accent = z.theme.accent;
+
+  // Auto-expand on scroll into viewport
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el) return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (mq.matches) { setOpen(true); return; }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setOpen(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.25, rootMargin: "0px 0px -60px 0px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const links = COMPANY_LINKS[z.id] || [];
 
   return (
     <div
+      ref={cardRef}
       style={{
         background: open
           ? `linear-gradient(135deg, ${accent}12 0%, rgba(4,8,20,0.97) 100%)`
@@ -17,7 +42,6 @@ export function CareerCard({ z, i }: { z: Zone; i: number }) {
           : "rgba(6,12,24,0.92)",
         border: `1px solid ${open ? accent + "55" : hovered ? accent + "40" : accent + "22"}`,
         borderRadius: 6,
-        cursor: "pointer",
         transition: "border-color 0.2s, background 0.2s, box-shadow 0.2s",
         boxShadow: open
           ? `0 0 28px ${accent}1a, 0 2px 0 ${accent}10`
@@ -26,11 +50,10 @@ export function CareerCard({ z, i }: { z: Zone; i: number }) {
           : "none",
         overflow: "hidden",
       }}
-      onClick={() => setOpen(o => !o)}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* ── Collapsed row ── */}
+      {/* Collapsed row */}
       <div style={{ display: "flex", gap: 14, alignItems: "center", padding: "14px 16px" }}>
 
         {/* Creature / fallback sprite */}
@@ -93,7 +116,7 @@ export function CareerCard({ z, i }: { z: Zone; i: number }) {
           </div>
         </div>
 
-        {/* Right: metric pill + chevron */}
+        {/* Right: metric pill */}
         <div style={{
           flexShrink: 0, textAlign: "right",
           display: "flex", flexDirection: "column",
@@ -119,21 +142,14 @@ export function CareerCard({ z, i }: { z: Zone; i: number }) {
               {z.gym.opponentName}
             </div>
           )}
-          <div style={{
-            fontFamily: "var(--font-pixel)", fontSize: 7,
-            color: accent,
-            opacity: open ? 1 : 0.55,
-            transition: "transform 0.28s cubic-bezier(0.4,0,0.2,1), opacity 0.2s",
-            transform: open ? "rotate(180deg)" : "rotate(0deg)",
-          }}>▼</div>
         </div>
       </div>
 
-      {/* ── Expanded panel ── */}
+      {/* Expanded panel — auto-opens on scroll */}
       <div style={{
         overflow: "hidden",
-        maxHeight: open ? 800 : 0,
-        transition: "max-height 0.38s cubic-bezier(0.4,0,0.2,1)",
+        maxHeight: open ? 900 : 0,
+        transition: "max-height 0.5s cubic-bezier(0.4,0,0.2,1)",
       }}>
         <div style={{
           borderTop: `1px solid ${accent}22`,
@@ -180,12 +196,12 @@ export function CareerCard({ z, i }: { z: Zone; i: number }) {
                     position: "absolute", left: 0,
                     color: accent + "60", fontSize: 9, top: 1,
                   }}>✦</span>
-                  "{l}"
+                  &ldquo;{l}&rdquo;
                 </div>
               ))}
             </div>
 
-            {/* Right: metrics + gym + creature */}
+            {/* Right: metrics + gym + badge */}
             <div>
               <div style={{
                 fontFamily: "var(--font-pixel)", fontSize: 6,
@@ -242,9 +258,63 @@ export function CareerCard({ z, i }: { z: Zone; i: number }) {
                         fontFamily: "var(--font-mono)", fontSize: 12,
                         color: "#3a5278", fontStyle: "italic", lineHeight: 1.5,
                       }}>
-                        "{z.gym.victory}"
+                        &ldquo;{z.gym.victory}&rdquo;
                       </div>
                     </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Badge earned */}
+              {z.badge && (
+                <div style={{ marginBottom: 14 }}>
+                  <div style={{
+                    fontFamily: "var(--font-pixel)", fontSize: 6,
+                    color: accent, marginBottom: 7, letterSpacing: "0.12em",
+                  }}>★ BADGE EARNED</div>
+                  <div style={{
+                    display: "inline-flex", alignItems: "center", gap: 8,
+                    background: `${accent}10`,
+                    border: `1px solid ${accent}40`,
+                    padding: "6px 12px",
+                    borderRadius: 4,
+                  }}>
+                    <span style={{ color: accent, fontSize: 12 }}>★</span>
+                    <span style={{
+                      fontFamily: "var(--font-pixel)", fontSize: 7,
+                      color: accent,
+                    }}>
+                      {z.badge.label}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Company links */}
+              {links.length > 0 && (
+                <div style={{ marginBottom: 10 }}>
+                  <div style={{
+                    fontFamily: "var(--font-pixel)", fontSize: 6,
+                    color: accent, marginBottom: 7, letterSpacing: "0.12em",
+                  }}>🔗 LINKS</div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                    {links.map((link, li) => (
+                      <a
+                        key={li}
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          fontFamily: "var(--font-mono)", fontSize: 11,
+                          color: "#7ce0ff", textDecoration: "none",
+                          background: "rgba(124,224,255,0.06)",
+                          border: "1px solid rgba(124,224,255,0.2)",
+                          padding: "4px 10px", borderRadius: 3,
+                        }}
+                      >
+                        {link.label} ↗
+                      </a>
+                    ))}
                   </div>
                 </div>
               )}
