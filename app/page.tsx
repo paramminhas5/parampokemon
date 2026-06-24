@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { ZONES, CONTACT, PRESS } from "@/game/data";
 import { CareerCard } from "@/components/home/CareerCard";
 import { CreatureStrip } from "@/components/home/CreatureStrip";
+import { BadgeCase } from "@/components/home/BadgeCase";
+import { BrandLogos } from "@/components/home/BrandLogos";
 import { useScrollReveal } from "@/lib/useScrollReveal";
 
 // ─── Typewriter hook ──────────────────────────────────────────────────────────
@@ -44,6 +46,7 @@ function useCountUp(target: string, trigger: boolean, duration = 700) {
   return val;
 }
 
+
 // ─── Snapshot pill ────────────────────────────────────────────────────────────
 function SnapshotPill({ label, value, delay }: { label: string; value: string; delay: number }) {
   const { ref, visible } = useScrollReveal<HTMLDivElement>({ threshold: 0.2 });
@@ -59,7 +62,7 @@ function SnapshotPill({ label, value, delay }: { label: string; value: string; d
         transition: `opacity 0.5s ease ${delay}ms, transform 0.5s ease ${delay}ms`,
       }}
     >
-      <div className="pq-panel-inner" style={{ padding: "12px 8px" }}>
+      <div className="pq-panel-inner" style={{ padding: "14px 8px" }}>
         <div style={{
           fontFamily: "var(--font-pixel)", fontSize: 7,
           color: "#4a6888", marginBottom: 6, letterSpacing: "0.08em",
@@ -67,7 +70,7 @@ function SnapshotPill({ label, value, delay }: { label: string; value: string; d
           {label}
         </div>
         <div style={{
-          fontFamily: "var(--font-pixel)", fontSize: 14, color: "#c8d8f0",
+          fontFamily: "var(--font-pixel)", fontSize: 16, color: "#c8d8f0",
           borderLeft: "2px solid rgba(124,224,255,0.18)",
           paddingLeft: 8,
         }}>
@@ -99,60 +102,155 @@ function SectionHeader({ text, delay = 0 }: { text: string; delay?: number }) {
   );
 }
 
-// ─── Gym leader card with staggered bounce ────────────────────────────────────
-function GymLeaderCard({ z, i }: { z: typeof ZONES[0]; i: number }) {
-  const { ref, visible } = useScrollReveal<HTMLDivElement>({ threshold: 0.1 });
+
+// ─── Gym Chapter Card — theatrical dark card ──────────────────────────────────
+const GYM_CHAPTERS = [
+  { num: "01", gym: "GetRightPrice", type: "PRODUCT", typeEmoji: "\u{1F331}", leader: "Sidharth Rao", leaderTitle: "Angel Investor · Founder, Webchutney", badge: "First Ship Badge", badgeStat: "Angel-backed, in college · 2010", accent: "#a8d39a", quote: "I backed it because the team was already building before they had a cheque." },
+  { num: "02", gym: "Hab Housing", type: "REVENUE", typeEmoji: "\u{1F4B0}", leader: "The Market", leaderTitle: "Solo, Bootstrapped", badge: "Bootstrapper Badge", badgeStat: "$120K revenue, zero capital · 16-person team", accent: "#f6a268", quote: "Build a real business or the lights go out. Your choice." },
+  { num: "03", gym: "Octo \u2192 Quartic.ai", type: "AI", typeEmoji: "\u26A1", leader: "Akshaya Aron", leaderTitle: "Co-builder \u00B7 CEO, Quartic.ai", badge: "AI Pioneer Badge", badgeStat: "India's first conversational AI platform, 2013", accent: "#9fe8ff", quote: "Built AI before it was a category. Twelve years later, still at it together." },
+  { num: "04", gym: "Investopad \u2192 Good Capital", type: "VENTURE", typeEmoji: "\u{1F4BC}", leader: "Rohan & Arjun Malhotra", leaderTitle: "Family Office \u2192 Fund I", badge: "Capital Lens Badge", badgeStat: "Meesho, Amazon, Forbes in portfolio", accent: "#f0c4ff", quote: "Being on this side of the table changes how you see everything." },
+  { num: "05", gym: "SoleSearch", type: "BRAND", typeEmoji: "\u{1F525}", leader: "Prabal Baghla + Rannvijay Singha", leaderTitle: "Co-founder + Brand Partner", badge: "CEO Badge", badgeStat: "$6M revenue \u00B7 $795K raised \u00B7 350K community", accent: "#ff9fd4", quote: "You walked in when there was no culture and walked out with one." },
+  { num: "06", gym: "Fere.ai", type: "AI AGENT", typeEmoji: "\u{1F916}", leader: "Akshaya Aron", leaderTitle: "Reunited, a decade later", badge: "AI-Native Ops Badge", badgeStat: "CMO \u00B7 Fere.ai \u00B7 Ethereal Ventures", accent: "#00e8a0", quote: "You made people trust the invisible \u2014 that's rare." },
+  { num: "07", gym: "Cats Can Dance", type: "CULTURE", typeEmoji: "\u{1F3B5}", leader: "Self", leaderTitle: "No brief, no client", badge: "Creative Sovereignty Badge", badgeStat: "Culture platform \u00B7 live shows \u00B7 Impresario partnership", accent: "#ffd29a", quote: "The work exists. That's the only answer that matters." },
+  { num: "08", gym: "Iterate", type: "GTM", typeEmoji: "\u2192", leader: "90-person network", leaderTitle: "Strategy + Creative + Engineering", badge: "Full-Stack Operator Badge", badgeStat: "AI-native agency \u00B7 hyperiterate.com \u00B7 running now", accent: "#7ce0ff", quote: "Every chapter compounds." },
+];
+
+
+function GymChapterCard({ chapter, index }: { chapter: typeof GYM_CHAPTERS[0]; index: number }) {
+  const { ref, visible } = useScrollReveal<HTMLDivElement>({ threshold: 0.08 });
+  const [hovered, setHovered] = useState(false);
+
   return (
     <div
       ref={ref}
-      key={z.id}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
-        flexShrink: 0, textAlign: "center", padding: "0 8px",
+        background: hovered
+          ? `linear-gradient(135deg, ${chapter.accent}12 0%, rgba(4,8,20,0.98) 100%)`
+          : "rgba(6,12,24,0.95)",
+        border: `1px solid ${hovered ? chapter.accent + "55" : chapter.accent + "22"}`,
+        borderRadius: 8,
+        padding: "20px 20px 18px",
         opacity: visible ? 1 : 0,
-        transform: visible ? "scale(1)" : "scale(0.6)",
-        transition: `opacity 0.35s ease ${i * 55}ms, transform 0.35s cubic-bezier(0.34,1.56,0.64,1) ${i * 55}ms`,
+        transform: visible
+          ? hovered ? "translateY(-2px) rotate(0.3deg)" : "translateY(0)"
+          : "translateY(24px)",
+        transition: `opacity 0.45s ease ${index * 70}ms, transform 0.45s ease ${index * 70}ms, border-color 0.2s, background 0.2s, box-shadow 0.2s`,
+        boxShadow: hovered
+          ? `0 0 30px ${chapter.accent}18, 0 4px 20px rgba(0,0,0,0.3)`
+          : "0 2px 8px rgba(0,0,0,0.2)",
+        position: "relative",
+        overflow: "hidden",
       }}
     >
-      <div style={{
-        width: 88, height: 88,
-        border: `2px solid ${z.theme.accent}55`,
-        background: `${z.theme.accent}08`,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        position: "relative",
-      }}>
-        <img
-          src={`/sprites/leaders/${z.gym!.leader}.png`}
-          alt={z.gym!.opponentName}
-          style={{ width: 80, height: 80, imageRendering: "pixelated" }}
-        />
+      {/* Top row: type badge + gym number */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+        <div style={{
+          fontFamily: "var(--font-pixel)", fontSize: 7,
+          color: chapter.accent,
+          background: `${chapter.accent}15`,
+          border: `1px solid ${chapter.accent}40`,
+          padding: "4px 10px",
+          borderRadius: 3,
+          letterSpacing: "0.08em",
+        }}>
+          {chapter.typeEmoji} {chapter.type}
+        </div>
+        <div style={{
+          fontFamily: "var(--font-pixel)", fontSize: 7,
+          color: "#3a5070",
+          letterSpacing: "0.1em",
+        }}>
+          GYM #{chapter.num}
+        </div>
       </div>
+
+      {/* Gym name */}
       <div style={{
-        fontFamily: "var(--font-pixel)", fontSize: 7,
-        color: z.theme.accent, marginTop: 6, maxWidth: 88,
-        lineHeight: 1.4,
-      }}>{z.gym!.opponentName}</div>
+        fontFamily: "var(--font-pixel)", fontSize: 12,
+        color: "#c8d8f0",
+        marginBottom: 14,
+        lineHeight: 1.3,
+      }}>
+        {chapter.gym}
+      </div>
+
+      {/* Divider */}
+      <div style={{ height: 1, background: `${chapter.accent}20`, marginBottom: 14 }} />
+
+      {/* Gym Leader */}
+      <div style={{ marginBottom: 14 }}>
+        <div style={{
+          fontFamily: "var(--font-pixel)", fontSize: 6,
+          color: "#4a6888", letterSpacing: "0.15em", marginBottom: 6,
+        }}>
+          GYM LEADER
+        </div>
+        <div style={{
+          fontFamily: "var(--font-pixel)", fontSize: 9,
+          color: chapter.accent, marginBottom: 3,
+        }}>
+          {chapter.leader}
+        </div>
+        <div style={{
+          fontFamily: "var(--font-mono)", fontSize: 13,
+          color: "#5a7a9a",
+        }}>
+          {chapter.leaderTitle}
+        </div>
+      </div>
+
+      {/* Quote */}
+      <div style={{
+        fontFamily: "var(--font-mono)", fontSize: 13,
+        color: "#4a6888", fontStyle: "italic",
+        lineHeight: 1.5, marginBottom: 14,
+        paddingLeft: 12,
+        borderLeft: `2px solid ${chapter.accent}30`,
+      }}>
+        &ldquo;{chapter.quote}&rdquo;
+      </div>
+
+      {/* Divider */}
+      <div style={{ height: 1, background: `${chapter.accent}20`, marginBottom: 14 }} />
+
+      {/* Badge earned */}
+      <div>
+        <div style={{
+          fontFamily: "var(--font-pixel)", fontSize: 6,
+          color: "#4a6888", letterSpacing: "0.15em", marginBottom: 6,
+        }}>
+          BADGE EARNED
+        </div>
+        <div style={{
+          display: "inline-flex", alignItems: "center", gap: 8,
+          background: `${chapter.accent}10`,
+          border: `1px solid ${chapter.accent}${hovered ? "60" : "35"}`,
+          padding: "6px 12px",
+          borderRadius: 4,
+          transition: "border-color 0.2s, box-shadow 0.3s",
+          boxShadow: hovered ? `0 0 12px ${chapter.accent}30` : "none",
+        }}>
+          <span style={{ color: chapter.accent, fontSize: 12 }}>★</span>
+          <span style={{
+            fontFamily: "var(--font-pixel)", fontSize: 7,
+            color: chapter.accent,
+          }}>
+            {chapter.badge}
+          </span>
+        </div>
+        <div style={{
+          fontFamily: "var(--font-mono)", fontSize: 12,
+          color: "#3a5070", marginTop: 6,
+        }}>
+          {chapter.badgeStat}
+        </div>
+      </div>
     </div>
   );
 }
 
-// ─── Gym leaders strip wrapper (single observer for the group) ────────────────
-function GymLeadersStrip({ zones }: { zones: typeof ZONES }) {
-  const gymZones = zones.filter(z => z.gym);
-  return (
-    <div style={{
-      display: "flex", gap: 0,
-      justifyContent: "center",
-      flexWrap: "wrap",
-      overflowX: "auto", padding: "0 0 8px",
-      WebkitOverflowScrolling: "touch" as const,
-      scrollbarWidth: "none",
-    }}>
-      {gymZones.map((z, i) => (
-        <GymLeaderCard key={z.id} z={z} i={i} />
-      ))}
-    </div>
-  );
-}
 
 // ─── Press row ────────────────────────────────────────────────────────────────
 function PressRow({ p, i, total }: { p: { outlet: string; title: string; url: string }; i: number; total: number }) {
@@ -248,6 +346,7 @@ function HowToPlay() {
   );
 }
 
+
 // ─── Career zones section ─────────────────────────────────────────────────────
 function CareerZoneRow({ z, i }: { z: typeof ZONES[0]; i: number }) {
   const { ref, visible } = useScrollReveal<HTMLDivElement>({ threshold: 0.08 });
@@ -287,11 +386,19 @@ function Footer() {
           {CONTACT.email}
         </a>
         {" · "}
-        <a href={CONTACT.linkedin} style={{ color: "#3a5070", textDecoration: "none" }}>
+        <a href={CONTACT.linkedin} target="_blank" rel="noopener noreferrer" style={{ color: "#3a5070", textDecoration: "none" }}>
           LINKEDIN
         </a>
         {" · "}
-        <a href={CONTACT.site} style={{ color: "#3a5070", textDecoration: "none" }}>
+        <a href={CONTACT.github} target="_blank" rel="noopener noreferrer" style={{ color: "#3a5070", textDecoration: "none" }}>
+          GITHUB
+        </a>
+        {" · "}
+        <a href={CONTACT.iterate} target="_blank" rel="noopener noreferrer" style={{ color: "#3a5070", textDecoration: "none" }}>
+          ITERATE
+        </a>
+        {" · "}
+        <a href={CONTACT.site} target="_blank" rel="noopener noreferrer" style={{ color: "#3a5070", textDecoration: "none" }}>
           CATSCANDANCE.COM
         </a>
       </div>
@@ -306,6 +413,7 @@ const PRESS_START_GLOW = `
   50%      { box-shadow: 0 0 22px rgba(124,224,255,0.45), 0 0 40px rgba(124,224,255,0.15), inset 0 -2px 0 rgba(0,0,0,0.4); }
 }
 `;
+
 
 // ─── PAGE ─────────────────────────────────────────────────────────────────────
 export default function Home() {
@@ -361,7 +469,7 @@ export default function Home() {
             transition: "opacity 0.55s ease 180ms, transform 0.55s ease 180ms",
           }}>PARAM<br />MINHAS</h1>
 
-          {/* Tagline — split into two lines */}
+          {/* Tagline */}
           <div style={{
             maxWidth: 500, margin: "16px auto",
             opacity: heroVisible ? 1 : 0,
@@ -372,14 +480,14 @@ export default function Home() {
               fontFamily: "var(--font-mono)", fontSize: 20,
               color: "#8aa0c0", margin: "0 0 4px", lineHeight: 1.4,
             }}>
-              Builder · Designer · Director
+              Founder & Creative Director
             </p>
             <p style={{
               fontFamily: "var(--font-mono)", fontSize: 14,
               color: "#4a6080", margin: 0, lineHeight: 1.5,
               letterSpacing: "0.04em",
             }}>
-              E-commerce · AI · Real Estate · Sneakers · Music · Marketing
+              Growth & Brand Leadership | GTM | AI-Native Marketing | Creative Direction | Product
             </p>
           </div>
 
@@ -415,16 +523,16 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── SNAPSHOT ── */}
+
+      {/* ── STATS ── */}
       <section style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 40px" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 8 }}>
           {[
-            { label: "YEARS",     value: "15+" },
-            { label: "RAISED",    value: "$795K · $1.3M" },
-            { label: "ANNUAL REV",value: "₹30Cr+" },
-            { label: "AI SINCE",  value: "2013" },
-            { label: "EVENTS",    value: "30+" },
-            { label: "AGENCIES",  value: "0" },
+            { label: "YEARS BUILDING", value: "15+" },
+            { label: "REVENUE",        value: "$6M+" },
+            { label: "COMMUNITY",      value: "350K+" },
+            { label: "NETWORK",        value: "90" },
+            { label: "RAISED",         value: "$795K" },
           ].map((s, i) => (
             <SnapshotPill key={s.label} label={s.label} value={s.value} delay={i * 60} />
           ))}
@@ -441,15 +549,30 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── GYM LEADERS ── */}
-      <section style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 32px" }}>
-        <SectionHeader text="★ THE GYM LEADERS" />
-        <GymLeadersStrip zones={careerZones} />
+      {/* ── GYM LEADERS — CHAPTER CARDS ── */}
+      <section style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 40px" }}>
+        <SectionHeader text="★ THE GYM LEADERS · WHO I MET & WHAT I EARNED" />
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))",
+          gap: 12,
+        }}>
+          {GYM_CHAPTERS.map((chapter, i) => (
+            <GymChapterCard key={chapter.num} chapter={chapter} index={i} />
+          ))}
+        </div>
       </section>
 
-      {/* ── HOW TO PLAY ── */}
-      <section style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 32px" }}>
-        <HowToPlay />
+      {/* ── BADGE CASE ── */}
+      <section style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 40px" }}>
+        <SectionHeader text="★ BADGE CASE" />
+        <BadgeCase />
+      </section>
+
+      {/* ── BRAND LOGOS ── */}
+      <section style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 40px" }}>
+        <SectionHeader text="★ BRANDS" />
+        <BrandLogos />
       </section>
 
       {/* ── PRESS ── */}
@@ -462,6 +585,11 @@ export default function Home() {
             ))}
           </div>
         </div>
+      </section>
+
+      {/* ── HOW TO PLAY ── */}
+      <section style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 32px" }}>
+        <HowToPlay />
       </section>
 
       {/* ── FOOTER ── */}
