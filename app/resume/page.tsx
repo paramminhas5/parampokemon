@@ -397,9 +397,10 @@ export default function ResumePage() {
           <h2 style={{ fontSize: 11, fontFamily: "'Press Start 2P', monospace", color: "#2a4a8a", letterSpacing: "0.1em", marginBottom: 12 }}>
             EDUCATION
           </h2>
-          <p style={{ fontSize: 13, color: "#2a2a4a", lineHeight: 1.6 }}>
-            Self-taught across software, design, and music production since before 2010. Shipped first commercial product at 19; founded first company at 21.
-          </p>
+          <div style={{ borderLeft: "3px solid #4a7adb", paddingLeft: 16 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: "#1a1a2e", marginBottom: 2 }}>BE, Computer Science</div>
+            <div style={{ fontSize: 13, color: "#4a5a7a" }}>Pune University</div>
+          </div>
         </section>
 
         {/* ── PRESS & RECOGNITION ── */}

@@ -138,9 +138,10 @@ function FullResumePDF() {
 
         {/* Education */}
         <Text style={styles.sectionTitle}>Education</Text>
-        <Text style={{ fontSize: 9.5, color: "#2a2a4a", lineHeight: 1.5 }}>
-          Self-taught across software, design, and music production since before 2010. Shipped first commercial product at 19; founded first company at 21.
-        </Text>
+        <View style={{ paddingLeft: 10, borderLeft: "2px solid #e0e4ec" }}>
+          <Text style={{ fontSize: 10, fontFamily: "Helvetica-Bold", color: "#1a1a2e", marginBottom: 2 }}>BE, Computer Science</Text>
+          <Text style={{ fontSize: 9.5, color: "#4a5a7a" }}>Pune University</Text>
+        </View>
 
         {/* Press */}
         <Text style={styles.sectionTitle}>Press & Recognition</Text>
