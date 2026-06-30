@@ -128,11 +128,25 @@ const cache = new Map<string, HTMLImageElement>();
 // ─── Tile textures (generated via fal.ai) ─────────────────────────────────
 export const TILE_TEXTURE_URL: Record<string, string> = {
   grass: "/sprites/tiles/grass.png",
+  tree:  "/sprites/tiles/tree.png",
+  water: "/sprites/tiles/water.png",
+  path:  "/sprites/tiles/path.png",
+  sand:  "/sprites/tiles/sand.png",
+  stone: "/sprites/tiles/stone.png",
 };
 
 // ─── Building sprites per zone ─────────────────────────────────────────────
 export const BUILDING_SPRITE_URL: Record<string, string> = {
-  home: "/sprites/tiles/house_home.png",
+  home:       "/sprites/tiles/house_home.png",
+  origin:     "/sprites/tiles/building_origin.png",
+  grp:        "/sprites/tiles/building_grp.png",
+  hab:        "/sprites/tiles/building_hab.png",
+  ai:         "/sprites/tiles/building_ai.png",
+  investopad: "/sprites/tiles/building_investopad.png",
+  sole:       "/sprites/tiles/building_sole.png",
+  fere:       "/sprites/tiles/building_fere.png",
+  ccd:        "/sprites/tiles/building_ccd.png",
+  iterate:    "/sprites/tiles/building_iterate.png",
 };
 
 export function getSprite(url: string): HTMLImageElement {

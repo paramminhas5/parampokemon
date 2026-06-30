@@ -707,60 +707,59 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
           ctx.fill();
         }
       }
-      ctx.fillStyle = b.color + "22";
-      ctx.fillRect((b.x + z.ox) * TILE + offX, (b.y + 1 + z.oy) * TILE + offY, b.w * TILE, (b.h - 1) * TILE);
-
-      // ── Window glow — aligned to the framed windows drawn on wall tiles ──
-      // tiles.ts draws a window when n(wx,wy) > 0.42, centered around (px+4,py+3).
-      // We replicate that hash here so the warm glow lands exactly on real glass.
-      const hour2 = new Date().getHours();
-      const isNightTime = hour2 < 7 || hour2 >= 18;
-      const glowAlpha = isNightTime ? 0.5 : 0.16;
-      const glowColor = z.theme.ground === "neon" || z.theme.ground === "crypto"
-        ? `rgba(120,225,255,${glowAlpha})`
-        : z.theme.ground === "studio"
-          ? `rgba(255,205,110,${glowAlpha})`
-          : `rgba(255,222,130,${glowAlpha})`;
-      const hashN = (x: number, y: number) => {
-        const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
-        return s - Math.floor(s);
-      };
-      for (let wr = 1; wr < b.h - 1; wr++) {
-        for (let wcx = 1; wcx < b.w - 1; wcx++) {
-          const wWx = b.x + z.ox + wcx;
-          const wWy = b.y + z.oy + wr;
-          if (hashN(wWx, wWy) <= 0.42) continue; // no window on this tile
-          const gx = wWx * TILE + offX + 7; // window centre
-          const gy = wWy * TILE + offY + 6;
-          const grd = ctx.createRadialGradient(gx, gy, 0, gx, gy, 10);
-          grd.addColorStop(0, glowColor);
-          grd.addColorStop(1, "rgba(0,0,0,0)");
-          ctx.fillStyle = grd;
-          ctx.fillRect(gx - 10, gy - 10, 20, 20);
-        }
-      }
-
-      // ── Building sprite overlay — replaces procedural tiles with painted art ──
-      // If a generated building sprite exists for this zone, draw it over the
-      // entire building footprint (roof + walls) for a much richer look.
+      // ── Building sprite overlay — replaces ALL procedural overlays ──
+      // Check if a generated sprite is ready; if so skip wall tint, window
+      // glows, and landmark entirely (the painted sprite has it all baked in).
       const buildingUrl = BUILDING_SPRITE_URL[z.id];
-      if (buildingUrl) {
-        const buildImg = getSprite(buildingUrl);
-        if (isReady(buildImg)) {
-          const bScrX = (b.x + z.ox) * TILE + offX;
-          const bScrY = (b.y + z.oy) * TILE + offY;
-          const bScrW = b.w * TILE;
-          const bScrH = b.h * TILE;
-          ctx.imageSmoothingEnabled = true;
-          ctx.imageSmoothingQuality = "high";
-          ctx.drawImage(buildImg, bScrX, bScrY, bScrW, bScrH);
-          ctx.imageSmoothingEnabled = false;
-        }
-      }
+      const buildImg = buildingUrl ? getSprite(buildingUrl) : null;
+      const hasBuildingSprite = buildImg !== null && isReady(buildImg);
 
-      // landmark for this zone (only when on-screen)
-      if (z.oy + z.h >= ty0 - 4 && z.oy <= ty1 + 4) {
-        drawLandmark(ctx, z, offX, offY, now);
+      if (hasBuildingSprite) {
+        // Draw the painted building over the full footprint — clean, no overlays
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
+        ctx.drawImage(
+          buildImg!,
+          (b.x + z.ox) * TILE + offX,
+          (b.y + z.oy) * TILE + offY,
+          b.w * TILE,
+          b.h * TILE,
+        );
+        ctx.imageSmoothingEnabled = false;
+      } else {
+        // Procedural fallback: wall colour tint + window glows + landmark
+        ctx.fillStyle = b.color + "22";
+        ctx.fillRect((b.x + z.ox) * TILE + offX, (b.y + 1 + z.oy) * TILE + offY, b.w * TILE, (b.h - 1) * TILE);
+
+        const hour2 = new Date().getHours();
+        const isNightTime = hour2 < 7 || hour2 >= 18;
+        const glowAlpha = isNightTime ? 0.5 : 0.16;
+        const glowColor = z.theme.ground === "neon" || z.theme.ground === "crypto"
+          ? `rgba(120,225,255,${glowAlpha})`
+          : z.theme.ground === "studio"
+            ? `rgba(255,205,110,${glowAlpha})`
+            : `rgba(255,222,130,${glowAlpha})`;
+        const hashN = (x: number, y: number) => {
+          const s2 = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
+          return s2 - Math.floor(s2);
+        };
+        for (let wr = 1; wr < b.h - 1; wr++) {
+          for (let wcx = 1; wcx < b.w - 1; wcx++) {
+            const wWx = b.x + z.ox + wcx;
+            const wWy = b.y + z.oy + wr;
+            if (hashN(wWx, wWy) <= 0.42) continue;
+            const gx = wWx * TILE + offX + 7;
+            const gy = wWy * TILE + offY + 6;
+            const grd = ctx.createRadialGradient(gx, gy, 0, gx, gy, 10);
+            grd.addColorStop(0, glowColor);
+            grd.addColorStop(1, "rgba(0,0,0,0)");
+            ctx.fillStyle = grd;
+            ctx.fillRect(gx - 10, gy - 10, 20, 20);
+          }
+        }
+        if (z.oy + z.h >= ty0 - 4 && z.oy <= ty1 + 4) {
+          drawLandmark(ctx, z, offX, offY, now);
+        }
       }
 
       // GYM text label painted directly on the building front wall
