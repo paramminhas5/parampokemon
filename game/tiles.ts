@@ -17,6 +17,37 @@ function drawTexture(ctx: Ctx, key: string, px0: number, py0: number): boolean {
   return true;
 }
 
+// ── Tree variant selector ──────────────────────────────────────────────────
+// Picks one of 4 tree variants based on stable world-coord hash.
+// Returns a key into TILE_TEXTURE_URL.
+function treeVariant(wx: number, wy: number): string {
+  const h = n(wx * 3.7, wy * 2.3);
+  if (h < 0.25) return "tree_a";
+  if (h < 0.50) return "tree_b";
+  if (h < 0.75) return "tree_c";
+  return "tree_d";
+}
+
+// ── Draw a tree image using multiply blend so white bg vanishes ────────────
+function drawTreeSprite(ctx: Ctx, key: string, px0: number, py0: number): boolean {
+  const url = TILE_TEXTURE_URL[key];
+  if (!url) return false;
+  const img = getSprite(url);
+  if (!isReady(img)) return false;
+  // Draw slightly larger than the tile so the canopy overlaps neighbors (depth)
+  const size = Math.round(TILE * 1.5);
+  const ox = Math.round((TILE - size) / 2);
+  const oy = Math.round((TILE - size) / 2);
+  ctx.save();
+  // multiply: white bg (255,255,255) × any color = that color → bg invisible
+  ctx.globalCompositeOperation = "multiply";
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight, px0 + ox, py0 + oy, size, size);
+  ctx.restore();
+  return true;
+}
+
 export const TILE = 16;
 
 export const T = {
@@ -111,21 +142,12 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
   const r = n(wx, wy);
   switch (code) {
     case T.GRASS: {
-      // Use generated tile texture — scales the full 512px image into each 16px tile
-      const grassUrl = TILE_TEXTURE_URL.grass;
-      const grassImg = grassUrl ? getSprite(grassUrl) : null;
-      if (grassImg && isReady(grassImg)) {
-        ctx.drawImage(grassImg, 0, 0, grassImg.naturalWidth, grassImg.naturalHeight, px0, py0, TILE, TILE);
-      } else {
-        // Procedural fallback: GBA checkerboard
+      if (!drawTexture(ctx, "grass", px0, py0)) {
         const lightCell = ((Math.floor(wx / 2) + Math.floor(wy / 2)) % 2 === 0);
         fillRect(ctx, px0, py0, TILE, TILE, lightCell ? "#74c466" : "#68b85a");
         const tuft = lightCell ? "#5aaa4c" : "#549843";
-        if (r > 0.30) {
-          const tx = px0 + 3 + Math.floor(r * 6);
-          const ty = py0 + 4 + Math.floor((r * 13 % 1) * 7);
-          px(ctx, tx, ty, tuft); px(ctx, tx + 1, ty + 1, tuft); px(ctx, tx + 2, ty, tuft);
-        }
+        if (r > 0.30) { const tx = px0+3+Math.floor(r*6), ty = py0+4+Math.floor((r*13%1)*7); px(ctx,tx,ty,tuft); px(ctx,tx+1,ty+1,tuft); px(ctx,tx+2,ty,tuft); }
+        if (lightCell) px(ctx, px0 + 1, py0 + 1, "#80cf72");
       }
       break;
     }
@@ -139,14 +161,11 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
       break;
     }
     case T.ROUTE_GRASS: {
-      // Slightly brighter checkerboard for routes — distinguishes from zone grass
-      const lightCell = ((Math.floor(wx / 2) + Math.floor(wy / 2)) % 2 === 0);
-      fillRect(ctx, px0, py0, TILE, TILE, lightCell ? "#7cc868" : "#70be5c");
-      const tuft = lightCell ? "#63b052" : "#59a649";
-      if (r > 0.4) {
-        const tx = px0 + 4 + Math.floor(r * 6);
-        const ty = py0 + 5 + Math.floor((r * 11 % 1) * 6);
-        px(ctx, tx, ty, tuft); px(ctx, tx + 1, ty + 1, tuft); px(ctx, tx + 2, ty, tuft);
+      if (!drawTexture(ctx, "route_grass", px0, py0)) {
+        const lightCell = ((Math.floor(wx / 2) + Math.floor(wy / 2)) % 2 === 0);
+        fillRect(ctx, px0, py0, TILE, TILE, lightCell ? "#7cc868" : "#70be5c");
+        const tuft = lightCell ? "#63b052" : "#59a649";
+        if (r > 0.4) { const tx = px0+4+Math.floor(r*6), ty = py0+5+Math.floor((r*11%1)*6); px(ctx,tx,ty,tuft); px(ctx,tx+1,ty+1,tuft); }
       }
       break;
     }
@@ -244,20 +263,12 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
       break;
     }
     case T.TREE: {
+      // Always draw the grass base first
       drawTile(ctx, T.GRASS, wx, wy, px0, py0, now);
-      // Try generated tree sprite first
-      const treeUrl = TILE_TEXTURE_URL.tree;
-      const treeImg = treeUrl ? getSprite(treeUrl) : null;
-      if (treeImg && isReady(treeImg)) {
-        const size = Math.round(TILE * 1.6);
-        const tox = Math.round((TILE - size) / 2);
-        const toy = Math.round((TILE - size) / 2) - 2;
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = "high";
-        ctx.drawImage(treeImg, 0, 0, treeImg.naturalWidth, treeImg.naturalHeight, px0 + tox, py0 + toy, size, size);
-        ctx.imageSmoothingEnabled = false;
-      } else {
-        // Procedural fallback
+      // Pick one of 4 tree variants based on stable world position hash
+      const variant = treeVariant(wx, wy);
+      if (!drawTreeSprite(ctx, variant, px0, py0)) {
+        // Procedural fallback — round canopy with dark outline
         ctx.fillStyle = "rgba(0,0,0,0.16)";
         ctx.beginPath();
         ctx.ellipse(px0 + 9, py0 + 14, 6, 2, 0, 0, Math.PI * 2);
@@ -265,7 +276,6 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
         fillRect(ctx, px0 + 6, py0 + 11, 4, 4, "#6a4420");
         fillRect(ctx, px0 + 6, py0 + 11, 1, 4, "#4a2c12");
         fillRect(ctx, px0 + 9, py0 + 11, 1, 4, "#85562e");
-        ctx.fillStyle = "#194a17";
         fillRect(ctx, px0 + 4, py0 + 0, 8, 12, "#194a17");
         fillRect(ctx, px0 + 2, py0 + 2, 12, 8, "#194a17");
         fillRect(ctx, px0 + 3, py0 + 1, 10, 10, "#194a17");
@@ -273,10 +283,8 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
         fillRect(ctx, px0 + 3, py0 + 3, 10, 6, "#2f7a2b");
         fillRect(ctx, px0 + 4, py0 + 2, 8, 8, "#2f7a2b");
         fillRect(ctx, px0 + 5, py0 + 3, 5, 5, "#3c9636");
-        fillRect(ctx, px0 + 8, py0 + 5, 3, 3, "#3c9636");
         fillRect(ctx, px0 + 5, py0 + 2, 3, 3, "#5cbd4e");
         px(ctx, px0 + 5, py0 + 1, "#74cf64");
-        px(ctx, px0 + 6, py0 + 2, "#74cf64");
         fillRect(ctx, px0 + 4, py0 + 9, 8, 2, "#235e21");
       }
       break;

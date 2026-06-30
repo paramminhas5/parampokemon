@@ -127,12 +127,16 @@ const cache = new Map<string, HTMLImageElement>();
 
 // ─── Tile textures (generated via fal.ai) ─────────────────────────────────
 export const TILE_TEXTURE_URL: Record<string, string> = {
-  grass: "/sprites/tiles/grass.png",
-  tree:  "/sprites/tiles/tree.png",
-  water: "/sprites/tiles/water.png",
-  path:  "/sprites/tiles/path.png",
-  sand:  "/sprites/tiles/sand.png",
-  stone: "/sprites/tiles/stone.png",
+  grass:       "/sprites/tiles/grass.png",
+  route_grass: "/sprites/tiles/route_grass.png",
+  tree_a:      "/sprites/tiles/tree_a.png",
+  tree_b:      "/sprites/tiles/tree_b.png",
+  tree_c:      "/sprites/tiles/tree_c.png",
+  tree_d:      "/sprites/tiles/tree_d.png",
+  water:       "/sprites/tiles/water.png",
+  path:        "/sprites/tiles/path.png",
+  sand:        "/sprites/tiles/sand.png",
+  stone:       "/sprites/tiles/stone.png",
 };
 
 // ─── Building sprites per zone ─────────────────────────────────────────────
