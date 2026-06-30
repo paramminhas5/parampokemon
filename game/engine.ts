@@ -10,6 +10,7 @@ import {
   CREATURE_URL, getSprite, isReady,
   PARAM_SPRITE_URL,
   FOLLOWER_SPRITE_URL, FOLLOWER_BACK_URL, FOLLOWER_LEFT_URL, FOLLOWER_RIGHT_URL,
+  BUILDING_SPRITE_URL,
 } from "./sprite-registry";
 import {
   TILE, SOLID, T, drawTile, drawBadge, drawCharacter, drawRoof,
@@ -736,6 +737,24 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
           grd.addColorStop(1, "rgba(0,0,0,0)");
           ctx.fillStyle = grd;
           ctx.fillRect(gx - 10, gy - 10, 20, 20);
+        }
+      }
+
+      // ── Building sprite overlay — replaces procedural tiles with painted art ──
+      // If a generated building sprite exists for this zone, draw it over the
+      // entire building footprint (roof + walls) for a much richer look.
+      const buildingUrl = BUILDING_SPRITE_URL[z.id];
+      if (buildingUrl) {
+        const buildImg = getSprite(buildingUrl);
+        if (isReady(buildImg)) {
+          const bScrX = (b.x + z.ox) * TILE + offX;
+          const bScrY = (b.y + z.oy) * TILE + offY;
+          const bScrW = b.w * TILE;
+          const bScrH = b.h * TILE;
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = "high";
+          ctx.drawImage(buildImg, bScrX, bScrY, bScrW, bScrH);
+          ctx.imageSmoothingEnabled = false;
         }
       }
 
