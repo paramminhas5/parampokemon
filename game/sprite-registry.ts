@@ -130,6 +130,11 @@ export const TILE_TEXTURE_URL: Record<string, string> = {
   grass: "/sprites/tiles/grass.png",
 };
 
+// ─── Building sprites per zone ─────────────────────────────────────────────
+export const BUILDING_SPRITE_URL: Record<string, string> = {
+  home: "/sprites/tiles/house_home.png",
+};
+
 export function getSprite(url: string): HTMLImageElement {
   let img = cache.get(url);
   if (img) return img;
