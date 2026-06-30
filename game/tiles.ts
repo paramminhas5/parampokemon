@@ -3,6 +3,51 @@
 import type { Dir, NpcKind, ZoneTheme } from "./data";
 import { TILE_TEXTURE_URL, getSprite, isReady } from "./sprite-registry";
 
+// ── Shared helper: draw a tile texture (full image scaled to TILE×TILE) ──
+// Returns true if the image was drawn, false if we should use the fallback.
+function drawTexture(ctx: Ctx, key: string, px0: number, py0: number): boolean {
+  const url = TILE_TEXTURE_URL[key];
+  if (!url) return false;
+  const img = getSprite(url);
+  if (!isReady(img)) return false;
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight, px0, py0, TILE, TILE);
+  ctx.imageSmoothingEnabled = false;
+  return true;
+}
+
+// ── Tree variant selector ──────────────────────────────────────────────────
+// Picks one of 4 tree variants based on stable world-coord hash.
+// Returns a key into TILE_TEXTURE_URL.
+function treeVariant(wx: number, wy: number): string {
+  const h = n(wx * 3.7, wy * 2.3);
+  if (h < 0.25) return "tree_a";
+  if (h < 0.50) return "tree_b";
+  if (h < 0.75) return "tree_c";
+  return "tree_d";
+}
+
+// ── Draw a tree image using multiply blend so white bg vanishes ────────────
+function drawTreeSprite(ctx: Ctx, key: string, px0: number, py0: number): boolean {
+  const url = TILE_TEXTURE_URL[key];
+  if (!url) return false;
+  const img = getSprite(url);
+  if (!isReady(img)) return false;
+  // Draw slightly larger than the tile so the canopy overlaps neighbors (depth)
+  const size = Math.round(TILE * 1.5);
+  const ox = Math.round((TILE - size) / 2);
+  const oy = Math.round((TILE - size) / 2);
+  ctx.save();
+  // multiply: white bg (255,255,255) × any color = that color → bg invisible
+  ctx.globalCompositeOperation = "multiply";
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight, px0 + ox, py0 + oy, size, size);
+  ctx.restore();
+  return true;
+}
+
 export const TILE = 16;
 
 export const T = {
@@ -97,21 +142,12 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
   const r = n(wx, wy);
   switch (code) {
     case T.GRASS: {
-      // Use generated tile texture — scales the full 512px image into each 16px tile
-      const grassUrl = TILE_TEXTURE_URL.grass;
-      const grassImg = grassUrl ? getSprite(grassUrl) : null;
-      if (grassImg && isReady(grassImg)) {
-        ctx.drawImage(grassImg, 0, 0, grassImg.naturalWidth, grassImg.naturalHeight, px0, py0, TILE, TILE);
-      } else {
-        // Procedural fallback: GBA checkerboard
+      if (!drawTexture(ctx, "grass", px0, py0)) {
         const lightCell = ((Math.floor(wx / 2) + Math.floor(wy / 2)) % 2 === 0);
         fillRect(ctx, px0, py0, TILE, TILE, lightCell ? "#74c466" : "#68b85a");
         const tuft = lightCell ? "#5aaa4c" : "#549843";
-        if (r > 0.30) {
-          const tx = px0 + 3 + Math.floor(r * 6);
-          const ty = py0 + 4 + Math.floor((r * 13 % 1) * 7);
-          px(ctx, tx, ty, tuft); px(ctx, tx + 1, ty + 1, tuft); px(ctx, tx + 2, ty, tuft);
-        }
+        if (r > 0.30) { const tx = px0+3+Math.floor(r*6), ty = py0+4+Math.floor((r*13%1)*7); px(ctx,tx,ty,tuft); px(ctx,tx+1,ty+1,tuft); px(ctx,tx+2,ty,tuft); }
+        if (lightCell) px(ctx, px0 + 1, py0 + 1, "#80cf72");
       }
       break;
     }
@@ -125,14 +161,11 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
       break;
     }
     case T.ROUTE_GRASS: {
-      // Slightly brighter checkerboard for routes — distinguishes from zone grass
-      const lightCell = ((Math.floor(wx / 2) + Math.floor(wy / 2)) % 2 === 0);
-      fillRect(ctx, px0, py0, TILE, TILE, lightCell ? "#7cc868" : "#70be5c");
-      const tuft = lightCell ? "#63b052" : "#59a649";
-      if (r > 0.4) {
-        const tx = px0 + 4 + Math.floor(r * 6);
-        const ty = py0 + 5 + Math.floor((r * 11 % 1) * 6);
-        px(ctx, tx, ty, tuft); px(ctx, tx + 1, ty + 1, tuft); px(ctx, tx + 2, ty, tuft);
+      if (!drawTexture(ctx, "route_grass", px0, py0)) {
+        const lightCell = ((Math.floor(wx / 2) + Math.floor(wy / 2)) % 2 === 0);
+        fillRect(ctx, px0, py0, TILE, TILE, lightCell ? "#7cc868" : "#70be5c");
+        const tuft = lightCell ? "#63b052" : "#59a649";
+        if (r > 0.4) { const tx = px0+4+Math.floor(r*6), ty = py0+5+Math.floor((r*11%1)*6); px(ctx,tx,ty,tuft); px(ctx,tx+1,ty+1,tuft); }
       }
       break;
     }
@@ -161,58 +194,52 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
       break;
     }
     case T.PATH: {
-      // Warm dirt base with a subtle two-tone to read as packed gravel
-      fillRect(ctx, px0, py0, TILE, TILE, "#dcbd8e");
-      fillRect(ctx, px0, py0 + 8, TILE, 8, "#d4b384");
-      // Scattered pebbles (seeded, stable)
-      const peb = "#c0a070";
-      px(ctx, px0 + 2 + Math.floor(r * 4), py0 + 3, peb);
-      px(ctx, px0 + 9 + Math.floor((r * 7 % 1) * 4), py0 + 6, peb);
-      px(ctx, px0 + 4 + Math.floor((r * 5 % 1) * 6), py0 + 11, peb);
-      px(ctx, px0 + 11, py0 + 13, peb);
-      // light fleck
-      px(ctx, px0 + 6 + Math.floor((r * 9 % 1) * 4), py0 + 8, "#ecd0a4");
-      // top edge highlight band
-      fillRect(ctx, px0, py0, TILE, 1, "#ecd0a4");
+      if (!drawTexture(ctx, "path", px0, py0)) {
+        fillRect(ctx, px0, py0, TILE, TILE, "#dcbd8e");
+        fillRect(ctx, px0, py0 + 8, TILE, 8, "#d4b384");
+        px(ctx, px0 + 2 + Math.floor(r * 4), py0 + 3, "#c0a070");
+        px(ctx, px0 + 9, py0 + 6, "#c0a070");
+        fillRect(ctx, px0, py0, TILE, 1, "#ecd0a4");
+      }
       break;
     }
     case T.SAND: {
-      fillRect(ctx, px0, py0, TILE, TILE, "#e8c982");
-      fillRect(ctx, px0, py0 + 8, TILE, 8, "#e0bf76");
-      // soft speckle
-      px(ctx, px0 + 3 + Math.floor(r * 4), py0 + 4, "#cda85e");
-      px(ctx, px0 + 10, py0 + 9, "#cda85e");
-      px(ctx, px0 + 6 + Math.floor((r * 7 % 1) * 4), py0 + 12, "#f0d89a");
+      if (!drawTexture(ctx, "sand", px0, py0)) {
+        fillRect(ctx, px0, py0, TILE, TILE, "#e8c982");
+        fillRect(ctx, px0, py0 + 8, TILE, 8, "#e0bf76");
+        px(ctx, px0 + 3 + Math.floor(r * 4), py0 + 4, "#cda85e");
+        px(ctx, px0 + 10, py0 + 9, "#cda85e");
+      }
       break;
     }
     case T.STONE: {
-      // brick courtyard for rentals (Hab)
-      fillRect(ctx, px0, py0, TILE, TILE, "#a67855");
-      fillRect(ctx, px0, py0 + 7, TILE, 1, "#6a4828");
-      fillRect(ctx, px0, py0 + 15, TILE, 1, "#6a4828");
-      const offset = (wy % 2 === 0) ? 0 : 8;
-      fillRect(ctx, px0 + offset, py0, 1, 8, "#6a4828");
-      fillRect(ctx, px0 + ((offset + 8) % 16), py0 + 8, 1, 8, "#6a4828");
-      // mortar speckle
-      px(ctx, px0 + 3, py0 + 3, "#c69878");
-      px(ctx, px0 + 11, py0 + 11, "#c69878");
+      if (!drawTexture(ctx, "stone", px0, py0)) {
+        fillRect(ctx, px0, py0, TILE, TILE, "#a67855");
+        fillRect(ctx, px0, py0 + 7, TILE, 1, "#6a4828");
+        fillRect(ctx, px0, py0 + 15, TILE, 1, "#6a4828");
+        const offset = (wy % 2 === 0) ? 0 : 8;
+        fillRect(ctx, px0 + offset, py0, 1, 8, "#6a4828");
+        fillRect(ctx, px0 + ((offset + 8) % 16), py0 + 8, 1, 8, "#6a4828");
+        px(ctx, px0 + 3, py0 + 3, "#c69878");
+        px(ctx, px0 + 11, py0 + 11, "#c69878");
+      }
       break;
     }
     case T.WATER: {
-      const t = now / 400;
-      // Deep base with a vertical gradient feel (darker top, brighter bottom)
-      fillRect(ctx, px0, py0, TILE, TILE, "#2a66b0");
-      fillRect(ctx, px0, py0 + 10, TILE, 6, "#2f6fbc");
-      // Two animated horizontal shimmer bands scrolling at different speeds
-      const b1 = py0 + (Math.floor(t * 4) % TILE);
-      const b2 = py0 + (Math.floor(t * 2 + 6) % TILE);
-      fillRect(ctx, px0, b1, TILE, 2, "#4a92d8");
-      fillRect(ctx, px0, b2, TILE, 1, "#62a8e8");
-      // Sparkle highlights — phase-gated so they twinkle
-      const sf = Math.sin(t * 0.7 + wx * 0.5 + wy * 0.3) > 0.5;
-      if (sf) {
-        px(ctx, px0 + (Math.floor(t * 3 + wx) % 13) + 1, py0 + 4, "#bfe4ff");
-        px(ctx, px0 + (Math.floor(t * 2 + wy) % 11) + 3, py0 + 11, "#dcf0ff");
+      if (!drawTexture(ctx, "water", px0, py0)) {
+        const t = now / 400;
+        fillRect(ctx, px0, py0, TILE, TILE, "#2558a8");
+        fillRect(ctx, px0, py0 + 10, TILE, 6, "#2d66b8");
+        const b1y = py0 + (Math.floor(t * 4) % TILE);
+        const b2y = py0 + (Math.floor(t * 2 + 6) % TILE);
+        fillRect(ctx, px0, b1y, TILE, 2, "#4a90d8");
+        fillRect(ctx, px0, b2y, TILE, 1, "#5ca4e8");
+        const sf = Math.sin(t * 0.7 + wx * 0.5 + wy * 0.3) > 0.5;
+        if (sf) {
+          ctx.fillStyle = "#bfe4ff"; ctx.fillRect(px0 + Math.floor(t * 3 + wx) % 13 + 1, py0 + 4, 1, 1);
+          ctx.fillStyle = "#dcf0ff"; ctx.fillRect(px0 + Math.floor(t * 2 + wy) % 11 + 3, py0 + 11, 1, 1);
+        }
+        fillRect(ctx, px0, py0, TILE, 1, "#1a3a78");
       }
       break;
     }
@@ -236,37 +263,30 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
       break;
     }
     case T.TREE: {
+      // Always draw the grass base first
       drawTile(ctx, T.GRASS, wx, wy, px0, py0, now);
-      // Soft cast shadow on the ground (south-east)
-      ctx.fillStyle = "rgba(0,0,0,0.16)";
-      ctx.beginPath();
-      ctx.ellipse(px0 + 9, py0 + 14, 6, 2, 0, 0, Math.PI * 2);
-      ctx.fill();
-      // Trunk with shading
-      fillRect(ctx, px0 + 6, py0 + 11, 4, 4, "#6a4420");
-      fillRect(ctx, px0 + 6, py0 + 11, 1, 4, "#4a2c12");  // shadow side
-      fillRect(ctx, px0 + 9, py0 + 11, 1, 4, "#85562e");  // light side
-      // ── Round canopy: dark outline ring first, then fill ──
-      // Outline (near-black green) gives the classic GBA tree silhouette
-      ctx.fillStyle = "#194a17";
-      // build a blocky circle
-      fillRect(ctx, px0 + 4, py0 + 0, 8, 12, "#194a17");
-      fillRect(ctx, px0 + 2, py0 + 2, 12, 8, "#194a17");
-      fillRect(ctx, px0 + 3, py0 + 1, 10, 10, "#194a17");
-      // Mid-tone fill inset by 1px from the outline
-      ctx.fillStyle = "#2f7a2b";
-      fillRect(ctx, px0 + 5, py0 + 1, 6, 10, "#2f7a2b");
-      fillRect(ctx, px0 + 3, py0 + 3, 10, 6, "#2f7a2b");
-      fillRect(ctx, px0 + 4, py0 + 2, 8, 8, "#2f7a2b");
-      // Lighter mid blobs (dappled foliage)
-      fillRect(ctx, px0 + 5, py0 + 3, 5, 5, "#3c9636");
-      fillRect(ctx, px0 + 8, py0 + 5, 3, 3, "#3c9636");
-      // Top-left highlight (sun)
-      fillRect(ctx, px0 + 5, py0 + 2, 3, 3, "#5cbd4e");
-      px(ctx, px0 + 5, py0 + 1, "#74cf64");
-      px(ctx, px0 + 6, py0 + 2, "#74cf64");
-      // Bottom inner shadow
-      fillRect(ctx, px0 + 4, py0 + 9, 8, 2, "#235e21");
+      // Pick one of 4 tree variants based on stable world position hash
+      const variant = treeVariant(wx, wy);
+      if (!drawTreeSprite(ctx, variant, px0, py0)) {
+        // Procedural fallback — round canopy with dark outline
+        ctx.fillStyle = "rgba(0,0,0,0.16)";
+        ctx.beginPath();
+        ctx.ellipse(px0 + 9, py0 + 14, 6, 2, 0, 0, Math.PI * 2);
+        ctx.fill();
+        fillRect(ctx, px0 + 6, py0 + 11, 4, 4, "#6a4420");
+        fillRect(ctx, px0 + 6, py0 + 11, 1, 4, "#4a2c12");
+        fillRect(ctx, px0 + 9, py0 + 11, 1, 4, "#85562e");
+        fillRect(ctx, px0 + 4, py0 + 0, 8, 12, "#194a17");
+        fillRect(ctx, px0 + 2, py0 + 2, 12, 8, "#194a17");
+        fillRect(ctx, px0 + 3, py0 + 1, 10, 10, "#194a17");
+        fillRect(ctx, px0 + 5, py0 + 1, 6, 10, "#2f7a2b");
+        fillRect(ctx, px0 + 3, py0 + 3, 10, 6, "#2f7a2b");
+        fillRect(ctx, px0 + 4, py0 + 2, 8, 8, "#2f7a2b");
+        fillRect(ctx, px0 + 5, py0 + 3, 5, 5, "#3c9636");
+        fillRect(ctx, px0 + 5, py0 + 2, 3, 3, "#5cbd4e");
+        px(ctx, px0 + 5, py0 + 1, "#74cf64");
+        fillRect(ctx, px0 + 4, py0 + 9, 8, 2, "#235e21");
+      }
       break;
     }
     case T.FENCE: {
