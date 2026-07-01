@@ -26,6 +26,8 @@ import { playSound, playZoneBGM, playBattleBGM, stopBattleBGM, stopBGM, setMuted
 import { LEADER_URL, NPC_SPRITE_URL } from "@/game/sprite-registry";
 import { ZoneTitle } from "./ZoneTitle";
 import { Interior } from "./Interior";
+import { SettingsScreen } from "./SettingsScreen";
+import { CreditsScreen } from "./CreditsScreen";
 
 const INIT_W = 20 * TILE;
 const INIT_H = 14 * TILE;
@@ -73,6 +75,8 @@ export function Game() {
   const [trainerBattleIntro, setTrainerBattleIntro] = useState<RouteNpc | null>(null);
   // HUD accent bleed
   const [hudAccentBleed, setHudAccentBleed] = useState<string | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [creditsOpen, setCreditsOpen] = useState(false);
   const bleedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // pendingSkillLearn: queued after dialog closes — fired once dialog unmounts
@@ -80,6 +84,8 @@ export function Game() {
   const [badges, setBadges] = useState<Set<string>>(new Set());
   const [creatures, setCreatures] = useState<Set<string>>(new Set());
   const [skills, setSkills] = useState<Set<string>>(new Set());
+  // Berry inventory: heal (restore 30HP), shield (block next hit), speed (act first)
+  const [berries, setBerries] = useState<{ heal: number; shield: number; speed: number }>({ heal: 2, shield: 1, speed: 1 });
   const [defeated, setDefeated] = useState<Set<string>>(new Set());
   const [visited, setVisited] = useState<Set<string>>(new Set([ZONES[0].id]));
   const [currentZoneId, setCurrentZoneId] = useState<string>(ZONES[0].id);
@@ -140,7 +146,7 @@ export function Game() {
     toastTimer.current = setTimeout(() => setToast(null), 2800);
   }, []);
 
-  const isModalOpen = !!(dialog || menuOpen || bagOpen || cliffOpen || mapOpen || worldSelectOpen || battle || battleIntro || catchModal || contactOpen || pressOpen || evolution || victoryZone || skillLearnZone || !titleDone || championOpen || interiorZone || trainerBattle || trainerBattleIntro);
+  const isModalOpen = !!(dialog || menuOpen || bagOpen || cliffOpen || mapOpen || worldSelectOpen || battle || battleIntro || catchModal || contactOpen || pressOpen || evolution || victoryZone || skillLearnZone || !titleDone || championOpen || interiorZone || trainerBattle || trainerBattleIntro || settingsOpen || creditsOpen);
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -700,7 +706,7 @@ export function Game() {
             engineRef.current?.setPaused(false);
           }
         }} />}
-        {menuOpen && <StartMenu badges={badges} creatures={creatures} skills={skills} onClose={() => setMenuOpen(false)} />}
+        {menuOpen && <StartMenu badges={badges} creatures={creatures} skills={skills} onClose={() => setMenuOpen(false)} onSettings={() => { setMenuOpen(false); setSettingsOpen(true); }} onCredits={() => { setMenuOpen(false); setCreditsOpen(true); }} />}
         {bagOpen && <Bag creatures={creatures} skills={skills} badges={badges} onClose={() => setBagOpen(false)} />}
         {cliffOpen && <CliffNotes zone={cliffOpen} onClose={() => { setCliffOpen(null); engineRef.current?.setPaused(false); }} />}
         {/* Battle intro plays first, then real battle */}
@@ -712,6 +718,7 @@ export function Game() {
         )}
         {battle && (
           <Battle zone={battle} ownedSkills={skills} badges={badges}
+            berries={berries} onUseBerry={(type) => setBerries(b => ({ ...b, [type]: Math.max(0, b[type as keyof typeof b] - 1) }))}
             onWin={() => handleBattleWin(battle)}
             onFinishingBlow={() => engineRef.current?.triggerShake(400)}
             onFlee={() => {
@@ -763,6 +770,7 @@ export function Game() {
           };
           return (
             <Battle zone={syntheticZone} ownedSkills={skills} badges={badges}
+              berries={berries} onUseBerry={(type) => setBerries(b => ({ ...b, [type]: Math.max(0, b[type as keyof typeof b] - 1) }))}
               opponentSpriteUrl={NPC_SPRITE_URL[npc.kind]}
               onWin={() => {
                 setTrainerBattle(null);
@@ -770,6 +778,11 @@ export function Game() {
                 stopBattleBGM(currentZone.theme.ground as Parameters<typeof playZoneBGM>[0]);
                 engineRef.current?.setPaused(false);
                 showToast(`★ ${npc.name.toUpperCase()} DEFEATED`, npc.trainer!.victoryQuote);
+                // Award a random berry on trainer win
+                const berryTypes = ["heal", "shield", "speed"] as const;
+                const reward = berryTypes[Math.floor(Math.random() * berryTypes.length)];
+                setBerries(b => ({ ...b, [reward]: b[reward] + 1 }));
+                setTimeout(() => showToast(`+ ${reward.toUpperCase()} BERRY`, "Trainer reward!"), 1500);
               }}
               onFlee={() => {
                 setTrainerBattle(null);
@@ -795,6 +808,8 @@ export function Game() {
         )}
         {contactOpen && <ContactModal onClose={() => { setContactOpen(false); engineRef.current?.setPaused(false); }} />}
         {pressOpen && <PressModal onClose={() => { setPressOpen(false); engineRef.current?.setPaused(false); }} />}
+        {settingsOpen && <SettingsScreen onClose={() => { setSettingsOpen(false); engineRef.current?.setPaused(false); }} />}
+        {creditsOpen && <CreditsScreen onClose={() => { setCreditsOpen(false); engineRef.current?.setPaused(false); }} />}
         {evolution && (
           <EvolutionCutscene
             fromStage={evolution.from}
@@ -835,7 +850,16 @@ export function Game() {
             badges={badges}
             defeated={defeated}
             creatures={creatures}
-            onClose={() => { setChampionOpen(false); engineRef.current?.setPaused(false); }}
+            onClose={() => {
+              setChampionOpen(false);
+              // Post-champion: show credits after a beat
+              setTimeout(() => {
+                setCreditsOpen(true);
+              }, 1200);
+              // Show toast about post-game
+              showToast("★ CHAMPION", "You've completed Param Quest. The journey continues.");
+              engineRef.current?.setPaused(false);
+            }}
           />
         )}
 
