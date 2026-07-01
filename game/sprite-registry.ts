@@ -178,6 +178,20 @@ export const BUILDING_SPRITE_URL: Record<string, string> = {
   iterate:    "/sprites/tiles/building_iterate.png",
 };
 
+// ─── Extra small buildings per zone (isometric style, secondary buildings) ──
+export const EXTRA_BUILDING_URL: Record<string, string> = {
+  home:       "/sprites/tiles/extras/house_home_extra.png",
+  origin:     "/sprites/tiles/extras/building_origin_extra.png",
+  grp:        "/sprites/tiles/extras/building_grp_extra.png",
+  hab:        "/sprites/tiles/extras/building_hab_extra.png",
+  ai:         "/sprites/tiles/extras/building_ai_extra.png",
+  investopad: "/sprites/tiles/extras/building_investopad_extra.png",
+  sole:       "/sprites/tiles/extras/building_sole_extra.png",
+  fere:       "/sprites/tiles/extras/building_fere_extra.png",
+  ccd:        "/sprites/tiles/extras/building_ccd_extra.png",
+  iterate:    "/sprites/tiles/extras/building_iterate_extra.png",
+};
+
 export function getSprite(url: string): HTMLImageElement {
   let img = cache.get(url);
   if (img) return img;
@@ -206,6 +220,7 @@ if (typeof window !== "undefined") {
   Object.values(BANNER_URL).forEach(getSprite);
   Object.values(BATTLE_BG_URL).forEach(getSprite);
   Object.values(BUILDING_SPRITE_URL).forEach(getSprite);
+  Object.values(EXTRA_BUILDING_URL).forEach(getSprite);
   Object.values(TILE_TEXTURE_URL).forEach(getSprite);
   getSprite(POKEBALL_URL);
   getSprite(POKEBALL_HQ_URL);
