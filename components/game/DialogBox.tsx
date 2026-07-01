@@ -43,14 +43,14 @@ function NpcPortrait({ kind, accent }: { kind: NpcKind; accent: string }) {
 
   return (
     <div style={{
-      width: 52, height: 52, flexShrink: 0,
+      width: 40, height: 40, flexShrink: 0,
       border: `2px solid ${accent}60`,
       background: `${accent}10`,
       display: "flex", alignItems: "center", justifyContent: "center",
       position: "relative", overflow: "hidden",
     }}>
       <canvas ref={ref} width={48} height={48}
-        style={{ imageRendering: "pixelated", width: 48, height: 48 }} />
+        style={{ imageRendering: "pixelated", width: 36, height: 36 }} />
       {/* Corner glow */}
       <div style={{
         position: "absolute", inset: 0,
@@ -150,13 +150,13 @@ export function DialogBox({ dialog, onClose }: { dialog: NonNullable<GameDialog>
       onClick={() => advance()}
       style={{
         background: "rgba(0,0,0,0.28)",
-        paddingBottom: "calc(env(safe-area-inset-bottom) + 16px)",
-        paddingLeft: 8,
-        paddingRight: 84,
+        paddingBottom: "calc(env(safe-area-inset-bottom) + 12px)",
+        paddingLeft: 6,
+        paddingRight: 6,
       }}
     >
       <div style={{
-        maxWidth: 720, width: "100%",
+        maxWidth: 580, width: "100%",
         background: "var(--color-dialog-bg)",
         border: `2px solid ${accentColor}cc`,
         outline: `1px solid ${accentColor}25`,
@@ -166,8 +166,8 @@ export function DialogBox({ dialog, onClose }: { dialog: NonNullable<GameDialog>
       }}>
         {/* Header with portrait */}
         <div style={{
-          display: "flex", alignItems: "center", gap: 10,
-          padding: "8px 12px",
+          display: "flex", alignItems: "center", gap: 8,
+          padding: "6px 10px",
           borderBottom: `1px solid ${accentColor}50`,
           background: `linear-gradient(135deg, ${accentColor}10 0%, transparent 60%)`,
         }}>
@@ -176,22 +176,22 @@ export function DialogBox({ dialog, onClose }: { dialog: NonNullable<GameDialog>
           )}
           {isBadge && (
             <div style={{
-              width: 52, height: 52, flexShrink: 0,
+              width: 40, height: 40, flexShrink: 0,
               background: `${accentColor}20`,
               border: `2px solid ${accentColor}60`,
               display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 22, color: accentColor,
+              fontSize: 18, color: accentColor,
             }}>★</div>
           )}
           <div style={{ minWidth: 0, flex: 1 }}>
             <div style={{
-              fontFamily: "var(--font-pixel)", fontSize: 9,
+              fontFamily: "var(--font-pixel)", fontSize: 8,
               color: accentColor, letterSpacing: "0.06em",
             }}>{headerLabel}</div>
             {subLabel && (
               <div style={{
-                fontFamily: "var(--font-pixel)", fontSize: 7,
-                color: "var(--color-dialog-shadow)", marginTop: 3,
+                fontFamily: "var(--font-pixel)", fontSize: 6,
+                color: "var(--color-dialog-shadow)", marginTop: 2,
               }}>{subLabel}</div>
             )}
           </div>
@@ -206,10 +206,10 @@ export function DialogBox({ dialog, onClose }: { dialog: NonNullable<GameDialog>
         </div>
 
         {/* Text body */}
-        <div style={{ padding: "10px 12px 14px" }}>
+        <div style={{ padding: "8px 10px 12px" }}>
           <div className="pq-text" style={{
-            whiteSpace: "pre-wrap", minHeight: 56,
-            fontSize: 17, lineHeight: 1.45,
+            whiteSpace: "pre-wrap", minHeight: 40,
+            fontSize: "clamp(13px, 3.5vw, 17px)", lineHeight: 1.45,
           }}>
             {currentText.slice(0, shown)}
             {!done && <span className="pq-blink">▌</span>}

@@ -191,18 +191,26 @@ body.play-mode {
 
 /* ── Mobile layout optimizations ─────────────────────────────── */
 @media (max-width: 640px) {
-  .pq-panel-inner { padding: 8px 10px; }
-  .pq-label { font-size: 8px; }
-  .pq-text { font-size: 14px; }
-  .pq-text-sm { font-size: 12px; }
-  .pq-btn { padding: 8px 12px; font-size: 9px; }
+  .pq-panel-inner { padding: 6px 8px; }
+  .pq-label { font-size: 7px; }
+  .pq-text { font-size: 13px; line-height: 1.4; }
+  .pq-text-sm { font-size: 11px; }
+  .pq-btn { padding: 7px 10px; font-size: 8px; min-height: 36px; }
+
+  /* HUD elements smaller on mobile */
+  .pq-dialog-arrow { width: 8px; height: 8px; bottom: 6px; right: 10px; }
 }
 
 /* Ensure game fills viewport on mobile */
-@media (max-width: 960px) and (max-height: 640px) {
+@media (max-width: 960px) and (max-height: 700px) {
   body.play-mode {
     overflow: hidden;
     position: fixed;
     inset: 0;
   }
+}
+
+/* Homepage hero responsive */
+@media (max-width: 480px) {
+  .pq-panel { border-width: 1px; }
 }
