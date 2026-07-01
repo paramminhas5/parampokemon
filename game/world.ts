@@ -3,7 +3,7 @@
 // zone-entry arches, and dense thematic props.
 
 import { ZONES, WORLD_W, WORLD_H, wildPositionFor } from "./data";
-import { T, groundTileFor, type TileCode } from "./tiles";
+import { T, groundTileFor, type TileCode, SOLID } from "./tiles";
 
 const ZONE_H  = 20;
 const ROUTE_H = 10;
@@ -517,7 +517,7 @@ function paintBuilding(
   // Mat tile right below the door — only for gym buildings (caller passes isGym)
   if (isGym) {
     const matWx = zoneOx + b.x + b.doorX;
-    const matWy = zoneOy + b.y + b.h - 1;
+    const matWy = zoneOy + b.y + b.h; // one tile BELOW the building front
     if (matWx >= 0 && matWy >= 0 && matWx < worldW && matWy < worldH) {
       grid[matWy][matWx] = T.MAT;
     }
@@ -604,6 +604,21 @@ function placeZoneContent(grid: TileCode[][], w: number, h: number) {
 
     // Unique zone border treatment
     paintZoneBorder(grid, z, w, h);
+
+    // Clear any solid tiles blocking the building door approach (3 tiles in front of door)
+    {
+      const doorWx = z.ox + z.building.x + z.building.doorX;
+      const doorWy = z.oy + z.building.y + z.building.h; // tile below building front
+      const base2 = groundTileFor(z.theme.ground);
+      for (let dy = 0; dy <= 2; dy++) {
+        const cy = doorWy + dy;
+        if (cy >= 0 && cy < h && doorWx >= 0 && doorWx < w) {
+          if (SOLID.has(grid[cy][doorWx]) && grid[cy][doorWx] !== T.TREE && grid[cy][doorWx] !== T.BUILDING_WALL && grid[cy][doorWx] !== T.BUILDING_ROOF) {
+            grid[cy][doorWx] = base2;
+          }
+        }
+      }
+    }
 
     // Sign — walkable, player can interact when standing on or adjacent
     const sx = z.ox + z.sign.x, sy = z.oy + z.sign.y;

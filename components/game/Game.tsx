@@ -134,6 +134,7 @@ export function Game() {
         badges: [...badges], creatures: [...creatures],
         skills: [...skills], defeated: [...defeated], visited: [...visited],
         defeatedTrainers: [...(engineRef.current?.state.defeatedTrainers ?? [])],
+        collectedBerryItems: [...(engineRef.current?.state.collectedBerryItems ?? [])],
         berries,
       }));
     } catch {}
@@ -290,6 +291,15 @@ export function Game() {
           }, 2200);
         }
       },
+      onBerryItem: (z: Zone) => {
+        // Award a random consumable berry
+        const berryTypes = ["heal", "shield", "speed"] as const;
+        const reward = berryTypes[Math.floor(Math.random() * berryTypes.length)];
+        setBerries(b => ({ ...b, [reward]: b[reward] + 1 }));
+        playSound("catch");
+        engine.triggerFollowerAnim("jump");
+        showToast(`🫐 +1 ${reward.toUpperCase()} BERRY`, "Use in battle!");
+      },
       onTrainerBattle: (npc: RouteNpc) => {
         setTrainerBattleIntro(npc);
         playBattleBGM();
@@ -312,6 +322,7 @@ export function Game() {
         if (s.skills)    s.skills.forEach((id: string) => engine.state.collectedSkills.add(id));
         if (s.defeated)  s.defeated.forEach((id: string) => engine.state.defeatedGyms.add(id));
         if (s.defeatedTrainers) s.defeatedTrainers.forEach((id: string) => engine.state.defeatedTrainers.add(id));
+        if (s.collectedBerryItems) s.collectedBerryItems.forEach((id: string) => engine.state.collectedBerryItems.add(id));
         // Restore follower if player has already been through tutorial
         const hasMadeProgress = (s.badges?.length ?? 0) > 0 || (s.skills?.length ?? 0) > 0;
         if (hasMadeProgress) engine.unlockFollower();
