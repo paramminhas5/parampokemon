@@ -518,8 +518,25 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
     const tx1 = Math.min(worldW, tx0 + VIEW_TILES_X + 2);
     const ty1 = Math.min(worldH, ty0 + VIEW_TILES_Y + 2);
 
+    // Pre-compute building footprint regions to skip when sprites are loaded
+    const buildingMask = new Set<string>();
+    for (const z of ZONES) {
+      const buildingUrl = BUILDING_SPRITE_URL[z.id];
+      const buildImg = buildingUrl ? getSprite(buildingUrl) : null;
+      if (buildImg && isReady(buildImg)) {
+        const b = z.building;
+        for (let gy = b.y; gy < b.y + b.h; gy++) {
+          for (let gx = b.x; gx < b.x + b.w; gx++) {
+            buildingMask.add(`${z.ox + gx},${z.oy + gy}`);
+          }
+        }
+      }
+    }
+
     for (let y = ty0; y < ty1; y++) {
       for (let x = tx0; x < tx1; x++) {
+        // Skip tiles covered by a building sprite (prevents superimposition)
+        if (buildingMask.has(`${x},${y}`)) continue;
         drawTile(ctx, world[y][x], x, y, x * TILE + offX, y * TILE + offY, now);
       }
     }
@@ -881,7 +898,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       const url = CREATURE_URL[i.zone.id];
       const img = url ? getSprite(url) : null;
       if (img && isReady(img)) {
-        const size = Math.round(TILE * 1.6);
+        const size = Math.round(TILE * 1.0);
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
         ctx.drawImage(img, bx + (TILE - size) / 2, by + (TILE - size) / 2 + bob, size, size);
@@ -943,12 +960,12 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
 
       const paramImg = getSprite(paramUrl);
       if (paramImg && isReady(paramImg)) {
-        // Render player at 2.2× tile size — hero should be the most prominent thing on screen
-        const size = Math.round(TILE * 2.2);
+        // Render player at 1× tile size — fits proportionally in the zoomed-out world
+        const size = Math.round(TILE * 1.0);
         // Drop shadow
         ctx.fillStyle = "rgba(0,0,0,0.45)";
         ctx.beginPath();
-        ctx.ellipse(pbx + TILE / 2, pby + TILE - 1, TILE * 0.5, TILE * 0.14, 0, 0, Math.PI * 2);
+        ctx.ellipse(pbx + TILE / 2, pby + TILE - 1, TILE * 0.4, TILE * 0.1, 0, 0, Math.PI * 2);
         ctx.fill();
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
@@ -1009,7 +1026,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         else                            followerUrl = FOLLOWER_RIGHT_URL[state.playerStage];
 
         const followerImg = followerUrl ? getSprite(followerUrl) : null;
-        const size = Math.round(TILE * 1.4);
+        const size = Math.round(TILE * 0.9);
         const drawX = fbx + (TILE - size) / 2;
         const drawY = fby + (TILE - size) / 2 + followerOffsetY + idleBob;
 
