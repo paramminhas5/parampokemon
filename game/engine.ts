@@ -541,7 +541,8 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         const bzIdx = buildingGroundMap.get(`${x},${y}`);
         if (bzIdx !== undefined) {
           const bz = ZONES[bzIdx];
-          const groundCode = world[bz.oy][bz.ox]; // Get zone's actual ground tile
+          // Use the zone's proper ground tile type (not whatever happens to be at origin)
+          const groundCode = bz.theme.ground === "grass" ? 1 : bz.theme.ground === "sand" ? 4 : bz.theme.ground === "stone" ? 5 : bz.theme.ground === "neon" ? 17 : bz.theme.ground === "dusk" ? 18 : bz.theme.ground === "night" ? 19 : bz.theme.ground === "mall" ? 20 : bz.theme.ground === "crypto" ? 21 : bz.theme.ground === "studio" ? 22 : bz.theme.ground === "snow" ? 23 : 1;
           drawTile(ctx, groundCode, x, y, x * TILE + offX, y * TILE + offY, now);
         } else {
           drawTile(ctx, world[y][x], x, y, x * TILE + offX, y * TILE + offY, now);
@@ -906,7 +907,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       const url = CREATURE_URL[i.zone.id];
       const img = url ? getSprite(url) : null;
       if (img && isReady(img)) {
-        const size = Math.round(TILE * 1.0);
+        const size = Math.round(TILE * 1.3);
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
         ctx.drawImage(img, bx + (TILE - size) / 2, by + (TILE - size) / 2 + bob, size, size);
