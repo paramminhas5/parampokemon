@@ -187,8 +187,8 @@ function HPBar({ current, max, label, color, shaking }: {
   return (
     <div style={{ animation: shaking ? "hp-shake 0.4s ease-out" : "none" }}>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
-        <span style={{ fontFamily: "var(--font-pixel)", fontSize: 8, color }}>{label}</span>
-        <span style={{ fontFamily: "var(--font-pixel)", fontSize: 7, color: "#3a5070" }}>
+        <span style={{ fontFamily: "var(--font-pixel)", fontSize: 9, color }}>{label}</span>
+        <span style={{ fontFamily: "var(--font-pixel)", fontSize: 8, color: "#4a6a8a" }}>
           {displayed}/{max}
         </span>
       </div>
@@ -238,7 +238,7 @@ function MoveButton({ move, disabled, ppLeft, onClick }: {
         borderRadius: 0,
       }}
     >
-      <div style={{ fontFamily: "var(--font-pixel)", fontSize: 8, color: inactive ? "#2a3a50" : color, marginBottom: 4, letterSpacing: "0.05em" }}>
+      <div style={{ fontFamily: "var(--font-pixel)", fontSize: 9, color: inactive ? "#2a3a50" : color, marginBottom: 4, letterSpacing: "0.05em" }}>
         {move.name.toUpperCase()}
       </div>
       <div style={{ display: "flex", gap: 5, alignItems: "center" }}>
