@@ -672,50 +672,19 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       ctx.restore();
     }
 
-    // roofs colored per zone
+    // roofs colored per zone — ONLY draw if building sprite NOT loaded
     for (const z of ZONES) {
       const b = z.building;
       const ry = z.oy + b.y;
       if (ry < ty0 - 1 || ry > ty1 + 1) continue;
-      for (let bx = 0; bx < b.w; bx++) {
-        const wx = b.x + bx + z.ox;
-        const kind: "left" | "mid" | "right" | "solo" =
-          b.w === 1 ? "solo" : bx === 0 ? "left" : bx === b.w - 1 ? "right" : "mid";
-        drawRoof(ctx, wx * TILE + offX, ry * TILE + offY, b.color, b.roof, kind);
-      }
-      // ── Chimney with gentle animated smoke (near the left third of roof) ──
-      {
-        const chimX = (b.x + z.ox + Math.max(1, Math.floor(b.w * 0.28))) * TILE + offX;
-        const chimY = ry * TILE + offY;
-        // chimney stack
-        ctx.fillStyle = b.roof;
-        ctx.fillRect(chimX + 4, chimY - 6, 6, 8);
-        ctx.fillStyle = "rgba(0,0,0,0.25)";
-        ctx.fillRect(chimX + 4, chimY - 6, 1, 8);
-        ctx.fillStyle = "#caa";
-        ctx.fillRect(chimX + 3, chimY - 7, 8, 2); // cap
-        // smoke puffs rising + drifting
-        for (let s = 0; s < 3; s++) {
-          const prog = ((now / 1400) + s * 0.33) % 1;
-          const sy = chimY - 7 - prog * 16;
-          const sx = chimX + 7 + Math.sin(prog * 6 + s) * 3;
-          const a = (1 - prog) * 0.28;
-          ctx.fillStyle = `rgba(225,225,235,${a.toFixed(3)})`;
-          const sz = 2 + prog * 3;
-          ctx.beginPath();
-          ctx.arc(sx, sy, sz, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-      // ── Building sprite overlay — replaces ALL procedural overlays ──
-      // Check if a generated sprite is ready; if so skip wall tint, window
-      // glows, and landmark entirely (the painted sprite has it all baked in).
+
+      // Check if building sprite is loaded — if so, skip procedural roof/chimney entirely
       const buildingUrl = BUILDING_SPRITE_URL[z.id];
       const buildImg = buildingUrl ? getSprite(buildingUrl) : null;
       const hasBuildingSprite = buildImg !== null && isReady(buildImg);
 
       if (hasBuildingSprite) {
-        // Draw the HD building sprite over the full footprint
+        // Draw the HD building sprite over the full footprint (includes roof visually)
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
         ctx.drawImage(
@@ -727,10 +696,36 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         );
         ctx.imageSmoothingEnabled = false;
       } else {
-        // Simple colored fallback (building sprites not yet loaded)
+        // Procedural fallback: roof tiles + chimney + simple colored building
+        for (let bx = 0; bx < b.w; bx++) {
+          const wx = b.x + bx + z.ox;
+          const kind: "left" | "mid" | "right" | "solo" =
+            b.w === 1 ? "solo" : bx === 0 ? "left" : bx === b.w - 1 ? "right" : "mid";
+          drawRoof(ctx, wx * TILE + offX, ry * TILE + offY, b.color, b.roof, kind);
+        }
+        // Chimney with smoke
+        const chimX = (b.x + z.ox + Math.max(1, Math.floor(b.w * 0.28))) * TILE + offX;
+        const chimY = ry * TILE + offY;
+        ctx.fillStyle = b.roof;
+        ctx.fillRect(chimX + 4, chimY - 6, 6, 8);
+        ctx.fillStyle = "rgba(0,0,0,0.25)";
+        ctx.fillRect(chimX + 4, chimY - 6, 1, 8);
+        ctx.fillStyle = "#caa";
+        ctx.fillRect(chimX + 3, chimY - 7, 8, 2);
+        for (let s = 0; s < 3; s++) {
+          const prog = ((now / 1400) + s * 0.33) % 1;
+          const sy = chimY - 7 - prog * 16;
+          const sx = chimX + 7 + Math.sin(prog * 6 + s) * 3;
+          const a = (1 - prog) * 0.28;
+          ctx.fillStyle = `rgba(225,225,235,${a.toFixed(3)})`;
+          const sz = 2 + prog * 3;
+          ctx.beginPath();
+          ctx.arc(sx, sy, sz, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        // Simple colored building body
         ctx.fillStyle = b.color + "88";
         ctx.fillRect((b.x + z.ox) * TILE + offX, (b.y + z.oy) * TILE + offY, b.w * TILE, b.h * TILE);
-        // Border
         ctx.strokeStyle = b.roof;
         ctx.lineWidth = 2;
         ctx.strokeRect((b.x + z.ox) * TILE + offX, (b.y + z.oy) * TILE + offY, b.w * TILE, b.h * TILE);
@@ -800,18 +795,18 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       const npcUrl = NPC_SPRITE_URL[i.npc.kind];
       const npcImg = npcUrl ? getSprite(npcUrl) : null;
       if (npcImg && isReady(npcImg) && npcImg.naturalWidth > 16) {
-        // Render HD NPC sprite at 1.6× tile size for prominence
-        const npcSize = Math.round(TILE * 1.6);
+        // Render HD NPC sprite at 2× tile size for maximum prominence
+        const npcSize = Math.round(TILE * 2.0);
         const npcOx = (TILE - npcSize) / 2;
-        const npcOy = (TILE - npcSize) / 2;
+        const npcOy = TILE - npcSize; // anchor at bottom of tile
         // Drop shadow
-        ctx.fillStyle = "rgba(0,0,0,0.35)";
+        ctx.fillStyle = "rgba(0,0,0,0.4)";
         ctx.beginPath();
-        ctx.ellipse(npcPx + TILE / 2, npcPy + TILE - 3, TILE * 0.4, TILE * 0.12, 0, 0, Math.PI * 2);
+        ctx.ellipse(npcPx + TILE / 2, npcPy + TILE - 2, TILE * 0.45, TILE * 0.12, 0, 0, Math.PI * 2);
         ctx.fill();
-        // Use multiply blend to remove white backgrounds (white × color = color)
+        // Draw sprite — use 'darken' composite to blend white bg away while keeping colors bright
         ctx.save();
-        ctx.globalCompositeOperation = "multiply";
+        ctx.globalCompositeOperation = "darken";
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
         if (npcDir === "left") {
@@ -851,17 +846,17 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       const rnUrl = NPC_SPRITE_URL[rn.kind];
       const rnImg = rnUrl ? getSprite(rnUrl) : null;
       if (rnImg && isReady(rnImg) && rnImg.naturalWidth > 16) {
-        const rnSize = Math.round(TILE * 1.6);
+        const rnSize = Math.round(TILE * 2.0);
         const rnOx = (TILE - rnSize) / 2;
-        const rnOy = (TILE - rnSize) / 2;
+        const rnOy = TILE - rnSize;
         // Drop shadow
-        ctx.fillStyle = "rgba(0,0,0,0.35)";
+        ctx.fillStyle = "rgba(0,0,0,0.4)";
         ctx.beginPath();
-        ctx.ellipse(rnPx + TILE / 2, rnPy + TILE - 3, TILE * 0.4, TILE * 0.12, 0, 0, Math.PI * 2);
+        ctx.ellipse(rnPx + TILE / 2, rnPy + TILE - 2, TILE * 0.45, TILE * 0.12, 0, 0, Math.PI * 2);
         ctx.fill();
-        // Use multiply blend to remove white backgrounds
+        // Draw sprite with darken blend
         ctx.save();
-        ctx.globalCompositeOperation = "multiply";
+        ctx.globalCompositeOperation = "darken";
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
         if (rnDir === "left") {
@@ -970,16 +965,16 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
 
       const paramImg = getSprite(paramUrl);
       if (paramImg && isReady(paramImg)) {
-        // Render player at 1.8× tile size for prominence — HD quality
-        const size = Math.round(TILE * 1.8);
+        // Render player at 2.2× tile size — hero should be the most prominent thing on screen
+        const size = Math.round(TILE * 2.2);
         // Drop shadow
-        ctx.fillStyle = "rgba(0,0,0,0.4)";
+        ctx.fillStyle = "rgba(0,0,0,0.45)";
         ctx.beginPath();
-        ctx.ellipse(pbx + TILE / 2, pby + TILE - 2, TILE * 0.45, TILE * 0.12, 0, 0, Math.PI * 2);
+        ctx.ellipse(pbx + TILE / 2, pby + TILE - 1, TILE * 0.5, TILE * 0.14, 0, 0, Math.PI * 2);
         ctx.fill();
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
-        ctx.drawImage(paramImg, pbx + (TILE - size) / 2, pby + (TILE - size) / 2, size, size);
+        ctx.drawImage(paramImg, pbx + (TILE - size) / 2, pby + TILE - size, size, size);
         ctx.imageSmoothingEnabled = false;
       } else {
         drawCharacter(ctx, "player", state.dir, state.frame, pbx, pby);
