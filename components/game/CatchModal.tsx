@@ -2,8 +2,7 @@
 import { useEffect, useState, useRef } from "react";
 import type { Zone, Move } from "@/game/data";
 import { STARTER_STAGES, stageForBadges } from "@/game/data";
-import { CREATURE_URL, POKEBALL_URL, getSprite, isReady } from "@/game/sprite-registry";
-import { drawStarter } from "@/game/sprites";
+import { CREATURE_URL, POKEBALL_URL, PLAYER_FRONT_URL, getSprite, isReady } from "@/game/sprite-registry";
 import { playSound } from "@/lib/audio";
 
 type Phase = "battle" | "weakened" | "throwing" | "caught" | "fled";
@@ -33,9 +32,16 @@ export function CatchModal({ zone, badges, onCatch, onClose }: {
     const loop = (now: number) => {
       if (meRef.current) {
         const c = meRef.current.getContext("2d")!;
-        c.imageSmoothingEnabled = false;
         c.clearRect(0, 0, 96, 96);
-        drawStarter(c, stage.id, "front", 6, 6, 2.1, now / 100);
+        // Use HD PNG sprite
+        const spriteUrl = PLAYER_FRONT_URL[stage.id] ?? PLAYER_FRONT_URL.mermander;
+        const img = getSprite(spriteUrl);
+        if (img && isReady(img)) {
+          c.imageSmoothingEnabled = true;
+          c.imageSmoothingQuality = "high";
+          const bob = Math.sin(now / 350) * 2;
+          c.drawImage(img, 4, 4 + bob, 88, 88);
+        }
       }
       rafRef.current = requestAnimationFrame(loop);
     };

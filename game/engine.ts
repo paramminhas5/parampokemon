@@ -11,11 +11,11 @@ import {
   PARAM_SPRITE_URL,
   FOLLOWER_SPRITE_URL, FOLLOWER_BACK_URL, FOLLOWER_LEFT_URL, FOLLOWER_RIGHT_URL,
   BUILDING_SPRITE_URL,
+  NPC_SPRITE_URL,
 } from "./sprite-registry";
 import {
   TILE, SOLID, T, drawTile, drawBadge, drawCharacter, drawRoof,
 } from "./tiles";
-import { drawLandmark } from "./landmarks";
 import { drawFollower } from "./sprites";
 import { playSound } from "../lib/audio";
 import { findPath } from "./pathfind";
@@ -715,7 +715,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       const hasBuildingSprite = buildImg !== null && isReady(buildImg);
 
       if (hasBuildingSprite) {
-        // Draw the painted building over the full footprint — clean, no overlays
+        // Draw the HD building sprite over the full footprint
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
         ctx.drawImage(
@@ -727,39 +727,13 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         );
         ctx.imageSmoothingEnabled = false;
       } else {
-        // Procedural fallback: wall colour tint + window glows + landmark
-        ctx.fillStyle = b.color + "22";
-        ctx.fillRect((b.x + z.ox) * TILE + offX, (b.y + 1 + z.oy) * TILE + offY, b.w * TILE, (b.h - 1) * TILE);
-
-        const hour2 = new Date().getHours();
-        const isNightTime = hour2 < 7 || hour2 >= 18;
-        const glowAlpha = isNightTime ? 0.5 : 0.16;
-        const glowColor = z.theme.ground === "neon" || z.theme.ground === "crypto"
-          ? `rgba(120,225,255,${glowAlpha})`
-          : z.theme.ground === "studio"
-            ? `rgba(255,205,110,${glowAlpha})`
-            : `rgba(255,222,130,${glowAlpha})`;
-        const hashN = (x: number, y: number) => {
-          const s2 = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
-          return s2 - Math.floor(s2);
-        };
-        for (let wr = 1; wr < b.h - 1; wr++) {
-          for (let wcx = 1; wcx < b.w - 1; wcx++) {
-            const wWx = b.x + z.ox + wcx;
-            const wWy = b.y + z.oy + wr;
-            if (hashN(wWx, wWy) <= 0.42) continue;
-            const gx = wWx * TILE + offX + 7;
-            const gy = wWy * TILE + offY + 6;
-            const grd = ctx.createRadialGradient(gx, gy, 0, gx, gy, 10);
-            grd.addColorStop(0, glowColor);
-            grd.addColorStop(1, "rgba(0,0,0,0)");
-            ctx.fillStyle = grd;
-            ctx.fillRect(gx - 10, gy - 10, 20, 20);
-          }
-        }
-        if (z.oy + z.h >= ty0 - 4 && z.oy <= ty1 + 4) {
-          drawLandmark(ctx, z, offX, offY, now);
-        }
+        // Simple colored fallback (building sprites not yet loaded)
+        ctx.fillStyle = b.color + "88";
+        ctx.fillRect((b.x + z.ox) * TILE + offX, (b.y + z.oy) * TILE + offY, b.w * TILE, b.h * TILE);
+        // Border
+        ctx.strokeStyle = b.roof;
+        ctx.lineWidth = 2;
+        ctx.strokeRect((b.x + z.ox) * TILE + offX, (b.y + z.oy) * TILE + offY, b.w * TILE, b.h * TILE);
       }
 
       // GYM text label painted directly on the building front wall
@@ -801,12 +775,12 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       }
     }
 
-    // NPCs — with idle bob animation, face toward player when nearby
+    // NPCs — HD sprite rendering with idle bob animation, face toward player when nearby
     for (const i of interactives) {
       if (i.kind !== "npc") continue;
       if (i.x < tx0 - 1 || i.x > tx1 + 1 || i.y < ty0 - 1 || i.y > ty1 + 1) continue;
       const f = (Math.floor(now / 600 + i.x * 0.3) % 8 === 0 ? 1 : 0) as 0 | 1;
-      const npcBob = Math.round(Math.sin(now / 800 + i.x * 1.3) * 1.5);
+      const npcBob = Math.round(Math.sin(now / 800 + i.x * 1.3) * 2.5);
       // Compute NPC facing direction toward player when nearby
       let npcDir: Dir = "down";
       const ndx = state.tx - i.x;
@@ -818,14 +792,46 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
           npcDir = ndy > 0 ? "down" : "up";
         }
       }
-      drawCharacter(ctx, i.npc.kind, npcDir, f, i.x * TILE + offX, i.y * TILE + offY + npcBob);
+
+      const npcPx = i.x * TILE + offX;
+      const npcPy = i.y * TILE + offY + npcBob;
+
+      // Try HD sprite first (must be a real sprite, not a 1px placeholder)
+      const npcUrl = NPC_SPRITE_URL[i.npc.kind];
+      const npcImg = npcUrl ? getSprite(npcUrl) : null;
+      if (npcImg && isReady(npcImg) && npcImg.naturalWidth > 16) {
+        // Render HD NPC sprite at 1.6× tile size for prominence
+        const npcSize = Math.round(TILE * 1.6);
+        const npcOx = (TILE - npcSize) / 2;
+        const npcOy = (TILE - npcSize) / 2;
+        // Drop shadow
+        ctx.fillStyle = "rgba(0,0,0,0.35)";
+        ctx.beginPath();
+        ctx.ellipse(npcPx + TILE / 2, npcPy + TILE - 3, TILE * 0.4, TILE * 0.12, 0, 0, Math.PI * 2);
+        ctx.fill();
+        // Flip sprite horizontally when facing left
+        ctx.save();
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
+        if (npcDir === "left") {
+          ctx.translate(npcPx + TILE, npcPy);
+          ctx.scale(-1, 1);
+          ctx.drawImage(npcImg, -npcOx, npcOy, npcSize, npcSize);
+        } else {
+          ctx.drawImage(npcImg, npcPx + npcOx, npcPy + npcOy, npcSize, npcSize);
+        }
+        ctx.restore();
+      } else {
+        // Fallback to procedural drawing
+        drawCharacter(ctx, i.npc.kind, npcDir, f, npcPx, npcPy);
+      }
     }
 
-    // Route NPCs — rendered separately on the path between zones, face toward player
+    // Route NPCs — HD sprite rendering, face toward player
     for (const rn of ROUTE_NPCS) {
       if (rn.x < tx0 - 1 || rn.x > tx1 + 1 || rn.y < ty0 - 1 || rn.y > ty1 + 1) continue;
       const f = (Math.floor(now / 700 + rn.x * 0.4) % 8 === 0 ? 1 : 0) as 0 | 1;
-      const bob = Math.round(Math.sin(now / 900 + rn.x * 1.1) * 1.5);
+      const bob = Math.round(Math.sin(now / 900 + rn.x * 1.1) * 2.5);
       let rnDir: Dir = "down";
       const rndx = state.tx - rn.x;
       const rndy = state.ty - rn.y;
@@ -836,7 +842,37 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
           rnDir = rndy > 0 ? "down" : "up";
         }
       }
-      drawCharacter(ctx, rn.kind, rnDir, f, rn.x * TILE + offX, rn.y * TILE + offY + bob);
+
+      const rnPx = rn.x * TILE + offX;
+      const rnPy = rn.y * TILE + offY + bob;
+
+      // Try HD sprite first (must be a real sprite, not a 1px placeholder)
+      const rnUrl = NPC_SPRITE_URL[rn.kind];
+      const rnImg = rnUrl ? getSprite(rnUrl) : null;
+      if (rnImg && isReady(rnImg) && rnImg.naturalWidth > 16) {
+        const rnSize = Math.round(TILE * 1.6);
+        const rnOx = (TILE - rnSize) / 2;
+        const rnOy = (TILE - rnSize) / 2;
+        // Drop shadow
+        ctx.fillStyle = "rgba(0,0,0,0.35)";
+        ctx.beginPath();
+        ctx.ellipse(rnPx + TILE / 2, rnPy + TILE - 3, TILE * 0.4, TILE * 0.12, 0, 0, Math.PI * 2);
+        ctx.fill();
+        // Flip for left
+        ctx.save();
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
+        if (rnDir === "left") {
+          ctx.translate(rnPx + TILE, rnPy);
+          ctx.scale(-1, 1);
+          ctx.drawImage(rnImg, -rnOx, rnOy, rnSize, rnSize);
+        } else {
+          ctx.drawImage(rnImg, rnPx + rnOx, rnPy + rnOy, rnSize, rnSize);
+        }
+        ctx.restore();
+      } else {
+        drawCharacter(ctx, rn.kind, rnDir, f, rnPx, rnPy);
+      }
     }
 
     // Zone ambient particles — floating accent-colored dots per zone
@@ -861,32 +897,36 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       if (i.x < tx0 - 1 || i.x > tx1 + 1 || i.y < ty0 - 1 || i.y > ty1 + 1) continue;
       const bx = i.x * TILE + offX;
       const by = i.y * TILE + offY;
-      const bob = Math.round(Math.sin(now / 240 + i.x) * 2);
+      const bob = Math.round(Math.sin(now / 240 + i.x) * 3);
       // shadow
       ctx.fillStyle = "rgba(0,0,0,0.35)";
       ctx.beginPath();
-      ctx.ellipse(bx + TILE / 2, by + TILE - 2, TILE * 0.35, 2, 0, 0, Math.PI * 2);
+      ctx.ellipse(bx + TILE / 2, by + TILE - 3, TILE * 0.4, TILE * 0.12, 0, 0, Math.PI * 2);
       ctx.fill();
       const url = CREATURE_URL[i.zone.id];
       const img = url ? getSprite(url) : null;
       if (img && isReady(img)) {
-        const size = Math.round(TILE * 1.4);
-        ctx.imageSmoothingEnabled = false;
+        const size = Math.round(TILE * 1.6);
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
         ctx.drawImage(img, bx + (TILE - size) / 2, by + (TILE - size) / 2 + bob, size, size);
+        ctx.imageSmoothingEnabled = false;
       } else {
         // fallback dot
         ctx.fillStyle = i.zone.theme.accent;
-        ctx.fillRect(bx + 4, by + 4 + bob, TILE - 8, TILE - 8);
+        ctx.fillRect(bx + TILE * 0.2, by + TILE * 0.2 + bob, TILE * 0.6, TILE * 0.6);
       }
-      // "!" marker
+      // "!" marker — scaled for new tile size
       const pulse = (Math.floor(now / 300) % 2) === 0;
       if (pulse) {
+        const mx = bx + TILE - TILE * 0.15;
+        const my = by - TILE * 0.2 + bob;
         ctx.fillStyle = "#fff";
-        ctx.fillRect(bx + TILE - 6, by - 8 + bob, 3, 6);
-        ctx.fillRect(bx + TILE - 6, by - 1 + bob, 3, 2);
+        ctx.fillRect(mx, my, TILE * 0.08, TILE * 0.15);
+        ctx.fillRect(mx, my + TILE * 0.18, TILE * 0.08, TILE * 0.05);
         ctx.fillStyle = "#e83a3a";
-        ctx.fillRect(bx + TILE - 5, by - 7 + bob, 1, 4);
-        ctx.fillRect(bx + TILE - 5, by - 1 + bob, 1, 1);
+        ctx.fillRect(mx + 1, my + 1, TILE * 0.04, TILE * 0.1);
+        ctx.fillRect(mx + 1, my + TILE * 0.18 + 1, TILE * 0.04, TILE * 0.03);
       }
     }
 
@@ -928,9 +968,17 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
 
       const paramImg = getSprite(paramUrl);
       if (paramImg && isReady(paramImg)) {
-        const size = Math.round(TILE * 1.5);
-        ctx.imageSmoothingEnabled = false;
+        // Render player at 1.8× tile size for prominence — HD quality
+        const size = Math.round(TILE * 1.8);
+        // Drop shadow
+        ctx.fillStyle = "rgba(0,0,0,0.4)";
+        ctx.beginPath();
+        ctx.ellipse(pbx + TILE / 2, pby + TILE - 2, TILE * 0.45, TILE * 0.12, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
         ctx.drawImage(paramImg, pbx + (TILE - size) / 2, pby + (TILE - size) / 2, size, size);
+        ctx.imageSmoothingEnabled = false;
       } else {
         drawCharacter(ctx, "player", state.dir, state.frame, pbx, pby);
       }
@@ -986,12 +1034,18 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         else                            followerUrl = FOLLOWER_RIGHT_URL[state.playerStage];
 
         const followerImg = followerUrl ? getSprite(followerUrl) : null;
-        const size = Math.round(TILE * 1.2);
+        const size = Math.round(TILE * 1.4);
         const drawX = fbx + (TILE - size) / 2;
         const drawY = fby + (TILE - size) / 2 + followerOffsetY + idleBob;
 
         if (followerImg && isReady(followerImg)) {
-          ctx.imageSmoothingEnabled = false;
+          // Drop shadow for follower
+          ctx.fillStyle = "rgba(0,0,0,0.3)";
+          ctx.beginPath();
+          ctx.ellipse(fbx + TILE / 2, fby + TILE - 2, TILE * 0.35, TILE * 0.1, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = "high";
           if (followerRotation !== 0) {
             const cx2 = drawX + size / 2;
             const cy2 = drawY + size / 2;
@@ -1003,6 +1057,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
           } else {
             ctx.drawImage(followerImg, drawX, drawY, size, size);
           }
+          ctx.imageSmoothingEnabled = false;
         } else {
           const followerFrame = (state.stepCount % 2 === 0 ? 1 : 0) as 0 | 1 | 2;
           drawFollower(ctx, state.playerStage as "mermander" | "mermalion" | "merlord", fbx, fby, followerFrame);
@@ -1041,10 +1096,11 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
     // Use the actual CSS layout size (which is set by the parent container / CSS)
     const cssW = canvas.clientWidth || canvas.parentElement?.clientWidth || DEFAULT_VIEW_TILES_X * TILE;
     const cssH = canvas.clientHeight || canvas.parentElement?.clientHeight || DEFAULT_VIEW_TILES_Y * TILE;
-    // Target a roomy on-screen tile size so the world feels close, not tiny:
-    const targetTilePx = cssW < 520 ? 36 : cssW < 900 ? 30 : 26;
-    VIEW_TILES_X = Math.max(9, Math.min(28, Math.floor(cssW / targetTilePx)));
-    VIEW_TILES_Y = Math.max(11, Math.min(22, Math.floor(cssH / targetTilePx)));
+    // Target CSS pixels per tile — with TILE=48 backing, we want tiles to be 64-80px on screen
+    // This gives a zoomed-in, detailed HD feel
+    const targetTilePx = cssW < 520 ? 56 : cssW < 900 ? 64 : 72;
+    VIEW_TILES_X = Math.max(8, Math.min(20, Math.floor(cssW / targetTilePx)));
+    VIEW_TILES_Y = Math.max(6, Math.min(14, Math.floor(cssH / targetTilePx)));
     // Set the backing buffer — CSS handles the display size (width:100%, height:100%)
     canvas.width = VIEW_TILES_X * TILE;
     canvas.height = VIEW_TILES_Y * TILE;
