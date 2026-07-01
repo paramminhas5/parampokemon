@@ -862,9 +862,32 @@ export type Interactive =
   | { kind: "hidden"; zone: Zone; x: number; y: number };
 
 export function wildPositionFor(zone: Zone): { x: number; y: number } {
-  // Place wild creature in lower-right quadrant of zone, away from building
-  const x = zone.ox + Math.min(zone.w - 3, zone.building.x + zone.building.w + 2);
-  const y = zone.oy + Math.min(zone.h - 3, zone.building.y + zone.building.h + 3);
+  // Place wild creature in lower-right quadrant of zone, away from building AND NPCs
+  let x = zone.ox + Math.min(zone.w - 3, zone.building.x + zone.building.w + 2);
+  let y = zone.oy + Math.min(zone.h - 3, zone.building.y + zone.building.h + 3);
+
+  // Check for overlap with any NPC position (min 3 tiles distance)
+  const tooClose = () => {
+    for (const npc of zone.npcs) {
+      const nx = zone.ox + npc.x;
+      const ny = zone.oy + npc.y;
+      if (Math.abs(nx - x) <= 2 && Math.abs(ny - y) <= 2) return true;
+    }
+    return false;
+  };
+
+  // Shift position until no overlap (try up to 8 alternatives)
+  const offsets = [[3, 0], [0, -3], [-3, 0], [0, 3], [3, -3], [-3, -3], [3, 3], [-3, 3]];
+  let attempts = 0;
+  while (tooClose() && attempts < offsets.length) {
+    x = zone.ox + Math.min(zone.w - 3, zone.building.x + zone.building.w + 2) + offsets[attempts][0];
+    y = zone.oy + Math.min(zone.h - 3, zone.building.y + zone.building.h + 3) + offsets[attempts][1];
+    // Keep within zone bounds
+    x = Math.max(zone.ox + 2, Math.min(zone.ox + zone.w - 3, x));
+    y = Math.max(zone.oy + 2, Math.min(zone.oy + zone.h - 3, y));
+    attempts++;
+  }
+
   return { x, y };
 }
 

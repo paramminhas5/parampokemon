@@ -38,6 +38,8 @@ export function WildEncounterIntro({ zone, onComplete }: { zone: Zone; onComplet
       animation: "we-bg-in 0.3s ease-out",
       fontFamily: "var(--font-pixel)",
       overflow: "hidden",
+      paddingTop: "env(safe-area-inset-top)",
+      paddingBottom: "env(safe-area-inset-bottom)",
     }}>
       <style>{STYLES}</style>
 

@@ -58,6 +58,8 @@ export function BattleIntro({ zone, onComplete, opponentSpriteUrl }: Props) {
       alignItems: "center", justifyContent: "center",
       overflow: "hidden",
       fontFamily: "var(--font-pixel)",
+      paddingTop: "env(safe-area-inset-top)",
+      paddingBottom: "env(safe-area-inset-bottom)",
       // CSS custom property for the glow animation
       ["--bi-accent" as string]: accent,
     }}>

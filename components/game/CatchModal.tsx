@@ -109,6 +109,8 @@ export function CatchModal({ zone, badges, onCatch, onClose }: {
       position: "absolute", inset: 0, zIndex: 40,
       background: "rgba(4,8,20,0.92)",
       display: "flex", alignItems: "center", justifyContent: "center",
+      paddingTop: "env(safe-area-inset-top)",
+      paddingBottom: "env(safe-area-inset-bottom)",
       padding: 12,
     }} onClick={(phase === "caught" || phase === "fled") ? onClose : undefined}>
       <div style={{
