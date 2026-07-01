@@ -29,6 +29,11 @@ import { Interior } from "./Interior";
 import { SettingsScreen } from "./SettingsScreen";
 import { CreditsScreen } from "./CreditsScreen";
 import { WildEncounterIntro } from "./WildEncounterIntro";
+import { OrbCollectAnimation } from "./OrbCollectAnimation";
+import { RecruiterSpeedRun } from "./RecruiterSpeedRun";
+import { BadgeShareCard } from "./BadgeShareCard";
+import { OnboardingOverlay } from "./OnboardingOverlay";
+import { MakingOfPanel, useKonamiCode } from "./MakingOfPanel";
 
 const INIT_W = 20 * TILE;
 const INIT_H = 14 * TILE;
@@ -81,9 +86,21 @@ export function Game() {
   const [creditsOpen, setCreditsOpen] = useState(false);
   const [saveFlash, setSaveFlash] = useState(false);
   const bleedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Orb collection animation
+  const [orbCollect, setOrbCollect] = useState<{ accent: string; skillName: string } | null>(null);
+  // Recruiter speed run mode
+  const [speedRunOpen, setSpeedRunOpen] = useState(false);
+  // Badge share card
+  const [shareCardZone, setShareCardZone] = useState<Zone | null>(null);
+  // Onboarding overlay (first-time non-gamers)
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  // Making Of easter egg (Konami code)
+  const [makingOfOpen, setMakingOfOpen] = useState(false);
+  useKonamiCode(useCallback(() => setMakingOfOpen(true), []));
 
   // pendingSkillLearn: queued after dialog closes — fired once dialog unmounts
   const pendingSkillLearnRef = useRef<{ zone: Zone; npcName: string } | null>(null);
+  const pendingShareCardRef = useRef<(() => void) | null>(null);
   const [badges, setBadges] = useState<Set<string>>(new Set());
   const [creatures, setCreatures] = useState<Set<string>>(new Set());
   const [skills, setSkills] = useState<Set<string>>(new Set());
@@ -270,15 +287,9 @@ export function Game() {
         playSound("catch");
         engine.triggerFollowerAnim("jump");
         engine.setPaused(true);
+        // Show orb collection animation FIRST, then skill learn overlay
+        setOrbCollect({ accent: z.theme.accent, skillName: z.skill!.name });
         showToast(`✦ SKILL ORB`, z.skill!.name);
-        // Show SkillLearnOverlay
-        setTimeout(() => {
-          if (pendingSkillLearnRef.current) {
-            const pending = pendingSkillLearnRef.current;
-            pendingSkillLearnRef.current = null;
-            setSkillLearnZone(pending);
-          }
-        }, 50);
         // Check evolution milestone (4 skills → Mermalion, 7 → Merlord)
         const newSkillCount = prevSkillCount + 1;
         const evo = checkEvolution(prevSkillCount, newSkillCount);
@@ -288,7 +299,7 @@ export function Game() {
             setSkillLearnZone(null);
             setEvolution(evo);
             engine.setPaused(true);
-          }, 2200);
+          }, 3200);
         }
       },
       onBerryItem: (z: Zone) => {
@@ -298,7 +309,7 @@ export function Game() {
         setBerries(b => ({ ...b, [reward]: b[reward] + 1 }));
         playSound("catch");
         engine.triggerFollowerAnim("jump");
-        showToast(`🫐 +1 ${reward.toUpperCase()} BERRY`, "Use in battle!");
+        showToast(`+1 ${reward.toUpperCase()} BERRY`, "Use in battle for healing & buffs!");
       },
       onTrainerBattle: (npc: RouteNpc) => {
         setTrainerBattleIntro(npc);
@@ -339,6 +350,14 @@ export function Game() {
   function handleWarp(zoneId: string) {
     setWorldSelectOpen(false);
     setMapOpen(false);
+    // Show onboarding for first-time players after their first warp
+    if (isFirstVisit && !showOnboarding) {
+      try {
+        if (!localStorage.getItem("pq_onboarding_done")) {
+          setTimeout(() => setShowOnboarding(true), 600);
+        }
+      } catch {}
+    }
     // Fire warp transition
     transKeyRef.current += 1;
     const z = ZONES.find(x => x.id === zoneId);
@@ -406,7 +425,14 @@ export function Game() {
       setGotBadge(null);
       setCliffOpen(zone);
       engineRef.current?.setPaused(true);
+      // Show share card after CliffNotes (will be triggered when CliffNotes closes)
     }, 1400);
+    // Queue share card to show after cliff notes
+    const showShareAfterCliff = () => {
+      setShareCardZone(zone);
+    };
+    // Store for cliff close handler
+    pendingShareCardRef.current = showShareAfterCliff;
     // Evolution is now triggered by Skill Orb collection, not badge count
     engineRef.current?.setPaused(false);
     showToast(`★ ${zone.badge.label.toUpperCase()} EARNED`, zone.gym?.victory);
@@ -488,23 +514,38 @@ export function Game() {
       </div>
 
       {/* Game container - boxed on desktop */}
-      <div style={{
-        position: "relative",
-        width: "min(100vw, 960px)",
-        height: "min(100vh, 640px)",
-        zIndex: 1,
-        display: "flex", flexDirection: "column",
-        boxShadow: "0 0 80px rgba(0,0,0,0.8), 0 0 2px rgba(124,224,255,0.15)",
-        border: `1px solid ${hudAccentBleed ? hudAccentBleed + "55" : "rgba(124,224,255,0.06)"}`,
-        transition: "border-color 0.35s ease-out",
-      }}>
+      <div
+        role="application"
+        aria-label="Param Quest — A playable portfolio RPG game"
+        style={{
+          position: "relative",
+          width: "min(100vw, 960px)",
+          height: "min(100vh, 640px)",
+          zIndex: 1,
+          display: "flex", flexDirection: "column",
+          boxShadow: "0 0 80px rgba(0,0,0,0.8), 0 0 2px rgba(124,224,255,0.15)",
+          border: `1px solid ${hudAccentBleed ? hudAccentBleed + "55" : "rgba(124,224,255,0.06)"}`,
+          transition: "border-color 0.35s ease-out",
+        }}>
         {/* Canvas */}
         <canvas
           ref={canvasRef}
           width={INIT_W}
           height={INIT_H}
           style={{ width: "100%", height: "100%", imageRendering: "pixelated", display: "block" }}
+          aria-label="Game world canvas — use arrow keys or WASD to move, Space to interact"
+          tabIndex={0}
         />
+
+        {/* ARIA live region for screen readers */}
+        <div
+          role="log"
+          aria-live="polite"
+          aria-atomic="false"
+          style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0,0,0,0)" }}
+        >
+          {toast && <span>{toast.title}{toast.sub ? ` — ${toast.sub}` : ""}</span>}
+        </div>
 
         {/* PixiJS post-processing: disabled — was causing overbright display */}
 
@@ -620,6 +661,18 @@ export function Game() {
           padding: "10px", paddingBottom: "calc(env(safe-area-inset-bottom) + 10px)",
           zIndex: 20,
         }}>
+          {/* Speed Run button for recruiters */}
+          <button onClick={() => { setSpeedRunOpen(true); playSound("menu"); }} style={{
+            background: "linear-gradient(135deg, rgba(255,210,74,0.12) 0%, rgba(4,8,20,0.92) 100%)",
+            border: "1px solid rgba(255,210,74,0.35)",
+            color: "#ffd24a",
+            padding: "8px 12px",
+            fontFamily: "var(--font-pixel)", fontSize: 7,
+            cursor: "pointer", minWidth: 64,
+            backdropFilter: "blur(12px)",
+            letterSpacing: "0.05em",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
+          }}>⚡ SPEED RUN</button>
           {[
             { label: "NOTES", action: () => { setCliffOpen(currentZone); playSound("menu"); } },
             { label: "BAG",   action: () => { setBagOpen(true);          playSound("menu"); } },
@@ -760,7 +813,16 @@ export function Game() {
         }} />}
         {menuOpen && <StartMenu badges={badges} creatures={creatures} skills={skills} onClose={() => setMenuOpen(false)} onSettings={() => { setMenuOpen(false); setSettingsOpen(true); }} onCredits={() => { setMenuOpen(false); setCreditsOpen(true); }} />}
         {bagOpen && <Bag creatures={creatures} skills={skills} badges={badges} onClose={() => setBagOpen(false)} />}
-        {cliffOpen && <CliffNotes zone={cliffOpen} onClose={() => { setCliffOpen(null); engineRef.current?.setPaused(false); }} />}
+        {cliffOpen && <CliffNotes zone={cliffOpen} onClose={() => {
+          setCliffOpen(null);
+          engineRef.current?.setPaused(false);
+          // Show share card if one was queued (after gym victory)
+          if (pendingShareCardRef.current) {
+            const fn = pendingShareCardRef.current;
+            pendingShareCardRef.current = null;
+            setTimeout(fn, 300);
+          }
+        }} />}
         {/* Battle intro plays first, then real battle */}
         {battleIntro && (
           <BattleIntro
@@ -890,6 +952,23 @@ export function Game() {
           />
         )}
 
+        {/* Orb collection animation — plays before skill learn overlay */}
+        {orbCollect && (
+          <OrbCollectAnimation
+            accent={orbCollect.accent}
+            skillName={orbCollect.skillName}
+            onComplete={() => {
+              setOrbCollect(null);
+              // Now show the skill learn overlay
+              if (pendingSkillLearnRef.current) {
+                const pending = pendingSkillLearnRef.current;
+                pendingSkillLearnRef.current = null;
+                setSkillLearnZone(pending);
+              }
+            }}
+          />
+        )}
+
         {/* Skill learn overlay — replaces toast for skill berry discovery */}
         {skillLearnZone && (
           <SkillLearnOverlay
@@ -952,8 +1031,41 @@ export function Game() {
           />
         )}
 
+        {/* Recruiter Speed Run mode */}
+        {speedRunOpen && (
+          <RecruiterSpeedRun
+            onClose={() => { setSpeedRunOpen(false); engineRef.current?.setPaused(false); }}
+            onHire={() => { setSpeedRunOpen(false); setContactOpen(true); }}
+          />
+        )}
+
+        {/* Badge Share Card — shows after gym victory + cliff notes */}
+        {shareCardZone && (
+          <BadgeShareCard
+            zone={shareCardZone}
+            badgeCount={badges.size}
+            totalGyms={totalGyms}
+            onClose={() => { setShareCardZone(null); engineRef.current?.setPaused(false); }}
+          />
+        )}
+
+        {/* Making Of panel — Konami code easter egg */}
+        {makingOfOpen && (
+          <MakingOfPanel onClose={() => setMakingOfOpen(false)} />
+        )}
+
         {/* Screen transition overlay — always on top */}
         <TransitionOverlay trigger={transition} />
+
+        {/* Onboarding overlay for first-time players */}
+        {showOnboarding && !isModalOpen && (
+          <OnboardingOverlay
+            onDismiss={() => {
+              setShowOnboarding(false);
+              engineRef.current?.setPaused(false);
+            }}
+          />
+        )}
 
         {/* Touch D-pad — only visible on touch devices, hidden on desktop via CSS */}
         {!isModalOpen && (

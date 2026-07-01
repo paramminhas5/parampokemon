@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "@/app/globals.css";
+import { SkipToContent } from "@/components/SkipToContent";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://paramminhas.com"),
@@ -278,6 +279,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap"
           rel="stylesheet"
         />
+        {/* Preload critical fonts */}
+        <link rel="preload" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" as="style" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
         <link rel="manifest" href="/manifest.json" />
         <link rel="canonical" href="https://paramminhas.com" />
         <link rel="author" href="/humans.txt" />
@@ -311,7 +317,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
         />
       </head>
-      <body>{children}</body>
+      <body>
+        {/* Skip to main content — accessibility */}
+        <SkipToContent />
+        <main id="main-content">{children}</main>
+      </body>
     </html>
   );
 }

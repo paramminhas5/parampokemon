@@ -745,8 +745,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
     }
 
 
-    // Skill Orbs + Hidden berries — visible glowing orb on the overworld
-    const berryImg = getSprite(BERRY_URL);
+    // ── SKILL ORBS — glowing energy spheres (grant battle moves + trigger evolution) ──
     for (const i of interactives) {
       if (i.kind !== "hidden" && i.kind !== "skillOrb") continue;
       const skillId = i.kind === "skillOrb" ? i.skill.id : (i.zone.skill?.id ?? "");
@@ -755,92 +754,179 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       const accent = i.zone.theme.accent;
       const bx = i.x * TILE + offX;
       const by = i.y * TILE + offY;
-      const berryBob = Math.sin(now / 500 + i.x * 2.1) * 3;
-      const berryPulse = 0.7 + Math.sin(now / 400 + i.y) * 0.3;
-      // Skill Orbs are slightly larger and more prominent than hidden berries
+      const cx = bx + TILE / 2;
+      const cy = by + TILE / 2;
+      const orbBob = Math.sin(now / 450 + i.x * 2.1) * 4;
+      const orbPulse = 0.75 + Math.sin(now / 350 + i.y) * 0.25;
       const isOrb = i.kind === "skillOrb";
-      const scale = isOrb ? 1.0 : 0.85;
-      // Glow underneath
-      ctx.globalAlpha = berryPulse * (isOrb ? 0.55 : 0.4);
+      const orbRadius = TILE * (isOrb ? 0.32 : 0.26);
+
+      // Outer glow halo (large, soft)
+      ctx.globalAlpha = orbPulse * 0.25;
+      const glowGrad = ctx.createRadialGradient(cx, cy + orbBob, 0, cx, cy + orbBob, TILE * 0.8);
+      glowGrad.addColorStop(0, accent);
+      glowGrad.addColorStop(1, "transparent");
+      ctx.fillStyle = glowGrad;
+      ctx.beginPath();
+      ctx.arc(cx, cy + orbBob, TILE * 0.8, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Ground shadow/glow
+      ctx.globalAlpha = orbPulse * 0.4;
       ctx.fillStyle = accent;
       ctx.beginPath();
-      ctx.arc(bx + TILE / 2, by + TILE - 2, TILE * (isOrb ? 0.5 : 0.4), 0, Math.PI * 2);
+      ctx.ellipse(cx, by + TILE - 1, TILE * 0.28, TILE * 0.08, 0, 0, Math.PI * 2);
       ctx.fill();
-      // Berry sprite or fallback orb
-      ctx.globalAlpha = berryPulse;
-      if (berryImg && isReady(berryImg) && berryImg.naturalWidth > 4) {
-        const bs = Math.round(TILE * scale);
-        const bOx = (TILE - bs) / 2;
-        const bOy = (TILE - bs) / 2 + berryBob;
-        ctx.imageSmoothingEnabled = true;
-        ctx.drawImage(berryImg, bx + bOx, by + bOy, bs, bs);
-        ctx.imageSmoothingEnabled = false;
-      } else {
-        // Fallback: procedural orb
-        ctx.fillStyle = accent;
+
+      // Inner energy orb — radial gradient for 3D sphere look
+      ctx.globalAlpha = orbPulse;
+      const sphereGrad = ctx.createRadialGradient(cx - orbRadius * 0.3, cy + orbBob - orbRadius * 0.3, 0, cx, cy + orbBob, orbRadius);
+      sphereGrad.addColorStop(0, "#ffffff");
+      sphereGrad.addColorStop(0.25, accent + "ff");
+      sphereGrad.addColorStop(0.7, accent + "cc");
+      sphereGrad.addColorStop(1, accent + "44");
+      ctx.fillStyle = sphereGrad;
+      ctx.beginPath();
+      ctx.arc(cx, cy + orbBob, orbRadius, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Inner white core (energy center)
+      ctx.globalAlpha = 0.9;
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(cx - orbRadius * 0.2, cy + orbBob - orbRadius * 0.2, orbRadius * 0.25, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.globalAlpha = 1;
+
+      // Orbiting energy particles (circling the orb)
+      const particleCount = isOrb ? 6 : 4;
+      for (let sp = 0; sp < particleCount; sp++) {
+        const spAngle = (sp / particleCount) * Math.PI * 2 + now / (isOrb ? 500 : 700);
+        const spR = orbRadius * 1.8 + Math.sin(now / 300 + sp * 1.5) * 3;
+        const spX = cx + Math.cos(spAngle) * spR;
+        const spY = cy + orbBob + Math.sin(spAngle) * spR * 0.6;
+        const spAlpha = 0.5 + Math.sin(now / 200 + sp) * 0.3;
+        ctx.globalAlpha = spAlpha;
+        ctx.fillStyle = sp % 2 === 0 ? "#ffffff" : accent;
         ctx.beginPath();
-        ctx.arc(bx + TILE / 2, by + TILE / 2 + berryBob, TILE * 0.3 * scale, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = "#fff";
-        ctx.beginPath();
-        ctx.arc(bx + TILE / 2 - 2, by + TILE / 2 + berryBob - 2, TILE * 0.08, 0, Math.PI * 2);
+        ctx.arc(Math.round(spX), Math.round(spY), 1.5, 0, Math.PI * 2);
         ctx.fill();
       }
       ctx.globalAlpha = 1;
-      // Sparkle particles (more for skill orbs)
-      const sparkCount = isOrb ? 5 : 3;
-      for (let sp = 0; sp < sparkCount; sp++) {
-        const spAngle = (sp / sparkCount) * Math.PI * 2 + now / (isOrb ? 600 : 800);
-        const spR = TILE * (isOrb ? 0.6 : 0.5) + Math.sin(now / 400 + sp) * 2;
-        const spX = bx + TILE / 2 + Math.cos(spAngle) * spR;
-        const spY = by + TILE / 2 + berryBob + Math.sin(spAngle) * spR;
-        ctx.fillStyle = accent + (isOrb ? "cc" : "aa");
-        ctx.fillRect(Math.round(spX), Math.round(spY), 2, 2);
+
+      // Rising energy wisps (vertical drift upward)
+      for (let w = 0; w < 3; w++) {
+        const wPhase = (now / 800 + w * 2.1) % 1;
+        const wX = cx + Math.sin(now / 600 + w * 3) * orbRadius * 0.7;
+        const wY = cy + orbBob - wPhase * TILE * 0.6;
+        ctx.globalAlpha = (1 - wPhase) * 0.5;
+        ctx.fillStyle = accent;
+        ctx.beginPath();
+        ctx.arc(wX, wY, 1, 0, Math.PI * 2);
+        ctx.fill();
       }
-      // Skill Orb label — "SKILL" text above the orb to distinguish from berries
+      ctx.globalAlpha = 1;
+
+      // Label — "✦ SKILL ORB" for skill orbs
       if (isOrb) {
-        ctx.globalAlpha = 0.85;
+        ctx.globalAlpha = 0.9;
         ctx.font = "bold 5px monospace";
         ctx.textAlign = "center";
         ctx.fillStyle = accent;
-        ctx.fillText("✦ SKILL", bx + TILE / 2, by - 2 + berryBob);
+        ctx.fillText("✦ ORB", cx, by - 3 + orbBob);
         ctx.textAlign = "left";
         ctx.globalAlpha = 1;
       }
     }
 
-    // Berry items (consumable pickups) — smaller, green-tinted
+    // ── BERRY ITEMS — fruit-shaped consumable pickups (heal/shield/speed) ──
+    const berryImg = getSprite(BERRY_URL);
     for (const i of interactives) {
       if (i.kind !== "berryItem") continue;
       if (state.collectedBerryItems.has(i.zone.id)) continue;
       if (i.x < tx0 - 1 || i.x > tx1 + 1 || i.y < ty0 - 1 || i.y > ty1 + 1) continue;
       const bx = i.x * TILE + offX;
       const by = i.y * TILE + offY;
-      const bob = Math.sin(now / 600 + i.x * 1.8) * 2;
-      const pulse = 0.6 + Math.sin(now / 500 + i.y) * 0.3;
-      // Small green glow
-      ctx.globalAlpha = pulse * 0.35;
+      const cx = bx + TILE / 2;
+      const cy = by + TILE / 2;
+      const bob = Math.sin(now / 700 + i.x * 1.8) * 2;
+      const pulse = 0.75 + Math.sin(now / 600 + i.y) * 0.2;
+
+      // If berry sprite exists, draw it as actual fruit
+      if (berryImg && isReady(berryImg) && berryImg.naturalWidth > 4) {
+        // Small ground shadow
+        ctx.globalAlpha = 0.25;
+        ctx.fillStyle = "#2a6840";
+        ctx.beginPath();
+        ctx.ellipse(cx, by + TILE - 2, TILE * 0.22, TILE * 0.06, 0, 0, Math.PI * 2);
+        ctx.fill();
+        // Berry sprite
+        ctx.globalAlpha = pulse;
+        const bs = Math.round(TILE * 0.7);
+        const bOx = (TILE - bs) / 2;
+        const bOy = (TILE - bs) / 2 + bob;
+        ctx.imageSmoothingEnabled = true;
+        ctx.drawImage(berryImg, bx + bOx, by + bOy, bs, bs);
+        ctx.imageSmoothingEnabled = false;
+      } else {
+        // Procedural berry — teardrop fruit shape (NOT a circle/orb)
+        ctx.globalAlpha = 0.2;
+        ctx.fillStyle = "#2a6840";
+        ctx.beginPath();
+        ctx.ellipse(cx, by + TILE - 2, TILE * 0.18, TILE * 0.05, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.globalAlpha = pulse;
+        // Berry body (teardrop/pear shape using bezier)
+        const bR = TILE * 0.2;
+        const bCy = cy + bob;
+        ctx.fillStyle = "#e85d75";
+        ctx.beginPath();
+        ctx.moveTo(cx, bCy - bR * 1.4);
+        ctx.bezierCurveTo(cx + bR * 1.2, bCy - bR * 0.6, cx + bR * 1.1, bCy + bR * 0.8, cx, bCy + bR);
+        ctx.bezierCurveTo(cx - bR * 1.1, bCy + bR * 0.8, cx - bR * 1.2, bCy - bR * 0.6, cx, bCy - bR * 1.4);
+        ctx.fill();
+
+        // Berry highlight (glossy)
+        ctx.fillStyle = "#ff9ab0";
+        ctx.beginPath();
+        ctx.arc(cx - bR * 0.25, bCy - bR * 0.4, bR * 0.35, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Berry stem (small line on top)
+        ctx.strokeStyle = "#3a7a3a";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(cx, bCy - bR * 1.4);
+        ctx.lineTo(cx + 1, bCy - bR * 1.9);
+        ctx.stroke();
+
+        // Tiny leaf
+        ctx.fillStyle = "#4ade80";
+        ctx.beginPath();
+        ctx.ellipse(cx + 2, bCy - bR * 1.7, 2.5, 1.2, Math.PI * 0.3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+
+      // Small sparkle (subtle, not orbiting like skill orbs)
+      const sparkAlpha = 0.3 + Math.sin(now / 400 + i.x) * 0.2;
+      ctx.globalAlpha = sparkAlpha;
       ctx.fillStyle = "#4ade80";
+      const sparkX = cx + Math.cos(now / 800) * TILE * 0.35;
+      const sparkY = cy + bob + Math.sin(now / 800) * TILE * 0.25;
       ctx.beginPath();
-      ctx.arc(bx + TILE / 2, by + TILE - 2, TILE * 0.3, 0, Math.PI * 2);
-      ctx.fill();
-      // Procedural berry (small colored orb with highlight)
-      ctx.globalAlpha = pulse;
-      ctx.fillStyle = "#4ade80";
-      ctx.beginPath();
-      ctx.arc(bx + TILE / 2, by + TILE / 2 + bob, TILE * 0.22, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = "#a7f3d0";
-      ctx.beginPath();
-      ctx.arc(bx + TILE / 2 - 1, by + TILE / 2 + bob - 2, TILE * 0.08, 0, Math.PI * 2);
+      ctx.arc(sparkX, sparkY, 1.2, 0, Math.PI * 2);
       ctx.fill();
       ctx.globalAlpha = 1;
-      // "BERRY" label
+
+      // Label
       ctx.globalAlpha = 0.7;
       ctx.font = "bold 4px monospace";
       ctx.textAlign = "center";
       ctx.fillStyle = "#4ade80";
-      ctx.fillText("BERRY", bx + TILE / 2, by - 1 + bob);
+      ctx.fillText("🫐 BERRY", cx, by - 1 + bob);
       ctx.textAlign = "left";
       ctx.globalAlpha = 1;
     }
