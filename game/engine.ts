@@ -14,7 +14,7 @@ import {
   NPC_SPRITE_URL,
 } from "./sprite-registry";
 import {
-  TILE, SOLID, T, drawTile, drawBadge, drawCharacter, drawRoof,
+  TILE, SOLID, T, drawTile, drawBadge, drawCharacter,
 } from "./tiles";
 import { drawFollower } from "./sprites";
 import { playSound } from "../lib/audio";
@@ -672,19 +672,18 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       ctx.restore();
     }
 
-    // roofs colored per zone — ONLY draw if building sprite NOT loaded
+    // Buildings — PNG sprite only, no procedural fallback (eliminates flicker)
     for (const z of ZONES) {
       const b = z.building;
       const ry = z.oy + b.y;
       if (ry < ty0 - 1 || ry > ty1 + 1) continue;
 
-      // Check if building sprite is loaded — if so, skip procedural roof/chimney entirely
       const buildingUrl = BUILDING_SPRITE_URL[z.id];
       const buildImg = buildingUrl ? getSprite(buildingUrl) : null;
       const hasBuildingSprite = buildImg !== null && isReady(buildImg);
 
       if (hasBuildingSprite) {
-        // Draw the HD building sprite over the full footprint (includes roof visually)
+        // Draw the HD building sprite over the full footprint
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
         ctx.drawImage(
@@ -696,39 +695,20 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         );
         ctx.imageSmoothingEnabled = false;
       } else {
-        // Procedural fallback: roof tiles + chimney + simple colored building
-        for (let bx = 0; bx < b.w; bx++) {
-          const wx = b.x + bx + z.ox;
-          const kind: "left" | "mid" | "right" | "solo" =
-            b.w === 1 ? "solo" : bx === 0 ? "left" : bx === b.w - 1 ? "right" : "mid";
-          drawRoof(ctx, wx * TILE + offX, ry * TILE + offY, b.color, b.roof, kind);
-        }
-        // Chimney with smoke
-        const chimX = (b.x + z.ox + Math.max(1, Math.floor(b.w * 0.28))) * TILE + offX;
-        const chimY = ry * TILE + offY;
+        // Clean placeholder — solid zone-colored rectangle while loading
+        const bx0 = (b.x + z.ox) * TILE + offX;
+        const by0 = (b.y + z.oy) * TILE + offY;
+        const bw = b.w * TILE;
+        const bh = b.h * TILE;
+        ctx.fillStyle = b.color;
+        ctx.fillRect(bx0, by0, bw, bh);
+        // Roof accent strip
         ctx.fillStyle = b.roof;
-        ctx.fillRect(chimX + 4, chimY - 6, 6, 8);
-        ctx.fillStyle = "rgba(0,0,0,0.25)";
-        ctx.fillRect(chimX + 4, chimY - 6, 1, 8);
-        ctx.fillStyle = "#caa";
-        ctx.fillRect(chimX + 3, chimY - 7, 8, 2);
-        for (let s = 0; s < 3; s++) {
-          const prog = ((now / 1400) + s * 0.33) % 1;
-          const sy = chimY - 7 - prog * 16;
-          const sx = chimX + 7 + Math.sin(prog * 6 + s) * 3;
-          const a = (1 - prog) * 0.28;
-          ctx.fillStyle = `rgba(225,225,235,${a.toFixed(3)})`;
-          const sz = 2 + prog * 3;
-          ctx.beginPath();
-          ctx.arc(sx, sy, sz, 0, Math.PI * 2);
-          ctx.fill();
-        }
-        // Simple colored building body
-        ctx.fillStyle = b.color + "88";
-        ctx.fillRect((b.x + z.ox) * TILE + offX, (b.y + z.oy) * TILE + offY, b.w * TILE, b.h * TILE);
-        ctx.strokeStyle = b.roof;
-        ctx.lineWidth = 2;
-        ctx.strokeRect((b.x + z.ox) * TILE + offX, (b.y + z.oy) * TILE + offY, b.w * TILE, b.h * TILE);
+        ctx.fillRect(bx0, by0, bw, 4);
+        // Subtle border
+        ctx.strokeStyle = b.roof + "88";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(bx0, by0, bw, bh);
       }
 
       // GYM text label painted directly on the building front wall

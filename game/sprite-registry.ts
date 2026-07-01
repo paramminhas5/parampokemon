@@ -89,22 +89,22 @@ export const LANDMARK_URL: Record<string, string> = {
 };
 
 // ─── NPC overworld sprites (unique per NpcKind) ───────────────────────────
-// Each NPC kind maps to the best available high-quality sprite.
-// We reuse leader/creature sprites that match the NPC archetype.
+// Each NPC kind has its own dedicated sprite. These are placeholders —
+// replace with Bria-generated art in the same style as leaders/creatures.
 import type { NpcKind } from "./data";
 
 export const NPC_SPRITE_URL: Record<NpcKind, string> = {
-  "trainer-m": "/sprites/leaders/longtail.png",      // merchant/trainer vibe
-  "trainer-f": "/sprites/leaders/noculture.png",     // sporty/streetwear vibe
-  investor:    "/sprites/leaders/termsheet.png",     // suited VC
-  engineer:    "/sprites/leaders/prehype.png",       // tech/scientist
-  celeb:       "/sprites/leaders/noculture.png",     // flashy/streetwear
-  client:      "/sprites/leaders/nobrief.png",       // corporate/clipboard
-  fan:         "/sprites/creatures/origin.png",      // enthusiastic/sparky
-  tenant:      "/sprites/leaders/zerorunway.png",    // landlord/keys
-  professor:   "/sprites/leaders/blankpage.png",     // scholarly/beret
-  mom:         "/sprites/creatures/ccd.png",         // warm/caring (cat)
-  rival:       "/sprites/leaders/statusquo.png",     // powerful/crowned
+  "trainer-m": "/sprites/npcs/trainer_m.png",
+  "trainer-f": "/sprites/npcs/trainer_f.png",
+  investor:    "/sprites/npcs/investor.png",
+  engineer:    "/sprites/npcs/engineer.png",
+  celeb:       "/sprites/npcs/celeb.png",
+  client:      "/sprites/npcs/client.png",
+  fan:         "/sprites/npcs/fan.png",
+  tenant:      "/sprites/npcs/tenant.png",
+  professor:   "/sprites/npcs/professor.png",
+  mom:         "/sprites/npcs/mom.png",
+  rival:       "/sprites/npcs/rival.png",
 };
 
 // ─── Zone arrival banners (Batch B) ───────────────────────────────────────
@@ -199,6 +199,8 @@ if (typeof window !== "undefined") {
   Object.values(PLAYER_FRONT_URL).forEach(getSprite);
   Object.values(BANNER_URL).forEach(getSprite);
   Object.values(BATTLE_BG_URL).forEach(getSprite);
+  Object.values(BUILDING_SPRITE_URL).forEach(getSprite);
+  Object.values(TILE_TEXTURE_URL).forEach(getSprite);
   getSprite(POKEBALL_URL);
   getSprite(POKEBALL_HQ_URL);
   getSprite(TITLE_BG_URL);
@@ -206,37 +208,55 @@ if (typeof window !== "undefined") {
 }
 
 export function preloadAllSprites(): Promise<void> {
-  const urls = [
-    ...Object.values(LEADER_URL),
-    ...Object.values(CREATURE_URL),
-    ...Object.values(LANDMARK_URL),
-    ...Object.values(NPC_SPRITE_URL),
+  // Critical sprites MUST load before game starts (player, buildings, tiles, followers)
+  const critical = [
     ...Object.values(PARAM_SPRITE_URL),
     ...Object.values(FOLLOWER_SPRITE_URL),
     ...Object.values(FOLLOWER_BACK_URL),
     ...Object.values(FOLLOWER_LEFT_URL),
     ...Object.values(FOLLOWER_RIGHT_URL),
+    ...Object.values(BUILDING_SPRITE_URL),
+    ...Object.values(TILE_TEXTURE_URL),
+    POKEBALL_URL,
+  ];
+  // Important sprites should load but won't block forever
+  const important = [
+    ...Object.values(LEADER_URL),
+    ...Object.values(CREATURE_URL),
+    ...Object.values(LANDMARK_URL),
+    ...Object.values(NPC_SPRITE_URL),
     ...Object.values(PLAYER_BACK_URL),
     ...Object.values(PLAYER_FRONT_URL),
-    ...Object.values(BANNER_URL),
-    ...Object.values(BATTLE_BG_URL),
-    POKEBALL_URL,
     POKEBALL_HQ_URL,
     TITLE_BG_URL,
     CHAMPION_BG_URL,
   ];
-  return new Promise((resolve) => {
-    let remaining = urls.length;
-    if (remaining === 0) { resolve(); return; }
-    const done = () => { if (--remaining <= 0) resolve(); };
-    for (const u of urls) {
-      const img = getSprite(u);
-      if (isReady(img)) done();
-      else {
-        img.addEventListener("load", done, { once: true });
-        img.addEventListener("error", done, { once: true });
+  // Optional sprites load in background (banners, battle BGs)
+  const optional = [
+    ...Object.values(BANNER_URL),
+    ...Object.values(BATTLE_BG_URL),
+  ];
+
+  const loadBatch = (urls: string[], timeout: number): Promise<void> => {
+    return new Promise((resolve) => {
+      let remaining = urls.length;
+      if (remaining === 0) { resolve(); return; }
+      const done = () => { if (--remaining <= 0) resolve(); };
+      for (const u of urls) {
+        const img = getSprite(u);
+        if (isReady(img)) done();
+        else {
+          img.addEventListener("load", done, { once: true });
+          img.addEventListener("error", done, { once: true });
+        }
       }
-    }
-    setTimeout(resolve, 8000);
-  });
+      setTimeout(resolve, timeout);
+    });
+  };
+
+  // Start optional loading immediately (don't await)
+  loadBatch(optional, 15000);
+
+  // Wait for critical (12s timeout), then important (6s timeout)
+  return loadBatch(critical, 12000).then(() => loadBatch(important, 6000));
 }
