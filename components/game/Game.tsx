@@ -28,6 +28,7 @@ import { ZoneTitle } from "./ZoneTitle";
 import { Interior } from "./Interior";
 import { SettingsScreen } from "./SettingsScreen";
 import { CreditsScreen } from "./CreditsScreen";
+import { WildEncounterIntro } from "./WildEncounterIntro";
 
 const INIT_W = 20 * TILE;
 const INIT_H = 14 * TILE;
@@ -52,6 +53,7 @@ export function Game() {
   const [battleIntro, setBattleIntro] = useState<Zone | null>(null);
   const [evolution, setEvolution] = useState<{ from: ReturnType<typeof stageForBadges>; to: ReturnType<typeof stageForBadges> } | null>(null);
   const [catchModal, setCatchModal] = useState<Zone | null>(null);
+  const [wildIntro, setWildIntro] = useState<Zone | null>(null);
   const [contactOpen, setContactOpen] = useState(false);
   const [pressOpen, setPressOpen] = useState(false);
   const [toast, setToast] = useState<{ title: string; sub?: string } | null>(null);
@@ -146,7 +148,7 @@ export function Game() {
     toastTimer.current = setTimeout(() => setToast(null), 2800);
   }, []);
 
-  const isModalOpen = !!(dialog || menuOpen || bagOpen || cliffOpen || mapOpen || worldSelectOpen || battle || battleIntro || catchModal || contactOpen || pressOpen || evolution || victoryZone || skillLearnZone || !titleDone || championOpen || interiorZone || trainerBattle || trainerBattleIntro || settingsOpen || creditsOpen);
+  const isModalOpen = !!(dialog || menuOpen || bagOpen || cliffOpen || mapOpen || worldSelectOpen || battle || battleIntro || catchModal || wildIntro || contactOpen || pressOpen || evolution || victoryZone || skillLearnZone || !titleDone || championOpen || interiorZone || trainerBattle || trainerBattleIntro || settingsOpen || creditsOpen);
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -229,7 +231,7 @@ export function Game() {
         // Follower jumps on battle entry
         engine.triggerFollowerAnim("jump");
       },
-      onWild: (z: Zone) => { setCatchModal(z); engine.setPaused(true); },
+      onWild: (z: Zone) => { setWildIntro(z); engine.setPaused(true); },
       onDoorEnter: (z: Zone) => {
         setInteriorZone(z);
         engine.setPaused(true);
@@ -794,6 +796,12 @@ export function Game() {
           );
         })()}
 
+        {wildIntro && (
+          <WildEncounterIntro
+            zone={wildIntro}
+            onComplete={() => { setWildIntro(null); setCatchModal(wildIntro); }}
+          />
+        )}
         {catchModal && (
           <CatchModal
             zone={catchModal}

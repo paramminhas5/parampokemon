@@ -213,26 +213,24 @@ function paintRoutes(grid: TileCode[][], w: number, h: number) {
           break;
         }
         case "neon": {
+          // Only non-solid floor tiles on path — props go on shoulders only
           for (let x = PATH_X1; x < PATH_X2; x++) {
             const r = sr(x, y, i + 1003);
-            if (r < 0.04) grid[y][x] = T.PROP_NEON_PYLON;
-            else if (r < 0.12) grid[y][x] = T.NEON_FLOOR;
+            if (r < 0.15) grid[y][x] = T.NEON_FLOOR;
           }
           break;
         }
         case "mall": {
           for (let x = PATH_X1; x < PATH_X2; x++) {
             const r = sr(x, y, i + 1004);
-            if (r < 0.04) grid[y][x] = T.PROP_RACK;
-            else if (r < 0.10) grid[y][x] = T.MALL_FLOOR;
+            if (r < 0.12) grid[y][x] = T.MALL_FLOOR;
           }
           break;
         }
         case "crypto": {
           for (let x = PATH_X1; x < PATH_X2; x++) {
             const r = sr(x, y, i + 1005);
-            if (r < 0.05) grid[y][x] = T.PROP_CANDLESTICK;
-            else if (r < 0.14) grid[y][x] = T.CRYPTO_FLOOR;
+            if (r < 0.15) grid[y][x] = T.CRYPTO_FLOOR;
           }
           break;
         }
@@ -247,8 +245,7 @@ function paintRoutes(grid: TileCode[][], w: number, h: number) {
         case "skyline": {
           for (let x = PATH_X1; x < PATH_X2; x++) {
             const r = sr(x, y, i + 1007);
-            if (r < 0.05) grid[y][x] = T.PROP_TROPHY;
-            else if (r < 0.11) grid[y][x] = T.NIGHT_FLOOR;
+            if (r < 0.12) grid[y][x] = T.NIGHT_FLOOR;
           }
           break;
         }
@@ -606,8 +603,9 @@ function placeZoneContent(grid: TileCode[][], w: number, h: number) {
     // Unique zone border treatment
     paintZoneBorder(grid, z, w, h);
 
-    // Sign — REMOVED from world grid (no more physical sign posts cluttering zones)
-    // Sign text is still accessible via NPC interactions and zone entry
+    // Sign — walkable, player can interact when standing on or adjacent
+    const sx = z.ox + z.sign.x, sy = z.oy + z.sign.y;
+    if (sx >= 0 && sy >= 0 && sx < w && sy < h) grid[sy][sx] = T.SIGN;
 
     // Badge
     const bx = z.ox + z.badge.x, by = z.oy + z.badge.y;

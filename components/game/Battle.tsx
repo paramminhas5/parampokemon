@@ -848,7 +848,7 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee, onFinishingBl
       </div>
 
       {/* Battle log — compact */}
-      <div style={{ height: 56, overflowY: "auto", padding: "4px 14px", borderBottom: "2px solid #0a1525", background: "rgba(2,5,12,0.92)", flexShrink: 0 }}>
+      <div style={{ height: 80, overflowY: "auto", padding: "4px 14px", borderBottom: "2px solid #0a1525", background: "rgba(2,5,12,0.92)", flexShrink: 0 }}>
         {log.slice(-3).map((l, i) => {
           const isAttack  = l.kind === "normal" && l.type !== undefined;
           const isFlavor  = l.kind === "info";
