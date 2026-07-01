@@ -2,7 +2,7 @@
 // unique building layouts, decorative route corridors, water features,
 // zone-entry arches, and dense thematic props.
 
-import { ZONES, WORLD_W, WORLD_H } from "./data";
+import { ZONES, WORLD_W, WORLD_H, wildPositionFor } from "./data";
 import { T, groundTileFor, type TileCode } from "./tiles";
 
 const ZONE_H  = 20;
@@ -294,6 +294,16 @@ function addZoneTreeClusters(grid: TileCode[][], z: typeof ZONES[0], w: number, 
     if (gx >= bx1 - 1 && gx <= bx2 + 1 && gy >= by1 - 1 && gy <= by2 + 1) return false;
     // Never on badge position
     if (gx === ox + z.badge.x && gy === oy + z.badge.y) return false;
+    // Never on wild creature position
+    if (z.creature) {
+      const wildPos = wildPositionFor(z as any);
+      if (gx === wildPos.x && gy === wildPos.y) return false;
+    }
+    // Never on hidden item position
+    if (z.hiddenItem) {
+      const hx = ox + z.hiddenItem.x, hy = oy + z.hiddenItem.y;
+      if (gx === hx && gy === hy) return false;
+    }
     // Never overwrite non-base tiles (sign, badge, etc.)
     if (grid[gy][gx] !== base) return false;
     return true;
@@ -507,7 +517,7 @@ function paintBuilding(
   // Mat tile right below the door — only for gym buildings (caller passes isGym)
   if (isGym) {
     const matWx = zoneOx + b.x + b.doorX;
-    const matWy = zoneOy + b.y + b.h;
+    const matWy = zoneOy + b.y + b.h - 1;
     if (matWx >= 0 && matWy >= 0 && matWx < worldW && matWy < worldH) {
       grid[matWy][matWx] = T.MAT;
     }
@@ -647,6 +657,13 @@ function placeZoneContent(grid: TileCode[][], w: number, h: number) {
           if (grid[py][px3] !== base) continue;
           // Don't place on or adjacent to path corridor
           if (px3 >= PATH_X1 - 2 && px3 < PATH_X2 + 2) continue;
+          // Skip interactive positions
+          if (px3 === z.ox + z.badge.x && py === z.oy + z.badge.y) continue;
+          if (z.creature) {
+            const wp = wildPositionFor(z as any);
+            if (px3 === wp.x && py === wp.y) continue;
+          }
+          if (z.hiddenItem && px3 === z.ox + z.hiddenItem.x && py === z.oy + z.hiddenItem.y) continue;
           const seed = sr(px3, py, z.id.charCodeAt(0));
           // Home zone gets lower density (8%) — cleaner starting area
           const density = z.id === "home" ? 0.08 : 0.18;
@@ -662,6 +679,7 @@ function placeZoneContent(grid: TileCode[][], w: number, h: number) {
     for (let x = z.ox + 2; x < z.ox + z.w - 2; x++) {
       const ty = z.oy + 2;
       if (ty < h && grid[ty][x] === base && !(x >= PATH_X1 && x < PATH_X2)) {
+        if (x === z.ox + z.badge.x && ty === z.oy + z.badge.y) continue;
         const seed = sr(x, ty, z.index * 7);
         if (seed < 0.22) {
           grid[ty][x] = seed < 0.09 ? T.FLOWER_R : seed < 0.16 ? T.FLOWER_Y : T.TALL_GRASS;
@@ -670,6 +688,7 @@ function placeZoneContent(grid: TileCode[][], w: number, h: number) {
       // Second row of flowers for lush feel
       const ty2 = z.oy + 3;
       if (ty2 < h && grid[ty2][x] === base && !(x >= PATH_X1 && x < PATH_X2)) {
+        if (x === z.ox + z.badge.x && ty2 === z.oy + z.badge.y) continue;
         const seed2 = sr(x, ty2, z.index * 11);
         if (seed2 < 0.12) {
           grid[ty2][x] = seed2 < 0.06 ? T.FLOWER_Y : T.FLOWER_R;

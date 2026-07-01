@@ -51,14 +51,27 @@ export function TransitionOverlay({ trigger, onMidpoint }: Props) {
     setActiveColor(trigger.color);
     setPhase("in");
 
-    const half = DURATION[trigger.kind] / 2;
-    const t1 = setTimeout(() => {
-      setPhase("hold");
-      if (!midFired.current) { midFired.current = true; onMidpoint?.(); }
-    }, half);
-    const t2 = setTimeout(() => setPhase("out"), half + 80);
-    const t3 = setTimeout(() => setPhase("idle"), DURATION[trigger.kind] + 120);
-    timers.current = [t1, t2, t3];
+    if (trigger.kind === "zone") {
+      // Faster zone transition: total ≤ 400ms
+      const inPhase = 180;
+      const t1 = setTimeout(() => {
+        setPhase("hold");
+        if (!midFired.current) { midFired.current = true; onMidpoint?.(); }
+      }, inPhase);
+      const t2 = setTimeout(() => setPhase("out"), inPhase + 40);
+      const t3 = setTimeout(() => setPhase("idle"), DURATION[trigger.kind]);
+      timers.current = [t1, t2, t3];
+    } else {
+      // battle / warp — original half-based logic
+      const half = DURATION[trigger.kind] / 2;
+      const t1 = setTimeout(() => {
+        setPhase("hold");
+        if (!midFired.current) { midFired.current = true; onMidpoint?.(); }
+      }, half);
+      const t2 = setTimeout(() => setPhase("out"), half + 80);
+      const t3 = setTimeout(() => setPhase("idle"), DURATION[trigger.kind] + 120);
+      timers.current = [t1, t2, t3];
+    }
     return clear;
   }, [trigger?.key]);
 
@@ -115,7 +128,7 @@ export function TransitionOverlay({ trigger, onMidpoint }: Props) {
         position: "absolute", inset: 0,
         background: `linear-gradient(180deg, #000 0%, ${activeColor}44 50%, #000 100%)`,
         opacity: phase === "in" ? 1 : phase === "hold" ? 1 : 0,
-        transition: phase === "in" ? "opacity 0.25s ease-in" : "opacity 0.3s ease-out",
+        transition: phase === "in" ? "opacity 0.15s ease-in" : "opacity 0.18s ease-out",
       }} />
       {/* Accent color horizontal stripe */}
       <div style={{
