@@ -9,9 +9,9 @@
   },
   "api": {
     "type": "openapi",
-    "url": "https://paramquest.vercel.app/llms.txt"
+    "url": "https://paramminhas.com/llms.txt"
   },
-  "logo_url": "https://paramquest.vercel.app/og.png",
+  "logo_url": "https://paramminhas.com/og.png",
   "contact_email": "minhas.param@gmail.com",
-  "legal_info_url": "https://paramquest.vercel.app"
+  "legal_info_url": "https://paramminhas.com"
 }

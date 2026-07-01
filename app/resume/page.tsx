@@ -13,13 +13,13 @@ export const metadata: Metadata = {
     "fractional CMO India", "brand strategy leader",
   ],
   alternates: {
-    canonical: "https://paramquest.vercel.app/resume",
+    canonical: "https://paramminhas.com/resume",
   },
   openGraph: {
     title: "Resume — Param Minhas | Founder & Creative Director",
     description: "15+ years building. $6M+ revenue. 350K+ community. 90-person network. Full professional resume with career timeline, skills, and press coverage.",
     type: "profile",
-    url: "https://paramquest.vercel.app/resume",
+    url: "https://paramminhas.com/resume",
   },
   twitter: {
     card: "summary_large_image",
@@ -186,8 +186,8 @@ export default function ResumePage() {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: "https://paramquest.vercel.app" },
-      { "@type": "ListItem", position: 2, name: "Resume", item: "https://paramquest.vercel.app/resume" },
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://paramminhas.com" },
+      { "@type": "ListItem", position: 2, name: "Resume", item: "https://paramminhas.com/resume" },
     ],
   };
 

@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "@/app/globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://paramquest.vercel.app"),
+  metadataBase: new URL("https://paramminhas.com"),
   title: {
     default: "Param Minhas — Builder · Designer · Creative Director | Founder of Iterate | 15+ Years, $6M+ Revenue",
     template: "%s | Param Minhas",
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     title: "Param Minhas — Builder · Designer · Creative Director",
     description: "15+ years building. $6M+ revenue. 350K+ community. 90-person network. Founder of Iterate (AI-native marketing agency) & Cats Can Dance (culture platform). Previously: SoleSearch, Fere.ai, Good Capital.",
     type: "profile",
-    url: "https://paramquest.vercel.app",
+    url: "https://paramminhas.com",
     siteName: "Param Quest — Playable Portfolio",
     locale: "en_US",
     firstName: "Param",
@@ -67,7 +67,7 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: "https://paramquest.vercel.app",
+    canonical: "https://paramminhas.com",
   },
   verification: {
     // Add Google Search Console verification when available
@@ -99,15 +99,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const personJsonLd = {
     "@context": "https://schema.org",
     "@type": "Person",
-    "@id": "https://paramquest.vercel.app/#person",
+    "@id": "https://paramminhas.com/#person",
     name: "Param Minhas",
     givenName: "Param",
     familyName: "Minhas",
     jobTitle: "Founder & Creative Director",
     description: "Founder, creative director, and growth operator with 15+ years across e-commerce, AI, real estate, sneakers, music, and AI-native marketing. $6M+ revenue generated, 350K+ community built, 90-person network led. Currently running Iterate (AI-native marketing agency) and Cats Can Dance (culture platform).",
-    url: "https://paramquest.vercel.app",
+    url: "https://paramminhas.com",
     email: "minhas.param@gmail.com",
-    image: "https://paramquest.vercel.app/opengraph-image",
+    image: "https://paramminhas.com/opengraph-image",
     address: {
       "@type": "PostalAddress",
       addressLocality: "Bengaluru",
@@ -123,7 +123,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         url: "https://hyperiterate.com",
         description: "AI-native marketing agency with a 90-person network across strategy, creative, and engineering",
         foundingDate: "2026-01",
-        founder: { "@id": "https://paramquest.vercel.app/#person" },
+        founder: { "@id": "https://paramminhas.com/#person" },
         numberOfEmployees: { "@type": "QuantitativeValue", value: 90 },
       },
       {
@@ -133,7 +133,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         url: "https://catscandance.com",
         description: "Culture-discovery platform spanning music, fashion, and pet care",
         foundingDate: "2026-03",
-        founder: { "@id": "https://paramquest.vercel.app/#person" },
+        founder: { "@id": "https://paramminhas.com/#person" },
       },
     ],
     sameAs: [
@@ -186,14 +186,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const websiteJsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "@id": "https://paramquest.vercel.app/#website",
+    "@id": "https://paramminhas.com/#website",
     name: "Param Quest — Playable Portfolio",
     alternateName: ["Param Minhas Portfolio", "Param Minhas Resume", "Param Quest"],
-    url: "https://paramquest.vercel.app",
+    url: "https://paramminhas.com",
     description: "A playable portfolio RPG — 15 years of Param Minhas's career told as a Pokemon-style game. Explore 10 zones, battle gym leaders, and discover the story.",
-    publisher: { "@id": "https://paramquest.vercel.app/#person" },
+    publisher: { "@id": "https://paramminhas.com/#person" },
     inLanguage: "en-US",
-    copyrightHolder: { "@id": "https://paramquest.vercel.app/#person" },
+    copyrightHolder: { "@id": "https://paramminhas.com/#person" },
     copyrightYear: 2026,
   };
 
@@ -201,20 +201,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const profilePageJsonLd = {
     "@context": "https://schema.org",
     "@type": "ProfilePage",
-    "@id": "https://paramquest.vercel.app/#profilepage",
+    "@id": "https://paramminhas.com/#profilepage",
     name: "Param Minhas — Professional Profile",
-    url: "https://paramquest.vercel.app",
-    mainEntity: { "@id": "https://paramquest.vercel.app/#person" },
+    url: "https://paramminhas.com",
+    mainEntity: { "@id": "https://paramminhas.com/#person" },
     dateCreated: "2025-01-01",
     dateModified: new Date().toISOString().split("T")[0],
     breadcrumb: {
       "@type": "BreadcrumbList",
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: "https://paramquest.vercel.app" },
-        { "@type": "ListItem", position: 2, name: "About", item: "https://paramquest.vercel.app/about" },
-        { "@type": "ListItem", position: 3, name: "Resume", item: "https://paramquest.vercel.app/resume" },
-        { "@type": "ListItem", position: 4, name: "Press", item: "https://paramquest.vercel.app/press" },
-        { "@type": "ListItem", position: 5, name: "Play", item: "https://paramquest.vercel.app/play" },
+        { "@type": "ListItem", position: 1, name: "Home", item: "https://paramminhas.com" },
+        { "@type": "ListItem", position: 2, name: "About", item: "https://paramminhas.com/about" },
+        { "@type": "ListItem", position: 3, name: "Resume", item: "https://paramminhas.com/resume" },
+        { "@type": "ListItem", position: 4, name: "Press", item: "https://paramminhas.com/press" },
+        { "@type": "ListItem", position: 5, name: "Play", item: "https://paramminhas.com/play" },
       ],
     },
   };
@@ -279,7 +279,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
         <link rel="manifest" href="/manifest.json" />
-        <link rel="canonical" href="https://paramquest.vercel.app" />
+        <link rel="canonical" href="https://paramminhas.com" />
         <link rel="author" href="/humans.txt" />
         <meta name="author" content="Param Minhas" />
         <meta name="citation_author" content="Param Minhas" />

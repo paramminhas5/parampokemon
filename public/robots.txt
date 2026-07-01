@@ -1,4 +1,4 @@
-# Param Minhas — paramquest.vercel.app
+# Param Minhas — paramminhas.com
 # Robots.txt — Maximum discoverability for search engines and AI systems
 
 User-agent: *
@@ -66,9 +66,9 @@ User-agent: Applebot-Extended
 Allow: /
 
 # Sitemaps
-Sitemap: https://paramquest.vercel.app/sitemap.xml
+Sitemap: https://paramminhas.com/sitemap.xml
 
 # AI Discoverability
-# LLMs.txt: https://paramquest.vercel.app/llms.txt
-# Humans.txt: https://paramquest.vercel.app/humans.txt
-# AI Plugin: https://paramquest.vercel.app/.well-known/ai-plugin.json
+# LLMs.txt: https://paramminhas.com/llms.txt
+# Humans.txt: https://paramminhas.com/humans.txt
+# AI Plugin: https://paramminhas.com/.well-known/ai-plugin.json

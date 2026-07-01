@@ -130,7 +130,7 @@ export default async function Image() {
             color: "#4a6888",
           }}
         >
-          <span>paramquest.vercel.app/play</span>
+          <span>paramminhas.com/play</span>
           <span style={{ color: "#7ce0ff" }}>— PRESS START</span>
         </div>
       </div>
