@@ -914,19 +914,56 @@ export const ROUTE_NPCS: RouteNpc[] = [
   { x: 40, y: 85,
     name: "Early Adopter", role: "Route 3 · GRP → Hab",
     kind: "trainer-m",
-    quote: "I was the 12th user of GetRightPrice.\n\nI still remember comparing prices for a Nokia phone.\n\nFirst-mover energy is real. You can feel it." },
+    quote: "I was the 12th user of GetRightPrice.\n\nI still remember comparing prices for a Nokia phone.\n\nFirst-mover energy is real. You can feel it.",
+    trainer: {
+      hp: 50,
+      moves: [
+        { id: "ea1", name: "Early Access", type: "Search", power: 18, pp: 20, accuracy: 100, category: "physical", flavor: "First to try, first to break it." },
+        { id: "ea2", name: "Feature Request", type: "Normal", power: 22, pp: 15, accuracy: 95, category: "special", flavor: "The feedback loop that makes or breaks v2." },
+      ],
+      weakTo: ["Ops", "Brand"],
+      resists: ["Normal"],
+      victoryQuote: "You're a faster learner than I was. The next product will be even better.",
+      defeatQuote: "Twelve users. That's how it starts. You'll understand when you have your own.",
+    }
+  },
 
   // Route 4: Hab → AI (y = 3*30 + 25 = 115)
   { x: 40, y: 115,
     name: "Bengaluru Tenant", role: "Route 4 · Hab → AI",
     kind: "tenant",
-    quote: "Hab Housing was the only budget rental that didn't feel like a scam.\n\nStandardised. Clean. Reliable.\n\nSame problem as OYO. No VC money. Still worked." },
+    quote: "Hab Housing was the only budget rental that didn't feel like a scam.\n\nStandardised. Clean. Reliable.\n\nSame problem as OYO. No VC money. Still worked.",
+    trainer: {
+      hp: 55,
+      moves: [
+        { id: "bt1", name: "Lease Lock", type: "Ops", power: 20, pp: 20, accuracy: 100, category: "physical", flavor: "Twelve months. No exits. Read the fine print." },
+        { id: "bt2", name: "Deposit Drain", type: "Steel", power: 24, pp: 15, accuracy: 90, category: "special", flavor: "Getting that deposit back is a skill in itself." },
+      ],
+      weakTo: ["Capital", "Vision"],
+      resists: ["Ghost"],
+      victoryQuote: "Fair enough. You know what it's like to deal with operations. Respect.",
+      defeatQuote: "I've survived landlords worse than you. Come back after you've signed a real lease.",
+    }
+  },
 
   // Route 5: AI → Investopad (y = 4*30 + 25 = 145)
   { x: 40, y: 145,
     name: "Tech Journalist", role: "Route 5 · AI → Investopad",
     kind: "celeb",
-    quote: "I wrote about chatbots in 2013 and nobody read it.\n\nNow everyone's an AI expert.\n\nThe people who were early rarely get the credit." },
+    quote: "I wrote about chatbots in 2013 and nobody read it.\n\nNow everyone's an AI expert.\n\nThe people who were early rarely get the credit.",
+    trainer: {
+      hp: 65,
+      moves: [
+        { id: "tj1", name: "Hot Take", type: "Psychic", power: 24, pp: 15, accuracy: 100, category: "special", flavor: "Published before the hype cycle. Ignored until proven right." },
+        { id: "tj2", name: "Viral Thread", type: "Brand", power: 28, pp: 12, accuracy: 90, category: "special", flavor: "One thread changes the narrative. Timing is everything." },
+        { id: "tj3", name: "Fact Check", type: "Search", power: 18, pp: 20, accuracy: 100, category: "status", flavor: "Sources or it didn't happen.", effect: "buff" },
+      ],
+      weakTo: ["AI", "Autonomy"],
+      resists: ["Normal"],
+      victoryQuote: "You've got the substance behind the hype. That's rare. I'll write about you.",
+      defeatQuote: "I've been covering tech for a decade. The ones who last are the ones who can back it up.",
+    }
+  },
 
   // Route 6: Investopad → SoleSearch (y = 5*30 + 25 = 175)
   { x: 40, y: 175,
@@ -970,13 +1007,39 @@ export const ROUTE_NPCS: RouteNpc[] = [
   { x: 40, y: 235,
     name: "Crypto Trader", role: "Route 8 · Fere → CCD",
     kind: "engineer",
-    quote: "Autonomous agents are the next interface.\n\nMost people don't know what that means yet.\n\nFere figured it out early. That counts for something." },
+    quote: "Autonomous agents are the next interface.\n\nMost people don't know what that means yet.\n\nFere figured it out early. That counts for something.",
+    trainer: {
+      hp: 70,
+      moves: [
+        { id: "ct1", name: "Flash Crash", type: "Autonomy", power: 30, pp: 12, accuracy: 90, category: "special", flavor: "Markets move in milliseconds. So do agents." },
+        { id: "ct2", name: "HODL", type: "Steel", power: 15, pp: 20, accuracy: 100, category: "status", flavor: "Diamond hands. Conviction over panic.", effect: "buff" },
+        { id: "ct3", name: "Rug Pull", type: "Dark", power: 35, pp: 8, accuracy: 85, category: "special", flavor: "Trust broken in an instant. Build it back.", effect: "crit" },
+      ],
+      weakTo: ["Soul", "Brand"],
+      resists: ["Normal", "Search"],
+      victoryQuote: "You trade with conviction. The market respects that.",
+      defeatQuote: "The market doesn't care about your feelings. Come back with a thesis.",
+    }
+  },
 
   // Route 9: CCD → Iterate (y = 8*30 + 25 = 265)
   { x: 40, y: 265,
     name: "Music Producer", role: "Route 9 · CCD → Iterate",
     kind: "celeb",
-    quote: "Cats Can Dance is doing something real.\n\nOriginal music. Brand world. Events.\n\nNo brief. That's the hardest kind of work there is." },
+    quote: "Cats Can Dance is doing something real.\n\nOriginal music. Brand world. Events.\n\nNo brief. That's the hardest kind of work there is.",
+    trainer: {
+      hp: 65,
+      moves: [
+        { id: "mp1", name: "Drop the Beat", type: "Soul", power: 26, pp: 15, accuracy: 100, category: "special", flavor: "When the beat hits, nothing else matters." },
+        { id: "mp2", name: "Creative Block", type: "Ghost", power: 22, pp: 15, accuracy: 95, category: "special", flavor: "The silence before the breakthrough." },
+        { id: "mp3", name: "Encore", type: "Brand", power: 30, pp: 10, accuracy: 90, category: "physical", flavor: "They came back for more. That's the real metric." },
+      ],
+      weakTo: ["Stack", "Ops"],
+      resists: ["Normal"],
+      victoryQuote: "You've got rhythm. Not just in music — in everything you do.",
+      defeatQuote: "Art doesn't lose. It just waits for the right audience.",
+    }
+  },
 
   // Easter egg: Old Fisher at the very end of the last route
   { x: 40, y: 278,
