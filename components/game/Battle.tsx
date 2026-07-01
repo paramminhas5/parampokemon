@@ -709,6 +709,8 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee, onFinishingBl
       display: "flex", flexDirection: "column",
       background: `linear-gradient(180deg, ${accent}0a 0%, #04080f 30%, #020508 100%)`,
       fontFamily: "var(--font-pixel)", overflow: "hidden",
+      paddingTop: "env(safe-area-inset-top)",
+      paddingBottom: "env(safe-area-inset-bottom)",
     }}>
       <style>{BATTLE_STYLES}</style>
 
@@ -747,7 +749,7 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee, onFinishingBl
         display: "grid", gridTemplateColumns: "1fr 1fr",
         flexShrink: 0,
         borderBottom: `2px solid ${accent}80`,
-        minHeight: 260, position: "relative", overflow: "hidden",
+        minHeight: "min(260px, 40dvh)", position: "relative", overflow: "hidden",
         background: arenaFlash ? `${accent}18` : "transparent",
         transition: "background 0.3s ease-out",
       }}>
@@ -848,7 +850,7 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee, onFinishingBl
       </div>
 
       {/* Battle log — compact */}
-      <div style={{ height: 80, overflowY: "auto", padding: "4px 14px", borderBottom: "2px solid #0a1525", background: "rgba(2,5,12,0.92)", flexShrink: 0 }}>
+      <div style={{ height: "min(80px, 12dvh)", overflowY: "auto", padding: "4px 14px", borderBottom: "2px solid #0a1525", background: "rgba(2,5,12,0.92)", flexShrink: 0 }}>
         {log.slice(-3).map((l, i) => {
           const isAttack  = l.kind === "normal" && l.type !== undefined;
           const isFlavor  = l.kind === "info";

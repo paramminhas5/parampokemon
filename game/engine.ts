@@ -513,10 +513,10 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       ctx.fillRect(0, 0, VIEW_TILES_X * TILE, VIEW_TILES_Y * TILE);
     }
 
-    const tx0 = Math.max(0, Math.floor(cx));
-    const ty0 = Math.max(0, Math.floor(cy));
-    const tx1 = Math.min(worldW, tx0 + VIEW_TILES_X + 2);
-    const ty1 = Math.min(worldH, ty0 + VIEW_TILES_Y + 2);
+    const tx0 = Math.max(0, Math.floor(cx) - 4);
+    const ty0 = Math.max(0, Math.floor(cy) - 4);
+    const tx1 = Math.min(worldW, Math.floor(cx) + VIEW_TILES_X + 5);
+    const ty1 = Math.min(worldH, Math.floor(cy) + VIEW_TILES_Y + 5);
 
     // Pre-compute building footprint — draw ground tile instead of wall/roof tiles
     // when building sprite is loaded (prevents both black gaps AND superimposition)
