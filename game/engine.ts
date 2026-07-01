@@ -1134,8 +1134,8 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       // Param sprite — direction mapped to the 4 Param PNGs
       let paramUrl: string;
       if (state.dir === "up")         paramUrl = PARAM_SPRITE_URL.back;
-      else if (state.dir === "left")  paramUrl = PARAM_SPRITE_URL.left;
-      else if (state.dir === "right") paramUrl = PARAM_SPRITE_URL.right;
+      else if (state.dir === "left")  paramUrl = PARAM_SPRITE_URL.right;
+      else if (state.dir === "right") paramUrl = PARAM_SPRITE_URL.left;
       else                            paramUrl = PARAM_SPRITE_URL.front;
 
       const paramImg = getSprite(paramUrl);
@@ -1167,11 +1167,24 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
 
     // Follower sprite — only shown after followerUnlocked (Prof. Iterate gives Mermander)
     if (state.followerUnlocked) {
-      const followerX = state.walkFrom.x;
-      const followerY = state.walkFrom.y;
+      // Follower trails 1 tile behind the player's current direction
+      let followerX: number, followerY: number;
+      if (state.walkFrom.x !== state.tx || state.walkFrom.y !== state.ty) {
+        // Player is moving — follower at previous position
+        followerX = state.walkFrom.x;
+        followerY = state.walkFrom.y;
+      } else {
+        // Player is standing still — show follower 1 tile behind based on facing direction
+        if (state.dir === "up")         { followerX = state.tx; followerY = state.ty + 1; }
+        else if (state.dir === "down")  { followerX = state.tx; followerY = state.ty - 1; }
+        else if (state.dir === "left")  { followerX = state.tx + 1; followerY = state.ty; }
+        else                            { followerX = state.tx - 1; followerY = state.ty; }
+      }
       const fbx = Math.round(followerX * TILE) + offX;
       const fby = Math.round(followerY * TILE) + offY;
-      if (followerX !== state.tx || followerY !== state.ty) {
+
+      // Always render follower (removed the !== check that caused blinking)
+      {
         // Compute follower animation offset
         const anim = state.followerAnim;
         const elapsed = now - anim.startedAt;

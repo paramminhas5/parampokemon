@@ -247,23 +247,32 @@ export function WorldSelect({ onSelect, onClose }: {
                   >
                     {/* Outer pulse ring */}
                     <circle cx={px} cy={py} r={nodeR + 3} fill="none"
-                      stroke={z.theme.accent} strokeWidth={0.3}
-                      strokeOpacity={isHov ? 0.5 : 0.1}
+                      stroke={z.theme.accent} strokeWidth={0.4}
+                      strokeOpacity={isHov ? 0.6 : 0.15}
                       style={{ transition:"all 0.25s" }}
                     />
                     {/* Inner glow ring */}
-                    <circle cx={px} cy={py} r={nodeR + 1.2} fill="none"
-                      stroke={z.theme.accent} strokeWidth={0.4}
-                      strokeOpacity={isHov ? 0.8 : 0.2}
+                    <circle cx={px} cy={py} r={nodeR + 1.5} fill="none"
+                      stroke={z.theme.accent} strokeWidth={0.5}
+                      strokeOpacity={isHov ? 0.9 : 0.3}
+                      style={{ transition:"all 0.2s" }}
+                    />
+                    {/* Background fill glow */}
+                    <circle cx={px} cy={py} r={nodeR + 1}
+                      fill={z.theme.accent}
+                      fillOpacity={isHov ? 0.15 : 0.05}
                       style={{ transition:"all 0.2s" }}
                     />
                     {/* Main dot */}
                     <circle cx={px} cy={py} r={nodeR}
                       fill={z.theme.accent}
-                      fillOpacity={isHov ? 1 : 0.75}
+                      fillOpacity={isHov ? 1 : 0.85}
+                      stroke={z.theme.accent}
+                      strokeWidth={0.4}
+                      strokeOpacity={0.6}
                       style={{
                         transition:"all 0.2s",
-                        filter: isHov ? `drop-shadow(0 0 4px ${z.theme.accent}) drop-shadow(0 0 8px ${z.theme.accent}80)` : "none",
+                        filter: isHov ? `drop-shadow(0 0 4px ${z.theme.accent}) drop-shadow(0 0 8px ${z.theme.accent}80)` : `drop-shadow(0 0 2px ${z.theme.accent}60)`,
                         animation: isHov ? "none" : `ws-node-bob ${3 + ZONES.indexOf(z) * 0.4}s ease-in-out infinite`,
                       }}
                     />
