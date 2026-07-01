@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { ResumeThemeToggle } from "@/components/resume/ResumeThemeToggle";
 
 export const metadata: Metadata = {
   title: "Resume — Param Minhas | Founder & Creative Director | 15+ Years Experience",
@@ -192,12 +193,39 @@ export default function ResumePage() {
   };
 
   return (
-    <div style={{
+    <div id="resume-root" className="resume-light" style={{
       minHeight: "100vh",
-      background: "#ffffff",
-      color: "#1a1a2e",
       fontFamily: "'Space Mono', monospace",
     }}>
+      {/* Dark/Light theme styles */}
+      <style>{`
+        .resume-light {
+          background: #ffffff;
+          color: #1a1a2e;
+        }
+        .resume-dark {
+          background: linear-gradient(180deg, #04080f 0%, #070e1a 50%, #0a1428 100%);
+          color: #c8d8f0;
+        }
+        .resume-dark h1, .resume-dark h2 { color: #7ce0ff !important; }
+        .resume-dark p, .resume-dark li { color: #8aa0c0 !important; }
+        .resume-dark a { color: #7ce0ff !important; }
+        .resume-dark header { border-color: rgba(124,224,255,0.2) !important; }
+        .resume-dark [style*="border-left: 3px solid #4a7adb"] { border-color: rgba(124,224,255,0.4) !important; }
+        .resume-dark [style*="background: #f0f4ff"],
+        .resume-dark [style*="background: #f8f9fc"] { background: rgba(124,224,255,0.05) !important; border-color: rgba(124,224,255,0.15) !important; }
+        .resume-dark [style*="background: rgba(255,255,255"] { background: rgba(4,8,20,0.6) !important; border-color: rgba(124,224,255,0.2) !important; }
+        .resume-dark [style*="background: #ffffff"] { background: rgba(4,8,20,0.7) !important; }
+        .resume-dark [style*="border-bottom: 1px solid #e8e8ec"] { border-color: #1a2a4a !important; }
+        .resume-dark .resume-sticky-bar { background: rgba(4,8,15,0.95) !important; border-color: #1a2a4a !important; backdrop-filter: blur(12px); }
+        .resume-dark span[style*="color: #6a6a8a"],
+        .resume-dark span[style*="color: #4a5a7a"],
+        .resume-dark span[style*="color: #8a8aa0"] { color: #5a7898 !important; }
+        .resume-dark span[style*="color: #1a1a2e"],
+        .resume-dark div[style*="color: #1a1a2e"] { color: #c8d8f0 !important; }
+        .resume-dark div[style*="color: #2a4a8a"] { color: #7ce0ff !important; }
+        .resume-dark span[style*="color: #b0b0c0"] { color: #3a5070 !important; }
+      `}</style>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(resumeJsonLd) }}
@@ -207,7 +235,7 @@ export default function ResumePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       {/* ── Sticky download bar ── */}
-      <div style={{
+      <div className="resume-sticky-bar" style={{
         position: "sticky",
         top: 0,
         zIndex: 100,
@@ -276,6 +304,7 @@ export default function ResumePage() {
         >
           ▶ Play Game
         </Link>
+        <ResumeThemeToggle />
       </div>
 
 

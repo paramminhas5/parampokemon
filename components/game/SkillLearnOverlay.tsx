@@ -99,10 +99,10 @@ export function SkillLearnOverlay({ zone, npcName, onClose }: Props) {
             borderBottom: `1px solid ${accent}30`,
             fontSize: 6, color: accent, letterSpacing: "0.2em",
           }}>
-            ✦ SKILL BERRY OBTAINED
+            ✦ SKILL ORB ABSORBED
           </div>
 
-          {/* Berry + skill info */}
+          {/* Orb + skill info */}
           <div style={{ padding: "20px 18px", textAlign: "center", position: "relative" }}>
             {/* Sparkles */}
             <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
@@ -118,18 +118,23 @@ export function SkillLearnOverlay({ zone, npcName, onClose }: Props) {
               ))}
             </div>
 
-            {/* Berry orb */}
+            {/* Energy orb (glowing sphere, NOT a berry) */}
             <div style={{
-              width: 64, height: 64,
+              width: 72, height: 72,
               borderRadius: "50%",
-              background: `radial-gradient(circle at 35% 35%, ${accent}ee 0%, ${accent}88 60%, ${accent}44 100%)`,
-              boxShadow: `0 0 30px ${accent}80, inset 0 0 20px rgba(255,255,255,0.2)`,
+              background: `radial-gradient(circle at 35% 35%, #ffffffee 0%, ${accent}ee 30%, ${accent}88 65%, ${accent}22 100%)`,
+              boxShadow: `0 0 40px ${accent}aa, 0 0 80px ${accent}44, inset 0 0 20px rgba(255,255,255,0.4)`,
               margin: "0 auto 16px",
               animation: "sl-berry-in 0.5s cubic-bezier(0.34,1.56,0.64,1) both",
               display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 22,
+              position: "relative",
             }}>
-              🫐
+              {/* Inner core glow */}
+              <div style={{
+                width: 28, height: 28, borderRadius: "50%",
+                background: "radial-gradient(circle, #ffffff 0%, transparent 70%)",
+                opacity: 0.8,
+              }} />
             </div>
 
             {/* Taught by */}
@@ -182,7 +187,7 @@ export function SkillLearnOverlay({ zone, npcName, onClose }: Props) {
             background: `${accent}06`,
             textAlign: "center",
           }}>
-            MERMANDER CAN NOW USE THIS IN BATTLE
+            MERMANDER ABSORBED THE ORB — NEW BATTLE MOVE UNLOCKED
           </div>
         </div>
       </div>

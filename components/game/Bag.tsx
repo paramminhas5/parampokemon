@@ -171,7 +171,7 @@ function BerriesTab({ skills }: { skills: Set<string> }) {
       </div>
       {/* Evolution hint */}
       <div className="pq-text-sm" style={{ fontSize: 11, opacity: 0.6, marginBottom: 10 }}>
-        Collect Skill Orbs to learn new battle moves. At 4 orbs → evolve to Mermalion. At 7 → Merlord.
+        Collect Skill Orbs to learn new battle moves and power up Mermander. At 4 orbs → evolve to Mermalion. At 7 orbs → evolve to Merlord.
       </div>
       <ul style={{ listStyle: "none", padding: 0 }} className="grid sm:grid-cols-2 gap-2">
         {all.map((z) => {
@@ -182,9 +182,11 @@ function BerriesTab({ skills }: { skills: Set<string> }) {
               <div className="flex items-start gap-3">
                 <div style={{
                   width: 28, height: 28, borderRadius: "50%", flexShrink: 0,
-                  background: has ? z.theme.accent : "transparent",
-                  border: "2px solid var(--color-dialog-border)",
-                  boxShadow: has ? `inset 0 -4px 0 rgba(0,0,0,0.25), 0 0 8px ${z.theme.accent}40` : undefined,
+                  background: has
+                    ? `radial-gradient(circle at 35% 35%, #ffffffcc, ${z.theme.accent}ee 50%, ${z.theme.accent}66 100%)`
+                    : "transparent",
+                  border: has ? `2px solid ${z.theme.accent}` : "2px solid var(--color-dialog-border)",
+                  boxShadow: has ? `0 0 12px ${z.theme.accent}60, inset 0 0 8px rgba(255,255,255,0.3)` : undefined,
                 }} />
                 <div style={{ minWidth: 0 }}>
                   <div className="pq-label" style={{ fontSize: 9 }}>{z.org} · {s.type} · PWR {s.power}</div>
