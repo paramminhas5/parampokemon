@@ -23,7 +23,7 @@ import { SkillLearnOverlay } from "./SkillLearnOverlay";
 import { TouchControls } from "./TouchControls";
 import { ChampionCard } from "./ChampionCard";
 import { playSound, playZoneBGM, playBattleBGM, stopBattleBGM, stopBGM, setMuted, isMuted, loadMutePref } from "@/lib/audio";
-import { LEADER_URL } from "@/game/sprite-registry";
+import { LEADER_URL, NPC_SPRITE_URL } from "@/game/sprite-registry";
 import { ZoneTitle } from "./ZoneTitle";
 import { Interior } from "./Interior";
 
@@ -763,6 +763,7 @@ export function Game() {
           };
           return (
             <Battle zone={syntheticZone} ownedSkills={skills} badges={badges}
+              opponentSpriteUrl={NPC_SPRITE_URL[npc.kind]}
               onWin={() => {
                 setTrainerBattle(null);
                 engineRef.current?.markTrainerDefeated(npc.name);

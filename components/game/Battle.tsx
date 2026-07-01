@@ -396,9 +396,10 @@ function StatusBadges({ effects }: { effects: StatusEffect[] }) {
 }
 
 // ─── Main Battle component ───────────────────────────────────────────────────
-export function Battle({ zone, ownedSkills, badges, onWin, onFlee, onFinishingBlow }: {
+export function Battle({ zone, ownedSkills, badges, onWin, onFlee, onFinishingBlow, opponentSpriteUrl }: {
   zone: Zone; ownedSkills: Set<string>; badges: Set<string>; onWin: () => void; onFlee: () => void;
   onFinishingBlow?: () => void;
+  opponentSpriteUrl?: string; // For route trainer battles — shows the NPC sprite
 }) {
   const gym = zone.gym!;
   const stage = stageForBadges(badges.size);
@@ -439,6 +440,8 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee, onFinishingBl
   const myBackImg = getSprite(PLAYER_BACK_URL[stage.id] ?? PLAYER_BACK_URL.mermander);
   const battleBgImg = BATTLE_BG_URL[zone.id] ? getSprite(BATTLE_BG_URL[zone.id]) : null;
   const leaderImg = LEADER_URL[gym.leader] ? getSprite(LEADER_URL[gym.leader]) : null;
+  // For route trainer battles: use the provided opponent sprite URL
+  const npcBattleImg = opponentSpriteUrl ? getSprite(opponentSpriteUrl) : null;
 
   useEffect(() => {
     const loop = (now: number) => {
@@ -461,19 +464,23 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee, onFinishingBl
       }
       if (meRef.current) {
         const c = meRef.current.getContext("2d")!;
-        c.imageSmoothingEnabled = false; c.clearRect(0, 0, 128, 128);
+        c.imageSmoothingEnabled = true; c.imageSmoothingQuality = "high";
+        c.clearRect(0, 0, 200, 200);
         if (isReady(myBackImg)) {
           const bob = Math.sin(now / 350) * 3;
-          c.drawImage(myBackImg, 4, 4 + bob, 120, 120);
+          c.drawImage(myBackImg, 10, 10 + bob, 180, 180);
         }
       }
-      // oppRef draws the CREATURE large on the field
+      // oppRef draws the opponent large on the field
       if (oppRef.current) {
         const c = oppRef.current.getContext("2d")!;
-        c.imageSmoothingEnabled = false; c.clearRect(0, 0, 240, 240);
-        // Show the creature as the main battle sprite; fall back to leader portrait
-        const drawImg = oppCreatureImg && isReady(oppCreatureImg) ? oppCreatureImg : leaderImg;
-        if (drawImg && isReady(drawImg)) {
+        c.imageSmoothingEnabled = true; c.imageSmoothingQuality = "high";
+        c.clearRect(0, 0, 240, 240);
+        // Priority: creature sprite > npc battle sprite > leader portrait
+        const drawImg = (oppCreatureImg && isReady(oppCreatureImg)) ? oppCreatureImg
+          : (npcBattleImg && isReady(npcBattleImg)) ? npcBattleImg
+          : (leaderImg && isReady(leaderImg)) ? leaderImg : null;
+        if (drawImg) {
           const bob = Math.sin(now / 420) * 3;
           c.drawImage(drawImg, 8, 8 + bob, 224, 224);
         }
@@ -788,7 +795,7 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee, onFinishingBl
             <StatusBadges effects={myStatuses} />
           </div>
           <div style={{ alignSelf: "flex-end", transform: meShake ? "translateX(-9px)" : "translateX(0)", transition: "transform 0.08s", filter: "drop-shadow(0 6px 0 rgba(0,0,0,0.5))", animation: "sprite-enter-left 0.45s cubic-bezier(0.2,0.8,0.4,1)" }}>
-            <canvas ref={meRef} width={128} height={128} style={{ imageRendering: "pixelated", width: 112, height: 112 }} />
+            <canvas ref={meRef} width={200} height={200} style={{ imageRendering: "pixelated", width: 160, height: 160 }} />
           </div>
         </div>
 
@@ -832,9 +839,9 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee, onFinishingBl
         </div>
       </div>
 
-      {/* Battle log */}
-      <div style={{ height: 120, overflowY: "auto", padding: "6px 14px", borderBottom: "2px solid #0a1525", background: "rgba(2,5,12,0.88)", backdropFilter: "blur(6px)", flexShrink: 0 }}>
-        {log.map((l, i) => {
+      {/* Battle log — compact */}
+      <div style={{ height: 56, overflowY: "auto", padding: "4px 14px", borderBottom: "2px solid #0a1525", background: "rgba(2,5,12,0.92)", flexShrink: 0 }}>
+        {log.slice(-3).map((l, i) => {
           const isAttack  = l.kind === "normal" && l.type !== undefined;
           const isFlavor  = l.kind === "info";
           const isSuper   = l.kind === "super";
