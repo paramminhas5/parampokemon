@@ -141,6 +141,20 @@ const BATTLE_STYLES = `
   0%   { opacity: 1; }
   100% { opacity: 0; }
 }
+@keyframes dmg-float {
+  0%   { opacity: 1; transform: translateY(0) scale(1.2); }
+  60%  { opacity: 1; transform: translateY(-28px) scale(1); }
+  100% { opacity: 0; transform: translateY(-42px) scale(0.8); }
+}
+@keyframes vfx-burst {
+  0%   { opacity: 1; transform: scale(0.3); }
+  50%  { opacity: 1; transform: scale(1.1); }
+  100% { opacity: 0; transform: scale(1.4); }
+}
+@keyframes status-pulse {
+  0%,100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
 `;
 
 // ─── HP Bar with animated drain ─────────────────────────────────────────────
@@ -280,6 +294,107 @@ const LOG_COLORS: Record<LogKind, string> = {
   normal: "var(--color-dialog)", super: "#4ade80", notso: "#f87171", crit: "#ffd24a", info: "#7ce0ff",
 };
 
+// ─── Floating Damage Number ──────────────────────────────────────────────────
+function FloatingDmg({ value, color, side }: { value: string; color: string; side: "left" | "right" }) {
+  return (
+    <div style={{
+      position: "absolute",
+      top: side === "right" ? "30%" : "50%",
+      left: side === "right" ? "65%" : "25%",
+      zIndex: 15, pointerEvents: "none",
+      fontFamily: "var(--font-pixel)", fontSize: 16, fontWeight: "bold",
+      color, textShadow: `0 0 8px ${color}, 0 2px 4px rgba(0,0,0,0.8)`,
+      animation: "dmg-float 1s ease-out forwards",
+      letterSpacing: "0.05em",
+    }}>{value}</div>
+  );
+}
+
+// ─── Per-Type VFX Particles ──────────────────────────────────────────────────
+const TYPE_VFX: Record<string, { emoji: string; count: number; color: string }> = {
+  Vision:    { emoji: "✦", count: 5, color: "#f5b78a" },
+  Search:    { emoji: "◎", count: 4, color: "#a8d39a" },
+  Ops:       { emoji: "⚙", count: 5, color: "#f6a268" },
+  AI:        { emoji: "⚡", count: 6, color: "#9fe8ff" },
+  Capital:   { emoji: "◆", count: 4, color: "#f0c4ff" },
+  Brand:     { emoji: "★", count: 5, color: "#ff9fd4" },
+  Autonomy:  { emoji: "◈", count: 5, color: "#00e8a0" },
+  Soul:      { emoji: "♪", count: 4, color: "#ffd29a" },
+  Stack:     { emoji: "⬡", count: 6, color: "#7ce0ff" },
+  Ghost:     { emoji: "◌", count: 5, color: "#8b6f9e" },
+  Dark:      { emoji: "▲", count: 4, color: "#6a5a7a" },
+  Normal:    { emoji: "●", count: 3, color: "#aaaaaa" },
+  Fire:      { emoji: "🔥", count: 5, color: "#ff6b35" },
+  Steel:     { emoji: "◇", count: 4, color: "#a8b8c8" },
+  Water:     { emoji: "💧", count: 5, color: "#4a90d9" },
+  Bug:       { emoji: "◉", count: 4, color: "#88b030" },
+  Poison:    { emoji: "☠", count: 4, color: "#a040b0" },
+  Ice:       { emoji: "❄", count: 5, color: "#98d8d8" },
+  Electric:  { emoji: "⚡", count: 6, color: "#f8d030" },
+  Psychic:   { emoji: "◎", count: 5, color: "#f85888" },
+  Fighting:  { emoji: "✊", count: 4, color: "#c03028" },
+  Sound:     { emoji: "♫", count: 4, color: "#ff9fd4" },
+};
+
+function AttackVFX({ type, side }: { type: string; side: "left" | "right" }) {
+  const vfx = TYPE_VFX[type] ?? TYPE_VFX.Normal;
+  return (
+    <div style={{
+      position: "absolute",
+      top: side === "right" ? "20%" : "40%",
+      left: side === "right" ? "55%" : "15%",
+      width: 120, height: 120,
+      zIndex: 12, pointerEvents: "none",
+    }}>
+      {Array.from({ length: vfx.count }).map((_, i) => {
+        const angle = (i / vfx.count) * 360;
+        const dist = 20 + Math.random() * 30;
+        const dx = Math.cos(angle * Math.PI / 180) * dist;
+        const dy = Math.sin(angle * Math.PI / 180) * dist;
+        const delay = i * 0.05;
+        return (
+          <span key={i} style={{
+            position: "absolute",
+            left: `calc(50% + ${dx}px)`,
+            top: `calc(50% + ${dy}px)`,
+            fontSize: 16 + Math.random() * 8,
+            color: vfx.color,
+            textShadow: `0 0 12px ${vfx.color}`,
+            animation: `vfx-burst 0.6s ${delay}s ease-out forwards`,
+            opacity: 0,
+          }}>{vfx.emoji}</span>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── Status Effect Indicators ────────────────────────────────────────────────
+type StatusEffect = "burn" | "shield" | "haste";
+const STATUS_DISPLAY: Record<StatusEffect, { icon: string; color: string; label: string }> = {
+  burn:   { icon: "🔥", color: "#ff6b35", label: "BURN" },
+  shield: { icon: "🛡", color: "#a8b8c8", label: "SHIELD" },
+  haste:  { icon: "⚡", color: "#f8d030", label: "HASTE" },
+};
+
+function StatusBadges({ effects }: { effects: StatusEffect[] }) {
+  if (!effects.length) return null;
+  return (
+    <div style={{ display: "flex", gap: 4, marginTop: 4 }}>
+      {effects.map(e => (
+        <span key={e} style={{
+          fontFamily: "var(--font-pixel)", fontSize: 6,
+          background: STATUS_DISPLAY[e].color + "20",
+          border: `1px solid ${STATUS_DISPLAY[e].color}60`,
+          color: STATUS_DISPLAY[e].color,
+          padding: "2px 5px", borderRadius: 0,
+          animation: "status-pulse 2s ease-in-out infinite",
+        }}>{STATUS_DISPLAY[e].icon} {STATUS_DISPLAY[e].label}</span>
+      ))}
+    </div>
+  );
+}
+
 // ─── Main Battle component ───────────────────────────────────────────────────
 export function Battle({ zone, ownedSkills, badges, onWin, onFlee, onFinishingBlow }: {
   zone: Zone; ownedSkills: Set<string>; badges: Set<string>; onWin: () => void; onFlee: () => void;
@@ -306,6 +421,13 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee, onFinishingBl
   const [myHpShake, setMyHpShake] = useState(false);
   const [finishFlash, setFinishFlash] = useState(false);
   const [arenaFlash, setArenaFlash] = useState(false);
+  // Phase 2: new state
+  const [floatingDmg, setFloatingDmg] = useState<{ value: string; color: string; side: "left" | "right"; key: number } | null>(null);
+  const [attackVfx, setAttackVfx] = useState<{ type: string; side: "left" | "right"; key: number } | null>(null);
+  const [myStatuses, setMyStatuses] = useState<StatusEffect[]>([]);
+  const [oppStatuses, setOppStatuses] = useState<StatusEffect[]>([]);
+  const [phase, setPhase] = useState(1); // Status Quo has 2 phases
+  const dmgKeyRef = useRef(0);
   const logEndRef = useRef<HTMLDivElement>(null);
   const meRef = useRef<HTMLCanvasElement>(null);
   const oppRef = useRef<HTMLCanvasElement>(null);
@@ -391,29 +513,57 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee, onFinishingBl
     if (isSuper) dmg = Math.round(dmg * 2);
     if (isNotSo) dmg = Math.round(dmg * 0.5);
     if (isCrit)  dmg = Math.round(dmg * 1.5);
-    if (miss)    dmg = 0;
+    // Haste: double hit
+    if (myStatuses.includes("haste")) dmg = Math.round(dmg * 1.4);
+    // Shield on opponent halves damage
+    if (oppStatuses.includes("shield")) {
+      dmg = Math.round(dmg * 0.5);
+      setOppStatuses(s => s.filter(e => e !== "shield"));
+    }
+    if (miss) dmg = 0;
 
     const typeColor = TYPE_COLORS[move.type] ?? "#7ce0ff";
-    setFlash({ color: typeColor + "28", dir: "left" });
-    setTimeout(() => setFlash(null), 320);
-    setTimeout(() => setOppShake(true), 120);
-    setTimeout(() => setOppShake(false), 520);
-    playSound(isSuper ? "super" : isCrit ? "crit" : "hit");
 
-    if (miss) addLog(`${stage.name} used ${move.name}… missed!`, "info");
-    else {
-      addLog(`${stage.name} used ${move.name}!`, "normal", move.type);
-      if (isCrit) addLog("⚡ CRITICAL HIT!", "crit");
-      else if (isSuper) addLog("★ SUPER EFFECTIVE!", "super");
-      else if (isNotSo) addLog("Not very effective…", "notso");
-      addLog(`Dealt ${dmg} damage.`, "normal");
-    }
+    // Step 1: Anticipation (200ms) — show attack name in log
+    addLog(`${stage.name} used ${move.name}!`, "normal", move.type);
 
+    // Step 2: VFX plays on target (after 200ms)
+    setTimeout(() => {
+      setAttackVfx({ type: move.type, side: "right", key: dmgKeyRef.current++ });
+      setFlash({ color: typeColor + "28", dir: "left" });
+      setTimeout(() => setFlash(null), 320);
+      playSound(isSuper ? "super" : isCrit ? "crit" : "hit");
+    }, 200);
+
+    // Step 3: Shake target (after 350ms)
+    setTimeout(() => {
+      setOppShake(true);
+      setTimeout(() => setOppShake(false), 450);
+    }, 350);
+
+    // Step 4: Damage number floats up (after 500ms)
+    setTimeout(() => {
+      if (miss) {
+        setFloatingDmg({ value: "MISS", color: "#6a88b0", side: "right", key: dmgKeyRef.current++ });
+        addLog(`${stage.name} missed!`, "info");
+      } else {
+        const dmgColor = isCrit ? "#ffd24a" : isSuper ? "#4ade80" : isNotSo ? "#f87171" : "#ffffff";
+        const dmgText = isCrit ? `${dmg}!` : isSuper ? `${dmg}★` : `${dmg}`;
+        setFloatingDmg({ value: dmgText, color: dmgColor, side: "right", key: dmgKeyRef.current++ });
+        if (isCrit) addLog("⚡ CRITICAL HIT!", "crit");
+        else if (isSuper) addLog("★ SUPER EFFECTIVE!", "super");
+        else if (isNotSo) addLog("Not very effective…", "notso");
+      }
+      setTimeout(() => setFloatingDmg(null), 1000);
+    }, 500);
+
+    // Step 5: HP drains + effectiveness text (after 700ms)
     const nextOppHp = Math.max(0, oppHp - dmg);
     setTimeout(() => {
       setOppHp(nextOppHp);
       setOppHpShake(true);
       setTimeout(() => setOppHpShake(false), 500);
+      setTimeout(() => setAttackVfx(null), 300);
       if (isSuper) {
         setSuperEffectText("SUPER EFFECTIVE!");
         setArenaFlash(true);
@@ -421,46 +571,128 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee, onFinishingBl
         setTimeout(() => setArenaFlash(false), 300);
       }
       if (isCrit) { setSuperEffectText("CRITICAL HIT!"); setTimeout(() => setSuperEffectText(null), 900); }
+
+      // Apply status effects from player moves
+      if (move.effect === "drain" && !oppStatuses.includes("burn")) {
+        setOppStatuses(s => [...s, "burn"]);
+        addLog(`${gym.opponentName} is BURNING!`, "super");
+      }
+      if (move.effect === "buff" && !myStatuses.includes("shield")) {
+        setMyStatuses(s => [...s, "shield"]);
+        addLog(`${stage.name} raised SHIELD!`, "info");
+      }
+
       if (nextOppHp === 0) {
+        // Phase 2 for Status Quo: revive at full HP with new strategy
+        if (gym.leader === "statusquo" && phase === 1) {
+          addLog(`${gym.opponentName} staggers... but rises again!`, "crit");
+          addLog(`"You think one round ends this? I AM the status quo."`, "info");
+          setPhase(2);
+          setOppHp(Math.round(gym.hp * 0.6));
+          setOppStatuses(["haste"]);
+          setAnimating(false);
+          return;
+        }
         addLog(`${gym.opponentName} was defeated!`, "super");
         addLog(gym.victory, "info");
         setDone(true); playSound("victory");
-        // Finishing blow drama: signal parent for canvas shake, flash arena
         onFinishingBlow?.();
         setFinishFlash(true);
         setTimeout(() => setFinishFlash(false), 400);
         setTimeout(onWin, 1800);
         setAnimating(false); return;
       }
-      const leaderMoveIdx = pickLeaderMove(gym, {
-        turn, myHp, myMaxHp: stage.hp,
-        oppHp: nextOppHp, oppMaxHp: gym.hp,
-        playerStageId: stage.id,
-      });
-      const leaderMove = gym.moves[leaderMoveIdx];
+
+      // Burn DoT on opponent
+      let burnDmg = 0;
+      if (oppStatuses.includes("burn")) {
+        burnDmg = Math.round(gym.hp * 0.05);
+        const afterBurn = Math.max(0, nextOppHp - burnDmg);
+        setTimeout(() => {
+          addLog(`🔥 Burn deals ${burnDmg} damage!`, "notso");
+          setOppHp(afterBurn);
+          if (afterBurn === 0) {
+            addLog(`${gym.opponentName} was defeated by burn!`, "super");
+            setDone(true); playSound("victory");
+            onFinishingBlow?.();
+            setTimeout(onWin, 1800);
+            setAnimating(false);
+          }
+        }, 400);
+        if (nextOppHp - burnDmg <= 0) return;
+      }
+
+      // Leader counter-attack (after 1000ms delay — "thinking" pause)
       setTimeout(() => {
-        const cd = Math.max(4, Math.round(leaderMove.power * 0.55));
+        // Leader AI: pick move, aggression scaling when below 50% HP
+        const effectiveOppHp = nextOppHp - burnDmg;
+        const stratCtx: StrategyCtx = {
+          turn, myHp, myMaxHp: stage.hp,
+          oppHp: effectiveOppHp, oppMaxHp: gym.hp,
+          playerStageId: stage.id,
+        };
+        const leaderMoveIdx = pickLeaderMove(gym, stratCtx);
+        const leaderMove = gym.moves[leaderMoveIdx];
+
+        // Leader damage calculation
+        let cd = Math.max(4, Math.round(leaderMove.power * 0.55));
+        // Phase 2 aggression: +30% damage
+        if (phase === 2) cd = Math.round(cd * 1.3);
+        // Below 50% HP: leaders hit 20% harder
+        if (effectiveOppHp < gym.hp * 0.5) cd = Math.round(cd * 1.2);
+        // Haste on leader: extra hit
+        if (oppStatuses.includes("haste")) cd = Math.round(cd * 1.3);
+        // Shield on player halves incoming
+        if (myStatuses.includes("shield")) {
+          cd = Math.round(cd * 0.5);
+          setMyStatuses(s => s.filter(e => e !== "shield"));
+          addLog(`Shield absorbed the blow!`, "info");
+        }
+
         const nextMyHp = Math.max(0, myHp - cd);
+
+        // Leader attack VFX
+        setAttackVfx({ type: leaderMove.type, side: "left", key: dmgKeyRef.current++ });
         setFlash({ color: "#ef444428", dir: "right" });
         setTimeout(() => setFlash(null), 320);
         setMeShake(true); setTimeout(() => setMeShake(false), 400);
         playSound("hit");
         addLog(`${gym.opponentName}: "${leaderMove.name}"`, "normal");
         addLog(leaderMove.flavor, "info");
-        addLog(`You take ${cd} damage.`, "normal");
-        setMyHp(nextMyHp); setTurn(t => t + 1);
-        setMyHpShake(true); setTimeout(() => setMyHpShake(false), 500);
-        if (nextMyHp === 0) {
-          addLog(`${stage.name} fainted… HP restored.`, "notso");
-          playSound("faint");
-          // Show gym leader gloat quote
-          const gloatMove = leaderMove;
-          setDefeatQuote(`${gym.opponentName}: "${gloatMove.flavor}"\n\nYour ${stage.name} fainted. HP restored — try again.`);
-          setTimeout(() => { setMyHp(stage.hp); setDefeatQuote(null); setAnimating(false); }, 2800);
-        } else setAnimating(false);
-      }, 900);
-    }, 600);
-  }, [animating, done, gym, stage, oppHp, myHp, turn, ppUsed, addLog, onWin, onFinishingBlow]);
+
+        // Leader damage number
+        setTimeout(() => {
+          setFloatingDmg({ value: `-${cd}`, color: "#ef4444", side: "left", key: dmgKeyRef.current++ });
+          setTimeout(() => setFloatingDmg(null), 1000);
+          setMyHp(nextMyHp); setTurn(t => t + 1);
+          setMyHpShake(true); setTimeout(() => setMyHpShake(false), 500);
+          setTimeout(() => setAttackVfx(null), 400);
+
+          // Leader applies status effects
+          if (leaderMove.effect === "buff" && !oppStatuses.includes("shield")) {
+            setOppStatuses(s => [...s, "shield"]);
+            addLog(`${gym.opponentName} raised a shield!`, "info");
+          }
+
+          // Burn DoT on player
+          if (myStatuses.includes("burn")) {
+            const pBurn = Math.round(stage.hp * 0.04);
+            setTimeout(() => {
+              addLog(`🔥 You take ${pBurn} burn damage!`, "notso");
+              setMyHp(h => Math.max(0, h - pBurn));
+            }, 400);
+          }
+
+          if (nextMyHp === 0) {
+            addLog(`${stage.name} fainted… HP restored.`, "notso");
+            playSound("faint");
+            setDefeatQuote(`${gym.opponentName}: "${leaderMove.flavor}"\n\nYour ${stage.name} fainted. HP restored — try again.`);
+            setTimeout(() => { setMyHp(stage.hp); setDefeatQuote(null); setMyStatuses([]); setAnimating(false); }, 2800);
+          } else setAnimating(false);
+        }, 350);
+      }, 1000);
+    }, 700);
+  }, [animating, done, gym, stage, oppHp, myHp, turn, ppUsed, addLog, onWin, onFinishingBlow, myStatuses, oppStatuses, phase]);
 
   return (
     <div style={{
@@ -533,6 +765,12 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee, onFinishingBl
           }}>{superEffectText}</div>
         )}
 
+        {/* Floating damage number */}
+        {floatingDmg && <FloatingDmg key={floatingDmg.key} value={floatingDmg.value} color={floatingDmg.color} side={floatingDmg.side} />}
+
+        {/* Attack VFX particles */}
+        {attackVfx && <AttackVFX key={attackVfx.key} type={attackVfx.type} side={attackVfx.side} />}
+
         {/* Player side */}
         <div style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: "8px 12px 0 16px", position: "relative", zIndex: 2 }}>
           <div style={{ background: "rgba(3,7,18,0.92)", border: "2px solid #1a2a4a", padding: "8px 10px", marginBottom: 4, backdropFilter: "blur(4px)", borderRadius: 0 }}>
@@ -547,6 +785,7 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee, onFinishingBl
               <HPBar current={myHp} max={stage.hp} label={stage.name} color={stage.color} shaking={myHpShake} />
             </div>
             <div style={{ fontSize: 6, color: "#2a3a50", marginTop: 2 }}>{stage.tag} · {badges.size} BADGES</div>
+            <StatusBadges effects={myStatuses} />
           </div>
           <div style={{ alignSelf: "flex-end", transform: meShake ? "translateX(-9px)" : "translateX(0)", transition: "transform 0.08s", filter: "drop-shadow(0 6px 0 rgba(0,0,0,0.5))", animation: "sprite-enter-left 0.45s cubic-bezier(0.2,0.8,0.4,1)" }}>
             <canvas ref={meRef} width={128} height={128} style={{ imageRendering: "pixelated", width: 112, height: 112 }} />
@@ -588,6 +827,7 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee, onFinishingBl
             </div>
             <HPBar current={oppHp} max={gym.hp} label={gym.opponentName} color={accent} shaking={oppHpShake} />
             <div style={{ fontSize: 6, color: "#2a3a50", marginTop: 4 }}>WEAK: {gym.weakTo.slice(0, 2).join(", ")}</div>
+            <StatusBadges effects={oppStatuses} />
           </div>
         </div>
       </div>
@@ -666,7 +906,7 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee, onFinishingBl
       {/* Moves */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "8px 10px 10px", background: "#020508", overflow: "hidden" }}>
         <div style={{ fontSize: 7, color: done ? accent : animating ? "#2a3a50" : "#162030", marginBottom: 6, letterSpacing: "0.08em" }}>
-          {done ? `— VICTORY · ${zone.name.toUpperCase()} —` : animating ? "— OPPONENT TURN —" : `▸ CHOOSE A MOVE · TURN ${turn + 1}`}
+          {done ? `— VICTORY · ${zone.name.toUpperCase()} —` : animating ? "— OPPONENT TURN —" : `▸ CHOOSE A MOVE · TURN ${turn + 1}${phase > 1 ? " · PHASE 2" : ""}`}
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 5, flex: 1, alignContent: "start", overflowY: "auto" }}>
           {allMoves.slice(0, 8).map(move => (
