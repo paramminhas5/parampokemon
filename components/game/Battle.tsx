@@ -478,13 +478,13 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee, onFinishingBl
         const c = oppRef.current.getContext("2d")!;
         c.imageSmoothingEnabled = true; c.imageSmoothingQuality = "high";
         c.clearRect(0, 0, 400, 400);
-        // Priority: npc battle sprite (when explicitly provided) > creature sprite > leader portrait
-        const drawImg = (npcBattleImg && isReady(npcBattleImg)) ? npcBattleImg
-          : (oppCreatureImg && isReady(oppCreatureImg)) ? oppCreatureImg
+        // Priority: creature sprite > leader portrait (NPC shown as portrait in HP card instead)
+        const drawImg = (oppCreatureImg && isReady(oppCreatureImg)) ? oppCreatureImg
+          : (npcBattleImg && isReady(npcBattleImg)) ? npcBattleImg
           : (leaderImg && isReady(leaderImg)) ? leaderImg : null;
         if (drawImg) {
           const bob = Math.sin(now / 420) * 3;
-          c.drawImage(drawImg, 10, 10 + bob, 380, 380);
+          c.drawImage(drawImg, 40, 40 + bob, 320, 320);
         }
       }
       rafRef.current = requestAnimationFrame(loop);
@@ -817,18 +817,24 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee, onFinishingBl
             </div>
           )}
           <div style={{ transform: oppShake ? "none" : "none", animation: `${oppShake ? "opp-shake 0.45s ease-out" : "sprite-enter-right 0.45s cubic-bezier(0.2,0.8,0.4,1)"}`, filter: `drop-shadow(0 0 28px ${accent}90)` }}>
-            <canvas ref={oppRef} width={400} height={400} style={{ imageRendering: "pixelated", width: 280, height: 280 }} />
+            <canvas ref={oppRef} width={400} height={400} style={{ imageRendering: "pixelated", width: 200, height: 200 }} />
           </div>
           <div style={{ background: "rgba(3,7,18,0.92)", border: `2px solid ${accent}99`, padding: "8px 10px", width: "100%", backdropFilter: "blur(4px)", borderRadius: 0 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-              {/* Leader portrait — prominent in HP card */}
-              {leaderImg && isReady(leaderImg) && LEADER_URL[gym.leader] && (
-                <img src={LEADER_URL[gym.leader]} alt="" style={{
-                  width: 40, height: 40, imageRendering: "pixelated",
-                  border: `2px solid ${accent}80`, flexShrink: 0, borderRadius: 0,
-                  boxShadow: `0 0 12px ${accent}40`,
-                }} />
-              )}
+              {/* Leader/NPC portrait — prominent in HP card */}
+              {(() => {
+                const portraitImg = (npcBattleImg && isReady(npcBattleImg)) ? opponentSpriteUrl
+                  : (leaderImg && isReady(leaderImg) && LEADER_URL[gym.leader]) ? LEADER_URL[gym.leader]
+                  : null;
+                if (!portraitImg) return null;
+                return (
+                  <img src={portraitImg} alt="" style={{
+                    width: 40, height: 40, imageRendering: "pixelated",
+                    border: `2px solid ${accent}80`, flexShrink: 0, borderRadius: 0,
+                    boxShadow: `0 0 12px ${accent}40`,
+                  }} />
+                );
+              })()}
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 7, color: accent, letterSpacing: "0.06em", marginBottom: 2 }}>{gym.opponentName.toUpperCase()}</div>
                 <div style={{ fontSize: 6, color: "#3a5070" }}>{gym.opponentTitle.toUpperCase()}</div>
