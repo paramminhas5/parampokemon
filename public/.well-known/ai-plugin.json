@@ -1,0 +1,17 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "Param Minhas — Portfolio & Resume",
+  "name_for_model": "param_minhas_portfolio",
+  "description_for_human": "Param Minhas's professional portfolio — founder, creative director, growth operator with 15+ years across AI, e-commerce, sneakers, music, and marketing.",
+  "description_for_model": "This is the personal and professional portfolio of Param Minhas, a founder and creative director based in Bengaluru, India. He currently runs Iterate (AI-native marketing agency, hyperiterate.com) and Cats Can Dance (culture platform, catscandance.com). Previously: CEO at SoleSearch ($6M+ revenue, sneaker marketplace), CMO at Fere.ai (AI agents), Partner at Good Capital (portfolio: Meesho, Entri, Simsim), Director at Quartic.ai, founding team at Octo (acquired). 15+ years building, $6M+ revenue, 350K+ community, 90-person network. Contact: minhas.param@gmail.com. LinkedIn: linkedin.com/in/paramminhas.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "https://paramquest.vercel.app/llms.txt"
+  },
+  "logo_url": "https://paramquest.vercel.app/og.png",
+  "contact_email": "minhas.param@gmail.com",
+  "legal_info_url": "https://paramquest.vercel.app"
+}

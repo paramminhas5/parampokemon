@@ -2,8 +2,31 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Resume — Param Minhas",
-  description: "Founder and creative director who builds growth, brand, and marketing functions from zero. 15+ years, $6M+ revenue, 350K+ community, 90-person network.",
+  title: "Resume — Param Minhas | Founder & Creative Director | 15+ Years Experience",
+  description: "Param Minhas's full professional resume. Founder of Iterate (AI-native marketing agency, 90-person network). 15+ years building across AI, e-commerce, sneakers, music. $6M+ revenue, 350K+ community, $795K raised. Previously CEO at SoleSearch, CMO at Fere.ai, Partner at Good Capital (Meesho, Entri). BE Computer Science, Pune University. Based in Bengaluru.",
+  keywords: [
+    "Param Minhas resume", "Param Minhas CV", "Param Minhas experience",
+    "creative director resume", "marketing leader resume India",
+    "startup founder resume", "CMO resume India", "growth marketing resume",
+    "AI marketing resume", "Iterate founder", "SoleSearch founder",
+    "Bengaluru marketing leader", "GTM strategy resume",
+    "fractional CMO India", "brand strategy leader",
+  ],
+  alternates: {
+    canonical: "https://paramquest.vercel.app/resume",
+  },
+  openGraph: {
+    title: "Resume — Param Minhas | Founder & Creative Director",
+    description: "15+ years building. $6M+ revenue. 350K+ community. 90-person network. Full professional resume with career timeline, skills, and press coverage.",
+    type: "profile",
+    url: "https://paramquest.vercel.app/resume",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Resume — Param Minhas | Founder & Creative Director",
+    description: "15+ years. $6M+ revenue. 350K+ community. Full CV — Iterate, SoleSearch, Fere.ai, Good Capital.",
+    creator: "@paramminhas",
+  },
 };
 
 const EXPERIENCE = [
@@ -141,6 +164,33 @@ const PRESS_ITEMS = [
 ];
 
 export default function ResumePage() {
+  const resumeJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Param Minhas — Professional Experience",
+    description: "Complete career timeline of Param Minhas, founder and creative director with 15+ years of experience.",
+    numberOfItems: 8,
+    itemListElement: [
+      { "@type": "ListItem", position: 1, item: { "@type": "Role", roleName: "Founder & Creative Director", startDate: "2026-01", memberOf: { "@type": "Organization", name: "Iterate", url: "https://hyperiterate.com", description: "AI-native marketing agency, 90-person network" } } },
+      { "@type": "ListItem", position: 2, item: { "@type": "Role", roleName: "CMO", startDate: "2025-01", endDate: "2025-12", memberOf: { "@type": "Organization", name: "Fere.ai", url: "https://www.fereai.xyz/app", description: "Autonomous AI agent platform, funded by Ethereal Ventures" } } },
+      { "@type": "ListItem", position: 3, item: { "@type": "Role", roleName: "Founder & CEO", startDate: "2022", endDate: "2024-12", memberOf: { "@type": "Organization", name: "SoleSearch", description: "India's leading sneaker & streetwear marketplace, $6M+ revenue, $795K raised, 350K+ community" } } },
+      { "@type": "ListItem", position: 4, item: { "@type": "Role", roleName: "Director of Marketing", startDate: "2020", endDate: "2022", memberOf: { "@type": "Organization", name: "Quartic.ai", url: "https://www.quartic.ai", description: "Enterprise AI platform" } } },
+      { "@type": "ListItem", position: 5, item: { "@type": "Role", roleName: "Partner, Growth & Technology", startDate: "2017", endDate: "2020", memberOf: { "@type": "Organization", name: "Good Capital (Investopad)", description: "Family office turned venture fund, portfolio: Meesho, Entri, Simsim" } } },
+      { "@type": "ListItem", position: 6, item: { "@type": "Role", roleName: "Founding Team, Head of Growth", startDate: "2016", endDate: "2017", memberOf: { "@type": "Organization", name: "Octo", description: "Conversational AI platform, acquired by Quartic.ai" } } },
+      { "@type": "ListItem", position: 7, item: { "@type": "Role", roleName: "Founder", startDate: "2012", endDate: "2015", memberOf: { "@type": "Organization", name: "Hab Housing", description: "India's first branded budget-hospitality startup, bootstrapped $120K+" } } },
+      { "@type": "ListItem", position: 8, item: { "@type": "Role", roleName: "Founding Team Member", startDate: "2011", endDate: "2012", memberOf: { "@type": "Organization", name: "GetRightPrice", description: "India's first price-comparison engine" } } },
+    ],
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://paramquest.vercel.app" },
+      { "@type": "ListItem", position: 2, name: "Resume", item: "https://paramquest.vercel.app/resume" },
+    ],
+  };
+
   return (
     <div style={{
       minHeight: "100vh",
@@ -148,6 +198,14 @@ export default function ResumePage() {
       color: "#1a1a2e",
       fontFamily: "'Space Mono', monospace",
     }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(resumeJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       {/* ── Sticky download bar ── */}
       <div style={{
         position: "sticky",
