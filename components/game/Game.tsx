@@ -654,6 +654,81 @@ export function Game() {
           </div>
         )}
 
+        {/* HUD — BOTTOM LEFT: Career Progress Bar */}
+        <div style={{
+          position: "absolute", bottom: 0, left: 0,
+          padding: "10px", paddingBottom: "calc(env(safe-area-inset-bottom) + 10px)",
+          zIndex: 20, pointerEvents: "none",
+          maxWidth: 200,
+        }}>
+          <div style={{
+            background: "rgba(4,8,20,0.88)",
+            border: "1px solid rgba(124,224,255,0.1)",
+            padding: "8px 12px",
+            backdropFilter: "blur(8px)",
+          }}>
+            <div style={{
+              display: "flex", justifyContent: "space-between", alignItems: "center",
+              marginBottom: 5,
+            }}>
+              <span style={{ fontFamily: "var(--font-pixel)", fontSize: 5, color: "#3a5070", letterSpacing: "0.1em" }}>
+                CAREER PROGRESS
+              </span>
+              <span style={{ fontFamily: "var(--font-pixel)", fontSize: 6, color: currentZone.theme.accent }}>
+                {Math.round(((visited.size + defeated.size) / (ZONES.length + totalGyms)) * 100)}%
+              </span>
+            </div>
+            <div style={{ height: 4, background: "#0a1525", borderRadius: 2, overflow: "hidden" }}>
+              <div style={{
+                height: "100%",
+                width: `${((visited.size + defeated.size) / (ZONES.length + totalGyms)) * 100}%`,
+                background: `linear-gradient(90deg, ${currentZone.theme.accent}cc, #00e8a0)`,
+                transition: "width 0.6s ease-out",
+                borderRadius: 2,
+                boxShadow: `0 0 6px ${currentZone.theme.accent}60`,
+              }} />
+            </div>
+            <div style={{
+              display: "flex", justifyContent: "space-between", marginTop: 4,
+              fontFamily: "var(--font-pixel)", fontSize: 5, color: "#2a3a50",
+            }}>
+              <span>{visited.size}/{ZONES.length} zones</span>
+              <span>{defeated.size}/{totalGyms} gyms</span>
+            </div>
+          </div>
+        </div>
+
+        {/* HUD — HIRE ME CTA: appears after exploring 3+ zones or winning 2+ battles */}
+        {(visited.size >= 4 || defeated.size >= 2) && !contactOpen && !battle && !battleIntro && (
+          <div style={{
+            position: "absolute", bottom: 70, left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 19, pointerEvents: "auto",
+            animation: "pq-fade-in 0.5s ease-out",
+          }}>
+            <button
+              onClick={() => { setContactOpen(true); playSound("menu"); }}
+              style={{
+                background: "linear-gradient(135deg, rgba(124,224,255,0.08) 0%, rgba(4,8,20,0.9) 100%)",
+                border: "1px solid rgba(124,224,255,0.25)",
+                color: "#7ce0ff",
+                padding: "8px 16px",
+                fontFamily: "var(--font-pixel)", fontSize: 7,
+                cursor: "pointer",
+                backdropFilter: "blur(8px)",
+                letterSpacing: "0.06em",
+                opacity: 0.75,
+                transition: "all 0.2s",
+                boxShadow: "0 2px 12px rgba(0,0,0,0.4)",
+              }}
+              onMouseEnter={e => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.borderColor = "rgba(124,224,255,0.6)"; }}
+              onMouseLeave={e => { e.currentTarget.style.opacity = "0.75"; e.currentTarget.style.borderColor = "rgba(124,224,255,0.25)"; }}
+            >
+              Impressed? Let&apos;s talk →
+            </button>
+          </div>
+        )}
+
         {/* HUD — BOTTOM RIGHT */}
         <div style={{
           position: "absolute", bottom: 0, right: 0,
