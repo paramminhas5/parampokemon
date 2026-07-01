@@ -5,6 +5,7 @@ import { CREATURE_URL, LEADER_URL } from "@/game/sprite-registry";
 
 const SHEET_STYLES = `
 @keyframes pq-sheet-up { from { transform: translateY(32px); opacity: 0 } to { transform: none; opacity: 1 } }
+@keyframes pq-modal-pop { from { transform: scale(0.92); opacity: 0 } to { transform: scale(1); opacity: 1 } }
 @keyframes pq-scroll-hint { 0%, 100% { transform: translateX(-50%) translateY(0) } 50% { transform: translateX(-50%) translateY(4px) } }
 @keyframes cn-metric-in { from { opacity:0; transform: scale(0.85) } to { opacity:1; transform: scale(1) } }
 `;
@@ -42,7 +43,7 @@ export function CliffNotes({ zone, onClose }: { zone: Zone; onClose: () => void 
     <div
       style={{
         position: "fixed", inset: 0, zIndex: 30,
-        display: "flex", alignItems: "flex-end", justifyContent: "center",
+        display: "flex", alignItems: "center", justifyContent: "center",
         background: "rgba(4,8,20,0.72)",
         backdropFilter: "blur(3px)",
       }}
@@ -51,14 +52,14 @@ export function CliffNotes({ zone, onClose }: { zone: Zone; onClose: () => void 
       <style>{SHEET_STYLES}</style>
       <div
         style={{
-          width: "92%", maxWidth: 440,
+          width: "92%", maxWidth: 560,
           maxHeight: "70dvh", height: "auto",
           display: "flex", flexDirection: "column",
           background: "linear-gradient(180deg, #060e1c 0%, #04080f 100%)",
           border: `1px solid ${accent}35`,
           borderRadius: 12,
           boxShadow: `0 -8px 40px rgba(0,0,0,0.6), 0 0 0 1px ${accent}18`,
-          animation: "pq-sheet-up 240ms cubic-bezier(0.2,0.8,0.4,1)",
+          animation: "pq-modal-pop 200ms cubic-bezier(0.2,0.8,0.4,1)",
           overflow: "hidden",
           position: "relative",
         }}

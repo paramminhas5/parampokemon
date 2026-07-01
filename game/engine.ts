@@ -134,8 +134,6 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
     if (SOLID.has(world[y][x])) return true;
     for (const i of interactives) {
       if (i.kind === "npc" && i.x === x && i.y === y) return true;
-      if (i.kind === "badge" && i.x === x && i.y === y && !state.collectedBadges.has(i.zone.badge.id)) return true;
-      if (i.kind === "wild" && i.x === x && i.y === y && !state.collectedCreatures.has(i.creature.id)) return true;
     }
     return false;
   }
@@ -245,6 +243,17 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         if (key !== lastAutoKey || performance.now() - lastAutoAt > 8000) {
           lastAutoKey = key; lastAutoAt = performance.now();
           cb.onWild(wild.zone);
+          return;
+        }
+      }
+      // Badge auto-collect — triggers when player is adjacent to or standing on the badge
+      const badge = interactives.find((i) => i.kind === "badge" && i.x === n.x && i.y === n.y);
+      if (badge && badge.kind === "badge" && !state.collectedBadges.has(badge.zone.badge.id)) {
+        const key = `b:${badge.zone.id}:${badge.zone.badge.id}`;
+        if (key !== lastAutoKey || performance.now() - lastAutoAt > 8000) {
+          lastAutoKey = key; lastAutoAt = performance.now();
+          state.collectedBadges.add(badge.zone.badge.id);
+          cb.onBadge(badge.zone.badge.id);
           return;
         }
       }
@@ -415,7 +424,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         if (world[state.ty]?.[state.tx] === T.MAT) {
           const matZone = ZONES.find((zz) => {
             const mx = zz.ox + zz.building.x + zz.building.doorX;
-            const my = zz.oy + zz.building.y + zz.building.h; // mat is one south of door
+            const my = zz.oy + zz.building.y + zz.building.h - 1;
             return mx === state.tx && my === state.ty;
           });
           if (matZone && matZone.gym && !state.defeatedGyms.has(matZone.id)) {
@@ -789,7 +798,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
     for (const z of ZONES) {
       if (!z.gym || state.defeatedGyms.has(z.id)) continue;
       const dx = (z.ox + z.building.x + z.building.doorX) * TILE + offX;
-      const dy = (z.oy + z.building.y + z.building.h) * TILE + offY;
+      const dy = (z.oy + z.building.y + z.building.h - 1) * TILE + offY;
       if (dx < -TILE || dx > canvas.width + TILE) continue;
       if (dy < -TILE || dy > canvas.height + TILE) continue;
       const pulse = Math.sin(now / 300 + z.index) * 0.3 + 0.5;
@@ -980,7 +989,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
     for (const z of ZONES) {
       if (state.defeatedGyms.has(z.id)) continue;
       const dx = z.ox + z.building.x + z.building.doorX;
-      const dy = z.oy + z.building.y + z.building.h;
+      const dy = z.oy + z.building.y + z.building.h - 1;
       if (dx < tx0 - 1 || dx > tx1 + 1 || dy < ty0 - 1 || dy > ty1 + 1) continue;
       // Pulsing glow on mat tile to indicate enterable gym
       const bob = Math.sin(now / 200 + z.index) * 1.5;
