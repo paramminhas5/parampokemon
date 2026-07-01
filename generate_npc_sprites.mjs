@@ -1,16 +1,15 @@
 #!/usr/bin/env node
 /**
- * Generate unique NPC overworld sprites via FAL.ai (flux/dev model).
+ * Generate unique NPC overworld sprites via FAL.ai (SD 1.5 — same pipeline as creatures/leaders).
+ * Produces proper RGBA PNGs with transparent backgrounds.
  * 
  * Usage:
  *   FAL_KEY=your_key node generate_npc_sprites.mjs
- *   FAL_KEY=your_key node generate_npc_sprites.mjs --preview  (generate 1 for approval)
+ *   FAL_KEY=your_key node generate_npc_sprites.mjs --preview
  *   FAL_KEY=your_key node generate_npc_sprites.mjs --only=investor,mom
- * 
- * Each NPC kind gets a unique 512×512 PNG with transparent background,
- * pixel-art RPG style, consistent with the game's visual language.
  */
 
+import { fal } from "@fal-ai/client";
 import { writeFileSync, mkdirSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
@@ -24,126 +23,118 @@ if (!FAL_KEY) {
   console.error("ERROR: Set FAL_KEY environment variable");
   process.exit(1);
 }
+fal.config({ credentials: FAL_KEY });
 
 const ARGS = process.argv.slice(2);
 const PREVIEW = ARGS.includes("--preview");
 const ONLY = ARGS.find(a => a.startsWith("--only="))?.replace("--only=", "").split(",") ?? null;
 
-const BASE_PROMPT = "pixel art RPG character sprite, GBA pokemon style, front-facing, chibi proportions, bold black outlines, transparent background, single centered character, clean limited color palette, 16-bit retro game aesthetic, no anti-aliasing on outlines";
+const NEG = "blurry, photograph, 3d render, realistic, watermark, text, signature, anti-aliased, soft edges, dark background, noise, grainy, low quality, jpeg artifacts, multiple characters, background scene";
 
-const NEGATIVE_PROMPT = "photorealistic, 3d render, blurry, noisy, watermark, text, signature, multiple characters, background clutter, modern UI, anti-aliased, photograph, complex shading, gradient fills";
+// NPC sprite definitions — same style as gym leaders (front-facing, full body, transparent bg)
+const NPC_SPRITES = [
+  {
+    id: "trainer_m",
+    prompt: "young confident male pokemon trainer, blue jacket with white collar, dark jeans, red sneakers, short dark brown hair, backpack strap visible, determined expression, athletic build, full body front-facing standing battle pose, transparent background",
+  },
+  {
+    id: "trainer_f",
+    prompt: "young energetic female pokemon trainer, pink sporty top with white trim, dark leggings, ponytail hairstyle with red ribbon, running shoes, cheerful confident expression, full body front-facing standing battle pose, transparent background",
+  },
+  {
+    id: "investor",
+    prompt: "wealthy businessman character, sharp dark navy suit with gold pocket square, rectangular black glasses, slicked back hair, polished shoes, holding coffee cup, evaluating sharp expression, full body front-facing standing pose, transparent background",
+  },
+  {
+    id: "engineer",
+    prompt: "tech engineer character, dark green hoodie with laptop sticker, headphones around neck, messy dark hair, jeans and sneakers, holding tablet device, focused thoughtful expression, full body front-facing standing pose, transparent background",
+  },
+  {
+    id: "celeb",
+    prompt: "flashy celebrity character, gold bomber jacket open over black tee, styled quiff hair, designer sunglasses on head, gold chain necklace, fresh white sneakers, charismatic confident pose with one hand up, full body front-facing standing pose, transparent background",
+  },
+  {
+    id: "client",
+    prompt: "professional business client character, purple blazer over white shirt, neat short hair, holding tablet and stylus, polished loafers, friendly professional smile, smart casual corporate style, full body front-facing standing pose, transparent background",
+  },
+  {
+    id: "fan",
+    prompt: "enthusiastic young fan character, bright yellow graphic t-shirt with star print, red beanie cap, ripped jeans, colourful sneakers, excited wide-eyed expression, holding phone up, youthful energetic pose, full body front-facing standing pose, transparent background",
+  },
+  {
+    id: "tenant",
+    prompt: "casual relaxed tenant character, olive green flannel shirt unbuttoned over grey tee, comfortable jeans, apartment keys hanging from belt loop, stubble beard, easygoing friendly expression, full body front-facing standing pose, transparent background",
+  },
+  {
+    id: "professor",
+    prompt: "wise elderly pokemon professor character, long white lab coat, grey-white swept back hair, round wire-rim glasses, holding open notebook, kind wise smile, pokeball pin on lapel, scholarly gentle pose, full body front-facing standing pose, transparent background",
+  },
+  {
+    id: "mom",
+    prompt: "warm caring mother character, soft pink cardigan over white blouse, medium brown wavy hair to shoulders, gentle warm smile, floral apron, comfortable house slippers, caring supportive motherly pose, full body front-facing standing pose, transparent background",
+  },
+  {
+    id: "rival",
+    prompt: "edgy rival character, dark purple leather jacket with spikes, spiky lavender-silver hair swept to one side, smirking confident expression, arms crossed challenging pose, dark boots, punk aesthetic with cool demeanor, full body front-facing standing pose, transparent background",
+  },
+];
 
-const NPC_PROMPTS = {
-  trainer_m: {
-    prompt: `${BASE_PROMPT}, young male trainer, blue jacket, dark pants, confident stance, backpack, sneakers, dark hair, adventure-ready`,
-    filename: "trainer_m.png",
-  },
-  trainer_f: {
-    prompt: `${BASE_PROMPT}, young female trainer, pink top, ponytail, dark pants, determined expression, sporty outfit, running shoes`,
-    filename: "trainer_f.png",
-  },
-  investor: {
-    prompt: `${BASE_PROMPT}, businessman in dark suit, glasses, holding briefcase, slicked hair, formal shoes, serious expression, venture capitalist look`,
-    filename: "investor.png",
-  },
-  engineer: {
-    prompt: `${BASE_PROMPT}, tech engineer, green hoodie, laptop sticker, headphones around neck, casual jeans, focused expression, coding posture`,
-    filename: "engineer.png",
-  },
-  celeb: {
-    prompt: `${BASE_PROMPT}, celebrity character, gold jacket, sunglasses, styled hair, flashy sneakers, charismatic pose, star quality`,
-    filename: "celeb.png",
-  },
-  client: {
-    prompt: `${BASE_PROMPT}, business client, purple blazer, smart casual, tablet in hand, friendly smile, polished shoes, professional`,
-    filename: "client.png",
-  },
-  fan: {
-    prompt: `${BASE_PROMPT}, enthusiastic young fan, yellow t-shirt with star, red beanie cap, jeans, excited expression, sneakers, holding phone`,
-    filename: "fan.png",
-  },
-  tenant: {
-    prompt: `${BASE_PROMPT}, casual tenant, green flannel shirt, relaxed pose, apartment keys in hand, comfortable clothes, friendly neighbor vibe`,
-    filename: "tenant.png",
-  },
-  professor: {
-    prompt: `${BASE_PROMPT}, wise professor character, white lab coat, grey hair, round glasses, holding book, kind expression, pokemon professor style`,
-    filename: "professor.png",
-  },
-  mom: {
-    prompt: `${BASE_PROMPT}, warm mother character, pink cardigan, medium brown hair, gentle smile, apron, caring expression, home-maker style`,
-    filename: "mom.png",
-  },
-  rival: {
-    prompt: `${BASE_PROMPT}, rival character, purple jacket, spiky lavender hair, smirk expression, crossed arms, edgy style, competitive energy`,
-    filename: "rival.png",
-  },
-};
-
-async function generateSprite(id, config) {
-  console.log(`Generating: ${id}...`);
+async function generateSprite(sprite) {
+  console.log(`Generating: ${sprite.id}...`);
   
-  const response = await fetch("https://fal.run/fal-ai/flux/dev", {
-    method: "POST",
-    headers: {
-      "Authorization": `Key ${FAL_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      prompt: config.prompt,
-      negative_prompt: NEGATIVE_PROMPT,
-      image_size: "square_hd",
-      num_inference_steps: 28,
-      guidance_scale: 7.5,
-      num_images: 1,
-      enable_safety_checker: false,
-    }),
-  });
+  try {
+    const result = await fal.subscribe("fal-ai/stable-diffusion-v15", {
+      input: {
+        prompt: `pixel art sprite, GBA Pokemon style, bold black outlines, crisp clean pixels, no anti-aliasing, transparent background, ${sprite.prompt}`,
+        negative_prompt: NEG,
+        image_size: { width: 512, height: 512 },
+        num_inference_steps: 30,
+        guidance_scale: 7.5,
+        num_images: 1,
+        enable_safety_checker: false,
+      },
+    });
 
-  if (!response.ok) {
-    const err = await response.text();
-    console.error(`  FAILED: ${response.status} — ${err}`);
+    const imageUrl = result.data?.images?.[0]?.url;
+    if (!imageUrl) {
+      console.error(`  FAILED: No image URL in response`);
+      return false;
+    }
+
+    // Download the image
+    const imgResponse = await fetch(imageUrl);
+    const buffer = Buffer.from(await imgResponse.arrayBuffer());
+    const outPath = join(OUTPUT_DIR, `${sprite.id}.png`);
+    writeFileSync(outPath, buffer);
+    console.log(`  \u2713 Saved: ${outPath} (${(buffer.length / 1024).toFixed(0)}KB)`);
+    return true;
+  } catch (err) {
+    console.error(`  FAILED: ${err.message}`);
     return false;
   }
-
-  const data = await response.json();
-  const imageUrl = data.images?.[0]?.url;
-  if (!imageUrl) {
-    console.error(`  FAILED: No image URL in response`);
-    return false;
-  }
-
-  // Download the image
-  const imgResponse = await fetch(imageUrl);
-  const buffer = Buffer.from(await imgResponse.arrayBuffer());
-  const outPath = join(OUTPUT_DIR, config.filename);
-  writeFileSync(outPath, buffer);
-  console.log(`  ✓ Saved: ${outPath} (${(buffer.length / 1024).toFixed(0)}KB)`);
-  return true;
 }
 
 async function main() {
-  const entries = Object.entries(NPC_PROMPTS).filter(([id]) => {
-    if (ONLY) return ONLY.includes(id);
+  const entries = NPC_SPRITES.filter(s => {
+    if (ONLY) return ONLY.includes(s.id);
     return true;
   });
 
   if (PREVIEW) {
-    console.log("PREVIEW MODE — generating first sprite only for approval");
-    const [id, config] = entries[0];
-    await generateSprite(id, config);
+    console.log("PREVIEW MODE \u2014 generating first sprite only for approval");
+    await generateSprite(entries[0]);
     return;
   }
 
-  console.log(`Generating ${entries.length} NPC sprites...`);
+  console.log(`Generating ${entries.length} NPC sprites (SD 1.5 + pixel LoRA)...`);
   console.log(`Output: ${OUTPUT_DIR}\n`);
 
   let success = 0;
-  for (const [id, config] of entries) {
-    const ok = await generateSprite(id, config);
+  for (const sprite of entries) {
+    const ok = await generateSprite(sprite);
     if (ok) success++;
-    // Rate limit: wait 2s between requests
-    await new Promise(r => setTimeout(r, 2000));
+    // Brief pause between requests
+    await new Promise(r => setTimeout(r, 1000));
   }
 
   console.log(`\nDone! ${success}/${entries.length} sprites generated.`);

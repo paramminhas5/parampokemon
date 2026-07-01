@@ -177,7 +177,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
           "Every skill you pick up here carries over, Param. The code, the design, the music — none of it was wasted.",
           "The through-line was never the industry. It was always you — the operator who ships.\n\nKeep going. The compounding gets more interesting from here."
         ] },
-      { x: 8, y: 8, name: "Old Classmate", role: "Origin Town", kind: "trainer-f", beat: "did",
+      { x: 8, y: 14, name: "Old Classmate", role: "Origin Town", kind: "trainer-f", beat: "did",
         quote: "You were building websites and making music while the rest of us figured out what to study.\n\nNobody called it a career back then. You just called it Tuesday." },
       { x: 22, y: 3, name: "Hidden Sign", role: "Easter egg", kind: "fan", beat: "did",
         quote: "★ EASTER EGG ★\n\nYou found the hidden corner.\n\nHere's the recruiter TL;DR:\n\nHire him.\n\nparam@catscandance.com" },
@@ -229,7 +229,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
         quote: "Cataloguing. Pricing logic. Affiliate models. Crawling inventory at scale.\n\nFirst proof you could ship something real — in college, with no playbook." },
       { x: 5, y: 9, name: "Sidharth Rao", role: "Angel · Webchutney", kind: "investor", beat: "did",
         quote: "I backed GetRightPrice because the team was already building before they had a cheque.\n\nThat's always the signal. You had it." },
-      { x: 17, y: 5, name: "College Batchmate", role: "GRP Market", kind: "fan", beat: "did",
+      { x: 8, y: 16, name: "College Batchmate", role: "GRP Market", kind: "fan", beat: "did",
         quote: "We were in college when this launched.\n\nMost of us were figuring out internships.\n\nYou were building India's first price comparison engine." },
     ],
     creature: { id: "crawler", name: "Crawlix", type: "Search", power: 16, color: "#7ac46a", shape: "blob",
@@ -275,7 +275,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     npcs: [
       { x: 7, y: 17, name: "Hab Housing", role: "Founder · 2012", kind: "trainer-m", beat: "did",
         quote: "You built one of India's first branded budget-hospitality startups — the category OYO later scaled nationally.\n\n$120K+ in revenue, fully bootstrapped. Grew from sole founder to a 16-person team across three cities." },
-      { x: 22, y: 8, name: "What $120K Taught You", role: "Bootstrapping", kind: "tenant", beat: "learned",
+      { x: 7, y: 17, name: "What $120K Taught You", role: "Bootstrapping", kind: "tenant", beat: "learned",
         quote: "Operations, unit economics, acquisition, retention — without a safety net.\n\nEvery decision hit different when it was your own money on the line." },
       { x: 4, y: 9, name: "Former Tenant", role: "Hab District", kind: "tenant", beat: "did",
         quote: "Hab was the only budget place in Bengaluru that felt professional.\n\nClean rooms. Fair pricing. No nonsense. I lived there for 18 months." },
@@ -325,7 +325,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
         quote: "In 2013 you helped build one of India's first AI chatbots — before the word was common.\n\nOn top of that: Octo, an AI marketing platform. Acquired by Quartic.ai. You led marketing as Director." },
       { x: 21, y: 10, name: "Akshaya Aron", role: "Co-founder Octo · CEO Quartic.ai", kind: "trainer-f", beat: "did",
         quote: "We built Octo together.\n\nA decade later — we're back again at Fere.ai. Some collaborations are just meant to keep going." },
-      { x: 7, y: 5, name: "Early Beta User", role: "Quartic Lab · 2013", kind: "client", beat: "did",
+      { x: 5, y: 16, name: "Early Beta User", role: "Quartic Lab · 2013", kind: "client", beat: "did",
         quote: "That chatbot felt like magic in 2013.\n\nWe didn't even have a word for conversational AI yet.\n\nYou built it anyway." },
     ],
     creature: { id: "botto", name: "Bottoflux", type: "AI", power: 22, color: "#9fe8ff", shape: "spark",
@@ -377,7 +377,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
         quote: "Partner for Growth and Technology.\n\nHelped build Fund I — deal sourcing, portfolio analysis, founder relationships, growth strategy. You didn't write the cheques, but you were in the room while most of the portfolio raised theirs." },
       { x: 22, y: 12, name: "Portfolio", role: "Companies worked with", kind: "client", beat: "did",
         quote: "Meesho, Entri, Simsim, Amazon, Forbes.\n\nAcross growth, brand, and product strategy. The range is the point." },
-      { x: 9, y: 7, name: "Rohan Malhotra", role: "Investopad · Family Office", kind: "investor", beat: "learned",
+      { x: 3, y: 15, name: "Rohan Malhotra", role: "Investopad · Family Office", kind: "investor", beat: "learned",
         beats: [
           "Being on this side of the table changes how you see everything, Param.",
           "You understand how investors think now. You understand how founders look from the other side of the room.\n\nThat's not something you can learn from a book."
