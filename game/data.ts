@@ -230,7 +230,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
         quote: "Cataloguing. Pricing logic. Affiliate models. Crawling inventory at scale.\n\nFirst proof you could ship something real — in college, with no playbook." },
       { x: 5, y: 9, name: "Sidharth Rao", role: "Angel · Webchutney", kind: "investor", beat: "did",
         quote: "I backed GetRightPrice because the team was already building before they had a cheque.\n\nThat's always the signal. You had it." },
-      { x: 8, y: 16, name: "College Batchmate", role: "GRP Market", kind: "fan-f", beat: "did",
+      { x: 12, y: 14, name: "College Batchmate", role: "GRP Market", kind: "fan-f", beat: "did",
         quote: "We were in college when this launched.\n\nMost of us were figuring out internships.\n\nYou were building India's first price comparison engine." },
     ],
     creature: { id: "crawler", name: "Crawlix", type: "Search", power: 16, color: "#7ac46a", shape: "blob",

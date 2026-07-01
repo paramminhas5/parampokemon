@@ -146,6 +146,7 @@ export const POKEBALL_URL    = "/sprites/ui/pokeball.png";
 export const POKEBALL_HQ_URL = "/sprites/ui/pokeball_hq.png";
 export const TITLE_BG_URL    = "/sprites/ui/title_bg.png";
 export const CHAMPION_BG_URL = "/sprites/ui/champion_bg.png";
+export const BERRY_URL       = "/sprites/ui/berry.png";
 
 // ─── Image loader cache ───────────────────────────────────────────────────
 const cache = new Map<string, HTMLImageElement>();
@@ -226,6 +227,7 @@ if (typeof window !== "undefined") {
   getSprite(POKEBALL_HQ_URL);
   getSprite(TITLE_BG_URL);
   getSprite(CHAMPION_BG_URL);
+  getSprite(BERRY_URL);
 }
 
 export function preloadAllSprites(): Promise<void> {

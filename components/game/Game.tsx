@@ -107,6 +107,7 @@ export function Game() {
         if (s.skills)    setSkills(new Set(s.skills));
         if (s.defeated)  setDefeated(new Set(s.defeated));
         if (s.visited)   setVisited(new Set(s.visited));
+        if (s.berries)   setBerries(s.berries);
         setIsFirstVisit(false);
         setTitleDone(false);
         // ★ Show save-loaded toast so returning players know their progress is here
@@ -133,11 +134,12 @@ export function Game() {
         badges: [...badges], creatures: [...creatures],
         skills: [...skills], defeated: [...defeated], visited: [...visited],
         defeatedTrainers: [...(engineRef.current?.state.defeatedTrainers ?? [])],
+        berries,
       }));
     } catch {}
     setSaveFlash(true);
     setTimeout(() => setSaveFlash(false), 1500);
-  }, [badges, creatures, skills, defeated, visited]);
+  }, [badges, creatures, skills, defeated, visited, berries]);
 
   // Keep player stage in sync with badge count (fixes save-reload regression)
   useEffect(() => {
@@ -205,14 +207,9 @@ export function Game() {
       onBadge: (badgeId: string) => {
         // Find the zone this badge belongs to
         const badgeZone = ZONES.find(z => z.badge.id === badgeId);
-        if (badgeZone && badgeZone.gym) {
-          // Gym zones: trigger the full victory cutscene
-          stopBattleBGM();
-          setVictoryZone(badgeZone);
-          engine.setPaused(true);
-        } else if (badgeZone) {
-          // Non-gym zones (e.g. home Starter Token): award badge + flash directly,
-          // no VictoryMoment (which requires zone.gym and crashes without it)
+        if (badgeZone) {
+          // Non-gym zones (e.g. home Starter Token): award badge + flash directly
+          // Gym badges are now ONLY awarded through battle victory — never via overworld pickup
           setBadges(prev => { const n = new Set(prev); n.add(badgeId); return n; });
           setDefeated(prev => { const n = new Set(prev); n.add(badgeZone.id); return n; });
           setGotBadge({ label: badgeZone.badge.label, color: badgeZone.badge.color });
