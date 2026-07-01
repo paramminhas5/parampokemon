@@ -571,36 +571,36 @@ export function Game() {
         {/* HUD — TOP */}
         <div style={{
           position: "absolute", top: 0, left: 0, right: 0,
-          display: "flex", alignItems: "center", gap: 6,
-          padding: "8px",
-          paddingTop: "calc(env(safe-area-inset-top) + 8px)",
+          display: "flex", alignItems: "center", gap: 4,
+          padding: "6px",
+          paddingTop: "calc(env(safe-area-inset-top) + 6px)",
           pointerEvents: "none", zIndex: 20,
         }}>
           {/* Zone name card — accent-colored */}
           <div style={{
             flex: 1, minWidth: 0,
             background: `linear-gradient(135deg, ${currentZone.theme.accent}18 0%, rgba(4,8,20,0.88) 100%)`,
-            border: `2px solid ${currentZone.theme.accent}35`,
-            padding: "5px 10px", pointerEvents: "auto",
+            border: `1px solid ${currentZone.theme.accent}35`,
+            padding: "4px 8px", pointerEvents: "auto",
             backdropFilter: "blur(4px)",
             transition: "border-color 0.4s, background 0.4s",
           }}>
-            <div style={{ fontFamily: "var(--font-pixel)", fontSize: 6, color: currentZone.theme.accent, opacity: 0.7, letterSpacing: "0.1em" }}>NOW IN</div>
-            <div style={{ fontFamily: "var(--font-pixel)", fontSize: 10, color: "#c8d8f0", lineHeight: 1, marginTop: 2 }}
+            <div style={{ fontFamily: "var(--font-pixel)", fontSize: 5, color: currentZone.theme.accent, opacity: 0.7, letterSpacing: "0.1em" }}>NOW IN</div>
+            <div style={{ fontFamily: "var(--font-pixel)", fontSize: "clamp(7px, 2.5vw, 10px)", color: "#c8d8f0", lineHeight: 1, marginTop: 1 }}
                  className="truncate">{currentZone.name.toUpperCase()}</div>
           </div>
 
           {/* Badge + Orb counters */}
           <div style={{
             background: `linear-gradient(135deg, rgba(255,210,74,0.12) 0%, rgba(4,8,20,0.88) 100%)`,
-            border: "2px solid rgba(255,210,74,0.25)",
-            padding: "5px 10px", pointerEvents: "auto",
+            border: "1px solid rgba(255,210,74,0.25)",
+            padding: "4px 8px", pointerEvents: "auto",
             backdropFilter: "blur(4px)",
-            display: "flex", gap: 8, alignItems: "center",
+            display: "flex", gap: 6, alignItems: "center",
           }}>
-            <div style={{ fontFamily: "var(--font-pixel)", fontSize: 9, color: "#ffd24a" }}>★ {defeated.size}/{totalGyms}</div>
-            <div style={{ width: 1, height: 12, background: "rgba(255,210,74,0.2)" }} />
-            <div style={{ fontFamily: "var(--font-pixel)", fontSize: 9, color: "#7ce0ff" }}>✦ {skills.size}</div>
+            <div style={{ fontFamily: "var(--font-pixel)", fontSize: 8, color: "#ffd24a" }}>★ {defeated.size}/{totalGyms}</div>
+            <div style={{ width: 1, height: 10, background: "rgba(255,210,74,0.2)" }} />
+            <div style={{ fontFamily: "var(--font-pixel)", fontSize: 8, color: "#7ce0ff" }}>✦ {skills.size}</div>
           </div>
 
           {/* WARP button (world select) */}
@@ -608,9 +608,9 @@ export function Game() {
             onClick={() => { setWorldSelectOpen(true); playSound("menu"); }}
             style={{
               background: "linear-gradient(135deg, rgba(124,224,255,0.15) 0%, rgba(58,120,216,0.08) 100%)",
-              border: "2px solid #7ce0ff55",
-              color: "#7ce0ff", padding: "5px 10px",
-              fontFamily: "var(--font-pixel)", fontSize: 8,
+              border: "1px solid #7ce0ff55",
+              color: "#7ce0ff", padding: "4px 8px",
+              fontFamily: "var(--font-pixel)", fontSize: 7,
               cursor: "pointer", pointerEvents: "auto",
               backdropFilter: "blur(4px)",
               transition: "all 0.12s",
@@ -618,17 +618,17 @@ export function Game() {
           >⚡ WARP</button>
 
           <button onClick={() => { const m = !muted; setMuted(m); setMutedState(m); }} style={{
-            background: "rgba(4,8,20,0.88)", border: "2px solid #1a2a4a",
-            padding: "5px 8px", color: muted ? "#2a3a50" : "#5580aa",
-            fontFamily: "var(--font-pixel)", fontSize: 7,
+            background: "rgba(4,8,20,0.88)", border: "1px solid #1a2a4a",
+            padding: "4px 6px", color: muted ? "#2a3a50" : "#5580aa",
+            fontFamily: "var(--font-pixel)", fontSize: 6,
             cursor: "pointer", pointerEvents: "auto",
             backdropFilter: "blur(4px)",
             letterSpacing: "0.05em",
-          }}>{muted ? "SFX OFF" : "SFX ON"}</button>
+          }}>{muted ? "OFF" : "SFX"}</button>
 
           <Link href="/" style={{
-            background: "rgba(4,8,20,0.88)", border: "2px solid #1a2a4a",
-            padding: "5px 8px", fontFamily: "var(--font-pixel)", fontSize: 8,
+            background: "rgba(4,8,20,0.88)", border: "1px solid #1a2a4a",
+            padding: "4px 6px", fontFamily: "var(--font-pixel)", fontSize: 7,
             color: "#3a5070", textDecoration: "none", pointerEvents: "auto",
             backdropFilter: "blur(4px)",
           }}>✕</Link>
@@ -650,43 +650,35 @@ export function Game() {
         {/* HUD — BOTTOM LEFT: Career Progress Bar */}
         <div style={{
           position: "absolute", bottom: 0, left: 0,
-          padding: "10px", paddingBottom: "calc(env(safe-area-inset-bottom) + 10px)",
+          padding: "8px", paddingBottom: "calc(env(safe-area-inset-bottom) + 8px)",
           zIndex: 20, pointerEvents: "none",
-          maxWidth: 200,
+          maxWidth: 160,
         }}>
           <div style={{
             background: "rgba(4,8,20,0.88)",
             border: "1px solid rgba(124,224,255,0.1)",
-            padding: "8px 12px",
+            padding: "6px 8px",
             backdropFilter: "blur(8px)",
           }}>
             <div style={{
               display: "flex", justifyContent: "space-between", alignItems: "center",
-              marginBottom: 5,
+              marginBottom: 3,
             }}>
-              <span style={{ fontFamily: "var(--font-pixel)", fontSize: 5, color: "#3a5070", letterSpacing: "0.1em" }}>
-                CAREER PROGRESS
+              <span style={{ fontFamily: "var(--font-pixel)", fontSize: 4, color: "#3a5070", letterSpacing: "0.08em" }}>
+                PROGRESS
               </span>
-              <span style={{ fontFamily: "var(--font-pixel)", fontSize: 6, color: currentZone.theme.accent }}>
+              <span style={{ fontFamily: "var(--font-pixel)", fontSize: 5, color: currentZone.theme.accent }}>
                 {Math.round(((visited.size + defeated.size) / (ZONES.length + totalGyms)) * 100)}%
               </span>
             </div>
-            <div style={{ height: 4, background: "#0a1525", borderRadius: 2, overflow: "hidden" }}>
+            <div style={{ height: 3, background: "#0a1525", borderRadius: 2, overflow: "hidden" }}>
               <div style={{
                 height: "100%",
                 width: `${((visited.size + defeated.size) / (ZONES.length + totalGyms)) * 100}%`,
                 background: `linear-gradient(90deg, ${currentZone.theme.accent}cc, #00e8a0)`,
                 transition: "width 0.6s ease-out",
                 borderRadius: 2,
-                boxShadow: `0 0 6px ${currentZone.theme.accent}60`,
               }} />
-            </div>
-            <div style={{
-              display: "flex", justifyContent: "space-between", marginTop: 4,
-              fontFamily: "var(--font-pixel)", fontSize: 5, color: "#2a3a50",
-            }}>
-              <span>{visited.size}/{ZONES.length} zones</span>
-              <span>{defeated.size}/{totalGyms} gyms</span>
             </div>
           </div>
         </div>
@@ -740,13 +732,13 @@ export function Game() {
             background: "linear-gradient(135deg, rgba(255,210,74,0.12) 0%, rgba(4,8,20,0.92) 100%)",
             border: "1px solid rgba(255,210,74,0.35)",
             color: "#ffd24a",
-            padding: "8px 12px",
-            fontFamily: "var(--font-pixel)", fontSize: 7,
-            cursor: "pointer", minWidth: 64,
+            padding: "6px 10px",
+            fontFamily: "var(--font-pixel)", fontSize: 6,
+            cursor: "pointer", minWidth: 54,
             backdropFilter: "blur(12px)",
             letterSpacing: "0.05em",
             boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
-          }}>⚡ SPEED RUN</button>
+          }}>⚡ SPEED</button>
           {[
             { label: "NOTES", action: () => { setCliffOpen(currentZone); playSound("menu"); } },
             { label: "BAG",   action: () => { setBagOpen(true);          playSound("menu"); } },
@@ -756,14 +748,14 @@ export function Game() {
               background: `linear-gradient(135deg, rgba(4,8,20,0.92) 0%, rgba(10,16,36,0.88) 100%)`,
               border: `1px solid rgba(124,224,255,0.12)`,
               color: "#4a6888",
-              padding: "10px 14px",
-              fontFamily: "var(--font-pixel)", fontSize: 8,
-              cursor: "pointer", minHeight: 42, minWidth: 64,
+              padding: "8px 10px",
+              fontFamily: "var(--font-pixel)", fontSize: 7,
+              cursor: "pointer", minHeight: 36, minWidth: 50,
               backdropFilter: "blur(12px)",
               transition: "all 0.15s cubic-bezier(0.2,0,0,1)",
               display: "flex", alignItems: "center", justifyContent: "center",
               boxShadow: "0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)",
-              letterSpacing: "0.06em",
+              letterSpacing: "0.04em",
             }}
               onMouseEnter={e => {
                 const el = e.currentTarget as HTMLButtonElement;

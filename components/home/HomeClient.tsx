@@ -456,7 +456,7 @@ export function HomeClient() {
 
       {/* ── HERO ── */}
       <section style={{
-        maxWidth: 860, margin: "0 auto", padding: "60px 20px 40px",
+        maxWidth: 860, margin: "0 auto", padding: "40px 16px 30px",
         textAlign: "center", position: "relative", zIndex: 1,
       }}>
         <div style={{
