@@ -535,7 +535,7 @@ export function HomeClient() {
 
       {/* ── STATS ── */}
       <section style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 40px" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 8 }}>
+        <div className="stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 8 }}>
           {[
             { label: "YEARS BUILDING", value: "15+" },
             { label: "REVENUE",        value: "$6M+" },

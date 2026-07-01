@@ -288,6 +288,18 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
           return;
         }
       }
+      // Gym mat — auto-triggers battle when player steps on or adjacent to the mat
+      const mat = interactives.find((i) => i.kind === "mat" && i.x === n.x && i.y === n.y);
+      if (mat && mat.kind === "mat" && mat.zone.gym && !state.defeatedGyms.has(mat.zone.id)) {
+        const key = `gym:${mat.zone.id}`;
+        if (key !== lastAutoKey || performance.now() - lastAutoAt > 8000) {
+          lastAutoKey = key; lastAutoAt = performance.now();
+          if (gymUnlocked(mat.zone.id, state.collectedBadges)) {
+            cb.onGymEnter(mat.zone);
+            return;
+          }
+        }
+      }
       // Badge auto-collect — only for NON-GYM zones (e.g. home Starter Token).
       // Gym badges are ONLY awarded after defeating the gym leader via handleVictoryContinue.
       const badge = interactives.find((i) => i.kind === "badge" && i.x === n.x && i.y === n.y);

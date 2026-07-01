@@ -29,7 +29,6 @@ import { Interior } from "./Interior";
 import { SettingsScreen } from "./SettingsScreen";
 import { CreditsScreen } from "./CreditsScreen";
 import { WildEncounterIntro } from "./WildEncounterIntro";
-import { OrbCollectAnimation } from "./OrbCollectAnimation";
 import { RecruiterSpeedRun } from "./RecruiterSpeedRun";
 import { BadgeShareCard } from "./BadgeShareCard";
 import { OnboardingOverlay } from "./OnboardingOverlay";
@@ -86,8 +85,6 @@ export function Game() {
   const [creditsOpen, setCreditsOpen] = useState(false);
   const [saveFlash, setSaveFlash] = useState(false);
   const bleedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  // Orb collection animation
-  const [orbCollect, setOrbCollect] = useState<{ accent: string; skillName: string } | null>(null);
   // Recruiter speed run mode
   const [speedRunOpen, setSpeedRunOpen] = useState(false);
   // Badge share card
@@ -97,6 +94,9 @@ export function Game() {
   // Making Of easter egg (Konami code)
   const [makingOfOpen, setMakingOfOpen] = useState(false);
   useKonamiCode(useCallback(() => setMakingOfOpen(true), []));
+  // Hire Me CTA auto-dismiss
+  const [ctaDismissed, setCtaDismissed] = useState(false);
+  const ctaTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // pendingSkillLearn: queued after dialog closes — fired once dialog unmounts
   const pendingSkillLearnRef = useRef<{ zone: Zone; npcName: string } | null>(null);
@@ -287,19 +287,25 @@ export function Game() {
         playSound("catch");
         engine.triggerFollowerAnim("jump");
         engine.setPaused(true);
-        // Show orb collection animation FIRST, then skill learn overlay
-        setOrbCollect({ accent: z.theme.accent, skillName: z.skill!.name });
+        // Show skill learn overlay directly (single overlay, no double animation)
         showToast(`✦ SKILL ORB`, z.skill!.name);
+        setTimeout(() => {
+          if (pendingSkillLearnRef.current) {
+            const pending = pendingSkillLearnRef.current;
+            pendingSkillLearnRef.current = null;
+            setSkillLearnZone(pending);
+          }
+        }, 100);
         // Check evolution milestone (4 skills → Mermalion, 7 → Merlord)
         const newSkillCount = prevSkillCount + 1;
         const evo = checkEvolution(prevSkillCount, newSkillCount);
         if (evo) {
-          // Queue evolution after skill learn overlay closes
+          // Queue evolution after skill learn overlay closes (handled in SkillLearnOverlay.onClose)
           setTimeout(() => {
             setSkillLearnZone(null);
             setEvolution(evo);
             engine.setPaused(true);
-          }, 3200);
+          }, 2500);
         }
       },
       onBerryItem: (z: Zone) => {
@@ -513,14 +519,14 @@ export function Game() {
         ))}
       </div>
 
-      {/* Game container - boxed on desktop */}
+      {/* Game container - full screen on mobile, boxed on desktop */}
       <div
         role="application"
         aria-label="Param Quest — A playable portfolio RPG game"
         style={{
           position: "relative",
           width: "min(100vw, 960px)",
-          height: "min(100vh, 640px)",
+          height: "min(100dvh, 640px)",
           zIndex: 1,
           display: "flex", flexDirection: "column",
           boxShadow: "0 0 80px rgba(0,0,0,0.8), 0 0 2px rgba(124,224,255,0.15)",
@@ -698,16 +704,22 @@ export function Game() {
           </div>
         </div>
 
-        {/* HUD — HIRE ME CTA: appears after exploring 3+ zones or winning 2+ battles */}
-        {(visited.size >= 4 || defeated.size >= 2) && !contactOpen && !battle && !battleIntro && (
-          <div style={{
+        {/* HUD — HIRE ME CTA: appears after exploring 3+ zones or winning 2+ battles, auto-dismisses after 12s */}
+        {(visited.size >= 4 || defeated.size >= 2) && !contactOpen && !battle && !battleIntro && !ctaDismissed && (
+          <div
+            ref={el => {
+              if (el && !ctaTimerRef.current) {
+                ctaTimerRef.current = setTimeout(() => setCtaDismissed(true), 12000);
+              }
+            }}
+            style={{
             position: "absolute", bottom: 70, left: "50%",
             transform: "translateX(-50%)",
             zIndex: 19, pointerEvents: "auto",
             animation: "pq-fade-in 0.5s ease-out",
           }}>
             <button
-              onClick={() => { setContactOpen(true); playSound("menu"); }}
+              onClick={() => { setContactOpen(true); setCtaDismissed(true); playSound("menu"); }}
               style={{
                 background: "linear-gradient(135deg, rgba(124,224,255,0.08) 0%, rgba(4,8,20,0.9) 100%)",
                 border: "1px solid rgba(124,224,255,0.25)",
@@ -1027,24 +1039,7 @@ export function Game() {
           />
         )}
 
-        {/* Orb collection animation — plays before skill learn overlay */}
-        {orbCollect && (
-          <OrbCollectAnimation
-            accent={orbCollect.accent}
-            skillName={orbCollect.skillName}
-            onComplete={() => {
-              setOrbCollect(null);
-              // Now show the skill learn overlay
-              if (pendingSkillLearnRef.current) {
-                const pending = pendingSkillLearnRef.current;
-                pendingSkillLearnRef.current = null;
-                setSkillLearnZone(pending);
-              }
-            }}
-          />
-        )}
-
-        {/* Skill learn overlay — replaces toast for skill berry discovery */}
+        {/* Skill learn overlay — single quick overlay for skill orb collection */}
         {skillLearnZone && (
           <SkillLearnOverlay
             zone={skillLearnZone.zone}
