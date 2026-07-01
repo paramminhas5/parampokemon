@@ -339,9 +339,9 @@ function addZoneTreeClusters(grid: TileCode[][], z: typeof ZONES[0], w: number, 
           }
         }
       }
-      // Cluster 2: right-centre (away from Prof lab)
+      // Cluster 2: right-centre (away from spawn — moved further right)
       for (let gy = oy + 9; gy < oy + 15; gy++) {
-        for (let gx = ox + 14; gx < ox + 19; gx++) {
+        for (let gx = ox + 18; gx < ox + 23; gx++) {
           if (safe(gx, gy)) {
             const r = sr(gx, gy, 55);
             if (r < 0.30) grid[gy][gx] = T.TALL_GRASS;
@@ -366,6 +366,22 @@ function addZoneTreeClusters(grid: TileCode[][], z: typeof ZONES[0], w: number, 
         const gx = ox + 22;
         if (gx >= 0 && gy >= 0 && gx < w && gy < h) grid[gy][gx] = base;
         if (gx + 1 < w) grid[gy][gx + 1] = base;
+      }
+      // ★ Guarantee clear walkable area around spawn (5-tile radius)
+      // Spawn is at (ox+13, oy+14) — ensure nothing blocks immediate movement
+      {
+        const spx = ox + (z.spawn?.x ?? 13);
+        const spy = oy + (z.spawn?.y ?? 14);
+        for (let dy = -3; dy <= 3; dy++) {
+          for (let dx = -3; dx <= 3; dx++) {
+            const cx = spx + dx, cy = spy + dy;
+            if (cx >= ox + 1 && cx < ox + zw - 1 && cy >= oy + 1 && cy < oy + zh - 1) {
+              if (SOLID.has(grid[cy][cx]) && grid[cy][cx] !== T.BUILDING_WALL && grid[cy][cx] !== T.BUILDING_ROOF) {
+                grid[cy][cx] = base;
+              }
+            }
+          }
+        }
       }
       break;
     }
@@ -726,6 +742,37 @@ function placeZoneContent(grid: TileCode[][], w: number, h: number) {
               const r = sr(gx, gy, cluster * 37);
               if (r < 0.55) grid[gy][gx] = T.TALL_GRASS;
               else if (r < 0.70) grid[gy][gx] = T.FLOWER_R;
+            }
+          }
+        }
+      }
+    }
+
+    // ── FINAL PASS: Guarantee walkable area around spawn and all NPC tiles ──
+    // This ensures the player can ALWAYS move in all 4 directions from spawn
+    // and can always reach NPCs. Clears any SOLID props placed by random seeding.
+    {
+      const spx = z.ox + (z.spawn?.x ?? Math.floor(z.w / 2));
+      const spy = z.oy + (z.spawn?.y ?? Math.floor(z.h / 2));
+      // Clear 4-tile radius around spawn
+      for (let dy = -4; dy <= 4; dy++) {
+        for (let dx = -4; dx <= 4; dx++) {
+          const cx3 = spx + dx, cy3 = spy + dy;
+          if (cx3 < 0 || cy3 < 0 || cx3 >= w || cy3 >= h) continue;
+          if (SOLID.has(grid[cy3][cx3]) && grid[cy3][cx3] !== T.BUILDING_WALL && grid[cy3][cx3] !== T.BUILDING_ROOF && grid[cy3][cx3] !== T.TREE) {
+            grid[cy3][cx3] = base;
+          }
+        }
+      }
+      // Clear 2-tile radius around each NPC for approachability
+      for (const npc of z.npcs) {
+        const nx = z.ox + npc.x, ny = z.oy + npc.y;
+        for (let dy = -2; dy <= 2; dy++) {
+          for (let dx = -2; dx <= 2; dx++) {
+            const cx3 = nx + dx, cy3 = ny + dy;
+            if (cx3 < 0 || cy3 < 0 || cx3 >= w || cy3 >= h) continue;
+            if (SOLID.has(grid[cy3][cx3]) && grid[cy3][cx3] !== T.BUILDING_WALL && grid[cy3][cx3] !== T.BUILDING_ROOF && grid[cy3][cx3] !== T.TREE) {
+              grid[cy3][cx3] = base;
             }
           }
         }
