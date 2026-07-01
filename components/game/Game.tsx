@@ -10,7 +10,6 @@ import { CliffNotes } from "./CliffNotes";
 import { Battle } from "./Battle";
 import { BattleIntro } from "./BattleIntro";
 import { CatchModal } from "./CatchModal";
-import { WorldMap } from "./WorldMap";
 import { WorldSelect } from "./WorldSelect";
 import { ContactModal } from "./ContactModal";
 import { PressModal } from "./PressModal";
@@ -51,7 +50,6 @@ export function Game() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [bagOpen, setBagOpen] = useState(false);
   const [cliffOpen, setCliffOpen] = useState<Zone | null>(null);
-  const [mapOpen, setMapOpen] = useState(false);
   const [worldSelectOpen, setWorldSelectOpen] = useState(true); // open on launch
   const [battle, setBattle] = useState<Zone | null>(null);
   const [battleIntro, setBattleIntro] = useState<Zone | null>(null);
@@ -171,7 +169,7 @@ export function Game() {
     toastTimer.current = setTimeout(() => setToast(null), 2800);
   }, []);
 
-  const isModalOpen = !!(dialog || menuOpen || bagOpen || cliffOpen || mapOpen || worldSelectOpen || battle || battleIntro || catchModal || wildIntro || contactOpen || pressOpen || evolution || victoryZone || skillLearnZone || !titleDone || championOpen || interiorZone || trainerBattle || trainerBattleIntro || settingsOpen || creditsOpen);
+  const isModalOpen = !!(dialog || menuOpen || bagOpen || cliffOpen || worldSelectOpen || battle || battleIntro || catchModal || wildIntro || contactOpen || pressOpen || evolution || victoryZone || skillLearnZone || !titleDone || championOpen || interiorZone || trainerBattle || trainerBattleIntro || settingsOpen || creditsOpen);
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -277,35 +275,36 @@ export function Game() {
       onSkillOrb: (z: Zone) => {
         if (!z.skill) return;
         const prevSkillCount = skills.size;
+        let wasNew = false;
         setSkills(prev => {
           if (prev.has(z.skill!.id)) return prev;
+          wasNew = true;
           const n = new Set(prev); n.add(z.skill!.id);
           engine.addSkill(z.skill!.id);
-          pendingSkillLearnRef.current = { zone: z, npcName: "Skill Orb" };
           return n;
         });
         playSound("catch");
         engine.triggerFollowerAnim("jump");
         engine.setPaused(true);
-        // Show skill learn overlay directly (single overlay, no double animation)
+        // Show skill learn overlay directly (single overlay)
         showToast(`✦ SKILL ORB`, z.skill!.name);
+        // Always show the overlay — even if skill was already collected, briefly show then unpause
         setTimeout(() => {
-          if (pendingSkillLearnRef.current) {
-            const pending = pendingSkillLearnRef.current;
-            pendingSkillLearnRef.current = null;
-            setSkillLearnZone(pending);
-          }
+          setSkillLearnZone({ zone: z, npcName: "Skill Orb" });
         }, 100);
         // Check evolution milestone (4 skills → Mermalion, 7 → Merlord)
-        const newSkillCount = prevSkillCount + 1;
-        const evo = checkEvolution(prevSkillCount, newSkillCount);
-        if (evo) {
-          // Queue evolution after skill learn overlay closes (handled in SkillLearnOverlay.onClose)
-          setTimeout(() => {
-            setSkillLearnZone(null);
-            setEvolution(evo);
-            engine.setPaused(true);
-          }, 2500);
+        if (wasNew) {
+          const newSkillCount = prevSkillCount + 1;
+          const evo = checkEvolution(prevSkillCount, newSkillCount);
+          if (evo) {
+            // Queue evolution after skill learn overlay closes
+            setTimeout(() => {
+              setSkillLearnZone(null);
+              setEvolution(evo);
+              engine.setPaused(true);
+              playSound("evolve");
+            }, 2500);
+          }
         }
       },
       onBerryItem: (z: Zone) => {
@@ -355,7 +354,6 @@ export function Game() {
 
   function handleWarp(zoneId: string) {
     setWorldSelectOpen(false);
-    setMapOpen(false);
     // Show onboarding for first-time players after their first warp
     if (isFirstVisit && !showOnboarding) {
       try {
@@ -602,21 +600,7 @@ export function Game() {
             <div style={{ fontFamily: "var(--font-pixel)", fontSize: 10, color: "#ffd24a" }}>★ {defeated.size}/{totalGyms}</div>
           </div>
 
-          {/* WORLD SELECT / MAP buttons */}
-          <button
-            onClick={() => { setMapOpen(true); playSound("menu"); }}
-            style={{
-              background: "rgba(4,8,20,0.88)",
-              border: "2px solid #1a2a4a",
-              color: "#4a6080", padding: "5px 10px",
-              fontFamily: "var(--font-pixel)", fontSize: 8,
-              cursor: "pointer", pointerEvents: "auto",
-              backdropFilter: "blur(4px)",
-              transition: "all 0.12s",
-            }}
-            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#7ce0ff55"; (e.currentTarget as HTMLButtonElement).style.color = "#7ce0ff"; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#1a2a4a"; (e.currentTarget as HTMLButtonElement).style.color = "#4a6080"; }}
-          >MAP</button>
+          {/* WARP button (world select) */}
           <button
             onClick={() => { setWorldSelectOpen(true); playSound("menu"); }}
             style={{
@@ -880,10 +864,6 @@ export function Game() {
             onSelect={handleWarp}
             onClose={() => { setWorldSelectOpen(false); engineRef.current?.setPaused(false); }}
           />
-        )}
-        {mapOpen && (
-          <WorldMap visited={visited} defeated={defeated} currentId={currentZoneId}
-            onWarp={handleWarp} onClose={() => setMapOpen(false)} />
         )}
         {dialog && <DialogBox dialog={dialog} onClose={() => {
           setDialog(null);

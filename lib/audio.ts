@@ -90,7 +90,7 @@ function tone(
 
 type SoundName =
   | "step" | "hit" | "super" | "crit" | "victory"
-  | "badge" | "catch" | "faint" | "menu" | "warp" | "hptick";
+  | "badge" | "catch" | "faint" | "menu" | "warp" | "hptick" | "evolve";
 
 export function playSound(name: SoundName) {
   if (_muted) return;
@@ -144,6 +144,15 @@ export function playSound(name: SoundName) {
       break;
     case "hptick":
       tone(440 + Math.random() * 80, 0.03, 0.02, "square");
+      break;
+    case "evolve":
+      // Ascending triumphant tones — evolution fanfare
+      tone(330, 0.15, 0.08, "square");
+      setTimeout(() => tone(440, 0.15, 0.08, "square"), 120);
+      setTimeout(() => tone(550, 0.15, 0.08, "square"), 240);
+      setTimeout(() => tone(660, 0.2, 0.1, "square"), 360);
+      setTimeout(() => tone(880, 0.3, 0.15, "sawtooth"), 500);
+      setTimeout(() => tone(1100, 0.25, 0.2, "sawtooth"), 650);
       break;
   }
 }

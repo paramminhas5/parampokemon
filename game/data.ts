@@ -1106,7 +1106,8 @@ export function allInteractives(): Interactive[] {
     const dx = zone.ox + zone.building.x + zone.building.doorX;
     const dy = zone.oy + zone.building.y + zone.building.h - 1;
     list.push({ kind: "door", zone, x: dx, y: dy });
-    list.push({ kind: "mat", zone, x: dx, y: dy + 1 });
+    // Mat is placed directly at the door (same tile) — stepping on the door triggers gym
+    list.push({ kind: "mat", zone, x: dx, y: dy });
     if (zone.creature) {
       const w = wildPositionFor(zone);
       list.push({ kind: "wild", zone, creature: zone.creature, x: w.x, y: w.y });
