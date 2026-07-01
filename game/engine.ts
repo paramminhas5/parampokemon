@@ -804,9 +804,8 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         ctx.beginPath();
         ctx.ellipse(npcPx + TILE / 2, npcPy + TILE - 2, TILE * 0.45, TILE * 0.12, 0, 0, Math.PI * 2);
         ctx.fill();
-        // Draw sprite — use 'darken' composite to blend white bg away while keeping colors bright
+        // Draw sprite normally (these are RGBA PNGs with proper transparency)
         ctx.save();
-        ctx.globalCompositeOperation = "darken";
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
         if (npcDir === "left") {
@@ -854,9 +853,8 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         ctx.beginPath();
         ctx.ellipse(rnPx + TILE / 2, rnPy + TILE - 2, TILE * 0.45, TILE * 0.12, 0, 0, Math.PI * 2);
         ctx.fill();
-        // Draw sprite with darken blend
+        // Draw sprite normally (RGBA PNGs with transparency)
         ctx.save();
-        ctx.globalCompositeOperation = "darken";
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
         if (rnDir === "left") {

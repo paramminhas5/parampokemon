@@ -89,22 +89,22 @@ export const LANDMARK_URL: Record<string, string> = {
 };
 
 // ─── NPC overworld sprites (unique per NpcKind) ───────────────────────────
-// Each NPC kind gets a unique high-res sprite for overworld rendering.
-// These are 512×512 PNGs generated via FAL.ai with a consistent pixel-art style.
+// Each NPC kind maps to the best available high-quality sprite.
+// We reuse leader/creature sprites that match the NPC archetype.
 import type { NpcKind } from "./data";
 
 export const NPC_SPRITE_URL: Record<NpcKind, string> = {
-  "trainer-m": "/sprites/npcs/trainer_m.png",
-  "trainer-f": "/sprites/npcs/trainer_f.png",
-  investor:    "/sprites/npcs/investor.png",
-  engineer:    "/sprites/npcs/engineer.png",
-  celeb:       "/sprites/npcs/celeb.png",
-  client:      "/sprites/npcs/client.png",
-  fan:         "/sprites/npcs/fan.png",
-  tenant:      "/sprites/npcs/tenant.png",
-  professor:   "/sprites/npcs/professor.png",
-  mom:         "/sprites/npcs/mom.png",
-  rival:       "/sprites/npcs/rival.png",
+  "trainer-m": "/sprites/leaders/longtail.png",      // merchant/trainer vibe
+  "trainer-f": "/sprites/leaders/noculture.png",     // sporty/streetwear vibe
+  investor:    "/sprites/leaders/termsheet.png",     // suited VC
+  engineer:    "/sprites/leaders/prehype.png",       // tech/scientist
+  celeb:       "/sprites/leaders/noculture.png",     // flashy/streetwear
+  client:      "/sprites/leaders/nobrief.png",       // corporate/clipboard
+  fan:         "/sprites/creatures/origin.png",      // enthusiastic/sparky
+  tenant:      "/sprites/leaders/zerorunway.png",    // landlord/keys
+  professor:   "/sprites/leaders/blankpage.png",     // scholarly/beret
+  mom:         "/sprites/creatures/ccd.png",         // warm/caring (cat)
+  rival:       "/sprites/leaders/statusquo.png",     // powerful/crowned
 };
 
 // ─── Zone arrival banners (Batch B) ───────────────────────────────────────

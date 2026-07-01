@@ -2,7 +2,7 @@
 import { useEffect, useState, useRef } from "react";
 import type { Zone, Move } from "@/game/data";
 import { STARTER_STAGES, stageForBadges } from "@/game/data";
-import { CREATURE_URL, POKEBALL_URL, PLAYER_FRONT_URL, getSprite, isReady } from "@/game/sprite-registry";
+import { CREATURE_URL, POKEBALL_URL, PLAYER_BACK_URL, getSprite, isReady } from "@/game/sprite-registry";
 import { playSound } from "@/lib/audio";
 
 type Phase = "battle" | "weakened" | "throwing" | "caught" | "fled";
@@ -33,8 +33,8 @@ export function CatchModal({ zone, badges, onCatch, onClose }: {
       if (meRef.current) {
         const c = meRef.current.getContext("2d")!;
         c.clearRect(0, 0, 96, 96);
-        // Use HD PNG sprite
-        const spriteUrl = PLAYER_FRONT_URL[stage.id] ?? PLAYER_FRONT_URL.mermander;
+        // Use HD PNG sprite — BACK view (facing the enemy)
+        const spriteUrl = PLAYER_BACK_URL[stage.id] ?? PLAYER_BACK_URL.mermander;
         const img = getSprite(spriteUrl);
         if (img && isReady(img)) {
           c.imageSmoothingEnabled = true;
@@ -126,28 +126,41 @@ export function CatchModal({ zone, badges, onCatch, onClose }: {
           color: zone.theme.accent,
         }}>★ WILD {cr.name.toUpperCase()}</div>
 
-        {/* Battle area */}
+        {/* Battle area — Player LEFT (back), Creature RIGHT */}
         <div style={{
           display: "grid", gridTemplateColumns: "1fr 1fr",
           padding: "12px 16px", gap: 12, alignItems: "center",
         }}>
-          {/* Creature side */}
+          {/* Player side (LEFT — facing right toward creature) */}
+          <div style={{ textAlign: "center" }}>
+            <canvas ref={meRef} width={96} height={96}
+              style={{ imageRendering: "pixelated", width: 100, height: 100 }} />
+            <div style={{ fontFamily: "var(--font-pixel)", fontSize: 7, color: stage.color, marginTop: 3 }}>
+              {stage.name}
+            </div>
+            <div style={{ height: 5, background: "#0d1527", border: "1px solid #1a2a4a", overflow: "hidden", marginTop: 4 }}>
+              <div style={{ height: "100%", width: `${(myHp / stage.hp) * 100}%`, background: "#4ade80", transition: "width 0.4s" }} />
+            </div>
+          </div>
+
+          {/* Creature side (RIGHT — the wild encounter) */}
           <div style={{ textAlign: "center" }}>
             {url && (
               <div style={{
                 display: "inline-block",
                 transform: shake ? "translateX(6px) rotate(5deg)" : "translateX(0)",
                 transition: "transform 0.08s",
-                filter: `drop-shadow(0 0 10px ${zone.theme.accent}50)`,
+                filter: `drop-shadow(0 0 14px ${zone.theme.accent}60)`,
               }}>
                 <img src={url} alt={cr.name}
-                  style={{ width: 80, height: 80, imageRendering: "pixelated",
+                  style={{ width: 100, height: 100, imageRendering: "pixelated",
                            opacity: phase === "weakened" || creatureHp <= maxHp * 0.25 ? 0.6 : 1 }} />
               </div>
             )}
             <div style={{ marginTop: 6 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 6, justifyContent: "center", marginBottom: 3 }}>
-                <span style={{ fontFamily: "var(--font-pixel)", fontSize: 7, color: zone.theme.accent }}>{cr.type}</span>
+                <span style={{ fontFamily: "var(--font-pixel)", fontSize: 7, color: zone.theme.accent }}>{cr.name}</span>
+                <span style={{ fontFamily: "var(--font-pixel)", fontSize: 6, color: "#3a5070" }}>{cr.type}</span>
               </div>
               <div style={{ height: 5, background: "#0d1527", border: "1px solid #1a2a4a", overflow: "hidden" }}>
                 <div style={{ height: "100%", width: `${pct * 100}%`, background: hpColor, transition: "width 0.4s" }} />
@@ -155,18 +168,6 @@ export function CatchModal({ zone, badges, onCatch, onClose }: {
               <div style={{ fontFamily: "var(--font-pixel)", fontSize: 6, color: "#3a5070", marginTop: 3 }}>
                 {creatureHp}/{maxHp} HP
               </div>
-            </div>
-          </div>
-
-          {/* Player side */}
-          <div style={{ textAlign: "center" }}>
-            <canvas ref={meRef} width={96} height={96}
-              style={{ imageRendering: "pixelated", width: 80, height: 80 }} />
-            <div style={{ fontFamily: "var(--font-pixel)", fontSize: 7, color: stage.color, marginTop: 3 }}>
-              {stage.name}
-            </div>
-            <div style={{ height: 5, background: "#0d1527", border: "1px solid #1a2a4a", overflow: "hidden", marginTop: 4 }}>
-              <div style={{ height: "100%", width: `${(myHp / stage.hp) * 100}%`, background: "#4ade80", transition: "width 0.4s" }} />
             </div>
           </div>
         </div>
