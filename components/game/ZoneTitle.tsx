@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import type { Zone } from "@/game/data";
 import { BANNER_URL, getSprite, isReady } from "@/game/sprite-registry";
 
-const DISPLAY_MS = 2600;
+const DISPLAY_MS = 1400;
 
 const STYLES = `
 @keyframes zt-slide-up {

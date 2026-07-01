@@ -107,6 +107,8 @@ export type Zone = {
   cliff: CliffNotes;
   spawn?: { x: number; y: number };
   hiddenItem?: { x: number; y: number };
+  /** Berry pickup position — grants a random consumable berry (heal/shield/speed) */
+  berryItem?: { x: number; y: number };
 };
 
 // ─── Zones ─────────────────────────────────────────────────────
@@ -204,6 +206,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
       leader: "blankpage",
     },
     hiddenItem: { x: 18, y: 14 },
+    berryItem: { x: 10, y: 16 },
     cliff: {
       era: "Pune · Pre-2010",
       did: ["First product at 19", "First company at 21"],
@@ -254,6 +257,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
       leader: "longtail",
     },
     hiddenItem: { x: 5, y: 11 },
+    berryItem: { x: 15, y: 16 },
     cliff: {
       era: "College · 2010",
       did: ["India's first price-comparison engine for electronics", "Angel-backed by Sidharth Rao (Webchutney)"],
@@ -276,7 +280,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     npcs: [
       { x: 7, y: 17, name: "Hab Housing", role: "Founder · 2012", kind: "trainer-m2", beat: "did",
         quote: "You built one of India's first branded budget-hospitality startups — the category OYO later scaled nationally.\n\n$120K+ in revenue, fully bootstrapped. Grew from sole founder to a 16-person team across three cities." },
-      { x: 7, y: 17, name: "What $120K Taught You", role: "Bootstrapping", kind: "tenant", beat: "learned",
+      { x: 14, y: 15, name: "What $120K Taught You", role: "Bootstrapping", kind: "tenant", beat: "learned",
         quote: "Operations, unit economics, acquisition, retention — without a safety net.\n\nEvery decision hit different when it was your own money on the line." },
       { x: 4, y: 9, name: "Former Tenant", role: "Hab District", kind: "tenant", beat: "did",
         quote: "Hab was the only budget place in Bengaluru that felt professional.\n\nClean rooms. Fair pricing. No nonsense. I lived there for 18 months." },
@@ -302,6 +306,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
       leader: "zerorunway",
     },
     hiddenItem: { x: 6, y: 12 },
+    berryItem: { x: 20, y: 16 },
     cliff: {
       era: "Pune · 2012-13",
       did: ["One of India's first branded budget-hospitality startups", "Scaled to $120K+ revenue, fully bootstrapped", "16-person team across three cities"],
@@ -350,6 +355,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
       leader: "prehype",
     },
     hiddenItem: { x: 20, y: 14 },
+    berryItem: { x: 10, y: 16 },
     cliff: {
       era: "2013-17 · AI before AI",
       did: ["One of India's first chatbots in 2013", "Co-built Octo (acquired by Quartic.ai)", "Led marketing as Director"],
@@ -405,6 +411,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
       leader: "termsheet",
     },
     hiddenItem: { x: 20, y: 14 },
+    berryItem: { x: 10, y: 16 },
     cliff: {
       era: "Post-Octo · Venture",
       did: ["Helped build Fund I from scratch", "Worked with Meesho, Entri, Simsim, Amazon, Forbes", "In the room while portfolio companies raised"],
@@ -463,6 +470,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
       leader: "noculture",
     },
     hiddenItem: { x: 21, y: 15 },
+    berryItem: { x: 12, y: 14 },
     cliff: {
       era: "2020-24 · Sneakers + Streetwear",
       did: ["$6M+ total revenue", "$795K raised", "350K+ community", "30+ live events including SneakinOut", "Retail in Mumbai & Hyderabad", "Led team of 40"],
@@ -520,6 +528,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
       leader: "blackbox",
     },
     hiddenItem: { x: 5, y: 15 },
+    berryItem: { x: 15, y: 12 },
     cliff: {
       era: "2024-25 · AI Agents",
       did: ["CMO at Fere.ai, funded by Ethereal Ventures", "Restructured marketing to run lean with AI systems", "Proving ground for launching Iterate", "Full-circle with Akshaya Aron"],
@@ -568,6 +577,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
       leader: "nobrief",
     },
     hiddenItem: { x: 19, y: 14 },
+    berryItem: { x: 12, y: 12 },
     cliff: {
       era: "2026–Present · Culture Platform",
       did: ["Culture-discovery platform end-to-end", "Artist directory, event booking, music-production learning", "Series of live shows pan-India w/ Impresario"],
@@ -622,6 +632,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
       leader: "statusquo",
     },
     hiddenItem: { x: 6, y: 10 },
+    berryItem: { x: 14, y: 14 },
     cliff: {
       era: "2024–Present · The Full Stack",
       did: ["AI-native marketing agency", "90-person network across strategy, creative, engineering", "Clients: ChargeZone, Noida Airport, PickYourTrail, Billione, Monkspace", "Launched Cats Can Dance under Iterate"],
@@ -860,7 +871,8 @@ export type Interactive =
   | { kind: "mat"; zone: Zone; x: number; y: number }
   | { kind: "wild"; zone: Zone; creature: Creature; x: number; y: number }
   | { kind: "hidden"; zone: Zone; x: number; y: number }
-  | { kind: "skillOrb"; zone: Zone; skill: Skill; x: number; y: number };
+  | { kind: "skillOrb"; zone: Zone; skill: Skill; x: number; y: number }
+  | { kind: "berryItem"; zone: Zone; x: number; y: number };
 
 export function wildPositionFor(zone: Zone): { x: number; y: number } {
   // Place wild creature in lower-right quadrant of zone, away from building AND NPCs
@@ -1106,6 +1118,10 @@ export function allInteractives(): Interactive[] {
     // Skill Orb — visible collectible that teaches a move (for gym zones with skills)
     if (zone.skill && zone.gym && zone.hiddenItem) {
       list.push({ kind: "skillOrb", zone, skill: zone.skill, x: zone.ox + zone.hiddenItem.x, y: zone.oy + zone.hiddenItem.y });
+    }
+    // Berry item — consumable berry pickup (heal/shield/speed)
+    if (zone.berryItem) {
+      list.push({ kind: "berryItem", zone, x: zone.ox + zone.berryItem.x, y: zone.oy + zone.berryItem.y });
     }
   }
   // Route NPCs — use home zone as the zone reference (nearest zone above each NPC)

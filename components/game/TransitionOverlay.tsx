@@ -9,7 +9,7 @@ interface Props {
 }
 
 const DURATION: Record<TransitionKind, number> = {
-  zone: 400,
+  zone: 280,
   battle: 500,
   warp: 350,
   none: 0,
@@ -52,13 +52,13 @@ export function TransitionOverlay({ trigger, onMidpoint }: Props) {
     setPhase("in");
 
     if (trigger.kind === "zone") {
-      // Faster zone transition: total ≤ 400ms
-      const inPhase = 180;
+      // Faster zone transition: total ≤ 280ms
+      const inPhase = 120;
       const t1 = setTimeout(() => {
         setPhase("hold");
         if (!midFired.current) { midFired.current = true; onMidpoint?.(); }
       }, inPhase);
-      const t2 = setTimeout(() => setPhase("out"), inPhase + 40);
+      const t2 = setTimeout(() => setPhase("out"), inPhase + 30);
       const t3 = setTimeout(() => setPhase("idle"), DURATION[trigger.kind]);
       timers.current = [t1, t2, t3];
     } else {

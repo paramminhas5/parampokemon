@@ -54,6 +54,7 @@ export type GameState = {
   collectedSkills: Set<string>;
   defeatedGyms: Set<string>;
   defeatedTrainers: Set<string>;
+  collectedBerryItems: Set<string>;
   visitedZones: Set<string>;
   paused: boolean;
   path: { x: number; y: number }[];
@@ -80,6 +81,8 @@ export type EngineCallbacks = {
   onHiddenItem: (zone: Zone) => void;
   /** Called when player collects a visible Skill Orb */
   onSkillOrb: (zone: Zone) => void;
+  /** Called when player picks up a consumable berry */
+  onBerryItem: (zone: Zone) => void;
   /** Called when player interacts with a route trainer NPC */
   onTrainerBattle: (npc: RouteNpc) => void;
 };
@@ -145,6 +148,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
     collectedSkills: new Set(),
     defeatedGyms: new Set(),
     defeatedTrainers: new Set(),
+    collectedBerryItems: new Set(),
     visitedZones: new Set([ZONES[0].id]),
     paused: false,
     path: [],
@@ -348,6 +352,18 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
           state.collectedSkills.add(skillOrb.skill.id);
           if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate([40, 20, 60]);
           cb.onSkillOrb(skillOrb.zone);
+          return;
+        }
+      }
+      // Berry item auto-collect
+      const berryItem = interactives.find((i) => i.kind === "berryItem" && i.x === n.x && i.y === n.y);
+      if (berryItem && berryItem.kind === "berryItem" && !state.collectedBerryItems.has(berryItem.zone.id)) {
+        const key = `bi:${berryItem.zone.id}`;
+        if (key !== lastAutoKey || performance.now() - lastAutoAt > 8000) {
+          lastAutoKey = key; lastAutoAt = performance.now();
+          state.collectedBerryItems.add(berryItem.zone.id);
+          if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate([20, 10, 20]);
+          cb.onBerryItem(berryItem.zone);
           return;
         }
       }
@@ -791,6 +807,42 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         ctx.textAlign = "left";
         ctx.globalAlpha = 1;
       }
+    }
+
+    // Berry items (consumable pickups) — smaller, green-tinted
+    for (const i of interactives) {
+      if (i.kind !== "berryItem") continue;
+      if (state.collectedBerryItems.has(i.zone.id)) continue;
+      if (i.x < tx0 - 1 || i.x > tx1 + 1 || i.y < ty0 - 1 || i.y > ty1 + 1) continue;
+      const bx = i.x * TILE + offX;
+      const by = i.y * TILE + offY;
+      const bob = Math.sin(now / 600 + i.x * 1.8) * 2;
+      const pulse = 0.6 + Math.sin(now / 500 + i.y) * 0.3;
+      // Small green glow
+      ctx.globalAlpha = pulse * 0.35;
+      ctx.fillStyle = "#4ade80";
+      ctx.beginPath();
+      ctx.arc(bx + TILE / 2, by + TILE - 2, TILE * 0.3, 0, Math.PI * 2);
+      ctx.fill();
+      // Procedural berry (small colored orb with highlight)
+      ctx.globalAlpha = pulse;
+      ctx.fillStyle = "#4ade80";
+      ctx.beginPath();
+      ctx.arc(bx + TILE / 2, by + TILE / 2 + bob, TILE * 0.22, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#a7f3d0";
+      ctx.beginPath();
+      ctx.arc(bx + TILE / 2 - 1, by + TILE / 2 + bob - 2, TILE * 0.08, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      // "BERRY" label
+      ctx.globalAlpha = 0.7;
+      ctx.font = "bold 4px monospace";
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#4ade80";
+      ctx.fillText("BERRY", bx + TILE / 2, by - 1 + bob);
+      ctx.textAlign = "left";
+      ctx.globalAlpha = 1;
     }
 
 
