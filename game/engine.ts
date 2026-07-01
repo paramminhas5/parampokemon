@@ -127,6 +127,8 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
     followerAnim: { kind: "idle", startedAt: 0 },
   };
 
+  let lastPlayerMoveAt = performance.now();
+
   const input: Input = { up: false, down: false, left: false, right: false, action: false, menu: false };
 
   function isSolid(x: number, y: number) {
@@ -148,6 +150,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
 
   function tryMove(dir: Dir) {
     state.dir = dir;
+    lastPlayerMoveAt = performance.now();
     if (state.px !== state.tx || state.py !== state.ty) return;
     const f = facingTile();
     if (isSolid(f.x, f.y)) {
@@ -173,7 +176,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
     }
     if (dustParticles.length > 60) dustParticles.splice(0, dustParticles.length - 60);
     if (typeof navigator !== "undefined" && navigator.vibrate) {
-      navigator.vibrate(40);
+      navigator.vibrate(15);
     }
   }
 
@@ -253,6 +256,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         if (key !== lastAutoKey || performance.now() - lastAutoAt > 8000) {
           lastAutoKey = key; lastAutoAt = performance.now();
           state.collectedBadges.add(badge.zone.badge.id);
+          if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate([30, 20, 30]);
           cb.onBadge(badge.zone.badge.id);
           return;
         }
@@ -429,6 +433,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
           });
           if (matZone && matZone.gym && !state.defeatedGyms.has(matZone.id)) {
             if (gymUnlocked(matZone.id, state.collectedBadges)) {
+              if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate([40, 20, 60, 20, 80]);
               cb.onGymEnter(matZone);
             } else {
               cb.onInteract({
@@ -1093,29 +1098,42 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         const drawX = fbx + (TILE - size) / 2;
         const drawY = fby + (TILE - size) / 2 + followerOffsetY + idleBob;
 
+        // Idle sleep: follower shrinks + fades after 30s of no input
+        const idleTime = now - lastPlayerMoveAt;
+        const idleSleep = idleTime > 30000;
+        const followerScale = idleSleep ? 0.8 : 1.0;
+        const followerAlpha = idleSleep ? 0.5 : 1.0;
+
         if (followerImg && isReady(followerImg)) {
           // Drop shadow for follower
           ctx.fillStyle = "rgba(0,0,0,0.3)";
           ctx.beginPath();
           ctx.ellipse(fbx + TILE / 2, fby + TILE - 2, TILE * 0.35, TILE * 0.1, 0, 0, Math.PI * 2);
           ctx.fill();
+          ctx.globalAlpha = followerAlpha;
           ctx.imageSmoothingEnabled = true;
           ctx.imageSmoothingQuality = "high";
+          const scaledSize = Math.round(size * followerScale);
+          const scaleDrawX = fbx + (TILE - scaledSize) / 2;
+          const scaleDrawY = fby + (TILE - scaledSize) / 2 + followerOffsetY + idleBob;
           if (followerRotation !== 0) {
-            const cx2 = drawX + size / 2;
-            const cy2 = drawY + size / 2;
+            const cx2 = scaleDrawX + scaledSize / 2;
+            const cy2 = scaleDrawY + scaledSize / 2;
             ctx.save();
             ctx.translate(cx2, cy2);
             ctx.rotate(followerRotation);
-            ctx.drawImage(followerImg, -size / 2, -size / 2, size, size);
+            ctx.drawImage(followerImg, -scaledSize / 2, -scaledSize / 2, scaledSize, scaledSize);
             ctx.restore();
           } else {
-            ctx.drawImage(followerImg, drawX, drawY, size, size);
+            ctx.drawImage(followerImg, scaleDrawX, scaleDrawY, scaledSize, scaledSize);
           }
           ctx.imageSmoothingEnabled = false;
+          ctx.globalAlpha = 1.0;
         } else {
+          ctx.globalAlpha = followerAlpha;
           const followerFrame = (state.stepCount % 2 === 0 ? 1 : 0) as 0 | 1 | 2;
           drawFollower(ctx, state.playerStage as "mermander" | "mermalion" | "merlord", fbx, fby, followerFrame);
+          ctx.globalAlpha = 1.0;
         }
       }
     }
@@ -1184,7 +1202,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       if (!state.followerUnlocked) return;
       state.followerAnim = { kind, startedAt: performance.now() };
     },
-    triggerShake(ms: number) { shakeUntil = performance.now() + ms; shakeAmp = ms; },
+    triggerShake(ms: number) { shakeUntil = performance.now() + ms; shakeAmp = ms; if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate([60, 30, 80]); },
     /** Fast-travel: teleport the player to a zone's spawn / landmark tile. */
     warpTo(zoneId: string) {
       const z = ZONES.find((x) => x.id === zoneId);
