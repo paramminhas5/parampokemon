@@ -269,6 +269,8 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
   // neighbours for a sign/NPC/badge and trigger it automatically. The
   // engine throttles by (zoneId+x+y) so the same orb doesn't loop.
   function autoInteractNear() {
+    // NEVER auto-interact while engine is paused (dialog/battle/overlay open)
+    if (state.paused) return;
     const here = { x: state.tx, y: state.ty };
     const neighbours = [
       { x: here.x, y: here.y },
@@ -1132,10 +1134,12 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       }
 
       // Param sprite — direction mapped to the 4 Param PNGs
+      // For left/right: use param_left.png as the base, flip horizontally for right
       let paramUrl: string;
+      let flipHorizontal = false;
       if (state.dir === "up")         paramUrl = PARAM_SPRITE_URL.back;
-      else if (state.dir === "left")  paramUrl = PARAM_SPRITE_URL.right;
-      else if (state.dir === "right") paramUrl = PARAM_SPRITE_URL.left;
+      else if (state.dir === "left")  { paramUrl = PARAM_SPRITE_URL.left; }
+      else if (state.dir === "right") { paramUrl = PARAM_SPRITE_URL.left; flipHorizontal = true; }
       else                            paramUrl = PARAM_SPRITE_URL.front;
 
       const paramImg = getSprite(paramUrl);
@@ -1149,7 +1153,15 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         ctx.fill();
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
-        ctx.drawImage(paramImg, pbx + (TILE - size) / 2, pby + TILE - size, size, size);
+        if (flipHorizontal) {
+          ctx.save();
+          ctx.translate(pbx + TILE / 2, 0);
+          ctx.scale(-1, 1);
+          ctx.drawImage(paramImg, -(TILE / 2) + (TILE - size) / 2, pby + TILE - size, size, size);
+          ctx.restore();
+        } else {
+          ctx.drawImage(paramImg, pbx + (TILE - size) / 2, pby + TILE - size, size, size);
+        }
         ctx.imageSmoothingEnabled = false;
       } else {
         drawCharacter(ctx, "player", state.dir, state.frame, pbx, pby);

@@ -1138,6 +1138,35 @@ export function allInteractives(): Interactive[] {
     };
     list.push({ kind: "npc", zone: nearestZone, npc: syntheticNpc, x: rn.x, y: rn.y });
   }
+
+  // ── Overlap prevention: offset wild creatures/orbs/berries that share tiles with NPCs ──
+  const occupiedTiles = new Set<string>();
+  // First pass: collect all NPC, door, badge positions
+  for (const item of list) {
+    if (item.kind === "npc" || item.kind === "door" || item.kind === "badge" || item.kind === "mat") {
+      occupiedTiles.add(`${item.x},${item.y}`);
+    }
+  }
+  // Second pass: offset wild/orb/berry items that collide
+  for (const item of list) {
+    if (item.kind === "wild" || item.kind === "skillOrb" || item.kind === "hidden" || item.kind === "berryItem") {
+      const key = `${item.x},${item.y}`;
+      if (occupiedTiles.has(key)) {
+        // Try offsets: right, left, down, up (2 tiles away)
+        const offsets = [[2, 0], [-2, 0], [0, 2], [0, -2], [3, 0], [0, 3]];
+        for (const [dx, dy] of offsets) {
+          const newKey = `${item.x + dx},${item.y + dy}`;
+          if (!occupiedTiles.has(newKey)) {
+            item.x += dx;
+            item.y += dy;
+            break;
+          }
+        }
+      }
+      occupiedTiles.add(`${item.x},${item.y}`);
+    }
+  }
+
   return list;
 }
 

@@ -130,19 +130,18 @@ export function WorldSelect({ onSelect, onClose }: {
       </div>
 
       {/* Header */}
-      <div style={{ position:"relative", zIndex:10, padding:"16px 20px 0", flexShrink:0 }}>
-        <div style={{ fontFamily:"var(--font-pixel)", fontSize:6, color:"#1e2e48", letterSpacing:"0.3em", marginBottom:6 }}>✦ PARAM QUEST — CAREER MAP</div>
-        <div style={{ display:"flex", alignItems:"flex-end", justifyContent:"space-between" }}>
+      <div style={{ position:"relative", zIndex:10, padding:"10px 14px 0", flexShrink:0 }}>
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
           <div>
-            <div style={{ fontFamily:"var(--font-pixel)", fontSize:13, color:"#7ce0ff", textShadow:"0 0 24px rgba(124,224,255,0.55), 0 3px 0 #081828" }}>
+            <div style={{ fontFamily:"var(--font-pixel)", fontSize:11, color:"#7ce0ff", textShadow:"0 0 24px rgba(124,224,255,0.55), 0 3px 0 #081828" }}>
               WORLD SELECT
             </div>
-            <div style={{ fontFamily:"var(--font-pixel)", fontSize:7, color:"#2a4060", marginTop:3 }}>
-              15 YEARS · 10 WORLDS · ALL CHAPTERS OPEN
+            <div style={{ fontFamily:"var(--font-pixel)", fontSize:6, color:"#2a4060", marginTop:2 }}>
+              10 WORLDS · TAP TO WARP
             </div>
           </div>
-          <div style={{ display:"flex", gap:8, marginBottom:2 }}>
-            <button onClick={() => setShowList(l => !l)} style={{ background:"transparent", border:"1px solid #152030", color:"#2a4060", padding:"5px 10px", fontFamily:"var(--font-pixel)", fontSize:6, cursor:"pointer", letterSpacing:"0.05em" }}>
+          <div style={{ display:"flex", gap:8 }}>
+            <button onClick={() => setShowList(l => !l)} style={{ background:"transparent", border:"1px solid #152030", color:"#2a4060", padding:"4px 8px", fontFamily:"var(--font-pixel)", fontSize:6, cursor:"pointer", letterSpacing:"0.05em" }}>
               {showList ? "GALAXY ★" : "LIST ≡"}
             </button>
             <button onClick={onClose} style={{ background:"transparent", border:"1px solid #152030", color:"#2a4060", padding:"5px 10px", fontFamily:"var(--font-pixel)", fontSize:6, cursor:"pointer" }}>
@@ -153,21 +152,21 @@ export function WorldSelect({ onSelect, onClose }: {
       </div>
 
       {/* Main */}
-      <div style={{ flex:1, display:"flex", overflow:"hidden", padding:"10px 20px 18px", gap:14, position:"relative", zIndex:5 }}>
+      <div style={{ flex:1, display:"flex", overflow:"hidden", padding:"8px 14px 12px", gap:10, position:"relative", zIndex:5 }}>
 
         {showList ? (
           /* ── LIST VIEW ── */
-          <div style={{ flex:1, overflowY:"auto", display:"flex", flexDirection:"column", gap:3 }}>
+          <div style={{ flex:1, overflowY:"auto", display:"flex", flexDirection:"column", gap:2 }}>
             {ZONES.map((z, i) => (
               <button key={z.id} onClick={() => handleSelect(z.id)}
                 onMouseEnter={() => setHovered(z.id)} onMouseLeave={() => setHovered(null)}
                 style={{
-                  display:"flex", alignItems:"center", gap:12,
+                  display:"flex", alignItems:"center", gap:10,
                   background: hovered === z.id ? `${z.theme.accent}14` : "rgba(4,8,18,0.65)",
                   border:`1px solid ${hovered === z.id ? z.theme.accent + "55" : "#101e30"}`,
-                  padding:"9px 13px", cursor:"pointer", textAlign:"left",
+                  padding:"7px 10px", cursor:"pointer", textAlign:"left",
                   transition:"all 0.1s", borderRadius:2,
-                  animation:`ws-card-in 0.28s ease-out ${i * 22}ms both`,
+                  animation:`ws-card-in 0.28s ease-out ${i * 18}ms both`,
                 }}
               >
                 <div style={{ width:34, height:34, flexShrink:0, background:`${z.theme.accent}10`, border:`1px solid ${z.theme.accent}28`, display:"flex", alignItems:"center", justifyContent:"center", borderRadius:2 }}>
