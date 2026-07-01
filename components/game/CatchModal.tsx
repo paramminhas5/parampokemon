@@ -1,21 +1,22 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import type { Zone, Move } from "@/game/data";
-import { STARTER_STAGES, stageForBadges } from "@/game/data";
+import { STARTER_STAGES, stageForBadges, stageForSkills } from "@/game/data";
 import { CREATURE_URL, POKEBALL_URL, PLAYER_BACK_URL, getSprite, isReady } from "@/game/sprite-registry";
 import { playSound } from "@/lib/audio";
 
 type Phase = "battle" | "weakened" | "throwing" | "caught" | "fled";
 
-export function CatchModal({ zone, badges, onCatch, onClose }: {
+export function CatchModal({ zone, badges, skills, onCatch, onClose }: {
   zone: Zone;
   badges: Set<string>;
+  skills?: Set<string>;
   onCatch: () => void;
   onClose: () => void;
 }) {
   const cr = zone.creature!;
   const url = CREATURE_URL[zone.id];
-  const stage = stageForBadges(badges.size);
+  const stage = skills ? stageForSkills(skills.size) : stageForBadges(badges.size);
 
   const [phase, setPhase] = useState<Phase>("battle");
   const [creatureHp, setCreatureHp] = useState(cr.power * 2);

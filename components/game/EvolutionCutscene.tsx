@@ -186,7 +186,7 @@ export function EvolutionCutscene({ fromStage, toStage, onComplete }: Props) {
                 fontFamily: "var(--font-pixel)", fontSize: 7,
                 background: "rgba(255,210,74,0.1)", border: "1px solid rgba(255,210,74,0.3)",
                 color: "#ffd24a", padding: "4px 10px", borderRadius: 99,
-              }}>{toStage.baseMoves.length} BASE MOVES</span>
+              }}>{toStage.baseMoves.length} NEW MOVES UNLOCKED</span>
             </div>
           </div>
         )}
@@ -215,12 +215,14 @@ export function EvolutionCutscene({ fromStage, toStage, onComplete }: Props) {
   );
 }
 
-/** Check if a badge count triggers an evolution. Returns the stage pair or null. */
-export function checkEvolution(prevBadges: number, newBadges: number): { from: StarterStage; to: StarterStage } | null {
-  for (let idx = 1; idx < STARTER_STAGES.length; idx++) {
-    const stage = STARTER_STAGES[idx];
-    if (prevBadges < stage.minBadges && newBadges >= stage.minBadges) {
-      return { from: STARTER_STAGES[idx - 1], to: stage };
+/** Check if a skill orb collection triggers an evolution. Returns the stage pair or null. */
+export function checkEvolution(prevSkills: number, newSkills: number): { from: StarterStage; to: StarterStage } | null {
+  // Mermalion at 4 skills, Merlord at 7 skills
+  const thresholds = [4, 7];
+  for (let idx = 0; idx < thresholds.length; idx++) {
+    const threshold = thresholds[idx];
+    if (prevSkills < threshold && newSkills >= threshold) {
+      return { from: STARTER_STAGES[idx], to: STARTER_STAGES[idx + 1] };
     }
   }
   return null;

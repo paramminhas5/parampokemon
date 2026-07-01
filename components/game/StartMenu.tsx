@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ZONES, CONTACT, PRESS, STARTER_STAGES, stageForBadges } from "@/game/data";
+import { ZONES, CONTACT, PRESS, STARTER_STAGES, stageForBadges, stageForSkills } from "@/game/data";
 import { PLAYER_FRONT_URL, FOLLOWER_SPRITE_URL } from "@/game/sprite-registry";
 
 type Tab = "badges" | "trainer" | "people" | "contact";
@@ -12,7 +12,7 @@ export function StartMenu({ badges, creatures, skills, onClose, onSettings, onCr
   const [selected, setSelected] = useState<string | null>(null);
   const gymZones = ZONES.filter((z) => z.gym);
   const completed = gymZones.filter((z) => badges.has(z.badge.id)).length;
-  const stage = stageForBadges(badges.size);
+  const stage = stageForSkills(skills.size);
 
   return (
     <div className="fixed inset-0 z-30 flex items-stretch justify-stretch p-2 sm:p-4" onClick={onClose}
@@ -54,7 +54,8 @@ export function StartMenu({ badges, creatures, skills, onClose, onSettings, onCr
                   <div className="pq-text-sm" style={{ opacity: 0.75 }}>Pune → Bengaluru → Mumbai → now</div>
                   <div style={{ display: "flex", gap: 6, marginTop: 6, alignItems: "center" }}>
                     {STARTER_STAGES.map((s) => {
-                      const unlocked = badges.size >= s.minBadges;
+                      const skillThresholds: Record<string, number> = { mermander: 0, mermalion: 4, merlord: 7 };
+                      const unlocked = skills.size >= (skillThresholds[s.id] ?? 0);
                       return (
                         <div key={s.id} style={{ opacity: unlocked ? 1 : 0.3, textAlign: "center" }}>
                           <img
