@@ -11,6 +11,7 @@ const BOOT_STYLES = `
 @keyframes gb-scanline  { 0%{top:-3px;opacity:0} 5%{opacity:1} 95%{opacity:0.6} 100%{top:100%;opacity:0} }
 @keyframes gb-star-tw   { 0%,100%{opacity:0.1} 50%{opacity:0.5} }
 @keyframes gb-glow-pulse{ 0%,100%{opacity:0.45} 50%{opacity:0.8} }
+@keyframes gb-bar-shine { 0%{left:-40%} 100%{left:140%} }
 `;
 
 function LoadingDots() {
@@ -31,11 +32,18 @@ function LoadingDots() {
 export function GameBoot({ children }: { children: React.ReactNode }) {
   const [ready,       setReady]       = useState(false);
   const [minTimePast, setMinTimePast] = useState(false);
+  const [phase, setPhase] = useState<"sprites" | "world" | "done">("sprites");
 
   useEffect(() => {
     let cancelled = false;
-    preloadAllSprites().then(() => { if (!cancelled) setReady(true); });
-    const t = setTimeout(() => setMinTimePast(true), 700);
+    setPhase("sprites");
+    preloadAllSprites().then(() => {
+      if (!cancelled) {
+        setPhase("done");
+        setReady(true);
+      }
+    });
+    const t = setTimeout(() => setMinTimePast(true), 900);
     return () => { cancelled = true; clearTimeout(t); };
   }, []);
 
@@ -170,7 +178,7 @@ export function GameBoot({ children }: { children: React.ReactNode }) {
               </div>
             </div>
 
-            {/* NOW LOADING + dots */}
+            {/* NOW LOADING + progress */}
             <div style={{
               fontFamily:    "var(--font-pixel)",
               fontSize:      8,
@@ -179,7 +187,37 @@ export function GameBoot({ children }: { children: React.ReactNode }) {
               letterSpacing: "0.22em",
               animation:     "gb-sub-in 0.45s ease-out 0.7s both",
             }}>
-              NOW LOADING
+              {phase === "sprites" ? "LOADING SPRITES" : "READY"}
+            </div>
+
+            {/* Progress bar */}
+            <div style={{
+              width: 160,
+              height: 6,
+              margin: "12px auto 0",
+              background: "rgba(30,50,80,0.5)",
+              borderRadius: 3,
+              overflow: "hidden",
+              border: "1px solid rgba(124,224,255,0.2)",
+            }}>
+              <div style={{
+                width: phase === "done" ? "100%" : "65%",
+                height: "100%",
+                background: "linear-gradient(90deg, #2a78c0, #7ce0ff)",
+                borderRadius: 3,
+                transition: "width 0.6s ease-out",
+                position: "relative",
+                overflow: "hidden",
+              }}>
+                <div style={{
+                  position: "absolute",
+                  top: 0,
+                  width: "30%",
+                  height: "100%",
+                  background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)",
+                  animation: "gb-bar-shine 1.5s linear infinite",
+                }} />
+              </div>
             </div>
             <LoadingDots />
           </div>
