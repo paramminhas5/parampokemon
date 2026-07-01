@@ -16,16 +16,18 @@ const STYLES = `
 interface Props {
   zone: Zone;
   onComplete: () => void;
+  opponentSpriteUrl?: string;
 }
 
-export function BattleIntro({ zone, onComplete }: Props) {
+export function BattleIntro({ zone, onComplete, opponentSpriteUrl }: Props) {
   const gym = zone.gym!;
   const accent = zone.theme.accent;
   const [phase, setPhase] = useState<"slide" | "vs" | "text" | "done">("slide");
   const [leaderReady, setLeaderReady] = useState(false);
   const [bgReady, setBgReady] = useState(false);
 
-  const leaderUrl = LEADER_URL[gym.leader];
+  // Use opponentSpriteUrl for route trainers, otherwise gym leader
+  const leaderUrl = opponentSpriteUrl ?? LEADER_URL[gym.leader];
   const bgUrl = BATTLE_BG_URL[zone.id];
 
   // Pre-load sprites

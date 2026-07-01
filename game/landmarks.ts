@@ -24,9 +24,9 @@ export function drawLandmark(ctx: Ctx, zone: Zone, offX: number, offY: number, n
   if (url) {
     const img = getSprite(url);
     if (isReady(img)) {
-      // Render as a prominent decorative banner/sign above the door arch — 5×4 tiles, framed
-      const w = TILE * 5;
-      const h = TILE * 4;
+      // Render as a decorative banner/sign above the door arch — 4×3 tiles, framed
+      const w = TILE * 4;
+      const h = TILE * 3;
       const dx = Math.round(gateCx - w / 2);
       const dy = Math.round(gateY - h - TILE * 0.5);
 

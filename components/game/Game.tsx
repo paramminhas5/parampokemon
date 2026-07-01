@@ -748,6 +748,7 @@ export function Game() {
           return (
             <BattleIntro
               zone={syntheticZone}
+              opponentSpriteUrl={NPC_SPRITE_URL[npc.kind]}
               onComplete={() => { setTrainerBattleIntro(null); setTrainerBattle(npc); }}
             />
           );

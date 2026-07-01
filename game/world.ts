@@ -606,9 +606,8 @@ function placeZoneContent(grid: TileCode[][], w: number, h: number) {
     // Unique zone border treatment
     paintZoneBorder(grid, z, w, h);
 
-    // Sign
-    const sx = z.ox + z.sign.x, sy = z.oy + z.sign.y;
-    if (sx >= 0 && sy >= 0 && sx < w && sy < h) grid[sy][sx] = T.SIGN;
+    // Sign — REMOVED from world grid (no more physical sign posts cluttering zones)
+    // Sign text is still accessible via NPC interactions and zone entry
 
     // Badge
     const bx = z.ox + z.badge.x, by = z.oy + z.badge.y;
