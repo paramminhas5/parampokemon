@@ -72,7 +72,7 @@ export function WorldSelect({ onSelect, onClose }: {
   const hoveredZone = ZONES.find(z => z.id === (hovered ?? selected));
 
   useEffect(() => {
-    const mq = window.matchMedia("(max-width: 640px)");
+    const mq = window.matchMedia("(max-width: 768px)");
     setShowList(mq.matches);
   }, []);
 

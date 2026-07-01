@@ -429,14 +429,14 @@ export function Game() {
       setGotBadge(null);
       setCliffOpen(zone);
       engineRef.current?.setPaused(true);
-      // Show share card after CliffNotes (will be triggered when CliffNotes closes)
     }, 1400);
-    // Queue share card to show after cliff notes
-    const showShareAfterCliff = () => {
-      setShareCardZone(zone);
-    };
-    // Store for cliff close handler
-    pendingShareCardRef.current = showShareAfterCliff;
+    // Show share card ONLY after defeating all gyms (final victory)
+    if (defeated.size >= totalGyms - 1) {
+      const showShareAfterCliff = () => {
+        setShareCardZone(zone);
+      };
+      pendingShareCardRef.current = showShareAfterCliff;
+    }
     // Evolution is now triggered by Skill Orb collection, not badge count
     engineRef.current?.setPaused(false);
     showToast(`★ ${zone.badge.label.toUpperCase()} EARNED`, zone.gym?.victory);
@@ -590,14 +590,17 @@ export function Game() {
                  className="truncate">{currentZone.name.toUpperCase()}</div>
           </div>
 
-          {/* Badge counter */}
+          {/* Badge + Orb counters */}
           <div style={{
             background: `linear-gradient(135deg, rgba(255,210,74,0.12) 0%, rgba(4,8,20,0.88) 100%)`,
             border: "2px solid rgba(255,210,74,0.25)",
             padding: "5px 10px", pointerEvents: "auto",
             backdropFilter: "blur(4px)",
+            display: "flex", gap: 8, alignItems: "center",
           }}>
-            <div style={{ fontFamily: "var(--font-pixel)", fontSize: 10, color: "#ffd24a" }}>★ {defeated.size}/{totalGyms}</div>
+            <div style={{ fontFamily: "var(--font-pixel)", fontSize: 9, color: "#ffd24a" }}>★ {defeated.size}/{totalGyms}</div>
+            <div style={{ width: 1, height: 12, background: "rgba(255,210,74,0.2)" }} />
+            <div style={{ fontFamily: "var(--font-pixel)", fontSize: 9, color: "#7ce0ff" }}>✦ {skills.size}</div>
           </div>
 
           {/* WARP button (world select) */}
