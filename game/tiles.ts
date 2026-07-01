@@ -435,20 +435,14 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
       break;
     }
     case T.DUSK_FLOOR: {
-      // Rich marble lobby — deep purple with veining
-      const mc = ((wx + wy) % 2 === 0) ? "#30205a" : "#3c2868";
+      // Subtle marble lobby — deep purple with fine veining
+      const mc = ((wx + wy) % 2 === 0) ? "#28184a" : "#301e58";
       fillRect(ctx, px0, py0, 16, 16, mc);
-      // Marble veining (diagonal streaks)
-      fillRect(ctx, px0, py0 + 4, 16, 1, "#6040a0");
-      fillRect(ctx, px0 + 4, py0, 1, 16, "#6040a0");
-      // Cross highlight at vein intersections
-      if (r > 0.75) {
-        px(ctx, px0 + 4, py0 + 4, "#c8a0f0");
-        px(ctx, px0 + 5, py0 + 5, "#9070c8");
-      }
-      // Reflective sheen
-      fillRect(ctx, px0, py0, 16, 1, "#5040a0");
-      if (r > 0.88) fillRect(ctx, px0 + 6, py0 + 7, 4, 1, "#a080e0");
+      // Fine marble veining (thinner, more subtle)
+      if ((wx + wy * 3) % 4 === 0) fillRect(ctx, px0 + 2, py0 + 6, 12, 1, "#4a3080");
+      if ((wx * 2 + wy) % 5 === 0) fillRect(ctx, px0 + 7, py0 + 1, 1, 14, "#4a3080");
+      // Subtle reflective sheen
+      if (r > 0.88) px(ctx, px0 + Math.floor(r * 14) + 1, py0 + Math.floor(r * 14) + 1, "#8060b0");
       break;
     }
     case T.NIGHT_FLOOR: {
@@ -484,26 +478,25 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
       break;
     }
     case T.CRYPTO_FLOOR: {
-      // Animated PCB circuit board
-      fillRect(ctx, px0, py0, 16, 16, "#021a10");
-      // Board grid
-      fillRect(ctx, px0, py0, 16, 1, "#043a20");
-      fillRect(ctx, px0, py0, 1, 16, "#043a20");
-      // PCB traces
-      fillRect(ctx, px0 + 3, py0 + 4, 9, 1, "#00e8a0");
-      fillRect(ctx, px0 + 3, py0 + 4, 1, 9, "#00e8a0");
-      // Via pads
-      ctx.fillStyle = "#00e8a0";
-      ctx.fillRect(px0 + 3, py0 + 4, 2, 2);
-      ctx.fillRect(px0 + 11, py0 + 4, 2, 2);
-      ctx.fillRect(px0 + 3, py0 + 12, 2, 2);
-      // Animated signal pulse
-      const pulsePos = Math.floor(now / 80 + wx * 5 + wy * 3) % 10;
-      px(ctx, px0 + 3 + pulsePos, py0 + 4, "#9fffd0");
-      // Silkscreen label blobs
-      if (r > 0.85) {
-        fillRect(ctx, px0 + 7, py0 + 9, 5, 2, "#034020");
+      // Subtle PCB circuit board — dark with muted traces
+      fillRect(ctx, px0, py0, 16, 16, "#011408");
+      // Faint board grid
+      fillRect(ctx, px0, py0, 16, 1, "#02281a");
+      fillRect(ctx, px0, py0, 1, 16, "#02281a");
+      // Muted PCB traces (thinner, less bright)
+      if ((wx + wy) % 3 === 0) {
+        fillRect(ctx, px0 + 3, py0 + 7, 10, 1, "#00804a");
       }
+      if ((wx * 2 + wy) % 4 === 0) {
+        fillRect(ctx, px0 + 8, py0 + 2, 1, 12, "#00804a");
+      }
+      // Subtle via pad
+      if (r > 0.85) {
+        px(ctx, px0 + 8, py0 + 7, "#00c880");
+      }
+      // Faint animated signal pulse
+      const pulsePos = Math.floor(now / 120 + wx * 3) % 14;
+      if ((wx + wy) % 2 === 0) px(ctx, px0 + 1 + pulsePos, py0 + 7, "#00a06080");
       break;
     }
     case T.STUDIO_FLOOR: {

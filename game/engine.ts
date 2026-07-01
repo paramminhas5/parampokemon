@@ -737,24 +737,9 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         ctx.strokeRect(bx0, by0, bw, bh);
       }
 
-      // GYM text label painted directly on the building front wall
+      // GYM indicator — just a small accent glow on mat (building sprite already has GYM text)
       if (z.gym && !state.defeatedGyms.has(z.id)) {
-        const doorWx = z.ox + z.building.x + z.building.doorX;
-        const buildFrontY = z.oy + z.building.y + z.building.h - 1;
-        if (doorWx >= tx0 - 1 && doorWx <= tx1 + 1 && buildFrontY >= ty0 - 1 && buildFrontY <= ty1 + 1) {
-          const labelX = (z.ox + z.building.x) * TILE + offX + 2;
-          const labelY = (z.oy + z.building.y + 1) * TILE + offY + 4;
-          const labelW = z.building.w * TILE - 4;
-          // Background strip on building wall
-          ctx.fillStyle = "rgba(2,5,14,0.72)";
-          ctx.fillRect(labelX, labelY, labelW, 9);
-          // GYM text
-          ctx.fillStyle = z.theme.accent;
-          ctx.font = "bold 7px monospace";
-          ctx.textAlign = "center";
-          ctx.fillText("⚔ GYM", (z.ox + z.building.x) * TILE + offX + (z.building.w * TILE) / 2, labelY + 7);
-          ctx.textAlign = "left";
-        }
+        // Removed the procedural GYM text label — building PNG already shows it
       }
     }
 

@@ -9,9 +9,9 @@ interface Props {
 }
 
 const DURATION: Record<TransitionKind, number> = {
-  zone: 600,
-  battle: 800,
-  warp: 500,
+  zone: 400,
+  battle: 500,
+  warp: 350,
   none: 0,
 };
 

@@ -428,7 +428,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     theme: { ground: "mall", accent: "#ff9fd4", landmark: "mall" },
     w: 26, h: 20,
     // Mall building center-wide, neon arches flank; sneaker racks behind sign
-    building: { x: 3, y: 2, w: 12, h: 6, doorX: 3, color: "#c0388c", roof: "#4a1240" },
+    building: { x: 3, y: 2, w: 9, h: 7, doorX: 4, color: "#c0388c", roof: "#4a1240" },
     sign: { x: 20, y: 17, text: "SOLESEARCH MALL\nIndia's leading sneaker platform.\n\n$795K raised · 30+ events\n₹26Cr+ yearly sales\nRetail: Mumbai & Hyderabad · CNBC-TV18" },
     badge: { x: 23, y: 10, id: "ceo", label: "Culture Badge", color: "#ff9fd4" },
     npcs: [
