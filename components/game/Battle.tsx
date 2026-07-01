@@ -477,14 +477,14 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee, onFinishingBl
       if (oppRef.current) {
         const c = oppRef.current.getContext("2d")!;
         c.imageSmoothingEnabled = true; c.imageSmoothingQuality = "high";
-        c.clearRect(0, 0, 240, 240);
+        c.clearRect(0, 0, 400, 400);
         // Priority: npc battle sprite (when explicitly provided) > creature sprite > leader portrait
         const drawImg = (npcBattleImg && isReady(npcBattleImg)) ? npcBattleImg
           : (oppCreatureImg && isReady(oppCreatureImg)) ? oppCreatureImg
           : (leaderImg && isReady(leaderImg)) ? leaderImg : null;
         if (drawImg) {
           const bob = Math.sin(now / 420) * 3;
-          c.drawImage(drawImg, 8, 8 + bob, 224, 224);
+          c.drawImage(drawImg, 10, 10 + bob, 380, 380);
         }
       }
       rafRef.current = requestAnimationFrame(loop);
@@ -817,7 +817,7 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee, onFinishingBl
             </div>
           )}
           <div style={{ transform: oppShake ? "none" : "none", animation: `${oppShake ? "opp-shake 0.45s ease-out" : "sprite-enter-right 0.45s cubic-bezier(0.2,0.8,0.4,1)"}`, filter: `drop-shadow(0 0 28px ${accent}90)` }}>
-            <canvas ref={oppRef} width={240} height={240} style={{ imageRendering: "pixelated", width: 240, height: 240 }} />
+            <canvas ref={oppRef} width={400} height={400} style={{ imageRendering: "pixelated", width: 280, height: 280 }} />
           </div>
           <div style={{ background: "rgba(3,7,18,0.92)", border: `2px solid ${accent}99`, padding: "8px 10px", width: "100%", backdropFilter: "blur(4px)", borderRadius: 0 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>

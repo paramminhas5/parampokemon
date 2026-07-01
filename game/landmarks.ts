@@ -24,21 +24,21 @@ export function drawLandmark(ctx: Ctx, zone: Zone, offX: number, offY: number, n
   if (url) {
     const img = getSprite(url);
     if (isReady(img)) {
-      // Render as a small decorative banner/sign above the door arch — 3×3 tiles, framed
-      const w = TILE * 3;
-      const h = TILE * 3;
+      // Render as a prominent decorative banner/sign above the door arch — 5×4 tiles, framed
+      const w = TILE * 5;
+      const h = TILE * 4;
       const dx = Math.round(gateCx - w / 2);
       const dy = Math.round(gateY - h - TILE * 0.5);
 
       // Gate pillar left
-      r(ctx, dx - 4, dy + h * 0.25, 4, h * 0.75, "#0d1a30");
-      r(ctx, dx - 3, dy + h * 0.25, 2, h * 0.75, "#1a2a40");
+      r(ctx, dx - 6, dy + h * 0.2, 6, h * 0.8, "#0d1a30");
+      r(ctx, dx - 5, dy + h * 0.2, 3, h * 0.8, "#1a2a40");
       // Gate pillar right
-      r(ctx, dx + w, dy + h * 0.25, 4, h * 0.75, "#0d1a30");
-      r(ctx, dx + w + 1, dy + h * 0.25, 2, h * 0.75, "#1a2a40");
+      r(ctx, dx + w, dy + h * 0.2, 6, h * 0.8, "#0d1a30");
+      r(ctx, dx + w + 1, dy + h * 0.2, 3, h * 0.8, "#1a2a40");
       // Arch top bar
-      r(ctx, dx - 4, dy + h * 0.2, w + 8, 3, zone.theme.accent + "99");
-      r(ctx, dx - 4, dy + h * 0.2, w + 8, 1, zone.theme.accent);
+      r(ctx, dx - 6, dy + h * 0.15, w + 12, 4, zone.theme.accent + "99");
+      r(ctx, dx - 6, dy + h * 0.15, w + 12, 2, zone.theme.accent);
 
       // Image frame background
       ctx.fillStyle = "rgba(2,5,14,0.65)";
