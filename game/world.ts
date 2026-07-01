@@ -187,19 +187,11 @@ function paintRoutes(grid: TileCode[][], w: number, h: number) {
 
       switch (theme) {
         case "meadow": {
-          // Scatter flowers on the path itself for beauty
-          for (let x = PATH_X1; x < PATH_X2; x++) {
-            const r = sr(x, y, i + 1000);
-            if (r < 0.10) grid[y][x] = T.FLOWER_R;
-            else if (r < 0.20) grid[y][x] = T.FLOWER_Y;
-          }
+          // Clean path — no decorations on walkable corridor
           break;
         }
         case "forest": {
-          for (let x = PATH_X1; x < PATH_X2; x++) {
-            const r = sr(x, y, i + 1001);
-            if (r < 0.06) grid[y][x] = T.FLOWER_Y;
-          }
+          // Clean path — no decorations on walkable corridor
           break;
         }
         case "stream": {
@@ -625,6 +617,27 @@ function placeZoneContent(grid: TileCode[][], w: number, h: number) {
 
     // ── Per-zone tree cluster variety ────────────────────────────────────
     addZoneTreeClusters(grid, z, w, h);
+
+    // ── Extra building collision (4×4 tile decorative building) ──────────
+    const EXTRA_POS: Record<string, { x: number; y: number }> = {
+      home: { x: 20, y: 9 }, origin: { x: 20, y: 9 },
+      grp: { x: 2, y: 9 }, hab: { x: 2, y: 9 },
+      ai: { x: 20, y: 9 }, investopad: { x: 20, y: 9 },
+      sole: { x: 2, y: 9 }, fere: { x: 20, y: 9 },
+      ccd: { x: 2, y: 9 }, iterate: { x: 2, y: 9 },
+    };
+    const epos = EXTRA_POS[z.id];
+    if (epos) {
+      for (let ey = 0; ey < 4; ey++) {
+        for (let ex = 0; ex < 4; ex++) {
+          const wx2 = z.ox + epos.x + ex;
+          const wy2 = z.oy + epos.y + ey;
+          if (wx2 >= 0 && wy2 >= 0 && wx2 < w && wy2 < h) {
+            grid[wy2][wx2] = T.BUILDING_WALL;
+          }
+        }
+      }
+    }
 
     // ── Dense thematic props (higher density than before) ────────────────
     if (props.length > 0) {

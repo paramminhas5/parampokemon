@@ -768,10 +768,10 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       // Check if within viewport
       if (z.ox + pos.x > tx1 + 1 || z.ox + pos.x + 3 < tx0 - 1) continue;
       if (z.oy + pos.y > ty1 + 1 || z.oy + pos.y + 3 < ty0 - 1) continue;
-      // Draw at 3×3 tile size
+      // Draw at 4×4 tile size
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = "high";
-      ctx.drawImage(exImg, exX, exY, TILE * 3, TILE * 3);
+      ctx.drawImage(exImg, exX, exY, TILE * 4, TILE * 4);
       ctx.imageSmoothingEnabled = false;
     }
 

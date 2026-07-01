@@ -51,13 +51,12 @@ export function CliffNotes({ zone, onClose }: { zone: Zone; onClose: () => void 
       <style>{SHEET_STYLES}</style>
       <div
         style={{
-          width: "100%", maxWidth: 680,
-          maxHeight: "88dvh", height: "88dvh",
+          width: "92%", maxWidth: 440,
+          maxHeight: "70dvh", height: "auto",
           display: "flex", flexDirection: "column",
           background: "linear-gradient(180deg, #060e1c 0%, #04080f 100%)",
           border: `1px solid ${accent}35`,
-          borderBottom: "none",
-          borderTopLeftRadius: 8, borderTopRightRadius: 8,
+          borderRadius: 12,
           boxShadow: `0 -8px 40px rgba(0,0,0,0.6), 0 0 0 1px ${accent}18`,
           animation: "pq-sheet-up 240ms cubic-bezier(0.2,0.8,0.4,1)",
           overflow: "hidden",
