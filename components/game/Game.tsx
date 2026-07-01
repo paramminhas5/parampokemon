@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { createEngine, TILE } from "@/game/engine";
-import { ZONES, type Interactive, type Zone, type NpcKind, PLAYER_SPAWN, stageForBadges, type RouteNpc } from "@/game/data";
+import { ZONES, type Interactive, type Zone, type NpcKind, PLAYER_SPAWN, stageForBadges, stageForSkills, type RouteNpc } from "@/game/data";
 import { DialogBox } from "./DialogBox";
 import { StartMenu } from "./StartMenu";
 import { Bag } from "./Bag";
@@ -51,7 +51,7 @@ export function Game() {
   const [worldSelectOpen, setWorldSelectOpen] = useState(true); // open on launch
   const [battle, setBattle] = useState<Zone | null>(null);
   const [battleIntro, setBattleIntro] = useState<Zone | null>(null);
-  const [evolution, setEvolution] = useState<{ from: ReturnType<typeof stageForBadges>; to: ReturnType<typeof stageForBadges> } | null>(null);
+  const [evolution, setEvolution] = useState<{ from: ReturnType<typeof stageForSkills>; to: ReturnType<typeof stageForSkills> } | null>(null);
   const [catchModal, setCatchModal] = useState<Zone | null>(null);
   const [wildIntro, setWildIntro] = useState<Zone | null>(null);
   const [contactOpen, setContactOpen] = useState(false);
@@ -141,10 +141,10 @@ export function Game() {
     setTimeout(() => setSaveFlash(false), 1500);
   }, [badges, creatures, skills, defeated, visited, berries]);
 
-  // Keep player stage in sync with badge count (fixes save-reload regression)
+  // Keep player stage in sync with skill count (evolution driven by Skill Orbs collected)
   useEffect(() => {
-    engineRef.current?.setPlayerStage(stageForBadges(badges.size).id);
-  }, [badges]);
+    engineRef.current?.setPlayerStage(stageForSkills(skills.size).id);
+  }, [skills]);
 
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const showToast = useCallback((title: string, sub?: string) => {
@@ -256,6 +256,40 @@ export function Game() {
           }
         }, 50);
       },
+      onSkillOrb: (z: Zone) => {
+        if (!z.skill) return;
+        const prevSkillCount = skills.size;
+        setSkills(prev => {
+          if (prev.has(z.skill!.id)) return prev;
+          const n = new Set(prev); n.add(z.skill!.id);
+          engine.addSkill(z.skill!.id);
+          pendingSkillLearnRef.current = { zone: z, npcName: "Skill Orb" };
+          return n;
+        });
+        playSound("catch");
+        engine.triggerFollowerAnim("jump");
+        engine.setPaused(true);
+        showToast(`✦ SKILL ORB`, z.skill!.name);
+        // Show SkillLearnOverlay
+        setTimeout(() => {
+          if (pendingSkillLearnRef.current) {
+            const pending = pendingSkillLearnRef.current;
+            pendingSkillLearnRef.current = null;
+            setSkillLearnZone(pending);
+          }
+        }, 50);
+        // Check evolution milestone (4 skills → Mermalion, 7 → Merlord)
+        const newSkillCount = prevSkillCount + 1;
+        const evo = checkEvolution(prevSkillCount, newSkillCount);
+        if (evo) {
+          // Queue evolution after skill learn overlay closes
+          setTimeout(() => {
+            setSkillLearnZone(null);
+            setEvolution(evo);
+            engine.setPaused(true);
+          }, 2200);
+        }
+      },
       onTrainerBattle: (npc: RouteNpc) => {
         setTrainerBattleIntro(npc);
         playBattleBGM();
@@ -265,8 +299,8 @@ export function Game() {
     engineRef.current = engine;
     setEngineReady(true);
 
-    // Sync player stage to current badge progression
-    engine.setPlayerStage(stageForBadges(badges.size).id);
+    // Sync player stage to current skill progression (evolution by Skill Orbs)
+    engine.setPlayerStage(stageForSkills(skills.size).id);
 
     // Restore engine state from save
     try {
@@ -362,15 +396,7 @@ export function Game() {
       setCliffOpen(zone);
       engineRef.current?.setPaused(true);
     }, 1400);
-    // Check for evolution
-    const evo = checkEvolution(prevBadgeCount, newBadgeCount);
-    if (evo) {
-      setTimeout(() => {
-        setCliffOpen(null);
-        setEvolution(evo);
-        engineRef.current?.setPaused(true);
-      }, 1800);
-    }
+    // Evolution is now triggered by Skill Orb collection, not badge count
     engineRef.current?.setPaused(false);
     showToast(`★ ${zone.badge.label.toUpperCase()} EARNED`, zone.gym?.victory);
   }
@@ -819,6 +845,7 @@ export function Game() {
           <CatchModal
             zone={catchModal}
             badges={badges}
+            skills={skills}
             onCatch={() => {
               const id = catchModal.creature!.id;
               setCreatures(prev => { const n = new Set(prev); n.add(id); caughtRef.current = n; return n; });

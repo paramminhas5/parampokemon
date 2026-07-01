@@ -78,6 +78,8 @@ export type EngineCallbacks = {
   onDoorEnter: (zone: Zone) => void;
   /** Called when player steps on an undiscovered hidden item tile */
   onHiddenItem: (zone: Zone) => void;
+  /** Called when player collects a visible Skill Orb */
+  onSkillOrb: (zone: Zone) => void;
   /** Called when player interacts with a route trainer NPC */
   onTrainerBattle: (npc: RouteNpc) => void;
 };
@@ -335,6 +337,18 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
             cb.onHiddenItem(hidden.zone);
             return;
           }
+        }
+      }
+      // Skill Orb auto-collect — triggers when player is adjacent to or standing on the orb
+      const skillOrb = interactives.find((i) => i.kind === "skillOrb" && i.x === n.x && i.y === n.y);
+      if (skillOrb && skillOrb.kind === "skillOrb" && !state.collectedSkills.has(skillOrb.skill.id)) {
+        const key = `so:${skillOrb.zone.id}:${skillOrb.skill.id}`;
+        if (key !== lastAutoKey || performance.now() - lastAutoAt > 8000) {
+          lastAutoKey = key; lastAutoAt = performance.now();
+          state.collectedSkills.add(skillOrb.skill.id);
+          if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate([40, 20, 60]);
+          cb.onSkillOrb(skillOrb.zone);
+          return;
         }
       }
     }
@@ -715,36 +729,41 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
     }
 
 
-    // Hidden berries (skill items) — visible glowing berry orb on the overworld
+    // Skill Orbs + Hidden berries — visible glowing orb on the overworld
     const berryImg = getSprite(BERRY_URL);
     for (const i of interactives) {
-      if (i.kind !== "hidden") continue;
-      if (state.collectedSkills.has(i.zone.skill?.id ?? "")) continue;
+      if (i.kind !== "hidden" && i.kind !== "skillOrb") continue;
+      const skillId = i.kind === "skillOrb" ? i.skill.id : (i.zone.skill?.id ?? "");
+      if (state.collectedSkills.has(skillId)) continue;
       if (i.x < tx0 - 1 || i.x > tx1 + 1 || i.y < ty0 - 1 || i.y > ty1 + 1) continue;
+      const accent = i.zone.theme.accent;
       const bx = i.x * TILE + offX;
       const by = i.y * TILE + offY;
       const berryBob = Math.sin(now / 500 + i.x * 2.1) * 3;
       const berryPulse = 0.7 + Math.sin(now / 400 + i.y) * 0.3;
+      // Skill Orbs are slightly larger and more prominent than hidden berries
+      const isOrb = i.kind === "skillOrb";
+      const scale = isOrb ? 1.0 : 0.85;
       // Glow underneath
-      ctx.globalAlpha = berryPulse * 0.4;
-      ctx.fillStyle = i.zone.theme.accent;
+      ctx.globalAlpha = berryPulse * (isOrb ? 0.55 : 0.4);
+      ctx.fillStyle = accent;
       ctx.beginPath();
-      ctx.arc(bx + TILE / 2, by + TILE - 2, TILE * 0.4, 0, Math.PI * 2);
+      ctx.arc(bx + TILE / 2, by + TILE - 2, TILE * (isOrb ? 0.5 : 0.4), 0, Math.PI * 2);
       ctx.fill();
       // Berry sprite or fallback orb
       ctx.globalAlpha = berryPulse;
       if (berryImg && isReady(berryImg) && berryImg.naturalWidth > 4) {
-        const bs = Math.round(TILE * 0.85);
+        const bs = Math.round(TILE * scale);
         const bOx = (TILE - bs) / 2;
         const bOy = (TILE - bs) / 2 + berryBob;
         ctx.imageSmoothingEnabled = true;
         ctx.drawImage(berryImg, bx + bOx, by + bOy, bs, bs);
         ctx.imageSmoothingEnabled = false;
       } else {
-        // Fallback: procedural berry orb
-        ctx.fillStyle = i.zone.theme.accent;
+        // Fallback: procedural orb
+        ctx.fillStyle = accent;
         ctx.beginPath();
-        ctx.arc(bx + TILE / 2, by + TILE / 2 + berryBob, TILE * 0.3, 0, Math.PI * 2);
+        ctx.arc(bx + TILE / 2, by + TILE / 2 + berryBob, TILE * 0.3 * scale, 0, Math.PI * 2);
         ctx.fill();
         ctx.fillStyle = "#fff";
         ctx.beginPath();
@@ -752,14 +771,25 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         ctx.fill();
       }
       ctx.globalAlpha = 1;
-      // Small sparkle particles around berry
-      for (let sp = 0; sp < 3; sp++) {
-        const spAngle = (sp / 3) * Math.PI * 2 + now / 800;
-        const spR = TILE * 0.5 + Math.sin(now / 400 + sp) * 2;
+      // Sparkle particles (more for skill orbs)
+      const sparkCount = isOrb ? 5 : 3;
+      for (let sp = 0; sp < sparkCount; sp++) {
+        const spAngle = (sp / sparkCount) * Math.PI * 2 + now / (isOrb ? 600 : 800);
+        const spR = TILE * (isOrb ? 0.6 : 0.5) + Math.sin(now / 400 + sp) * 2;
         const spX = bx + TILE / 2 + Math.cos(spAngle) * spR;
         const spY = by + TILE / 2 + berryBob + Math.sin(spAngle) * spR;
-        ctx.fillStyle = i.zone.theme.accent + "aa";
+        ctx.fillStyle = accent + (isOrb ? "cc" : "aa");
         ctx.fillRect(Math.round(spX), Math.round(spY), 2, 2);
+      }
+      // Skill Orb label — "SKILL" text above the orb to distinguish from berries
+      if (isOrb) {
+        ctx.globalAlpha = 0.85;
+        ctx.font = "bold 5px monospace";
+        ctx.textAlign = "center";
+        ctx.fillStyle = accent;
+        ctx.fillText("✦ SKILL", bx + TILE / 2, by - 2 + berryBob);
+        ctx.textAlign = "left";
+        ctx.globalAlpha = 1;
       }
     }
 

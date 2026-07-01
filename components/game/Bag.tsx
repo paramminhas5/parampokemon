@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ZONES, STARTER_STAGES, stageForBadges } from "@/game/data";
+import { ZONES, STARTER_STAGES, stageForBadges, stageForSkills } from "@/game/data";
 import { CREATURE_URL, PLAYER_FRONT_URL, FOLLOWER_SPRITE_URL, getSprite, isReady } from "@/game/sprite-registry";
 
 type Tab = "mermander" | "creatures" | "berries" | "badges";
@@ -24,7 +24,7 @@ export function Bag({ creatures, skills, badges, onClose }: {
               style={{ padding: "6px 10px", opacity: tab === t ? 1 : 0.55, fontSize: 11 }}>
               {t === "mermander" ? "MERMANDER"
                 : t === "creatures" ? `CREATURES (${creatures.size})`
-                : t === "berries" ? `BERRIES (${skills.size})`
+                : t === "berries" ? `SKILL ORBS (${skills.size})`
                 : `BADGES (${badges.size}/9)`}
             </button>
           ))}
@@ -41,7 +41,7 @@ export function Bag({ creatures, skills, badges, onClose }: {
 }
 
 function MermanderTab({ badges, skills }: { badges: Set<string>; skills: Set<string> }) {
-  const stage = stageForBadges(badges.size);
+  const stage = stageForSkills(skills.size);
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     let raf = 0;
@@ -104,7 +104,9 @@ function MermanderTab({ badges, skills }: { badges: Set<string>; skills: Set<str
         <div className="pq-label" style={{ color: "var(--color-dialog-shadow)" }}>EVOLUTION</div>
         <div className="grid grid-cols-3 gap-2 mt-3">
           {STARTER_STAGES.map((s) => {
-            const unlocked = badges.size >= s.minBadges;
+            const skillThresholds: Record<string, number> = { mermander: 0, mermalion: 4, merlord: 7 };
+            const threshold = skillThresholds[s.id] ?? 0;
+            const unlocked = skills.size >= threshold;
             return (
               <div key={s.id} className="text-center" style={{ opacity: unlocked ? 1 : 0.35 }}>
                 <div style={{
@@ -132,7 +134,7 @@ function MermanderTab({ badges, skills }: { badges: Set<string>; skills: Set<str
                   {unlocked ? s.name.toUpperCase() : "?????"}
                 </div>
                 <div className="pq-label" style={{ fontSize: 7, opacity: 0.6 }}>
-                  {s.minBadges === 0 ? "START" : `${s.minBadges} BADGES`}
+                  {threshold === 0 ? "START" : `${threshold} SKILL ORBS`}
                 </div>
               </div>
             );
@@ -140,7 +142,7 @@ function MermanderTab({ badges, skills }: { badges: Set<string>; skills: Set<str
         </div>
         <div className="pq-label mt-4" style={{ color: "var(--color-dialog-shadow)" }}>KNOWN MOVES ({knownMoves.length})</div>
         <ul className="pq-text-sm mt-2" style={{ listStyle: "none", padding: 0, fontSize: 12 }}>
-          {knownMoves.length === 0 && <li style={{ opacity: 0.6 }}>No moves yet. Collect SKILL BERRIES from NPCs in each world.</li>}
+          {knownMoves.length === 0 && <li style={{ opacity: 0.6 }}>No moves yet. Collect SKILL ORBS from each world to learn new moves.</li>}
           {knownMoves.map((z) => (
             <li key={z.id} style={{ marginTop: 4 }}>
               ▸ <span style={{ fontFamily: "var(--font-pixel)", fontSize: 10 }}>{z.skill!.name}</span>
@@ -155,30 +157,46 @@ function MermanderTab({ badges, skills }: { badges: Set<string>; skills: Set<str
 
 function BerriesTab({ skills }: { skills: Set<string> }) {
   const all = ZONES.filter((z) => z.skill);
+  const collected = all.filter(z => skills.has(z.skill!.id)).length;
   return (
-    <ul style={{ listStyle: "none", padding: 0 }} className="grid sm:grid-cols-2 gap-2">
-      {all.map((z) => {
-        const s = z.skill!;
-        const has = skills.has(s.id);
-        return (
-          <li key={s.id} className="pq-panel-inner" style={{ opacity: has ? 1 : 0.45 }}>
-            <div className="flex items-start gap-3">
-              <div style={{
-                width: 28, height: 28, borderRadius: "50%", flexShrink: 0,
-                background: has ? z.theme.accent : "transparent",
-                border: "2px solid var(--color-dialog-border)",
-                boxShadow: has ? "inset 0 -4px 0 rgba(0,0,0,0.25)" : undefined,
-              }} />
-              <div style={{ minWidth: 0 }}>
-                <div className="pq-label" style={{ fontSize: 9 }}>{z.org} · {s.type} · PWR {s.power}</div>
-                <div className="pq-text" style={{ fontSize: 14 }}>{has ? s.name : "???"}</div>
-                {has && <div className="pq-text-sm" style={{ fontSize: 12, opacity: 0.7 }}>{s.description}</div>}
+    <div>
+      {/* Header */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10, paddingBottom: 6, borderBottom: "1px solid var(--color-dialog-border)" }}>
+        <span style={{ fontFamily: "var(--font-pixel)", fontSize: 9, color: "var(--color-dialog-shadow)", letterSpacing: "0.12em" }}>
+          SKILL ORBS
+        </span>
+        <span style={{ fontFamily: "var(--font-pixel)", fontSize: 8, color: "#ffd24a" }}>
+          {collected} / {all.length} COLLECTED
+        </span>
+      </div>
+      {/* Evolution hint */}
+      <div className="pq-text-sm" style={{ fontSize: 11, opacity: 0.6, marginBottom: 10 }}>
+        Collect Skill Orbs to learn new battle moves. At 4 orbs → evolve to Mermalion. At 7 → Merlord.
+      </div>
+      <ul style={{ listStyle: "none", padding: 0 }} className="grid sm:grid-cols-2 gap-2">
+        {all.map((z) => {
+          const s = z.skill!;
+          const has = skills.has(s.id);
+          return (
+            <li key={s.id} className="pq-panel-inner" style={{ opacity: has ? 1 : 0.45 }}>
+              <div className="flex items-start gap-3">
+                <div style={{
+                  width: 28, height: 28, borderRadius: "50%", flexShrink: 0,
+                  background: has ? z.theme.accent : "transparent",
+                  border: "2px solid var(--color-dialog-border)",
+                  boxShadow: has ? `inset 0 -4px 0 rgba(0,0,0,0.25), 0 0 8px ${z.theme.accent}40` : undefined,
+                }} />
+                <div style={{ minWidth: 0 }}>
+                  <div className="pq-label" style={{ fontSize: 9 }}>{z.org} · {s.type} · PWR {s.power}</div>
+                  <div className="pq-text" style={{ fontSize: 14 }}>{has ? s.name : "???"}</div>
+                  {has && <div className="pq-text-sm" style={{ fontSize: 12, opacity: 0.7 }}>{s.description}</div>}
+                </div>
               </div>
-            </div>
-          </li>
-        );
-      })}
-    </ul>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
   );
 }
 

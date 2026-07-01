@@ -812,9 +812,6 @@ export const STARTER_STAGES: StarterStage[] = [
     color: "#7ce0ff", accent: "#3a78d8", hp: 60,
     baseMoves: [
       { id: "tackle", name: "Ship It", type: "Vision", power: 20, pp: 35, accuracy: 100, category: "physical", flavor: "Just ship it. The simplest and hardest move." },
-      { id: "watergun", name: "Water Gun", type: "Search", power: 28, pp: 25, accuracy: 100, category: "special", flavor: "Classic. Reliable. Mermander's bread and butter." },
-      { id: "quickstrike", name: "First Mover", type: "Vision", power: 18, pp: 30, accuracy: 100, category: "physical", flavor: "Speed is a moat." },
-      { id: "curiosity", name: "Curious Strike", type: "Normal", power: 15, pp: 40, accuracy: 100, category: "status", flavor: "What if we tried...?" },
     ],
   },
   {
@@ -822,8 +819,6 @@ export const STARTER_STAGES: StarterStage[] = [
     color: "#f0c4ff", accent: "#9a6fc4", hp: 110,
     baseMoves: [
       { id: "ops", name: "Ops Crush", type: "Ops", power: 40, pp: 20, accuracy: 100, category: "physical", flavor: "Real operations, no safety net." },
-      { id: "brand", name: "Brand Wave", type: "Brand", power: 45, pp: 15, accuracy: 100, category: "special", flavor: "Culture manufactured from scratch." },
-      { id: "captial", name: "Capital Call", type: "Capital", power: 35, pp: 20, accuracy: 95, category: "special", flavor: "Defend the thesis." },
       { id: "surge", name: "Operator Surge", type: "Ops", power: 50, pp: 10, accuracy: 90, category: "physical", flavor: "Fifteen years of operator instinct deployed at once.", effect: "crit" },
     ],
   },
@@ -832,8 +827,6 @@ export const STARTER_STAGES: StarterStage[] = [
     color: "#ffd24a", accent: "#e8852a", hp: 180,
     baseMoves: [
       { id: "fullstack", name: "Full Stack", type: "Stack", power: 70, pp: 15, accuracy: 100, category: "special", flavor: "Brand · Growth · Tech · Taste, deployed at once." },
-      { id: "autonomous", name: "Autonomous Agent", type: "Autonomy", power: 65, pp: 10, accuracy: 100, category: "special", flavor: "The product moves on its own." },
-      { id: "soulwork", name: "Soul Work", type: "Soul", power: 60, pp: 15, accuracy: 100, category: "special", flavor: "What exists because it has to." },
       { id: "champion", name: "Champion's Roar", type: "Stack", power: 90, pp: 5, accuracy: 90, category: "special", flavor: "Every chapter compounds.", effect: "crit" },
     ],
   },
@@ -845,13 +838,20 @@ export function stageForBadges(badges: number): StarterStage {
   return s;
 }
 
+/** Determine evolution stage based on Skill Orbs collected (primary progression). */
+export function stageForSkills(skillCount: number): StarterStage {
+  if (skillCount >= 7) return STARTER_STAGES[2]; // Merlord
+  if (skillCount >= 4) return STARTER_STAGES[1]; // Mermalion
+  return STARTER_STAGES[0]; // Mermander
+}
+
 export const PLAYER_SPAWN = {
   x: ZONES[0].ox + (ZONES[0].spawn?.x ?? 10),
   y: ZONES[0].oy + (ZONES[0].spawn?.y ?? 10),
   dir: "down" as Dir,
 };
 
-export type InteractiveKind = "npc" | "sign" | "badge" | "door" | "mat" | "wild" | "hidden";
+export type InteractiveKind = "npc" | "sign" | "badge" | "door" | "mat" | "wild" | "hidden" | "skillOrb";
 export type Interactive =
   | { kind: "npc"; zone: Zone; npc: GameNpc; x: number; y: number }
   | { kind: "sign"; zone: Zone; sign: GameSign; x: number; y: number }
@@ -859,7 +859,8 @@ export type Interactive =
   | { kind: "door"; zone: Zone; x: number; y: number }
   | { kind: "mat"; zone: Zone; x: number; y: number }
   | { kind: "wild"; zone: Zone; creature: Creature; x: number; y: number }
-  | { kind: "hidden"; zone: Zone; x: number; y: number };
+  | { kind: "hidden"; zone: Zone; x: number; y: number }
+  | { kind: "skillOrb"; zone: Zone; skill: Skill; x: number; y: number };
 
 export function wildPositionFor(zone: Zone): { x: number; y: number } {
   // Place wild creature in lower-right quadrant of zone, away from building AND NPCs
@@ -1098,9 +1099,13 @@ export function allInteractives(): Interactive[] {
       const w = wildPositionFor(zone);
       list.push({ kind: "wild", zone, creature: zone.creature, x: w.x, y: w.y });
     }
-    // Hidden item tile — invisible until stepped on
-    if (zone.hiddenItem && zone.skill) {
+    // Hidden item tile — invisible until stepped on (only for zones without a skill orb)
+    if (zone.hiddenItem && zone.skill && !zone.gym) {
       list.push({ kind: "hidden", zone, x: zone.ox + zone.hiddenItem.x, y: zone.oy + zone.hiddenItem.y });
+    }
+    // Skill Orb — visible collectible that teaches a move (for gym zones with skills)
+    if (zone.skill && zone.gym && zone.hiddenItem) {
+      list.push({ kind: "skillOrb", zone, skill: zone.skill, x: zone.ox + zone.hiddenItem.x, y: zone.oy + zone.hiddenItem.y });
     }
   }
   // Route NPCs — use home zone as the zone reference (nearest zone above each NPC)

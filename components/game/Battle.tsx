@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState, useCallback } from "react";
 import type { Zone, Move, Gym } from "@/game/data";
-import { ZONES, stageForBadges } from "@/game/data";
+import { ZONES, stageForBadges, stageForSkills } from "@/game/data";
 import { CREATURE_URL, PLAYER_BACK_URL, PLAYER_FRONT_URL, BATTLE_BG_URL, LEADER_URL, getSprite, isReady } from "@/game/sprite-registry";
 import { playSound } from "@/lib/audio";
 
@@ -404,7 +404,7 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee, onFinishingBl
   onUseBerry?: (type: string) => void;
 }) {
   const gym = zone.gym!;
-  const stage = stageForBadges(badges.size);
+  const stage = stageForSkills(ownedSkills.size);
   const accent = zone.theme.accent;
   const arenaBg = ARENA_BG[zone.theme.ground] ?? ARENA_BG.night;
 
