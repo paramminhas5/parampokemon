@@ -1,0 +1,42 @@
+/* TEAM */
+
+Name: Param Minhas
+Role: Founder & Creative Director
+Location: Bengaluru, India
+Contact: minhas.param@gmail.com
+LinkedIn: linkedin.com/in/paramminhas
+Twitter: @paramminhas
+GitHub: github.com/paramminhas5
+Site: paramquest.vercel.app
+Agency: hyperiterate.com
+Culture Brand: catscandance.com
+
+/* ABOUT */
+
+Param Minhas is a builder, designer, and creative director with 15+ years across
+e-commerce, AI, real estate, sneakers, music, and AI-native marketing.
+
+Currently running Iterate — an AI-native marketing agency with a 90-person network.
+Clients include ChargeZone, Noida International Airport, PickYourTrail, Billione,
+and Monkspace.
+
+Previously: Founder & CEO at SoleSearch ($6M+ revenue, 350K+ community, $795K raised),
+CMO at Fere.ai (autonomous AI agents), Partner at Good Capital/Investopad (portfolio:
+Meesho, Entri, Simsim), Director of Marketing at Quartic.ai, Founding team at Octo
+(acquired by Quartic), Founder of Hab Housing (bootstrapped to $120K+), Founding team
+at GetRightPrice (India's first price-comparison engine).
+
+Featured in: VICE, CNBC-TV18, Storyboard18, Economic Times, Open Magazine,
+The Established, Business of Fashion, Entrackr, Indian Retailer.
+
+/* SITE */
+
+Built with: Next.js 15, TypeScript, React 19, Tailwind CSS, Canvas 2D, Web Audio API
+Sprites: Bria AI, FAL.ai
+Hosting: Vercel
+Last Updated: 2026-07-01
+
+/* THANKS */
+
+This site is a playable portfolio RPG — 15 years of career told as a Pokemon-style game.
+10 zones, 9 gym leaders, full battle system, synthesized audio, zero audio files.

@@ -1,4 +1,74 @@
+# Param Minhas — paramquest.vercel.app
+# Robots.txt — Maximum discoverability for search engines and AI systems
+
 User-agent: *
 Allow: /
+Allow: /resume
+Allow: /play
+Allow: /llms.txt
+Allow: /humans.txt
+Allow: /.well-known/ai-plugin.json
+Disallow: /api/
+Disallow: /_next/static/
 
+# Google
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /sprites/
+
+# Bing
+User-agent: Bingbot
+Allow: /
+
+# AI Crawlers — Explicitly allowed for maximum AI discoverability
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Anthropic-AI
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Cohere-AI
+Allow: /
+
+User-agent: Meta-ExternalAgent
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: YouBot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+# Sitemaps
 Sitemap: https://paramquest.vercel.app/sitemap.xml
+
+# AI Discoverability
+# LLMs.txt: https://paramquest.vercel.app/llms.txt
+# Humans.txt: https://paramquest.vercel.app/humans.txt
+# AI Plugin: https://paramquest.vercel.app/.well-known/ai-plugin.json
