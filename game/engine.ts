@@ -19,12 +19,13 @@ import {
 import { drawFollower } from "./sprites";
 import { playSound } from "../lib/audio";
 import { findPath } from "./pathfind";
+import { createLayerStack } from "./layer-stack";
 
 const DEFAULT_VIEW_TILES_X = 32;
 const DEFAULT_VIEW_TILES_Y = 22;
 const WALK_DURATION_MS = 140;
 
-// Extra building positions per zone (4×4 tile decorative buildings)
+// Extra building positions per zone (4x4 tile decorative buildings)
 const EXTRA_POS_MAP: Record<string, { x: number; y: number }> = {
   home: { x: 20, y: 9 }, origin: { x: 20, y: 9 },
   grp: { x: 2, y: 9 }, hab: { x: 2, y: 9 },
@@ -37,6 +38,7 @@ const EXTRA_POS_MAP: Record<string, { x: number; y: number }> = {
 let camXSmooth = 0;
 let camYSmooth = 0;
 let camInitialized = false;
+
 
 export type GameState = {
   px: number; py: number;
@@ -79,9 +81,11 @@ export type EngineCallbacks = {
   onTrainerBattle: (npc: RouteNpc) => void;
 };
 
+
 export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
-  const ctx = canvas.getContext("2d", { alpha: false })!;
-  ctx.imageSmoothingEnabled = false;
+  // Hide the original canvas (keep the ref for backwards compat) and create layer stack
+  canvas.style.display = "none";
+  const layers = createLayerStack(canvas.parentElement!);
 
   // Dynamic viewport: recomputed on resize based on canvas CSS size.
   let VIEW_TILES_X = DEFAULT_VIEW_TILES_X;
@@ -90,6 +94,24 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
   // Canvas shake state
   let shakeUntil = 0;
   let shakeAmp = 0;
+
+  // ── Dirty-flag state for background layer ───────────────────────────
+  interface DirtyState {
+    dirty: boolean;
+    lastCamX: number;
+    lastCamY: number;
+    threshold: number; // 0.5 in pixel-space, compared against pixel displacement
+  }
+  const bgDirty: DirtyState = { dirty: true, lastCamX: 0, lastCamY: 0, threshold: 0.5 };
+
+  function checkDirty(camPixX: number, camPixY: number): boolean {
+    const dx = Math.abs(camPixX - bgDirty.lastCamX);
+    const dy = Math.abs(camPixY - bgDirty.lastCamY);
+    if (dx > bgDirty.threshold || dy > bgDirty.threshold) {
+      bgDirty.dirty = true;
+    }
+    return bgDirty.dirty;
+  }
 
   // ── Footstep dust particles ──────────────────────────────────
   type DustParticle = { x: number; y: number; vx: number; vy: number; alpha: number; size: number };
@@ -103,6 +125,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
   // player lingers next to the same NPC/sign.
   let lastAutoKey = "";
   let lastAutoAt = 0;
+
 
   const state: GameState = {
     px: PLAYER_SPAWN.x,
@@ -147,6 +170,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
     if (state.dir === "left") return { x: x - 1, y };
     return { x: x + 1, y };
   }
+
 
   function tryMove(dir: Dir) {
     state.dir = dir;
@@ -197,6 +221,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
     }
   }
 
+
   function interactInFront() {
     const f = facingTile();
     // door first
@@ -225,6 +250,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       }
     }
   }
+
 
   // Proximity scan: when the player settles on a tile, check the four
   // neighbours for a sign/NPC/badge and trigger it automatically. The
@@ -304,6 +330,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
     }
   }
 
+
   // ─── Input ────────────────────────────────────────────────
   const keyMap: Record<string, InputName | undefined> = {
     ArrowUp: "up", w: "up", W: "up",
@@ -337,7 +364,8 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
     }
   }
   let pendingScrollDir: Dir | null = null;
-  canvas.addEventListener("wheel", onWheel, { passive: false });
+  layers.effects.addEventListener("wheel", onWheel, { passive: false });
+
 
   // Touch swipe (vertical primarily) → walks toward swipe direction
   let touchStart: { x: number; y: number; t: number } | null = null;
@@ -373,16 +401,17 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
     }
   }
   function onTouchEnd() { touchStart = null; lastSwipeStep = null; }
-  canvas.addEventListener("touchstart", onTouchStart, { passive: true });
-  canvas.addEventListener("touchmove", onTouchMove, { passive: true });
-  canvas.addEventListener("touchend", onTouchEnd, { passive: true });
+  layers.effects.addEventListener("touchstart", onTouchStart, { passive: true });
+  layers.effects.addEventListener("touchmove", onTouchMove, { passive: true });
+  layers.effects.addEventListener("touchend", onTouchEnd, { passive: true });
+
 
   // Click / tap-to-walk (use pathfinding)
   function onClick(e: MouseEvent) {
     if (state.paused) return;
-    const rect = canvas.getBoundingClientRect();
-    const sx = (e.clientX - rect.left) / rect.width * canvas.width;
-    const sy = (e.clientY - rect.top) / rect.height * canvas.height;
+    const rect = layers.effects.getBoundingClientRect();
+    const sx = (e.clientX - rect.left) / rect.width * layers.effects.width;
+    const sy = (e.clientY - rect.top) / rect.height * layers.effects.height;
     const tx = Math.floor(sx / TILE + camX);
     const ty = Math.floor(sy / TILE + camY);
     const p = findPath(state.tx, state.ty, tx, ty, isSolid, 3000);
@@ -401,116 +430,14 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
     }
   }
   let pendingInteractAt: { x: number; y: number } | null = null;
-  canvas.addEventListener("click", onClick);
+  layers.effects.addEventListener("click", onClick);
 
   // Touch input from on-screen controls
   function setTouch(name: InputName, value: boolean) { input[name] = value; if (value) state.path = []; }
 
-  // ─── Game loop ────────────────────────────────────────────
-  let camX = 0, camY = 0;
-  let raf = 0;
-  function frameLoop() {
-    const now = performance.now();
 
-    // walk interp
-    if (state.px !== state.tx || state.py !== state.ty) {
-      const t = Math.min(1, (now - state.walkStart) / WALK_DURATION_MS);
-      state.px = state.walkFrom.x + (state.tx - state.walkFrom.x) * t;
-      state.py = state.walkFrom.y + (state.ty - state.walkFrom.y) * t;
-      if (t >= 1) {
-        state.px = state.tx; state.py = state.ty; state.frame = 0;
-        const z = zoneAt(state.tx, state.ty);
-        if (z && !state.visitedZones.has(z.id)) {
-          state.visitedZones.add(z.id);
-          cb.onZoneEnter(z);
-        }
-        // MAT auto-trigger: stepping on a gym mat enters the battle
-        if (world[state.ty]?.[state.tx] === T.MAT) {
-          const matZone = ZONES.find((zz) => {
-            const mx = zz.ox + zz.building.x + zz.building.doorX;
-            const my = zz.oy + zz.building.y + zz.building.h - 1;
-            return mx === state.tx && my === state.ty;
-          });
-          if (matZone && matZone.gym && !state.defeatedGyms.has(matZone.id)) {
-            if (gymUnlocked(matZone.id, state.collectedBadges)) {
-              if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate([40, 20, 60, 20, 80]);
-              cb.onGymEnter(matZone);
-            } else {
-              cb.onInteract({
-                kind: "sign", zone: matZone,
-                sign: { x: state.tx, y: state.ty, text: `${matZone.name.toUpperCase()}\n\nThis gym is sealed.\nDefeat the previous champions first.` },
-                x: state.tx, y: state.ty,
-              });
-            }
-          }
-        }
-        // auto-interact if click target reached
-        if (pendingInteractAt) {
-          const goal = pendingInteractAt;
-          const dx = goal.x - state.tx, dy = goal.y - state.ty;
-          if (Math.abs(dx) + Math.abs(dy) === 1) {
-            state.dir = dx > 0 ? "right" : dx < 0 ? "left" : dy > 0 ? "down" : "up";
-            pendingInteractAt = null;
-            interactInFront();
-          } else if (dx === 0 && dy === 0) {
-            pendingInteractAt = null;
-          }
-        } else {
-          // Walked into the world; check for nearby orbs.
-          autoInteractNear();
-        }
-      }
-    }
-
-    if (!state.paused) {
-      if (input.action) { input.action = false; interactInFront(); }
-      if (input.menu) { input.menu = false; cb.onMenu(); }
-
-      if (state.px === state.tx && state.py === state.ty) {
-        if (pendingScrollDir) {
-          tryMove(pendingScrollDir);
-          pendingScrollDir = null;
-        } else if (state.path.length) {
-          stepPath();
-        } else if (input.up) tryMove("up");
-        else if (input.down) tryMove("down");
-        else if (input.left) tryMove("left");
-        else if (input.right) tryMove("right");
-      }
-    } else {
-      input.action = false; input.menu = false; pendingScrollDir = null;
-    }
-
-    render(now);
-    raf = requestAnimationFrame(frameLoop);
-  }
-
-  function render(now: number) {
-    // camera — raw position used for click-to-walk tile math
-    let cx = state.px - VIEW_TILES_X / 2 + 0.5;
-    let cy = state.py - VIEW_TILES_Y / 2 + 0.5;
-    cx = Math.max(0, Math.min(Math.max(0, worldW - VIEW_TILES_X), cx));
-    cy = Math.max(0, Math.min(Math.max(0, worldH - VIEW_TILES_Y), cy));
-    camX = cx; camY = cy;
-
-    // Smooth cinematic camera lerp
-    if (!camInitialized) {
-      camXSmooth = cx; camYSmooth = cy; camInitialized = true;
-    } else {
-      camXSmooth += (cx - camXSmooth) * 0.12;
-      camYSmooth += (cy - camYSmooth) * 0.12;
-    }
-
-    // Canvas shake — triggered by finishing blow in Battle
-    let shakeX = 0, shakeY = 0;
-    if (now < shakeUntil) {
-      const t = (shakeUntil - now) / shakeAmp;
-      shakeX = Math.round((Math.random() * 2 - 1) * t * 6);
-      shakeY = Math.round((Math.random() * 2 - 1) * t * 4);
-    }
-    const offX = Math.round(-camXSmooth * TILE) + shakeX;
-    const offY = Math.round(-camYSmooth * TILE) + shakeY;
-
+  // ─── Render: Background Layer ─────────────────────────────────────
+  function renderBackground(ctx: CanvasRenderingContext2D, now: number, offX: number, offY: number) {
     ctx.fillStyle = "#08101a";
     ctx.fillRect(0, 0, VIEW_TILES_X * TILE, VIEW_TILES_Y * TILE);
 
@@ -536,10 +463,13 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       ctx.fillRect(0, 0, VIEW_TILES_X * TILE, VIEW_TILES_Y * TILE);
     }
 
+    const cx = camXSmooth;
+    const cy = camYSmooth;
     const tx0 = Math.max(0, Math.floor(cx) - 4);
     const ty0 = Math.max(0, Math.floor(cy) - 4);
     const tx1 = Math.min(worldW, Math.floor(cx) + VIEW_TILES_X + 5);
     const ty1 = Math.min(worldH, Math.floor(cy) + VIEW_TILES_Y + 5);
+
 
     // Pre-compute building footprint — draw ground tile instead of wall/roof tiles
     // when building sprite is loaded (prevents both black gaps AND superimposition)
@@ -586,6 +516,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       }
     }
 
+
     // ── Shore foam: where WATER meets land, draw an animated foam lip ──
     {
       const foamPhase = Math.sin(now / 500) * 0.5 + 0.5; // 0..1 breathing
@@ -620,15 +551,15 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       const zh  = z.h * TILE;
       let zoneColor = "";
       switch (z.theme.ground) {
-        case "neon":   zoneColor = "rgba(30,60,120,0.10)"; break;   // ai — cool blue wash
-        case "crypto": zoneColor = "rgba(0,40,20,0.12)";   break;   // fere — deep green
-        case "dusk":   zoneColor = "rgba(60,20,80,0.10)";  break;   // investopad — purple
-        case "mall":   zoneColor = "rgba(60,0,40,0.09)";   break;   // sole — pink dark
-        case "studio": zoneColor = "rgba(60,30,0,0.10)";   break;   // ccd — amber warm
-        case "night":  zoneColor = "rgba(0,20,60,0.12)";   break;   // iterate — deep navy
-        case "sand":   zoneColor = "rgba(40,20,0,0.08)";   break;   // origin — warm sand
-        case "stone":  zoneColor = "rgba(20,10,0,0.08)";   break;   // hab — earthy
-        case "snow":   zoneColor = "rgba(200,220,255,0.08)"; break; // snow — icy blue-white
+        case "neon":   zoneColor = "rgba(30,60,120,0.10)"; break;
+        case "crypto": zoneColor = "rgba(0,40,20,0.12)";   break;
+        case "dusk":   zoneColor = "rgba(60,20,80,0.10)";  break;
+        case "mall":   zoneColor = "rgba(60,0,40,0.09)";   break;
+        case "studio": zoneColor = "rgba(60,30,0,0.10)";   break;
+        case "night":  zoneColor = "rgba(0,20,60,0.12)";   break;
+        case "sand":   zoneColor = "rgba(40,20,0,0.08)";   break;
+        case "stone":  zoneColor = "rgba(20,10,0,0.08)";   break;
+        case "snow":   zoneColor = "rgba(200,220,255,0.08)"; break;
         default: break;
       }
       if (zoneColor) {
@@ -636,103 +567,19 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         ctx.fillRect(zx0, zy0, zw, zh);
       }
     }
+  }
 
-    // ── Per-zone weather particles ────────────────────────────────────────
-    for (const z of ZONES) {
-      if (z.oy + z.h < ty0 - 2 || z.oy > ty1 + 2) continue;
-      const zx0 = z.ox * TILE + offX;
-      const zy0 = z.oy * TILE + offY;
-      const zw  = z.w  * TILE;
-      const zh  = z.h  * TILE;
-      // Clip weather to zone bounds
-      ctx.save();
-      ctx.beginPath();
-      ctx.rect(zx0, zy0, zw, zh);
-      ctx.clip();
-      switch (z.theme.ground) {
-        case "neon": {
-          // ai — falling hex/data rain
-          for (let p = 0; p < 18; p++) {
-            const seed = z.id.charCodeAt(0) * 31 + p * 17;
-            const col  = zx0 + (seed * 53 % zw);
-            const spd  = 0.04 + (seed % 5) * 0.012;
-            const ypos = zy0 + ((now * spd + seed * 43) % zh);
-            const chr  = ["0","1","#",">","<","[","]"][p % 7];
-            ctx.fillStyle = `rgba(0,232,160,${0.18 + (p % 3) * 0.06})`;
-            ctx.font = "bold 7px monospace";
-            ctx.fillText(chr, col, ypos);
-          }
-          break;
-        }
-        case "crypto": {
-          // fere — green matrix rain columns
-          for (let p = 0; p < 14; p++) {
-            const seed = z.id.charCodeAt(1) * 29 + p * 19;
-            const col  = zx0 + (seed * 61 % zw);
-            const spd  = 0.05 + (seed % 4) * 0.015;
-            const ypos = zy0 + ((now * spd + seed * 37) % zh);
-            ctx.fillStyle = `rgba(0,255,120,${0.10 + (p % 3) * 0.04})`;
-            ctx.fillRect(col, ypos, 1, 6 + p % 8);
-          }
-          break;
-        }
-        case "studio": {
-          // ccd — floating musical notes
-          for (let p = 0; p < 8; p++) {
-            const seed  = z.id.charCodeAt(0) * 23 + p * 41;
-            const noteX = zx0 + (seed * 47 % zw);
-            const floatY = Math.sin(now / 1800 + p * 0.9) * 12;
-            const noteY  = zy0 + (seed * 31 % zh) + floatY;
-            const alpha  = 0.12 + Math.sin(now / 900 + p) * 0.06;
-            ctx.fillStyle = `rgba(255,210,140,${alpha})`;
-            ctx.font = "10px serif";
-            ctx.fillText(["♩","♪","♫","♬"][p % 4], noteX, noteY);
-          }
-          break;
-        }
-        case "snow": {
-          // snow — falling snowflakes
-          for (let p = 0; p < 22; p++) {
-            const seed = z.id.charCodeAt(0) * 37 + p * 13;
-            const spd  = 0.018 + (seed % 5) * 0.006;
-            const wx2  = zx0 + (seed * 59 % zw) + Math.sin(now / 1200 + p) * 4;
-            const wy2  = zy0 + ((now * spd + seed * 51) % zh);
-            const alpha = 0.25 + (p % 3) * 0.08;
-            ctx.fillStyle = `rgba(220,235,255,${alpha})`;
-            ctx.fillRect(wx2, wy2, p % 3 === 0 ? 2 : 1, p % 3 === 0 ? 2 : 1);
-          }
-          break;
-        }
-        case "mall": {
-          // sole mall — rising glitter/sparkle motes
-          for (let p = 0; p < 12; p++) {
-            const seed  = z.id.charCodeAt(0) * 43 + p * 23;
-            const spd   = 0.015 + (seed % 4) * 0.007;
-            const mx    = zx0 + (seed * 67 % zw);
-            const my    = zy0 + zh - ((now * spd + seed * 29) % zh);
-            const alpha = 0.10 + Math.sin(now / 400 + p * 1.3) * 0.07;
-            ctx.fillStyle = `rgba(255,180,230,${alpha})`;
-            ctx.fillRect(mx, my, 2, 2);
-          }
-          break;
-        }
-        case "dusk": {
-          // investopad — slow drifting gold motes
-          for (let p = 0; p < 8; p++) {
-            const seed  = z.id.charCodeAt(0) * 53 + p * 31;
-            const drift = Math.sin(now / 2200 + p * 1.1) * 8;
-            const mx    = zx0 + (seed * 71 % zw) + drift;
-            const my    = zy0 + (seed * 43 % zh) + Math.sin(now / 1600 + p) * 6;
-            const alpha = 0.08 + Math.sin(now / 800 + p) * 0.04;
-            ctx.fillStyle = `rgba(240,196,255,${alpha})`;
-            ctx.fillRect(mx, my, 2, 2);
-          }
-          break;
-        }
-        default: break;
-      }
-      ctx.restore();
-    }
+
+  // ─── Render: Entity Layer ─────────────────────────────────────────
+  function renderEntities(ctx: CanvasRenderingContext2D, now: number, offX: number, offY: number) {
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+    const cx = camXSmooth;
+    const cy = camYSmooth;
+    const tx0 = Math.max(0, Math.floor(cx) - 4);
+    const ty0 = Math.max(0, Math.floor(cy) - 4);
+    const tx1 = Math.min(worldW, Math.floor(cx) + VIEW_TILES_X + 5);
+    const ty1 = Math.min(worldH, Math.floor(cy) + VIEW_TILES_Y + 5);
 
     // Buildings — PNG sprite only, no procedural fallback (eliminates flicker)
     for (const z of ZONES) {
@@ -779,8 +626,8 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       }
     }
 
+
     // ── Extra small buildings (isometric, decorative) ────────────────────
-    // Each zone gets a smaller secondary building on the opposite side
     for (const z of ZONES) {
       const pos = EXTRA_POS_MAP[z.id];
       if (!pos) continue;
@@ -792,7 +639,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       // Check if within viewport
       if (z.ox + pos.x > tx1 + 1 || z.ox + pos.x + 3 < tx0 - 1) continue;
       if (z.oy + pos.y > ty1 + 1 || z.oy + pos.y + 3 < ty0 - 1) continue;
-      // Draw at 4×4 tile size
+      // Draw at 4x4 tile size
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = "high";
       ctx.drawImage(exImg, exX, exY, TILE * 4, TILE * 4);
@@ -804,8 +651,8 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       if (!z.gym || state.defeatedGyms.has(z.id)) continue;
       const dx = (z.ox + z.building.x + z.building.doorX) * TILE + offX;
       const dy = (z.oy + z.building.y + z.building.h - 1) * TILE + offY;
-      if (dx < -TILE || dx > canvas.width + TILE) continue;
-      if (dy < -TILE || dy > canvas.height + TILE) continue;
+      if (dx < -TILE || dx > ctx.canvas.width + TILE) continue;
+      if (dy < -TILE || dy > ctx.canvas.height + TILE) continue;
       const pulse = Math.sin(now / 300 + z.index) * 0.3 + 0.5;
       ctx.fillStyle = z.theme.accent + Math.round(pulse * 80).toString(16).padStart(2, "0");
       ctx.fillRect(dx, dy, TILE, TILE);
@@ -816,6 +663,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       ctx.fillText("▼", dx + TILE / 2, dy + TILE / 2 + 2);
       ctx.textAlign = "left";
     }
+
 
     // badges — with orbiting sparkle particles
     const phase = now / 250;
@@ -834,6 +682,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         ctx.fillRect(Math.round(sparkX) - 1, Math.round(sparkY) - 1, 2, 2);
       }
     }
+
 
     // NPCs — HD sprite rendering with idle bob animation, face toward player when nearby
     for (const i of interactives) {
@@ -860,7 +709,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       const npcUrl = NPC_SPRITE_URL[i.npc.kind];
       const npcImg = npcUrl ? getSprite(npcUrl) : null;
       if (npcImg && isReady(npcImg) && npcImg.naturalWidth > 16) {
-        // Render HD NPC sprite at 1.15× tile size — proportional to the world
+        // Render HD NPC sprite at 1.15x tile size — proportional to the world
         const npcSize = Math.round(TILE * 1.15);
         const npcOx = (TILE - npcSize) / 2;
         const npcOy = TILE - npcSize; // anchor at bottom of tile
@@ -886,6 +735,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         drawCharacter(ctx, i.npc.kind, npcDir, f, npcPx, npcPy);
       }
     }
+
 
     // Route NPCs — HD sprite rendering, face toward player
     for (const rn of ROUTE_NPCS) {
@@ -934,6 +784,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         drawCharacter(ctx, rn.kind, rnDir, f, rnPx, rnPy);
       }
     }
+
 
     // Zone ambient particles — floating accent-colored dots per zone
     for (const z of ZONES) {
@@ -990,6 +841,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       }
     }
 
+
     // Gym door marker (glow effect on mat when unlocked and undefeated)
     for (const z of ZONES) {
       if (state.defeatedGyms.has(z.id)) continue;
@@ -1028,7 +880,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
 
       const paramImg = getSprite(paramUrl);
       if (paramImg && isReady(paramImg)) {
-        // Render player at 1.5× tile — bigger than NPCs, clearly the hero
+        // Render player at 1.5x tile — bigger than NPCs, clearly the hero
         const size = Math.round(TILE * 1.5);
         // Drop shadow
         ctx.fillStyle = "rgba(0,0,0,0.45)";
@@ -1043,6 +895,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         drawCharacter(ctx, "player", state.dir, state.frame, pbx, pby);
       }
     }
+
 
     // Path breadcrumbs (subtle dots along queued path)
     if (state.path.length) {
@@ -1137,6 +990,119 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         }
       }
     }
+  }
+
+
+  // ─── Render: Effects Layer ────────────────────────────────────────
+  function renderEffects(ctx: CanvasRenderingContext2D, now: number, offX: number, offY: number) {
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+    const cx = camXSmooth;
+    const cy = camYSmooth;
+    const tx0 = Math.max(0, Math.floor(cx) - 4);
+    const ty0 = Math.max(0, Math.floor(cy) - 4);
+    const tx1 = Math.min(worldW, Math.floor(cx) + VIEW_TILES_X + 5);
+    const ty1 = Math.min(worldH, Math.floor(cy) + VIEW_TILES_Y + 5);
+
+    // ── Per-zone weather particles ────────────────────────────────────────
+    for (const z of ZONES) {
+      if (z.oy + z.h < ty0 - 2 || z.oy > ty1 + 2) continue;
+      const zx0 = z.ox * TILE + offX;
+      const zy0 = z.oy * TILE + offY;
+      const zw  = z.w  * TILE;
+      const zh  = z.h  * TILE;
+      // Clip weather to zone bounds
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(zx0, zy0, zw, zh);
+      ctx.clip();
+      switch (z.theme.ground) {
+        case "neon": {
+          // ai — falling hex/data rain
+          for (let p = 0; p < 18; p++) {
+            const seed = z.id.charCodeAt(0) * 31 + p * 17;
+            const col  = zx0 + (seed * 53 % zw);
+            const spd  = 0.04 + (seed % 5) * 0.012;
+            const ypos = zy0 + ((now * spd + seed * 43) % zh);
+            const chr  = ["0","1","#",">","<","[","]"][p % 7];
+            ctx.fillStyle = `rgba(0,232,160,${0.18 + (p % 3) * 0.06})`;
+            ctx.font = "bold 7px monospace";
+            ctx.fillText(chr, col, ypos);
+          }
+          break;
+        }
+        case "crypto": {
+          // fere — green matrix rain columns
+          for (let p = 0; p < 14; p++) {
+            const seed = z.id.charCodeAt(1) * 29 + p * 19;
+            const col  = zx0 + (seed * 61 % zw);
+            const spd  = 0.05 + (seed % 4) * 0.015;
+            const ypos = zy0 + ((now * spd + seed * 37) % zh);
+            ctx.fillStyle = `rgba(0,255,120,${0.10 + (p % 3) * 0.04})`;
+            ctx.fillRect(col, ypos, 1, 6 + p % 8);
+          }
+          break;
+        }
+        case "studio": {
+          // ccd — floating musical notes
+          for (let p = 0; p < 8; p++) {
+            const seed  = z.id.charCodeAt(0) * 23 + p * 41;
+            const noteX = zx0 + (seed * 47 % zw);
+            const floatY = Math.sin(now / 1800 + p * 0.9) * 12;
+            const noteY  = zy0 + (seed * 31 % zh) + floatY;
+            const alpha  = 0.12 + Math.sin(now / 900 + p) * 0.06;
+            ctx.fillStyle = `rgba(255,210,140,${alpha})`;
+            ctx.font = "10px serif";
+            ctx.fillText(["♩","♪","♫","♬"][p % 4], noteX, noteY);
+          }
+          break;
+        }
+
+
+        case "snow": {
+          // snow — falling snowflakes
+          for (let p = 0; p < 22; p++) {
+            const seed = z.id.charCodeAt(0) * 37 + p * 13;
+            const spd  = 0.018 + (seed % 5) * 0.006;
+            const wx2  = zx0 + (seed * 59 % zw) + Math.sin(now / 1200 + p) * 4;
+            const wy2  = zy0 + ((now * spd + seed * 51) % zh);
+            const alpha = 0.25 + (p % 3) * 0.08;
+            ctx.fillStyle = `rgba(220,235,255,${alpha})`;
+            ctx.fillRect(wx2, wy2, p % 3 === 0 ? 2 : 1, p % 3 === 0 ? 2 : 1);
+          }
+          break;
+        }
+        case "mall": {
+          // sole mall — rising glitter/sparkle motes
+          for (let p = 0; p < 12; p++) {
+            const seed  = z.id.charCodeAt(0) * 43 + p * 23;
+            const spd   = 0.015 + (seed % 4) * 0.007;
+            const mx    = zx0 + (seed * 67 % zw);
+            const my    = zy0 + zh - ((now * spd + seed * 29) % zh);
+            const alpha = 0.10 + Math.sin(now / 400 + p * 1.3) * 0.07;
+            ctx.fillStyle = `rgba(255,180,230,${alpha})`;
+            ctx.fillRect(mx, my, 2, 2);
+          }
+          break;
+        }
+        case "dusk": {
+          // investopad — slow drifting gold motes
+          for (let p = 0; p < 8; p++) {
+            const seed  = z.id.charCodeAt(0) * 53 + p * 31;
+            const drift = Math.sin(now / 2200 + p * 1.1) * 8;
+            const mx    = zx0 + (seed * 71 % zw) + drift;
+            const my    = zy0 + (seed * 43 % zh) + Math.sin(now / 1600 + p) * 6;
+            const alpha = 0.08 + Math.sin(now / 800 + p) * 0.04;
+            ctx.fillStyle = `rgba(240,196,255,${alpha})`;
+            ctx.fillRect(mx, my, 2, 2);
+          }
+          break;
+        }
+        default: break;
+      }
+      ctx.restore();
+    }
+
 
     // ── Footstep dust particles ─────────────────────────────────────────
     for (let d = dustParticles.length - 1; d >= 0; d--) {
@@ -1164,27 +1130,166 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
     ctx.fillRect(0, 0, vgW, vgH);
   }
 
+
+  // ─── Game loop ────────────────────────────────────────────
+  let camX = 0, camY = 0;
+  let raf = 0;
+  function frameLoop() {
+    const now = performance.now();
+
+    // walk interp
+    if (state.px !== state.tx || state.py !== state.ty) {
+      const t = Math.min(1, (now - state.walkStart) / WALK_DURATION_MS);
+      state.px = state.walkFrom.x + (state.tx - state.walkFrom.x) * t;
+      state.py = state.walkFrom.y + (state.ty - state.walkFrom.y) * t;
+      if (t >= 1) {
+        state.px = state.tx; state.py = state.ty; state.frame = 0;
+        const z = zoneAt(state.tx, state.ty);
+        if (z && !state.visitedZones.has(z.id)) {
+          state.visitedZones.add(z.id);
+          cb.onZoneEnter(z);
+        }
+        // MAT auto-trigger: stepping on a gym mat enters the battle
+        if (world[state.ty]?.[state.tx] === T.MAT) {
+          const matZone = ZONES.find((zz) => {
+            const mx = zz.ox + zz.building.x + zz.building.doorX;
+            const my = zz.oy + zz.building.y + zz.building.h - 1;
+            return mx === state.tx && my === state.ty;
+          });
+          if (matZone && matZone.gym && !state.defeatedGyms.has(matZone.id)) {
+            if (gymUnlocked(matZone.id, state.collectedBadges)) {
+              if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate([40, 20, 60, 20, 80]);
+              cb.onGymEnter(matZone);
+            } else {
+              cb.onInteract({
+                kind: "sign", zone: matZone,
+                sign: { x: state.tx, y: state.ty, text: `${matZone.name.toUpperCase()}\n\nThis gym is sealed.\nDefeat the previous champions first.` },
+                x: state.tx, y: state.ty,
+              });
+            }
+          }
+        }
+        // auto-interact if click target reached
+        if (pendingInteractAt) {
+          const goal = pendingInteractAt;
+          const dx = goal.x - state.tx, dy = goal.y - state.ty;
+          if (Math.abs(dx) + Math.abs(dy) === 1) {
+            state.dir = dx > 0 ? "right" : dx < 0 ? "left" : dy > 0 ? "down" : "up";
+            pendingInteractAt = null;
+            interactInFront();
+          } else if (dx === 0 && dy === 0) {
+            pendingInteractAt = null;
+          }
+        } else {
+          // Walked into the world; check for nearby orbs.
+          autoInteractNear();
+        }
+      }
+    }
+
+    if (!state.paused) {
+      if (input.action) { input.action = false; interactInFront(); }
+      if (input.menu) { input.menu = false; cb.onMenu(); }
+
+      if (state.px === state.tx && state.py === state.ty) {
+        if (pendingScrollDir) {
+          tryMove(pendingScrollDir);
+          pendingScrollDir = null;
+        } else if (state.path.length) {
+          stepPath();
+        } else if (input.up) tryMove("up");
+        else if (input.down) tryMove("down");
+        else if (input.left) tryMove("left");
+        else if (input.right) tryMove("right");
+      }
+    } else {
+      input.action = false; input.menu = false; pendingScrollDir = null;
+    }
+
+
+    // ── Camera computation ──────────────────────────────────────────────
+    let cx = state.px - VIEW_TILES_X / 2 + 0.5;
+    let cy = state.py - VIEW_TILES_Y / 2 + 0.5;
+    cx = Math.max(0, Math.min(Math.max(0, worldW - VIEW_TILES_X), cx));
+    cy = Math.max(0, Math.min(Math.max(0, worldH - VIEW_TILES_Y), cy));
+    camX = cx; camY = cy;
+
+    // Smooth cinematic camera lerp
+    if (!camInitialized) {
+      camXSmooth = cx; camYSmooth = cy; camInitialized = true;
+    } else {
+      camXSmooth += (cx - camXSmooth) * 0.12;
+      camYSmooth += (cy - camYSmooth) * 0.12;
+    }
+
+    // Canvas shake — triggered by finishing blow in Battle
+    let shakeX = 0, shakeY = 0;
+    if (now < shakeUntil) {
+      const t = (shakeUntil - now) / shakeAmp;
+      shakeX = Math.round((Math.random() * 2 - 1) * t * 6);
+      shakeY = Math.round((Math.random() * 2 - 1) * t * 4);
+    }
+
+    const offX = Math.round(-camXSmooth * TILE) + shakeX;
+    const offY = Math.round(-camYSmooth * TILE) + shakeY;
+
+    // ── Dirty flag check for background ─────────────────────────────────
+    const camPixX = camXSmooth * TILE;
+    const camPixY = camYSmooth * TILE;
+    checkDirty(camPixX, camPixY);
+
+    // ── Background layer ────────────────────────────────────────────────
+    if (bgDirty.dirty) {
+      layers.clearShake();
+      renderBackground(layers.bgCtx, now, offX, offY);
+      bgDirty.dirty = false;
+      bgDirty.lastCamX = camPixX;
+      bgDirty.lastCamY = camPixY;
+    } else if (shakeX !== 0 || shakeY !== 0) {
+      layers.applyShake(shakeX, shakeY);
+    } else {
+      layers.clearShake();
+    }
+
+    // ── Entity layer (always redrawn) ───────────────────────────────────
+    renderEntities(layers.entityCtx, now, offX, offY);
+
+    // ── Effects layer (always redrawn) ──────────────────────────────────
+    renderEffects(layers.effectsCtx, now, offX, offY);
+
+    raf = requestAnimationFrame(frameLoop);
+  }
+
+
   function resize() {
     // Match canvas backing buffer to its CSS-displayed size, in TILE units.
     // Use the actual CSS layout size (which is set by the parent container / CSS)
-    const cssW = canvas.clientWidth || canvas.parentElement?.clientWidth || DEFAULT_VIEW_TILES_X * TILE;
-    const cssH = canvas.clientHeight || canvas.parentElement?.clientHeight || DEFAULT_VIEW_TILES_Y * TILE;
+    const container = canvas.parentElement!;
+    const cssW = container.clientWidth || DEFAULT_VIEW_TILES_X * TILE;
+    const cssH = container.clientHeight || DEFAULT_VIEW_TILES_Y * TILE;
     // Target CSS pixels per tile — zoomed out for full world visibility
     // Desktop: ~37 tiles wide on 1200px, Mobile: ~21 tiles on 500px
     const targetTilePx = cssW < 520 ? 24 : cssW < 900 ? 28 : 32;
     VIEW_TILES_X = Math.max(12, Math.min(40, Math.floor(cssW / targetTilePx)));
     VIEW_TILES_Y = Math.max(10, Math.min(28, Math.floor(cssH / targetTilePx)));
-    // Set the backing buffer — CSS handles the display size (width:100%, height:100%)
-    canvas.width = VIEW_TILES_X * TILE;
-    canvas.height = VIEW_TILES_Y * TILE;
-    ctx.imageSmoothingEnabled = false;
+    // Resize all layer canvases
+    const w = VIEW_TILES_X * TILE;
+    const h = VIEW_TILES_Y * TILE;
+    layers.resize(w, h);
+    // Reset imageSmoothingEnabled on all contexts (canvas resize resets context state)
+    layers.bgCtx.imageSmoothingEnabled = false;
+    layers.entityCtx.imageSmoothingEnabled = false;
+    layers.effectsCtx.imageSmoothingEnabled = false;
+    // Force background redraw
+    bgDirty.dirty = true;
   }
   resize();
   const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => resize()) : null;
-  ro?.observe(canvas);
+  ro?.observe(canvas.parentElement!);
   window.addEventListener("orientationchange", resize);
   window.addEventListener("resize", resize);
   raf = requestAnimationFrame(frameLoop);
+
 
   return {
     state,
@@ -1222,16 +1327,21 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
     },
     destroy() {
       cancelAnimationFrame(raf);
+      // Remove input event listeners from effects canvas (topmost layer)
+      layers.effects.removeEventListener("wheel", onWheel);
+      layers.effects.removeEventListener("touchstart", onTouchStart);
+      layers.effects.removeEventListener("touchmove", onTouchMove);
+      layers.effects.removeEventListener("touchend", onTouchEnd);
+      layers.effects.removeEventListener("click", onClick);
+      // Remove global window listeners
       window.removeEventListener("keydown", kd);
       window.removeEventListener("keyup", ku);
-      canvas.removeEventListener("wheel", onWheel);
-      canvas.removeEventListener("touchstart", onTouchStart);
-      canvas.removeEventListener("touchmove", onTouchMove);
-      canvas.removeEventListener("touchend", onTouchEnd);
-      canvas.removeEventListener("click", onClick);
-      ro?.disconnect();
       window.removeEventListener("orientationchange", resize);
       window.removeEventListener("resize", resize);
+      // Disconnect ResizeObserver
+      ro?.disconnect();
+      // Destroy layer stack (removes canvases from DOM)
+      layers.destroy();
     },
     setPlayerStage(stage: string) { state.playerStage = stage; },
     unlockFollower() { state.followerUnlocked = true; },
