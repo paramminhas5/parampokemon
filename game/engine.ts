@@ -24,6 +24,15 @@ const DEFAULT_VIEW_TILES_X = 32;
 const DEFAULT_VIEW_TILES_Y = 22;
 const WALK_DURATION_MS = 140;
 
+// Extra building positions per zone (4×4 tile decorative buildings)
+const EXTRA_POS_MAP: Record<string, { x: number; y: number }> = {
+  home: { x: 20, y: 9 }, origin: { x: 20, y: 9 },
+  grp: { x: 2, y: 9 }, hab: { x: 2, y: 9 },
+  ai: { x: 20, y: 9 }, investopad: { x: 20, y: 9 },
+  sole: { x: 2, y: 9 }, fere: { x: 20, y: 9 },
+  ccd: { x: 2, y: 9 }, iterate: { x: 2, y: 9 },
+};
+
 // ─── Smooth camera lerp state ────────────────────────────────
 let camXSmooth = 0;
 let camYSmooth = 0;
@@ -533,6 +542,19 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
           }
         }
       }
+      // Also include extra building positions (4x4 tiles)
+      const exUrl = EXTRA_BUILDING_URL[z.id];
+      const exImg = exUrl ? getSprite(exUrl) : null;
+      if (exImg && isReady(exImg)) {
+        const epos = EXTRA_POS_MAP[z.id];
+        if (epos) {
+          for (let ey = 0; ey < 4; ey++) {
+            for (let ex = 0; ex < 4; ex++) {
+              buildingGroundMap.set(`${z.ox + epos.x + ex},${z.oy + epos.y + ey}`, zi);
+            }
+          }
+        }
+      }
     }
 
     for (let y = ty0; y < ty1; y++) {
@@ -745,20 +767,8 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
 
     // ── Extra small buildings (isometric, decorative) ────────────────────
     // Each zone gets a smaller secondary building on the opposite side
-    const EXTRA_POS: Record<string, { x: number; y: number }> = {
-      home:       { x: 20, y: 9 },
-      origin:     { x: 20, y: 9 },
-      grp:        { x: 2,  y: 9 },
-      hab:        { x: 2,  y: 9 },
-      ai:         { x: 20, y: 9 },
-      investopad: { x: 20, y: 9 },
-      sole:       { x: 2,  y: 9 },
-      fere:       { x: 20, y: 9 },
-      ccd:        { x: 2,  y: 9 },
-      iterate:    { x: 2,  y: 9 },
-    };
     for (const z of ZONES) {
-      const pos = EXTRA_POS[z.id];
+      const pos = EXTRA_POS_MAP[z.id];
       if (!pos) continue;
       const exUrl = EXTRA_BUILDING_URL[z.id];
       const exImg = exUrl ? getSprite(exUrl) : null;
@@ -773,6 +783,24 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       ctx.imageSmoothingQuality = "high";
       ctx.drawImage(exImg, exX, exY, TILE * 4, TILE * 4);
       ctx.imageSmoothingEnabled = false;
+    }
+
+    // ── Door/mat entry indicator — pulsing glow ────────────────────────
+    for (const z of ZONES) {
+      if (!z.gym || state.defeatedGyms.has(z.id)) continue;
+      const dx = (z.ox + z.building.x + z.building.doorX) * TILE + offX;
+      const dy = (z.oy + z.building.y + z.building.h) * TILE + offY;
+      if (dx < -TILE || dx > canvas.width + TILE) continue;
+      if (dy < -TILE || dy > canvas.height + TILE) continue;
+      const pulse = Math.sin(now / 300 + z.index) * 0.3 + 0.5;
+      ctx.fillStyle = z.theme.accent + Math.round(pulse * 80).toString(16).padStart(2, "0");
+      ctx.fillRect(dx, dy, TILE, TILE);
+      // Small "ENTER" text hint
+      ctx.fillStyle = z.theme.accent + "aa";
+      ctx.font = "bold 5px monospace";
+      ctx.textAlign = "center";
+      ctx.fillText("▼", dx + TILE / 2, dy + TILE / 2 + 2);
+      ctx.textAlign = "left";
     }
 
     // badges — with orbiting sparkle particles
