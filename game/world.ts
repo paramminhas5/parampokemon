@@ -530,12 +530,25 @@ function paintBuilding(
       else                               grid[wy][wx] = T.BUILDING_WALL;
     }
   }
-  // Mat tile right below the door — only for gym buildings (caller passes isGym)
+  // Mat tile ON the door — for gym buildings (caller passes isGym)
+  // Also clear the tile directly below the building front so there's no gap
   if (isGym) {
     const matWx = zoneOx + b.x + b.doorX;
-    const matWy = zoneOy + b.y + b.h; // one tile BELOW the building front
+    const matWy = zoneOy + b.y + b.h - 1; // AT the door (front row of building)
     if (matWx >= 0 && matWy >= 0 && matWx < worldW && matWy < worldH) {
       grid[matWy][matWx] = T.MAT;
+    }
+  }
+  // Clear tile below building front to remove invisible barrier
+  {
+    const frontY = zoneOy + b.y + b.h; // one below building
+    for (let gx = b.x; gx < b.x + b.w; gx++) {
+      const wx = zoneOx + gx;
+      if (wx >= 0 && frontY >= 0 && wx < worldW && frontY < worldH) {
+        if (SOLID.has(grid[frontY][wx])) {
+          grid[frontY][wx] = groundTileFor("grass"); // clear to walkable
+        }
+      }
     }
   }
 }
@@ -636,18 +649,22 @@ function placeZoneContent(grid: TileCode[][], w: number, h: number) {
       }
     }
 
-    // Sign — walkable, player can interact when standing on or adjacent
-    const sx = z.ox + z.sign.x, sy = z.oy + z.sign.y;
-    if (sx >= 0 && sy >= 0 && sx < w && sy < h) grid[sy][sx] = T.SIGN;
+    // Sign — interaction works via proximity (no visual tile needed on grid)
+    // Removed: grid[sy][sx] = T.SIGN — was placing ugly yellow posts
 
     // Badge
     const bx = z.ox + z.badge.x, by = z.oy + z.badge.y;
     if (bx >= 0 && by >= 0 && bx < w && by < h) grid[by][bx] = T.BADGE;
 
-    // Press wall
+    // Press wall — large visual block (3×2 of WARPPAD tiles) for prominence
     if (z.pressWall) {
       const px2 = z.ox + z.pressWall.x, py2 = z.oy + z.pressWall.y;
-      if (px2 >= 0 && py2 >= 0 && px2 < w && py2 < h) grid[py2][px2] = T.WARPPAD;
+      for (let dy = 0; dy < 2; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          const wx = px2 + dx, wy = py2 + dy;
+          if (wx >= 0 && wy >= 0 && wx < w && wy < h) grid[wy][wx] = T.WARPPAD;
+        }
+      }
     }
 
     // NPCs — ensure standing tile is walkable ground AND not overlapping buildings

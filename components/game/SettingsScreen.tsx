@@ -137,6 +137,28 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
               <ControlRow keys="ESC" action="Pause Menu" />
             </div>
           </Section>
+
+          {/* New Game / Reset */}
+          <Section label="SAVE DATA">
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <div style={{ fontSize: 11, opacity: 0.7 }}>
+                Progress is saved automatically. Start fresh to experience the full progression from Mermander → Mermalion → Merlord.
+              </div>
+              <button
+                onClick={() => {
+                  if (confirm("Start a NEW GAME? This will erase all progress (badges, skills, creatures). Are you sure?")) {
+                    localStorage.removeItem("pq_save");
+                    localStorage.removeItem("pq_onboarding_done");
+                    window.location.reload();
+                  }
+                }}
+                className="pq-btn"
+                style={{ padding: "10px 16px", fontSize: 10, color: "#ef4444", borderColor: "rgba(239,68,68,0.3)" }}
+              >
+                ★ NEW GAME (RESET ALL PROGRESS)
+              </button>
+            </div>
+          </Section>
         </div>
       </div>
     </div>

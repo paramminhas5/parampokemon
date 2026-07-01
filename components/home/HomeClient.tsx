@@ -64,17 +64,17 @@ function SnapshotPill({ label, value, delay }: { label: string; value: string; d
         transition: `opacity 0.5s ease ${delay}ms, transform 0.5s ease ${delay}ms`,
       }}
     >
-      <div className="pq-panel-inner" style={{ padding: "14px 8px" }}>
+      <div className="pq-panel-inner" style={{ padding: "10px 4px" }}>
         <div style={{
-          fontFamily: "var(--font-pixel)", fontSize: 7,
-          color: "#4a6888", marginBottom: 6, letterSpacing: "0.08em",
+          fontFamily: "var(--font-pixel)", fontSize: "clamp(5px, 1.5vw, 7px)",
+          color: "#4a6888", marginBottom: 4, letterSpacing: "0.06em",
         }}>
           {label}
         </div>
         <div style={{
-          fontFamily: "var(--font-pixel)", fontSize: 16, color: "#c8d8f0",
+          fontFamily: "var(--font-pixel)", fontSize: "clamp(11px, 3vw, 16px)", color: "#c8d8f0",
           borderLeft: "2px solid rgba(124,224,255,0.18)",
-          paddingLeft: 8,
+          paddingLeft: 6,
         }}>
           {counted}
         </div>
@@ -535,7 +535,7 @@ export function HomeClient() {
 
       {/* ── STATS ── */}
       <section style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 40px" }}>
-        <div className="stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 8 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 6 }}>
           {[
             { label: "YEARS BUILDING", value: "15+" },
             { label: "REVENUE",        value: "$6M+" },

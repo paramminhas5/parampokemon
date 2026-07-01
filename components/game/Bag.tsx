@@ -140,6 +140,39 @@ function MermanderTab({ badges, skills }: { badges: Set<string>; skills: Set<str
             );
           })}
         </div>
+        {/* Evolution progress tracker */}
+        <div style={{ marginTop: 12, padding: "10px 12px", background: "rgba(124,224,255,0.04)", border: "1px solid rgba(124,224,255,0.12)" }}>
+          <div className="pq-label" style={{ fontSize: 7, color: "var(--color-primary)", marginBottom: 6 }}>
+            NEXT EVOLUTION
+          </div>
+          {stage.id === "merlord" ? (
+            <div className="pq-text-sm" style={{ fontSize: 11, color: "#4ade80" }}>★ MAX STAGE REACHED — MERLORD</div>
+          ) : (
+            <>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                <span style={{ fontFamily: "var(--font-pixel)", fontSize: 8, color: "var(--color-dialog)" }}>
+                  {stage.id === "mermander" ? "MERMALION" : "MERLORD"}
+                </span>
+                <span style={{ fontFamily: "var(--font-pixel)", fontSize: 8, color: "var(--color-primary)" }}>
+                  {skills.size}/{stage.id === "mermander" ? 4 : 7} ORBS
+                </span>
+              </div>
+              <div style={{ height: 6, background: "#0a1525", borderRadius: 3, overflow: "hidden" }}>
+                <div style={{
+                  height: "100%",
+                  width: `${(skills.size / (stage.id === "mermander" ? 4 : 7)) * 100}%`,
+                  background: `linear-gradient(90deg, ${stage.accent}, var(--color-primary))`,
+                  borderRadius: 3,
+                  transition: "width 0.4s ease-out",
+                  boxShadow: `0 0 6px ${stage.accent}80`,
+                }} />
+              </div>
+              <div className="pq-text-sm" style={{ fontSize: 10, opacity: 0.6, marginTop: 4 }}>
+                Collect {(stage.id === "mermander" ? 4 : 7) - skills.size} more Skill Orbs to evolve
+              </div>
+            </>
+          )}
+        </div>
         <div className="pq-label mt-4" style={{ color: "var(--color-dialog-shadow)" }}>KNOWN MOVES ({knownMoves.length})</div>
         <ul className="pq-text-sm mt-2" style={{ listStyle: "none", padding: 0, fontSize: 12 }}>
           {knownMoves.length === 0 && <li style={{ opacity: 0.6 }}>No moves yet. Collect SKILL ORBS from each world to learn new moves.</li>}
