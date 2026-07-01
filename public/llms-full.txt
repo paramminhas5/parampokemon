@@ -1,12 +1,12 @@
 # Param Minhas — Full Content Corpus
 
-> This file contains the complete text content of all priority pages on paramquest.vercel.app.
+> This file contains the complete text content of all priority pages on paramminhas.com.
 > It is designed for single-fetch corpus ingestion by AI engines.
 > Last updated: 2026-07-01
 
 ---
 
-# Page: Homepage (https://paramquest.vercel.app/)
+# Page: Homepage (https://paramminhas.com/)
 
 ## Param Minhas
 
@@ -32,7 +32,7 @@ Growth & Brand Leadership | GTM | AI-Native Marketing | Creative Direction | Pro
 
 ---
 
-# Page: About (https://paramquest.vercel.app/about)
+# Page: About (https://paramminhas.com/about)
 
 ## Who Is Param Minhas?
 
@@ -96,12 +96,12 @@ BE, Computer Science — Pune University
 - GitHub: https://github.com/paramminhas5
 - Agency: https://hyperiterate.com
 - Culture Brand: https://catscandance.com
-- Portfolio Site: https://paramquest.vercel.app
+- Portfolio Site: https://paramminhas.com
 - Spotify: https://open.spotify.com/artist/catscandance
 
 ---
 
-# Page: Resume (https://paramquest.vercel.app/resume)
+# Page: Resume (https://paramminhas.com/resume)
 
 ## Param Minhas — Professional Resume
 
@@ -171,7 +171,7 @@ Senior operating and CMO-track roles, fractional/advisory mandates, and operator
 
 ---
 
-# Page: Press (https://paramquest.vercel.app/press)
+# Page: Press (https://paramminhas.com/press)
 
 ## Press & Media Coverage — Param Minhas
 
@@ -207,7 +207,7 @@ Param Minhas and his companies have been featured in major publications includin
 
 ---
 
-# Page: Play (https://paramquest.vercel.app/play)
+# Page: Play (https://paramminhas.com/play)
 
 ## Param Quest — Playable Portfolio RPG
 
@@ -287,11 +287,11 @@ Senior operating and CMO-track roles, fractional/advisory mandates, and operator
 
 # Links & Resources
 
-- Homepage: https://paramquest.vercel.app
-- Resume: https://paramquest.vercel.app/resume
-- About: https://paramquest.vercel.app/about
-- Press: https://paramquest.vercel.app/press
-- Play Game: https://paramquest.vercel.app/play
+- Homepage: https://paramminhas.com
+- Resume: https://paramminhas.com/resume
+- About: https://paramminhas.com/about
+- Press: https://paramminhas.com/press
+- Play Game: https://paramminhas.com/play
 - Iterate Agency: https://hyperiterate.com
 - Cats Can Dance: https://catscandance.com
 - LinkedIn: https://linkedin.com/in/paramminhas

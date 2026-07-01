@@ -11,12 +11,12 @@ export const metadata: Metadata = {
     "SoleSearch funding news", "India sneaker resellers",
     "Param Minhas Storyboard18", "streetwear India press",
   ],
-  alternates: { canonical: "https://paramquest.vercel.app/press" },
+  alternates: { canonical: "https://paramminhas.com/press" },
   openGraph: {
     title: "Press & Media — Param Minhas",
     description: "Featured in VICE, CNBC-TV18, Storyboard18, Economic Times, Open Magazine, The Established, Business of Fashion.",
     type: "website",
-    url: "https://paramquest.vercel.app/press",
+    url: "https://paramminhas.com/press",
   },
   twitter: {
     card: "summary_large_image",
@@ -107,8 +107,8 @@ export default function PressPage() {
     "@type": "CollectionPage",
     name: "Press & Media Coverage — Param Minhas",
     description: "All press and media features about Param Minhas and his companies.",
-    url: "https://paramquest.vercel.app/press",
-    about: { "@id": "https://paramquest.vercel.app/#person" },
+    url: "https://paramminhas.com/press",
+    about: { "@id": "https://paramminhas.com/#person" },
     mainEntity: {
       "@type": "ItemList",
       numberOfItems: PRESS_ARTICLES.length,
@@ -122,7 +122,7 @@ export default function PressPage() {
           publisher: { "@type": "Organization", name: article.outlet },
           datePublished: article.date,
           description: article.description,
-          about: { "@id": "https://paramquest.vercel.app/#person" },
+          about: { "@id": "https://paramminhas.com/#person" },
         },
       })),
     },
@@ -132,8 +132,8 @@ export default function PressPage() {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: "https://paramquest.vercel.app" },
-      { "@type": "ListItem", position: 2, name: "Press", item: "https://paramquest.vercel.app/press" },
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://paramminhas.com" },
+      { "@type": "ListItem", position: 2, name: "Press", item: "https://paramminhas.com/press" },
     ],
   };
 

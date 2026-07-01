@@ -11,7 +11,7 @@ import { NextResponse } from "next/server";
  */
 
 const INDEXNOW_KEY = "b4d7e2f1a9c84e5d8f3b6a0e7c1d9f2a";
-const SITE_HOST = "paramquest.vercel.app";
+const SITE_HOST = "paramminhas.com";
 const KEY_LOCATION = `https://${SITE_HOST}/indexnow-key.txt`;
 
 const ALL_URLS = [

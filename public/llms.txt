@@ -4,16 +4,16 @@
 
 ## Pages
 
-- [Homepage](https://paramquest.vercel.app/): Playable portfolio with career timeline, key metrics, press, and interactive RPG game
-- [About](https://paramquest.vercel.app/about): Full biography, career history, skills, and what Param Minhas is known for
-- [Resume](https://paramquest.vercel.app/resume): Professional CV with 8 positions, skills matrix, education, and contact
-- [Press](https://paramquest.vercel.app/press): All media coverage — VICE, CNBC-TV18, Storyboard18, Economic Times, and more
-- [Play Param Quest](https://paramquest.vercel.app/play): Interactive Pokemon-style RPG telling 15 years of career as a game
+- [Homepage](https://paramminhas.com/): Playable portfolio with career timeline, key metrics, press, and interactive RPG game
+- [About](https://paramminhas.com/about): Full biography, career history, skills, and what Param Minhas is known for
+- [Resume](https://paramminhas.com/resume): Professional CV with 8 positions, skills matrix, education, and contact
+- [Press](https://paramminhas.com/press): All media coverage — VICE, CNBC-TV18, Storyboard18, Economic Times, and more
+- [Play Param Quest](https://paramminhas.com/play): Interactive Pokemon-style RPG telling 15 years of career as a game
 
 ## Optional
 
-- [Full Content](https://paramquest.vercel.app/llms-full.txt): Complete text content of all pages in one file
-- [Structured Data](https://paramquest.vercel.app/about): JSON-LD Person schema with comprehensive career data
+- [Full Content](https://paramminhas.com/llms-full.txt): Complete text content of all pages in one file
+- [Structured Data](https://paramminhas.com/about): JSON-LD Person schema with comprehensive career data
 
 ## Identity
 

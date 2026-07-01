@@ -13,13 +13,13 @@ export const metadata: Metadata = {
     "Param Minhas SoleSearch", "Param Minhas Fere", "Param Minhas Good Capital",
   ],
   alternates: {
-    canonical: "https://paramquest.vercel.app/about",
+    canonical: "https://paramminhas.com/about",
   },
   openGraph: {
     title: "About Param Minhas — Founder, Creative Director & Growth Operator",
     description: "15+ years building. $6M+ revenue. 350K+ community. 90-person network. The full story of Param Minhas — from India's first chatbot to running an AI-native marketing agency.",
     type: "profile",
-    url: "https://paramquest.vercel.app/about",
+    url: "https://paramminhas.com/about",
     firstName: "Param",
     lastName: "Minhas",
   },
@@ -35,15 +35,15 @@ export default function AboutPage() {
   const personJsonLd = {
     "@context": "https://schema.org",
     "@type": "Person",
-    "@id": "https://paramquest.vercel.app/#person",
+    "@id": "https://paramminhas.com/#person",
     name: "Param Minhas",
     givenName: "Param",
     familyName: "Minhas",
     jobTitle: "Founder & Creative Director",
     description: "Param Minhas is a founder, creative director, and growth operator based in Bengaluru, India with 15+ years across e-commerce, AI, real estate, sneakers, music, and AI-native marketing.",
-    url: "https://paramquest.vercel.app/about",
+    url: "https://paramminhas.com/about",
     email: "minhas.param@gmail.com",
-    image: "https://paramquest.vercel.app/about/opengraph-image",
+    image: "https://paramminhas.com/about/opengraph-image",
     birthPlace: { "@type": "Place", name: "India" },
     nationality: { "@type": "Country", name: "India" },
     address: {
@@ -106,8 +106,8 @@ export default function AboutPage() {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: "https://paramquest.vercel.app" },
-      { "@type": "ListItem", position: 2, name: "About", item: "https://paramquest.vercel.app/about" },
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://paramminhas.com" },
+      { "@type": "ListItem", position: 2, name: "About", item: "https://paramminhas.com/about" },
     ],
   };
 

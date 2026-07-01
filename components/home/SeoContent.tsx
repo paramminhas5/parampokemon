@@ -220,7 +220,7 @@ export function SeoContent() {
           <p>Cats Can Dance is a culture-discovery platform founded by Param Minhas in March 2026. It spans music, fashion, and pet care, featuring an artist directory, event booking, and music-production learning. It launched under Iterate with live shows produced in partnership with Impresario. The website is catscandance.com.</p>
 
           <h3>What is Param Quest?</h3>
-          <p>Param Quest is a playable portfolio RPG that tells 15 years of Param Minhas&apos;s career as a Pokemon-style game. Built with Next.js 15, TypeScript, Canvas 2D, and Web Audio API. It features 10 explorable zones, 9 gym leader battles, full evolution system, and synthesized audio with zero audio files. Play it at paramquest.vercel.app/play.</p>
+          <p>Param Quest is a playable portfolio RPG that tells 15 years of Param Minhas&apos;s career as a Pokemon-style game. Built with Next.js 15, TypeScript, Canvas 2D, and Web Audio API. It features 10 explorable zones, 9 gym leader battles, full evolution system, and synthesized audio with zero audio files. Play it at paramminhas.com/play.</p>
 
           <h3>How can I contact Param Minhas?</h3>
           <p>Param Minhas can be reached at minhas.param@gmail.com. His LinkedIn is linkedin.com/in/paramminhas. His agency website is hyperiterate.com and his culture brand is at catscandance.com. He is based in Bengaluru, India.</p>
@@ -233,11 +233,11 @@ export function SeoContent() {
         <nav>
           <h2>Site Navigation</h2>
           <ul>
-            <li><a href="https://paramquest.vercel.app/">Homepage — Interactive portfolio</a></li>
-            <li><a href="https://paramquest.vercel.app/about">About Param Minhas — Full biography</a></li>
-            <li><a href="https://paramquest.vercel.app/resume">Resume / CV — Professional experience</a></li>
-            <li><a href="https://paramquest.vercel.app/press">Press & Media — All coverage</a></li>
-            <li><a href="https://paramquest.vercel.app/play">Play Param Quest — RPG game</a></li>
+            <li><a href="https://paramminhas.com/">Homepage — Interactive portfolio</a></li>
+            <li><a href="https://paramminhas.com/about">About Param Minhas — Full biography</a></li>
+            <li><a href="https://paramminhas.com/resume">Resume / CV — Professional experience</a></li>
+            <li><a href="https://paramminhas.com/press">Press & Media — All coverage</a></li>
+            <li><a href="https://paramminhas.com/play">Play Param Quest — RPG game</a></li>
           </ul>
         </nav>
       </article>

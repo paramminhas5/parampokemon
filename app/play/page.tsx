@@ -14,13 +14,13 @@ export const metadata: Metadata = {
     "pixel art RPG", "web game", "TypeScript game",
   ],
   alternates: {
-    canonical: "https://paramquest.vercel.app/play",
+    canonical: "https://paramminhas.com/play",
   },
   openGraph: {
     title: "Play Param Quest — Playable Portfolio RPG",
     description: "15 years of career told as a Pokemon-style game. 10 zones. 9 gym battles. Full battle system. Play now in your browser.",
     type: "website",
-    url: "https://paramquest.vercel.app/play",
+    url: "https://paramminhas.com/play",
   },
   twitter: {
     card: "summary_large_image",
@@ -37,9 +37,9 @@ export default function PlayPage() {
     name: "Param Quest",
     alternateName: "Param Minhas Playable Portfolio",
     description: "A playable portfolio RPG — 15 years of Param Minhas's career told as a premium indie Pokemon-style game. 10 explorable zones, 9 gym leader battles, full evolution system, and synthesized audio.",
-    url: "https://paramquest.vercel.app/play",
-    image: "https://paramquest.vercel.app/play/opengraph-image",
-    author: { "@type": "Person", name: "Param Minhas", url: "https://paramquest.vercel.app" },
+    url: "https://paramminhas.com/play",
+    image: "https://paramminhas.com/play/opengraph-image",
+    author: { "@type": "Person", name: "Param Minhas", url: "https://paramminhas.com" },
     genre: ["RPG", "Indie", "Portfolio", "Educational"],
     gamePlatform: ["Web Browser", "Desktop", "Mobile"],
     applicationCategory: "Game",
@@ -60,8 +60,8 @@ export default function PlayPage() {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: "https://paramquest.vercel.app" },
-      { "@type": "ListItem", position: 2, name: "Play", item: "https://paramquest.vercel.app/play" },
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://paramminhas.com" },
+      { "@type": "ListItem", position: 2, name: "Play", item: "https://paramminhas.com/play" },
     ],
   };
 

@@ -31,7 +31,7 @@ export default async function Image() {
             ))}
           </div>
         </div>
-        <div style={{ display: "flex", fontSize: 13, color: "#6a7a9a" }}>paramquest.vercel.app/press</div>
+        <div style={{ display: "flex", fontSize: 13, color: "#6a7a9a" }}>paramminhas.com/press</div>
       </div>
     ),
     { ...size }
