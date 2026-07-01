@@ -809,8 +809,9 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         ctx.beginPath();
         ctx.ellipse(npcPx + TILE / 2, npcPy + TILE - 3, TILE * 0.4, TILE * 0.12, 0, 0, Math.PI * 2);
         ctx.fill();
-        // Flip sprite horizontally when facing left
+        // Use multiply blend to remove white backgrounds (white × color = color)
         ctx.save();
+        ctx.globalCompositeOperation = "multiply";
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
         if (npcDir === "left") {
@@ -858,8 +859,9 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         ctx.beginPath();
         ctx.ellipse(rnPx + TILE / 2, rnPy + TILE - 3, TILE * 0.4, TILE * 0.12, 0, 0, Math.PI * 2);
         ctx.fill();
-        // Flip for left
+        // Use multiply blend to remove white backgrounds
         ctx.save();
+        ctx.globalCompositeOperation = "multiply";
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
         if (rnDir === "left") {
@@ -1096,11 +1098,11 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
     // Use the actual CSS layout size (which is set by the parent container / CSS)
     const cssW = canvas.clientWidth || canvas.parentElement?.clientWidth || DEFAULT_VIEW_TILES_X * TILE;
     const cssH = canvas.clientHeight || canvas.parentElement?.clientHeight || DEFAULT_VIEW_TILES_Y * TILE;
-    // Target CSS pixels per tile — balanced for visibility and detail
-    // Desktop (wide): show more world. Mobile (narrow): show less but still playable.
-    const targetTilePx = cssW < 520 ? 32 : cssW < 900 ? 38 : 44;
-    VIEW_TILES_X = Math.max(10, Math.min(28, Math.floor(cssW / targetTilePx)));
-    VIEW_TILES_Y = Math.max(8, Math.min(20, Math.floor(cssH / targetTilePx)));
+    // Target CSS pixels per tile — zoomed out for full world visibility
+    // Desktop: ~37 tiles wide on 1200px, Mobile: ~21 tiles on 500px
+    const targetTilePx = cssW < 520 ? 24 : cssW < 900 ? 28 : 32;
+    VIEW_TILES_X = Math.max(12, Math.min(40, Math.floor(cssW / targetTilePx)));
+    VIEW_TILES_Y = Math.max(10, Math.min(28, Math.floor(cssH / targetTilePx)));
     // Set the backing buffer — CSS handles the display size (width:100%, height:100%)
     canvas.width = VIEW_TILES_X * TILE;
     canvas.height = VIEW_TILES_Y * TILE;

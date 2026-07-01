@@ -555,16 +555,36 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee, onFinishingBl
 
         {/* Opponent side */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", padding: "0 16px 8px 12px", justifyContent: "flex-start", position: "relative", zIndex: 2 }}>
+          {/* Leader portrait — large, behind the creature */}
+          {leaderImg && isReady(leaderImg) && (
+            <div style={{
+              position: "absolute", top: 8, right: 16, opacity: 0.35,
+              filter: `drop-shadow(0 0 20px ${accent})`,
+              animation: "sprite-enter-right 0.6s cubic-bezier(0.2,0.8,0.4,1)",
+              pointerEvents: "none",
+            }}>
+              <img src={LEADER_URL[gym.leader]} alt="" style={{
+                width: 160, height: 160, imageRendering: "pixelated", objectFit: "contain",
+              }} />
+            </div>
+          )}
           <div style={{ transform: oppShake ? "none" : "none", animation: `${oppShake ? "opp-shake 0.45s ease-out" : "sprite-enter-right 0.45s cubic-bezier(0.2,0.8,0.4,1)"}`, filter: `drop-shadow(0 0 28px ${accent}90)` }}>
             <canvas ref={oppRef} width={240} height={240} style={{ imageRendering: "pixelated", width: 240, height: 240 }} />
           </div>
           <div style={{ background: "rgba(3,7,18,0.92)", border: `2px solid ${accent}99`, padding: "8px 10px", width: "100%", backdropFilter: "blur(4px)", borderRadius: 0 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-              {/* Leader portrait as small thumbnail in HP card */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+              {/* Leader portrait — prominent in HP card */}
               {leaderImg && isReady(leaderImg) && LEADER_URL[gym.leader] && (
-                <img src={LEADER_URL[gym.leader]} alt="" style={{ width: 22, height: 22, imageRendering: "pixelated", border: `1px solid ${accent}60`, flexShrink: 0, borderRadius: 0 }} />
+                <img src={LEADER_URL[gym.leader]} alt="" style={{
+                  width: 40, height: 40, imageRendering: "pixelated",
+                  border: `2px solid ${accent}80`, flexShrink: 0, borderRadius: 0,
+                  boxShadow: `0 0 12px ${accent}40`,
+                }} />
               )}
-              <div style={{ fontSize: 6, color: "#3a5070" }}>{gym.opponentTitle.toUpperCase()}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 7, color: accent, letterSpacing: "0.06em", marginBottom: 2 }}>{gym.opponentName.toUpperCase()}</div>
+                <div style={{ fontSize: 6, color: "#3a5070" }}>{gym.opponentTitle.toUpperCase()}</div>
+              </div>
             </div>
             <HPBar current={oppHp} max={gym.hp} label={gym.opponentName} color={accent} shaking={oppHpShake} />
             <div style={{ fontSize: 6, color: "#2a3a50", marginTop: 4 }}>WEAK: {gym.weakTo.slice(0, 2).join(", ")}</div>
