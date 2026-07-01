@@ -12,6 +12,7 @@ import {
   FOLLOWER_SPRITE_URL, FOLLOWER_BACK_URL, FOLLOWER_LEFT_URL, FOLLOWER_RIGHT_URL,
   BUILDING_SPRITE_URL, EXTRA_BUILDING_URL,
   NPC_SPRITE_URL,
+  BERRY_URL,
 } from "./sprite-registry";
 import {
   TILE, SOLID, T, drawTile, drawBadge, drawCharacter,
@@ -240,8 +241,14 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       if (i.x === f.x && i.y === f.y) {
         if (i.kind === "badge") {
           if (!state.collectedBadges.has(i.zone.badge.id)) {
-            state.collectedBadges.add(i.zone.badge.id);
-            cb.onBadge(i.zone.badge.id);
+            // Gym badges can only be collected after defeating the gym leader
+            if (i.zone.gym && !state.defeatedGyms.has(i.zone.id)) {
+              // Show a hint that this badge requires defeating the gym
+              cb.onInteract({ kind: "sign", zone: i.zone, sign: { x: f.x, y: f.y, text: `${i.zone.badge.label.toUpperCase()}\n\nThis badge belongs to the gym leader.\nDefeat ${i.zone.gym.opponentName} to earn it.` }, x: f.x, y: f.y });
+            } else {
+              state.collectedBadges.add(i.zone.badge.id);
+              cb.onBadge(i.zone.badge.id);
+            }
           }
           return;
         }
@@ -275,9 +282,12 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
           return;
         }
       }
-      // Badge auto-collect — triggers when player is adjacent to or standing on the badge
+      // Badge auto-collect — only for NON-GYM zones (e.g. home Starter Token).
+      // Gym badges are ONLY awarded after defeating the gym leader via handleVictoryContinue.
       const badge = interactives.find((i) => i.kind === "badge" && i.x === n.x && i.y === n.y);
       if (badge && badge.kind === "badge" && !state.collectedBadges.has(badge.zone.badge.id)) {
+        // Skip badge collection for gym zones — those come from victory only
+        if (badge.zone.gym && !state.defeatedGyms.has(badge.zone.id)) continue;
         const key = `b:${badge.zone.id}:${badge.zone.badge.id}`;
         if (key !== lastAutoKey || performance.now() - lastAutoAt > 8000) {
           lastAutoKey = key; lastAutoAt = performance.now();
@@ -671,6 +681,27 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       if (i.kind !== "badge") continue;
       if (state.collectedBadges.has(i.zone.badge.id)) continue;
       if (i.x < tx0 - 1 || i.x > tx1 + 1 || i.y < ty0 - 1 || i.y > ty1 + 1) continue;
+      // Gym badges that haven't been earned: show locked indicator (muted, no sparkle)
+      if (i.zone.gym && !state.defeatedGyms.has(i.zone.id)) {
+        const lx = i.x * TILE + offX;
+        const ly = i.y * TILE + offY;
+        const lockPulse = Math.sin(now / 600 + i.x) * 0.15 + 0.35;
+        ctx.globalAlpha = lockPulse;
+        ctx.fillStyle = i.zone.badge.color;
+        ctx.beginPath();
+        ctx.arc(lx + TILE / 2, ly + TILE / 2, TILE * 0.35, 0, Math.PI * 2);
+        ctx.fill();
+        // Lock icon
+        ctx.globalAlpha = 0.5;
+        ctx.font = "bold 7px monospace";
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#fff";
+        ctx.fillText("🔒", lx + TILE / 2, ly + TILE / 2 + 3);
+        ctx.textAlign = "left";
+        ctx.globalAlpha = 1;
+        continue;
+      }
+      // Non-gym badges (e.g. home Starter Token): normal collectible orb
       drawBadge(ctx, i.x * TILE + offX, i.y * TILE + offY, i.zone.badge.color, phase + i.x);
       // Orbiting sparkle particles
       for (let sp = 0; sp < 4; sp++) {
@@ -680,6 +711,55 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         const sparkY = i.y * TILE + offY + TILE / 2 + Math.sin(sparkAngle) * sparkR;
         ctx.fillStyle = i.zone.badge.color + "cc";
         ctx.fillRect(Math.round(sparkX) - 1, Math.round(sparkY) - 1, 2, 2);
+      }
+    }
+
+
+    // Hidden berries (skill items) — visible glowing berry orb on the overworld
+    const berryImg = getSprite(BERRY_URL);
+    for (const i of interactives) {
+      if (i.kind !== "hidden") continue;
+      if (state.collectedSkills.has(i.zone.skill?.id ?? "")) continue;
+      if (i.x < tx0 - 1 || i.x > tx1 + 1 || i.y < ty0 - 1 || i.y > ty1 + 1) continue;
+      const bx = i.x * TILE + offX;
+      const by = i.y * TILE + offY;
+      const berryBob = Math.sin(now / 500 + i.x * 2.1) * 3;
+      const berryPulse = 0.7 + Math.sin(now / 400 + i.y) * 0.3;
+      // Glow underneath
+      ctx.globalAlpha = berryPulse * 0.4;
+      ctx.fillStyle = i.zone.theme.accent;
+      ctx.beginPath();
+      ctx.arc(bx + TILE / 2, by + TILE - 2, TILE * 0.4, 0, Math.PI * 2);
+      ctx.fill();
+      // Berry sprite or fallback orb
+      ctx.globalAlpha = berryPulse;
+      if (berryImg && isReady(berryImg) && berryImg.naturalWidth > 4) {
+        const bs = Math.round(TILE * 0.85);
+        const bOx = (TILE - bs) / 2;
+        const bOy = (TILE - bs) / 2 + berryBob;
+        ctx.imageSmoothingEnabled = true;
+        ctx.drawImage(berryImg, bx + bOx, by + bOy, bs, bs);
+        ctx.imageSmoothingEnabled = false;
+      } else {
+        // Fallback: procedural berry orb
+        ctx.fillStyle = i.zone.theme.accent;
+        ctx.beginPath();
+        ctx.arc(bx + TILE / 2, by + TILE / 2 + berryBob, TILE * 0.3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#fff";
+        ctx.beginPath();
+        ctx.arc(bx + TILE / 2 - 2, by + TILE / 2 + berryBob - 2, TILE * 0.08, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      // Small sparkle particles around berry
+      for (let sp = 0; sp < 3; sp++) {
+        const spAngle = (sp / 3) * Math.PI * 2 + now / 800;
+        const spR = TILE * 0.5 + Math.sin(now / 400 + sp) * 2;
+        const spX = bx + TILE / 2 + Math.cos(spAngle) * spR;
+        const spY = by + TILE / 2 + berryBob + Math.sin(spAngle) * spR;
+        ctx.fillStyle = i.zone.theme.accent + "aa";
+        ctx.fillRect(Math.round(spX), Math.round(spY), 2, 2);
       }
     }
 
