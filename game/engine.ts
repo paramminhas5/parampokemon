@@ -1096,11 +1096,11 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
     // Use the actual CSS layout size (which is set by the parent container / CSS)
     const cssW = canvas.clientWidth || canvas.parentElement?.clientWidth || DEFAULT_VIEW_TILES_X * TILE;
     const cssH = canvas.clientHeight || canvas.parentElement?.clientHeight || DEFAULT_VIEW_TILES_Y * TILE;
-    // Target CSS pixels per tile — with TILE=48 backing, we want tiles to be 64-80px on screen
-    // This gives a zoomed-in, detailed HD feel
-    const targetTilePx = cssW < 520 ? 56 : cssW < 900 ? 64 : 72;
-    VIEW_TILES_X = Math.max(8, Math.min(20, Math.floor(cssW / targetTilePx)));
-    VIEW_TILES_Y = Math.max(6, Math.min(14, Math.floor(cssH / targetTilePx)));
+    // Target CSS pixels per tile — balanced for visibility and detail
+    // Desktop (wide): show more world. Mobile (narrow): show less but still playable.
+    const targetTilePx = cssW < 520 ? 32 : cssW < 900 ? 38 : 44;
+    VIEW_TILES_X = Math.max(10, Math.min(28, Math.floor(cssW / targetTilePx)));
+    VIEW_TILES_Y = Math.max(8, Math.min(20, Math.floor(cssH / targetTilePx)));
     // Set the backing buffer — CSS handles the display size (width:100%, height:100%)
     canvas.width = VIEW_TILES_X * TILE;
     canvas.height = VIEW_TILES_Y * TILE;
