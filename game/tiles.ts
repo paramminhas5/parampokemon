@@ -723,9 +723,14 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
       });
       break;
     }
+    case T.BADGE:
+    case T.WARPPAD:
+      // These tiles are rendered separately by the engine; draw neutral ground under them
+      drawTile(ctx, T.GRASS, wx, wy, px0, py0, now);
+      break;
     case T.EMPTY:
     default:
-      fillRect(ctx, px0, py0, 16, 16, "#000");
+      fillRect(ctx, px0, py0, 16, 16, "#0a1428");
       break;
   }
   ctx.restore(); // Restore scale transform applied at start of drawTile

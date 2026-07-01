@@ -154,11 +154,11 @@ export function BattleIntro({ zone, onComplete, opponentSpriteUrl }: Props) {
           textAlign: "center", zIndex: 3,
           animation: "bi-text-in 0.35s ease-out both",
         }}>
-          <div style={{ fontSize: 7, color: accent, letterSpacing: "0.15em", marginBottom: 8 }}>
+          <div style={{ fontSize: 9, color: accent, letterSpacing: "0.15em", marginBottom: 8 }}>
             {gym.opponentTitle.toUpperCase()}
           </div>
           <div style={{
-            fontSize: 15, color: "#fff",
+            fontSize: "clamp(16px, 4vw, 22px)", color: "#fff",
             textShadow: `0 3px 0 #0a2040, 0 0 20px ${accent}80`,
             marginBottom: 14,
             letterSpacing: "0.06em",
@@ -166,15 +166,15 @@ export function BattleIntro({ zone, onComplete, opponentSpriteUrl }: Props) {
             {gym.opponentName.toUpperCase()}
           </div>
           <div style={{
-            fontSize: 7, color: "#c8d8f0",
-            maxWidth: 280, margin: "0 auto",
-            lineHeight: 1.9, opacity: 0.9,
-            padding: "10px 16px",
+            fontSize: "clamp(11px, 2.5vw, 14px)", color: "#c8d8f0",
+            maxWidth: 320, margin: "0 auto",
+            lineHeight: 1.7, opacity: 0.9,
+            padding: "12px 18px",
             background: "rgba(3,6,14,0.85)",
             border: `1px solid ${accent}35`,
             fontFamily: "var(--font-mono)",
           }}>
-            "{gym.intro}"
+            &ldquo;{gym.intro}&rdquo;
           </div>
         </div>
       )}
