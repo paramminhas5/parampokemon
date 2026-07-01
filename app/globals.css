@@ -187,3 +187,22 @@ body.play-mode {
   0%,100% { box-shadow: 0 0 8px rgba(124,224,255,0.2), inset 0 -2px 0 rgba(0,0,0,0.4); }
   50%      { box-shadow: 0 0 22px rgba(124,224,255,0.45), 0 0 40px rgba(124,224,255,0.15), inset 0 -2px 0 rgba(0,0,0,0.4); }
 }
+
+
+/* ── Mobile layout optimizations ─────────────────────────────── */
+@media (max-width: 640px) {
+  .pq-panel-inner { padding: 8px 10px; }
+  .pq-label { font-size: 8px; }
+  .pq-text { font-size: 14px; }
+  .pq-text-sm { font-size: 12px; }
+  .pq-btn { padding: 8px 12px; font-size: 9px; }
+}
+
+/* Ensure game fills viewport on mobile */
+@media (max-width: 960px) and (max-height: 640px) {
+  body.play-mode {
+    overflow: hidden;
+    position: fixed;
+    inset: 0;
+  }
+}

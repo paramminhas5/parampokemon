@@ -650,10 +650,40 @@ function placeZoneContent(grid: TileCode[][], w: number, h: number) {
       if (px2 >= 0 && py2 >= 0 && px2 < w && py2 < h) grid[py2][px2] = T.WARPPAD;
     }
 
-    // NPCs — ensure standing tile is walkable ground
+    // NPCs — ensure standing tile is walkable ground AND not overlapping buildings
     for (const npc of z.npcs) {
       const nx = z.ox + npc.x, ny = z.oy + npc.y;
-      if (nx >= 0 && ny >= 0 && nx < w && ny < h) grid[ny][nx] = base;
+      if (nx >= 0 && ny >= 0 && nx < w && ny < h) {
+        // Check if NPC overlaps with main building
+        const bx1 = z.ox + z.building.x, bx2 = z.ox + z.building.x + z.building.w;
+        const by1 = z.oy + z.building.y, by2 = z.oy + z.building.y + z.building.h;
+        if (nx >= bx1 && nx < bx2 && ny >= by1 && ny < by2) {
+          // Move NPC below building (2 tiles below building front)
+          const newY = by2 + 2;
+          if (newY < h) {
+            npc.y = newY - z.oy;
+            grid[newY][nx] = base;
+          }
+        }
+        // Check if NPC overlaps with extra building (4×4 block)
+        const epos = { home: { x: 20, y: 9 }, origin: { x: 20, y: 9 }, grp: { x: 2, y: 9 }, hab: { x: 2, y: 9 }, ai: { x: 20, y: 9 }, investopad: { x: 20, y: 9 }, sole: { x: 2, y: 9 }, fere: { x: 20, y: 9 }, ccd: { x: 2, y: 9 }, iterate: { x: 2, y: 9 } }[z.id];
+        if (epos) {
+          const ex1 = z.ox + epos.x, ex2 = z.ox + epos.x + 4;
+          const ey1 = z.oy + epos.y, ey2 = z.oy + epos.y + 4;
+          const finalNy = z.oy + npc.y;
+          if (nx >= ex1 && nx < ex2 && finalNy >= ey1 && finalNy < ey2) {
+            // Move NPC below extra building
+            const newY2 = ey2 + 1;
+            if (newY2 < h) {
+              npc.y = newY2 - z.oy;
+              grid[newY2][nx] = base;
+            }
+          }
+        }
+        // Final: ensure the NPC tile is walkable
+        const fy = z.oy + npc.y;
+        if (fy >= 0 && fy < h) grid[fy][nx] = base;
+      }
     }
 
     // ── Per-zone tree cluster variety ────────────────────────────────────

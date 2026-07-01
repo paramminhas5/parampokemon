@@ -282,10 +282,11 @@ export function WorldSelect({ onSelect, onClose }: {
                         style={{ pointerEvents:"none" }}
                       >{z.years}</text>
                     )}
-                    {/* Gym indicator dot */}
+                    {/* Gym indicator dot — positioned inside the outer ring */}
                     {z.gym && (
-                      <circle cx={px + nodeR + 1} cy={py - nodeR}
-                        r={0.9} fill="#f5d24a" fillOpacity={0.85}
+                      <circle cx={px + nodeR * 0.7} cy={py - nodeR * 0.7}
+                        r={1.0} fill="#f5d24a" fillOpacity={0.95}
+                        stroke="#f5d24a" strokeWidth={0.3} strokeOpacity={0.5}
                       />
                     )}
                   </g>
