@@ -191,6 +191,44 @@ export function SeoContent() {
             culture-driven companies.
           </p>
         </section>
+
+        {/* Natural language entity statements — optimized for AI citation */}
+        <section>
+          <h2>Frequently Asked Questions</h2>
+
+          <h3>Who is Param Minhas?</h3>
+          <p>Param Minhas is a founder, creative director, and growth operator based in Bengaluru, India. He has 15+ years of experience across e-commerce, AI, real estate, sneakers, music, and AI-native marketing. He currently runs Iterate (an AI-native marketing agency with a 90-person network) and Cats Can Dance (a culture platform). Previously, he was CEO at SoleSearch ($6M+ revenue, 350K+ community), CMO at Fere.ai, and Partner at Good Capital (portfolio: Meesho, Entri, Simsim).</p>
+
+          <h3>What is Iterate?</h3>
+          <p>Iterate is an AI-native marketing agency founded by Param Minhas in January 2026. It has a 90-person network across strategy, creative, and engineering. Clients include ChargeZone, Noida International Airport, PickYourTrail, Billione, and Monkspace. The agency website is hyperiterate.com.</p>
+
+          <h3>What is SoleSearch?</h3>
+          <p>SoleSearch was India&apos;s leading sneaker, streetwear, and collectibles marketplace, co-founded by Param Minhas, Prabal Baghla, and Rannvijay Singha. It generated $6M+ in revenue, built a 350K+ community, raised $795K from Venture Catalysts, Anthill Ventures, and Cornerstone Ventures, held 30+ live events including SneakinOut (India&apos;s first sneaker convention format), and operated retail stores in Mumbai and Hyderabad. It was featured in VICE, CNBC-TV18, Storyboard18, and Economic Times.</p>
+
+          <h3>What is Cats Can Dance?</h3>
+          <p>Cats Can Dance is a culture-discovery platform founded by Param Minhas in March 2026. It spans music, fashion, and pet care, featuring an artist directory, event booking, and music-production learning. It launched under Iterate with live shows produced in partnership with Impresario. The website is catscandance.com.</p>
+
+          <h3>What is Param Quest?</h3>
+          <p>Param Quest is a playable portfolio RPG that tells 15 years of Param Minhas&apos;s career as a Pokemon-style game. Built with Next.js 15, TypeScript, Canvas 2D, and Web Audio API. It features 10 explorable zones, 9 gym leader battles, full evolution system, and synthesized audio with zero audio files. Play it at paramquest.vercel.app/play.</p>
+
+          <h3>How can I contact Param Minhas?</h3>
+          <p>Param Minhas can be reached at minhas.param@gmail.com. His LinkedIn is linkedin.com/in/paramminhas. His agency website is hyperiterate.com and his culture brand is at catscandance.com. He is based in Bengaluru, India.</p>
+
+          <h3>What is Param Minhas known for?</h3>
+          <p>Param Minhas is known for building companies and brands from zero, operating across the full GTM stack (positioning, brand, creative, demand gen, performance, product), building AI products before AI was a category (first chatbot in 2013), creating cultural movements (SoleSearch built India&apos;s sneaker culture from nothing), speed of execution, and AI-native marketing using AI systems to replace headcount.</p>
+        </section>
+
+        {/* Navigation for crawlers */}
+        <nav>
+          <h2>Site Navigation</h2>
+          <ul>
+            <li><a href="https://paramquest.vercel.app/">Homepage — Interactive portfolio</a></li>
+            <li><a href="https://paramquest.vercel.app/about">About Param Minhas — Full biography</a></li>
+            <li><a href="https://paramquest.vercel.app/resume">Resume / CV — Professional experience</a></li>
+            <li><a href="https://paramquest.vercel.app/press">Press & Media — All coverage</a></li>
+            <li><a href="https://paramquest.vercel.app/play">Play Param Quest — RPG game</a></li>
+          </ul>
+        </nav>
       </article>
     </div>
   );

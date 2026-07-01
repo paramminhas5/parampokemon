@@ -73,13 +73,23 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
-        source: "/about",
+        source: "/contact",
         destination: "/",
         permanent: true,
       },
       {
-        source: "/contact",
-        destination: "/",
+        source: "/media",
+        destination: "/press",
+        permanent: true,
+      },
+      {
+        source: "/news",
+        destination: "/press",
+        permanent: true,
+      },
+      {
+        source: "/bio",
+        destination: "/about",
         permanent: true,
       },
     ];

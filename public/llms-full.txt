@@ -1,0 +1,302 @@
+# Param Minhas — Full Content Corpus
+
+> This file contains the complete text content of all priority pages on paramquest.vercel.app.
+> It is designed for single-fetch corpus ingestion by AI engines.
+> Last updated: 2026-07-01
+
+---
+
+# Page: Homepage (https://paramquest.vercel.app/)
+
+## Param Minhas
+
+Param Minhas is a founder, creative director, and growth operator based in Bengaluru, India. He has 15+ years of experience building companies, brands, and products across e-commerce, AI, real estate, sneakers, music, and AI-native marketing.
+
+He currently runs two companies:
+1. **Iterate** (hyperiterate.com) — An AI-native marketing agency with a 90-person network across strategy, creative, and engineering. Clients include ChargeZone, Noida International Airport, PickYourTrail, Billione, and Monkspace.
+2. **Cats Can Dance** (catscandance.com) — A culture-discovery platform spanning music, fashion, and pet care. Artist directory, event booking, and music-production learning product. Produced live shows pan-India in partnership with Impresario.
+
+### Key Metrics
+- 15+ years building products, brands, and companies
+- $6M+ total revenue generated (primarily through SoleSearch)
+- 350,000+ community built
+- 90-person network led (Iterate)
+- $795K capital raised (Venture Catalysts, Anthill Ventures, Cornerstone Ventures)
+- 30+ live events produced
+- 4 companies founded/co-founded
+- Featured in VICE, CNBC-TV18, Storyboard18, Economic Times, Open Magazine, The Established, Business of Fashion
+
+### Tagline
+Builder · Designer · Creative Director
+Growth & Brand Leadership | GTM | AI-Native Marketing | Creative Direction | Product
+
+---
+
+# Page: About (https://paramquest.vercel.app/about)
+
+## Who Is Param Minhas?
+
+Param Minhas is a founder, creative director, and growth operator based in Bengaluru, India. Over 15 years, he has built companies and brands across e-commerce, artificial intelligence, real estate, sneaker culture, music, and AI-native marketing.
+
+He is known for building from zero — not inheriting momentum. Every company he has led started without an existing audience, without a playbook, and without venture backing in most cases. The range across industries is deliberate: each chapter compounds on the last, creating a rare combination of operational, creative, and technical skill.
+
+### What Param Minhas Does Today
+
+Param Minhas currently serves as Founder and Creative Director of Iterate, an AI-native marketing agency launched in January 2026. Iterate operates with a 90-person network spanning strategy, creative, and engineering. The agency serves clients including ChargeZone (India's leading EV charging network), Noida International Airport, PickYourTrail (travel platform), Billione (fintech), and Monkspace (co-living). The agency website is hyperiterate.com.
+
+He also founded Cats Can Dance in March 2026, a culture-discovery platform that spans music, fashion, and pet care. It includes an artist directory, event booking system, and a music-production learning product. He produced a series of live shows across India in partnership with Impresario (the group behind Social and Antispace). The brand website is catscandance.com.
+
+### What Param Minhas Built Previously
+
+**Fere.ai — CMO (January 2025 – December 2025)**
+Fere.ai is an autonomous AI agent platform funded by Ethereal Ventures ($1.3M raised). Param rejoined long-time collaborator Akshaya Aron to build the growth and marketing function from scratch. He restructured marketing to run lean, sustained by AI systems and a small team rather than headcount. He used this operating model as the proving ground for launching Iterate. Website: fereai.xyz.
+
+**SoleSearch — Founder & CEO (2022 – December 2024)**
+SoleSearch was India's leading sneaker, streetwear, and collectibles marketplace. Param co-founded it with Prabal Baghla, and Rannvijay Singha (MTV fame) joined as co-founder. Under Param's leadership as CEO, the company generated $6M+ in total revenue over four years, raised $795K from Venture Catalysts, Anthill Ventures, and Cornerstone Ventures, built a 350,000+ follower community, produced 30+ live events including SneakinOut (India's first sneaker convention format, 3 seasons with Swiggy SteppinOut), and operated omnichannel retail stores in Mumbai and Hyderabad with a team of 40 people. SoleSearch was featured in VICE, CNBC-TV18, Storyboard18, Economic Times, Open Magazine, The Established, and Business of Fashion.
+
+**Quartic.ai — Director of Marketing (2020 – 2022)**
+Quartic.ai is an enterprise AI platform headquartered in San Jose, California. Param led a team of 5 and was invited back by the Good Capital partners following Octo's acquisition by Quartic. He built the entire marketing function from zero: brand identity, website, collateral, and press strategy. The company is backed by Good Capital, Celesta Capital, and Michael Marks. Website: quartic.ai.
+
+**Investopad → Good Capital — Partner, Growth & Technology (2017 – 2020)**
+Param served as Partner for Growth and Technology as Investopad's family office evolved into Good Capital, an institutional Fund I. He was involved in sourcing, diligence, and founder support for portfolio companies including Meesho (now one of India's largest e-commerce companies), Entri, Simsim, Amazon, and Forbes. Based in New Delhi, India.
+
+**Octo — Founding Team, Head of Growth (2016 – 2017)**
+Octo was a conversational AI platform co-built with Akshaya Aron and backed by Good Capital. It was one of India's first chatbots, built in 2013 — before "AI" was a market category. Param built and ran the entire marketing function from scratch and rebuilt the product dashboard end-to-end, working directly with engineering. Octo was acquired by Quartic.ai.
+
+**Hab Housing — Founder (2012 – 2015)**
+Hab Housing was one of India's first branded budget-hospitality startups — the category that OYO later scaled nationally. Param built it from sole founder to a 16-person team across three cities (Pune, Bengaluru), generating $120K+ in revenue, fully bootstrapped with zero external funding.
+
+**GetRightPrice — Founding Team Member (2011 – 2012)**
+GetRightPrice was India's first price-comparison engine for electronics. Param joined the founding team in college. The company was angel-backed by Sidharth Rao, founder of Webchutney (India's first digital agency). Param built the product catalog and crawl pipeline.
+
+### Education
+BE, Computer Science — Pune University
+
+### What Param Minhas Is Known For
+- Building companies and brands from zero — not inheriting momentum
+- Operating across the full GTM stack: positioning, brand, creative, demand gen, performance, product
+- Building AI products before "AI" was a category (first chatbot in 2013)
+- Creating cultural movements (SoleSearch built India's sneaker culture from nothing)
+- Speed of execution — ships fast, iterates faster
+- The "range is the point" — deliberate career breadth as a compounding advantage
+- AI-native marketing — using AI systems to replace headcount, not just augment
+
+### Skills & Expertise
+- Growth & Marketing: Go-to-market strategy, demand generation, performance marketing, SEO & GEO, community building, event marketing
+- Brand & Creative: Brand identity systems, creative direction, copywriting, PR & press strategy
+- Strategy: Positioning, ICP definition, pricing & packaging, fundraising, GTM planning
+- AI & Engineering: AI-native marketing, conversational AI, agent development, full-stack web (Next.js, React, TypeScript), prompt engineering, data pipelines
+- Leadership: Team building (5 to 90+ people), hiring, founder coaching
+- Tools: Notion, Linear, Figma, Cursor, Claude, Webflow, Shopify, Meta/Google Ads, GA4, n8n, Zapier
+
+### Contact Information
+- Email: minhas.param@gmail.com
+- LinkedIn: https://linkedin.com/in/paramminhas
+- Twitter/X: https://twitter.com/paramminhas
+- GitHub: https://github.com/paramminhas5
+- Agency: https://hyperiterate.com
+- Culture Brand: https://catscandance.com
+- Portfolio Site: https://paramquest.vercel.app
+- Spotify: https://open.spotify.com/artist/catscandance
+
+---
+
+# Page: Resume (https://paramquest.vercel.app/resume)
+
+## Param Minhas — Professional Resume
+
+### Summary
+Founder and creative director who builds growth, brand, and marketing functions from zero, then ships the product underneath them. Operator across the full GTM stack — positioning, demand generation, brand systems, performance — with a rare engineering hand: built AI products before "AI" was a category, co-building one of India's first conversational AI platforms in 2013. Has led teams from 5 to 90+. Built one company to $6M+ in revenue and a 350,000+ community on a $795K raise; now runs an AI-native marketing agency serving clients including a national airport and a national EV charging network. Based in Bengaluru.
+
+### Experience
+
+**Iterate — Founder & Creative Director (Jan 2026 – Present)**
+AI-native marketing agency | Bengaluru, India | hyperiterate.com
+- Leads a 90-person network across strategy, creative, and engineering.
+- Clients include ChargeZone, Nodia International Airport, PickYourTrail, Billione, and Monkspace.
+- Sub-brand: Cats Can Dance (catscandance.com) — Culture platform (music, fashion & pet care). Designed and built end-to-end. Artist directory, event booking, music-production learning. Produced live shows pan-India with Impresario.
+
+**Fere.ai — CMO (Jan 2025 – Dec 2025)**
+Autonomous AI agent platform, funded by Ethereal Ventures | India | fereai.xyz
+- Joined early to build growth/marketing, rejoining collaborator Akshaya Aron.
+- Restructured marketing to run lean — sustained by AI systems and small team.
+- Used operating model as proving ground for launching Iterate.
+
+**SoleSearch — Founder & CEO (2022 – Dec 2024)**
+Sneaker, streetwear & collectibles marketplace | India
+- Co-founded with Prabal Baghla; Rannvijay Singha joined. Led team of 40.
+- Raised $795K from Venture Catalysts, Anthill Ventures, Cornerstone Ventures.
+- $6M+ total revenue, omnichannel retail in Mumbai and Hyderabad.
+- 350,000+ community. 30+ events. SneakinOut — India's first sneaker convention.
+- Press: VICE, CNBC-TV18, Storyboard18, Economic Times, Business of Fashion.
+
+**Quartic.ai — Director of Marketing (2020 – 2022)**
+Enterprise AI platform | San Jose, California | quartic.ai
+- Led team of 5. Backed by Good Capital, Celesta Capital, Michael Marks.
+- Built marketing function from zero: brand, website, collateral, press.
+
+**Investopad → Good Capital — Partner, Growth & Technology (2017 – 2020)**
+Family office turned venture fund | New Delhi, India
+- Partner as family office evolved into institutional Fund I.
+- Portfolio: Meesho, Entri, Simsim, Amazon, Forbes.
+
+**Octo — Founding Team, Head of Growth (2016 – 2017)**
+Conversational AI platform, acquired by Quartic.ai | New Delhi, India
+- Co-built with Akshaya Aron. One of India's first chatbots (2013).
+- Built marketing from scratch. Rebuilt product dashboard with engineering.
+
+**Hab Housing — Founder (2012 – 2015)**
+Branded budget hospitality | Pune, India
+- One of India's first in the category OYO later scaled.
+- $120K+ revenue, bootstrapped. 16-person team, three cities.
+
+**GetRightPrice — Founding Team Member (2011 – 2012)**
+India's first price-comparison engine | Delhi, India
+- Joined founding team in college. Angel-backed by Sidharth Rao (Webchutney).
+- Built product catalog and crawl pipeline.
+
+### Skills
+- Growth & Marketing: GTM strategy, demand generation, performance marketing, SEO & GEO, community building, event marketing
+- Brand & Creative: Brand identity, creative direction, copywriting, PR strategy
+- Strategy: Positioning, ICP definition, pricing, fundraising, GTM planning
+- AI & Engineering: AI-native marketing, conversational AI, Next.js, React, TypeScript, prompt engineering
+- Leadership: Team building (5-90+), hiring, founder coaching
+- Tools: Notion, Linear, Figma, Cursor, Claude, Webflow, Shopify, Meta/Google Ads, GA4, n8n, Zapier
+
+### Education
+BE, Computer Science — Pune University
+
+### Open To
+Senior operating and CMO-track roles, fractional/advisory mandates, and operator-investor partnerships — at AI-native, brand-led, or culture-driven companies.
+
+---
+
+# Page: Press (https://paramquest.vercel.app/press)
+
+## Press & Media Coverage — Param Minhas
+
+Param Minhas and his companies have been featured in major publications including VICE, CNBC-TV18, Storyboard18 (syndicated to Forbes India), Economic Times, Open Magazine, The Established, Business of Fashion, Entrackr, Indian Retailer, and YourStory.
+
+### Selected Articles
+
+1. **VICE** — "Inside the Secret Lives of India's Gen Z Sneaker Resellers" — An in-depth feature exploring India's sneaker resale market and SoleSearch's role in building the culture. URL: https://www.vice.com/en/article/india-genz-sneakerheads-sneaker-resellers-hype/
+
+2. **CNBC-TV18** — Broadcast interview featuring Param Minhas and Prabal Baghla discussing India's sneaker culture, market opportunity, and SoleSearch's growth trajectory.
+
+3. **Storyboard18** — "Sneaker Culture in India: Women buying as many sneakers as men, says SoleSearch's Param Minhas" — Interview with Param on gender dynamics in Indian sneaker culture. URL: https://www.storyboard18.com/how-it-works/sneaker-culture-in-india-women-are-buying-as-many-sneakers-as-men-says-solesearchs-param-minhas-2518.htm
+
+4. **Storyboard18** — "Sneakers are now collectibles — Rannvijay Singha on SoleSearch funding" — Coverage of SoleSearch's funding round and strategic direction. URL: https://www.storyboard18.com/brand-makers/sneakers-are-now-considered-collectibles-with-a-passionate-following-among-gen-z-and-millennials-rannvijay-singha-8232.htm
+
+5. **Open Magazine** — "Second Coming — India's pre-owned luxury & sneaker resale" — Feature on the rise of India's resale economy and SoleSearch's position. URL: https://openthemagazine.com/feature/second-coming-2/
+
+6. **The Established** — "Can India's sneaker reseller business survive the global hype crash?" — Analysis of market dynamics and SoleSearch's sustainability model. URL: https://www.theestablished.com/style/sneakers/can-indias-sneaker-reseller-business-survive-the-global-sneaker-hype-crash
+
+7. **Economic Times** — "SoleSearch raises Rs 6 crore in debut funding round" — Coverage of funding milestone.
+
+8. **Entrackr** — "Street culture brand SoleSearch raises maiden fund" — Startup funding coverage. URL: https://entrackr.com/2023/05/street-culture-brand-solesearch-raises-maiden-fund/
+
+9. **Indian Retailer** — "SoleSearch Bags $730,000 in Debut Funding Round" — Retail industry coverage. URL: https://www.indianretailer.com/news/funding-alert-solesearch-bags-730000-debut-funding-round
+
+10. **Images Business of Fashion** — "Rapport x SoleSearch collaborative store in Hyderabad" — Retail partnership coverage. URL: https://www.imagesbof.in/rapport-x-solesearch-collaborative-store-in-hyderabad-brings-best-of-streetwear-footwear/
+
+### Databases & Profiles
+- CB Insights, Crunchbase, PitchBook (SoleSearch company profiles)
+- Tracxn (Hab Housing company profile)
+- Wellfound/AngelList (Investopad team profile)
+- SlideShare (Octo marketing deck, Project Alia, sales presentation)
+
+---
+
+# Page: Play (https://paramquest.vercel.app/play)
+
+## Param Quest — Playable Portfolio RPG
+
+Param Quest is a full Pokemon-style RPG that tells 15 years of Param Minhas's career as an interactive game. Built with Next.js 15, TypeScript, Canvas 2D, and Web Audio API.
+
+### Game Features
+- 10 explorable zones (each representing a career chapter)
+- 9 gym leader battles (each representing a real challenge faced)
+- Full turn-based battle system with type effectiveness
+- Evolution system: Mermander → Mermalion → Merlord
+- 9 wild creatures to catch
+- Synthesized audio (zero audio files — 100% Web Audio API)
+- Save/load system with localStorage
+- Mobile touch controls
+- Click-to-walk pathfinding
+
+### Technical Details
+- Framework: Next.js 15 (App Router)
+- Language: TypeScript (strict)
+- Rendering: Canvas 2D (custom game engine)
+- Audio: Web Audio API (zero audio files)
+- Sprites: AI-generated via Bria AI and FAL.ai
+- Deployment: Vercel
+- Performance: 73KB game JS bundle (gzipped), 60fps target
+
+### The Zones (Career Chapters)
+1. Pallet Town (Home) — The Beginning
+2. Origin Town — Builder, Designer, Musician (Pre-2010)
+3. GRP Market — GetRightPrice, Founding Team (2011-2012)
+4. Hab District — Hab Housing, Founder & CEO (2012-2015)
+5. Quartic Lab — Octo/Quartic.ai, Head of Growth (2016-2017)
+6. Investopad Tower — Good Capital, Partner (2017-2020)
+7. SoleSearch Mall — SoleSearch, Founder & CEO (2022-2024)
+8. Fere District — Fere.ai, CMO (2025)
+9. Cats Can Dance — Culture Platform (2026-Present)
+10. Iterate HQ — Iterate, Founder & Creative Director (2026-Present)
+
+---
+
+# Frequently Asked Questions
+
+## Who is Param Minhas?
+Param Minhas is a founder, creative director, and growth operator based in Bengaluru, India. He has 15+ years of experience across e-commerce, AI, real estate, sneakers, music, and AI-native marketing. He currently runs Iterate (an AI-native marketing agency with a 90-person network) and Cats Can Dance (a culture platform). Previously, he was CEO at SoleSearch ($6M+ revenue), CMO at Fere.ai, and Partner at Good Capital.
+
+## What is Iterate?
+Iterate (hyperiterate.com) is an AI-native marketing agency founded by Param Minhas in January 2026. It has a 90-person network across strategy, creative, and engineering. Clients include ChargeZone, Nodia International Airport, PickYourTrail, Billione, and Monkspace.
+
+## What is SoleSearch?
+SoleSearch was India's leading sneaker, streetwear, and collectibles marketplace, co-founded by Param Minhas, Prabal Baghla, and Rannvijay Singha. It generated $6M+ in revenue, built a 350K+ community, raised $795K, held 30+ live events, and operated retail stores in Mumbai and Hyderabad. It was featured in VICE, CNBC-TV18, and Economic Times.
+
+## What is Cats Can Dance?
+Cats Can Dance (catscandance.com) is a culture-discovery platform founded by Param Minhas in March 2026. It spans music, fashion, and pet care, with an artist directory, event booking, and music-production learning product. It launched under Iterate with live shows produced in partnership with Impresario.
+
+## What is Param Quest?
+Param Quest is a playable portfolio RPG that tells 15 years of Param Minhas's career as a Pokemon-style game. Built with Next.js 15, TypeScript, Canvas 2D, and Web Audio API. It features 10 explorable zones, 9 gym battles, full evolution, and synthesized audio.
+
+## How can I contact Param Minhas?
+Email: minhas.param@gmail.com. LinkedIn: linkedin.com/in/paramminhas. Agency: hyperiterate.com. Culture brand: catscandance.com.
+
+## What is Param Minhas open to?
+Senior operating and CMO-track roles, fractional/advisory mandates, and operator-investor partnerships at AI-native, brand-led, or culture-driven companies.
+
+---
+
+# Key Collaborators & People
+
+- **Akshaya Aron** — Co-builder of Octo (2013), CEO of Quartic.ai, reunited at Fere.ai (2024). Decade-long collaborator.
+- **Prabal Baghla** — Co-founder of SoleSearch. Built retail ops and community together.
+- **Rannvijay Singha** — Co-founder & brand partner at SoleSearch. MTV personality.
+- **Sidharth Rao** — Angel investor at GetRightPrice. Founder of Webchutney (India's first digital agency).
+- **Rohan & Arjun Malhotra** — Built Good Capital fund together from family office to Fund I.
+- **Venture Catalysts, Anthill Ventures, Cornerstone Ventures** — Led SoleSearch's $795K raise.
+- **Ethereal Ventures** — Lead investor in Fere.ai's $1.3M round.
+- **Impresario** — Partnership for Cats Can Dance live show series across India.
+
+---
+
+# Links & Resources
+
+- Homepage: https://paramquest.vercel.app
+- Resume: https://paramquest.vercel.app/resume
+- About: https://paramquest.vercel.app/about
+- Press: https://paramquest.vercel.app/press
+- Play Game: https://paramquest.vercel.app/play
+- Iterate Agency: https://hyperiterate.com
+- Cats Can Dance: https://catscandance.com
+- LinkedIn: https://linkedin.com/in/paramminhas
+- Twitter/X: https://twitter.com/paramminhas
+- GitHub: https://github.com/paramminhas5
+- Fere.ai: https://www.fereai.xyz/app
+- Quartic.ai: https://www.quartic.ai
+- Investopad (Wellfound): https://wellfound.com/company/investopad/people

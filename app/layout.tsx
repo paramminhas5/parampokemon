@@ -208,8 +208,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       "@type": "BreadcrumbList",
       itemListElement: [
         { "@type": "ListItem", position: 1, name: "Home", item: "https://paramquest.vercel.app" },
-        { "@type": "ListItem", position: 2, name: "Resume", item: "https://paramquest.vercel.app/resume" },
-        { "@type": "ListItem", position: 3, name: "Play", item: "https://paramquest.vercel.app/play" },
+        { "@type": "ListItem", position: 2, name: "About", item: "https://paramquest.vercel.app/about" },
+        { "@type": "ListItem", position: 3, name: "Resume", item: "https://paramquest.vercel.app/resume" },
+        { "@type": "ListItem", position: 4, name: "Press", item: "https://paramquest.vercel.app/press" },
+        { "@type": "ListItem", position: 5, name: "Play", item: "https://paramquest.vercel.app/play" },
       ],
     },
   };
