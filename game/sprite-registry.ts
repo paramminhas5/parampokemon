@@ -88,6 +88,25 @@ export const LANDMARK_URL: Record<string, string> = {
   iterate:    "/sprites/landmarks/iterate.png",
 };
 
+// ─── NPC overworld sprites (unique per NpcKind) ───────────────────────────
+// Each NPC kind gets a unique high-res sprite for overworld rendering.
+// These are 512×512 PNGs generated via FAL.ai with a consistent pixel-art style.
+import type { NpcKind } from "./data";
+
+export const NPC_SPRITE_URL: Record<NpcKind, string> = {
+  "trainer-m": "/sprites/npcs/trainer_m.png",
+  "trainer-f": "/sprites/npcs/trainer_f.png",
+  investor:    "/sprites/npcs/investor.png",
+  engineer:    "/sprites/npcs/engineer.png",
+  celeb:       "/sprites/npcs/celeb.png",
+  client:      "/sprites/npcs/client.png",
+  fan:         "/sprites/npcs/fan.png",
+  tenant:      "/sprites/npcs/tenant.png",
+  professor:   "/sprites/npcs/professor.png",
+  mom:         "/sprites/npcs/mom.png",
+  rival:       "/sprites/npcs/rival.png",
+};
+
 // ─── Zone arrival banners (Batch B) ───────────────────────────────────────
 export const BANNER_URL: Record<string, string> = {
   home:       "/sprites/banners/home.png",
@@ -170,6 +189,7 @@ if (typeof window !== "undefined") {
   Object.values(LEADER_URL).forEach(getSprite);
   Object.values(CREATURE_URL).forEach(getSprite);
   Object.values(LANDMARK_URL).forEach(getSprite);
+  Object.values(NPC_SPRITE_URL).forEach(getSprite);
   Object.values(PARAM_SPRITE_URL).forEach(getSprite);
   Object.values(FOLLOWER_SPRITE_URL).forEach(getSprite);
   Object.values(FOLLOWER_BACK_URL).forEach(getSprite);
@@ -190,6 +210,7 @@ export function preloadAllSprites(): Promise<void> {
     ...Object.values(LEADER_URL),
     ...Object.values(CREATURE_URL),
     ...Object.values(LANDMARK_URL),
+    ...Object.values(NPC_SPRITE_URL),
     ...Object.values(PARAM_SPRITE_URL),
     ...Object.values(FOLLOWER_SPRITE_URL),
     ...Object.values(FOLLOWER_BACK_URL),

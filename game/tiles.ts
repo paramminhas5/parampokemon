@@ -3,16 +3,18 @@
 import type { Dir, NpcKind, ZoneTheme } from "./data";
 import { TILE_TEXTURE_URL, getSprite, isReady } from "./sprite-registry";
 
-// ── Shared helper: draw a tile texture (full image scaled to TILE×TILE) ──
-// Returns true if the image was drawn, false if we should use the fallback.
-function drawTexture(ctx: Ctx, key: string, px0: number, py0: number): boolean {
+// ── Shared helper: draw a tile texture (full image scaled to 16×16 in local coords) ──
+// When called inside a scaled context, this draws at 16×16 local units which
+// renders at TILE×TILE on screen thanks to the canvas transform.
+function drawTexture(ctx: Ctx, key: string, _px0: number, _py0: number): boolean {
   const url = TILE_TEXTURE_URL[key];
   if (!url) return false;
   const img = getSprite(url);
   if (!isReady(img)) return false;
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = "high";
-  ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight, px0, py0, TILE, TILE);
+  // Draw in local 16-unit coordinate space (scaled to TILE by canvas transform)
+  ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight, 0, 0, 16, 16);
   ctx.imageSmoothingEnabled = false;
   return true;
 }
@@ -28,27 +30,30 @@ function treeVariant(wx: number, wy: number): string {
   return "tree_d";
 }
 
-// ── Draw a tree image using multiply blend so white bg vanishes ────────────
-function drawTreeSprite(ctx: Ctx, key: string, px0: number, py0: number): boolean {
+// ── Draw a tree image using multiply blend ────────────────
+function drawTreeSprite(ctx: Ctx, key: string, _px0: number, _py0: number): boolean {
   const url = TILE_TEXTURE_URL[key];
   if (!url) return false;
   const img = getSprite(url);
   if (!isReady(img)) return false;
-  // Draw slightly larger than the tile so the canopy overlaps neighbors (depth)
-  const size = Math.round(TILE * 1.5);
-  const ox = Math.round((TILE - size) / 2);
-  const oy = Math.round((TILE - size) / 2);
+  // Draw slightly larger than 16 units so the canopy overlaps neighbors (depth)
+  const size = 24; // 1.5× of 16
+  const ox = (16 - size) / 2;
+  const oy = (16 - size) / 2;
   ctx.save();
-  // multiply: white bg (255,255,255) × any color = that color → bg invisible
   ctx.globalCompositeOperation = "multiply";
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = "high";
-  ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight, px0 + ox, py0 + oy, size, size);
+  ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight, ox, oy, size, size);
   ctx.restore();
   return true;
 }
 
-export const TILE = 16;
+export const TILE = 48;
+/** Internal unit size that all procedural drawing is authored at */
+export const TILE_UNIT = 16;
+/** Scale factor from TILE_UNIT → TILE */
+export const TILE_SCALE = TILE / TILE_UNIT;
 
 export const T = {
   EMPTY: 0,
@@ -133,29 +138,37 @@ function px(ctx: Ctx, x: number, y: number, color: string) {
 
 // ─── Scale helper: converts a 16-px-grid offset to current TILE size ────────
 // All procedural drawing is authored at a 16-unit grid then scaled to TILE.
-// T16(v) maps a 0..16 value to 0..TILE in real canvas pixels.
+// S maps a 0..16 value to 0..TILE in real canvas pixels.
 const S = TILE / 16; // scale factor (1 at 16px, 3 at 48px …)
-function T16(v: number) { return Math.round(v * S); }
-function R16(v: number) { return Math.max(1, Math.round(v * S)); } // for sizes (min 1)
 
 export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: number, py0: number, now: number = 0) {
   const r = n(wx, wy);
+
+  // Apply scale transform: all procedural drawing is authored at 16-unit grid.
+  // Translate to tile position and scale up so 16px code renders at 48px (TILE).
+  ctx.save();
+  ctx.translate(px0, py0);
+  ctx.scale(S, S);
+  // Reset px0/py0 to 0 so all existing `px0 + offset` code works in local space
+  px0 = 0;
+  py0 = 0;
+
   switch (code) {
     case T.GRASS: {
       if (!drawTexture(ctx, "grass", px0, py0)) {
         const lightCell = ((Math.floor(wx / 2) + Math.floor(wy / 2)) % 2 === 0);
-        fillRect(ctx, px0, py0, TILE, TILE, lightCell ? "#74c466" : "#68b85a");
+        fillRect(ctx, 0, 0, 16, 16, lightCell ? "#74c466" : "#68b85a");
         const tuft = lightCell ? "#5aaa4c" : "#549843";
-        if (r > 0.30) { const tx = px0+3+Math.floor(r*6), ty = py0+4+Math.floor((r*13%1)*7); px(ctx,tx,ty,tuft); px(ctx,tx+1,ty+1,tuft); px(ctx,tx+2,ty,tuft); }
-        if (lightCell) px(ctx, px0 + 1, py0 + 1, "#80cf72");
+        if (r > 0.30) { const tx = 3+Math.floor(r*6), ty = 4+Math.floor((r*13%1)*7); px(ctx,tx,ty,tuft); px(ctx,tx+1,ty+1,tuft); px(ctx,tx+2,ty,tuft); }
+        if (lightCell) px(ctx, 1, 1, "#80cf72");
       }
       break;
     }
     case T.GRASS_DARK: {
-      fillRect(ctx, px0, py0, TILE, TILE, "#3d7a3a");
+      fillRect(ctx, px0, py0, 16, 16, "#3d7a3a");
       for (let i = 0; i < 4; i++) {
-        const dx = (i * 5 + Math.floor(r * 11)) % TILE;
-        const dy = (i * 7 + Math.floor(r * 13)) % TILE;
+        const dx = (i * 5 + Math.floor(r * 11)) % 16;
+        const dy = (i * 7 + Math.floor(r * 13)) % 16;
         px(ctx, px0 + dx, py0 + dy, "#2e5c2b");
       }
       break;
@@ -163,7 +176,7 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
     case T.ROUTE_GRASS: {
       if (!drawTexture(ctx, "route_grass", px0, py0)) {
         const lightCell = ((Math.floor(wx / 2) + Math.floor(wy / 2)) % 2 === 0);
-        fillRect(ctx, px0, py0, TILE, TILE, lightCell ? "#7cc868" : "#70be5c");
+        fillRect(ctx, px0, py0, 16, 16, lightCell ? "#7cc868" : "#70be5c");
         const tuft = lightCell ? "#63b052" : "#59a649";
         if (r > 0.4) { const tx = px0+4+Math.floor(r*6), ty = py0+5+Math.floor((r*11%1)*6); px(ctx,tx,ty,tuft); px(ctx,tx+1,ty+1,tuft); }
       }
@@ -172,10 +185,10 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
     case T.TALL_GRASS: {
       // Base ground matches the new checkerboard grass
       const lightCell = ((Math.floor(wx / 2) + Math.floor(wy / 2)) % 2 === 0);
-      fillRect(ctx, px0, py0, TILE, TILE, lightCell ? "#74c466" : "#69ba5b");
+      fillRect(ctx, px0, py0, 16, 16, lightCell ? "#74c466" : "#69ba5b");
       // Darker clumpy base (the "you can hide a creature here" look)
-      fillRect(ctx, px0, py0 + 9, TILE, 7, "#357a32");
-      fillRect(ctx, px0, py0 + 9, TILE, 1, "#2a6628");
+      fillRect(ctx, px0, py0 + 9, 16, 7, "#357a32");
+      fillRect(ctx, px0, py0 + 9, 16, 1, "#2a6628");
       // Swaying blades — top half sways with wind
       const sway = Math.sin(now / 600 + wx * 0.7 + wy * 0.4) * 1.5;
       const swayI = Math.round(sway);
@@ -195,18 +208,18 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
     }
     case T.PATH: {
       if (!drawTexture(ctx, "path", px0, py0)) {
-        fillRect(ctx, px0, py0, TILE, TILE, "#dcbd8e");
-        fillRect(ctx, px0, py0 + 8, TILE, 8, "#d4b384");
+        fillRect(ctx, px0, py0, 16, 16, "#dcbd8e");
+        fillRect(ctx, px0, py0 + 8, 16, 8, "#d4b384");
         px(ctx, px0 + 2 + Math.floor(r * 4), py0 + 3, "#c0a070");
         px(ctx, px0 + 9, py0 + 6, "#c0a070");
-        fillRect(ctx, px0, py0, TILE, 1, "#ecd0a4");
+        fillRect(ctx, px0, py0, 16, 1, "#ecd0a4");
       }
       break;
     }
     case T.SAND: {
       if (!drawTexture(ctx, "sand", px0, py0)) {
-        fillRect(ctx, px0, py0, TILE, TILE, "#e8c982");
-        fillRect(ctx, px0, py0 + 8, TILE, 8, "#e0bf76");
+        fillRect(ctx, px0, py0, 16, 16, "#e8c982");
+        fillRect(ctx, px0, py0 + 8, 16, 8, "#e0bf76");
         px(ctx, px0 + 3 + Math.floor(r * 4), py0 + 4, "#cda85e");
         px(ctx, px0 + 10, py0 + 9, "#cda85e");
       }
@@ -214,9 +227,9 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
     }
     case T.STONE: {
       if (!drawTexture(ctx, "stone", px0, py0)) {
-        fillRect(ctx, px0, py0, TILE, TILE, "#a67855");
-        fillRect(ctx, px0, py0 + 7, TILE, 1, "#6a4828");
-        fillRect(ctx, px0, py0 + 15, TILE, 1, "#6a4828");
+        fillRect(ctx, px0, py0, 16, 16, "#a67855");
+        fillRect(ctx, px0, py0 + 7, 16, 1, "#6a4828");
+        fillRect(ctx, px0, py0 + 15, 16, 1, "#6a4828");
         const offset = (wy % 2 === 0) ? 0 : 8;
         fillRect(ctx, px0 + offset, py0, 1, 8, "#6a4828");
         fillRect(ctx, px0 + ((offset + 8) % 16), py0 + 8, 1, 8, "#6a4828");
@@ -228,18 +241,18 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
     case T.WATER: {
       if (!drawTexture(ctx, "water", px0, py0)) {
         const t = now / 400;
-        fillRect(ctx, px0, py0, TILE, TILE, "#2558a8");
-        fillRect(ctx, px0, py0 + 10, TILE, 6, "#2d66b8");
-        const b1y = py0 + (Math.floor(t * 4) % TILE);
-        const b2y = py0 + (Math.floor(t * 2 + 6) % TILE);
-        fillRect(ctx, px0, b1y, TILE, 2, "#4a90d8");
-        fillRect(ctx, px0, b2y, TILE, 1, "#5ca4e8");
+        fillRect(ctx, px0, py0, 16, 16, "#2558a8");
+        fillRect(ctx, px0, py0 + 10, 16, 6, "#2d66b8");
+        const b1y = py0 + (Math.floor(t * 4) % 16);
+        const b2y = py0 + (Math.floor(t * 2 + 6) % 16);
+        fillRect(ctx, px0, b1y, 16, 2, "#4a90d8");
+        fillRect(ctx, px0, b2y, 16, 1, "#5ca4e8");
         const sf = Math.sin(t * 0.7 + wx * 0.5 + wy * 0.3) > 0.5;
         if (sf) {
           ctx.fillStyle = "#bfe4ff"; ctx.fillRect(px0 + Math.floor(t * 3 + wx) % 13 + 1, py0 + 4, 1, 1);
           ctx.fillStyle = "#dcf0ff"; ctx.fillRect(px0 + Math.floor(t * 2 + wy) % 11 + 3, py0 + 11, 1, 1);
         }
-        fillRect(ctx, px0, py0, TILE, 1, "#1a3a78");
+        fillRect(ctx, px0, py0, 16, 1, "#1a3a78");
       }
       break;
     }
@@ -291,20 +304,20 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
     }
     case T.FENCE: {
       drawTile(ctx, T.GRASS, wx, wy, px0, py0, now);
-      fillRect(ctx, px0, py0 + 7, TILE, 2, "#d8c098");
+      fillRect(ctx, px0, py0 + 7, 16, 2, "#d8c098");
       fillRect(ctx, px0 + 3, py0 + 4, 2, 8, "#a88858");
       fillRect(ctx, px0 + 11, py0 + 4, 2, 8, "#a88858");
       break;
     }
     case T.BUILDING_WALL: {
       // Clean plaster siding with horizontal lap-board lines
-      fillRect(ctx, px0, py0, TILE, TILE, "#ece0c6");
+      fillRect(ctx, px0, py0, 16, 16, "#ece0c6");
       // lap-board shadow lines
-      fillRect(ctx, px0, py0 + 5, TILE, 1, "#cdbd98");
-      fillRect(ctx, px0, py0 + 11, TILE, 1, "#cdbd98");
+      fillRect(ctx, px0, py0 + 5, 16, 1, "#cdbd98");
+      fillRect(ctx, px0, py0 + 11, 16, 1, "#cdbd98");
       // top/bottom trim
-      fillRect(ctx, px0, py0, TILE, 1, "#b6a17c");
-      fillRect(ctx, px0, py0 + TILE - 1, TILE, 1, "#b6a17c");
+      fillRect(ctx, px0, py0, 16, 1, "#b6a17c");
+      fillRect(ctx, px0, py0 + 16 - 1, 16, 1, "#b6a17c");
       // Framed window on ~half the wall tiles (seeded by tile position)
       if (r > 0.42) {
         const wxp = px0 + 4, wyp = py0 + 3;
@@ -325,33 +338,33 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
     }
     case T.BUILDING_ROOF: {
       // Sloped shingle roof (fallback; engine overlays per-zone colored roof)
-      fillRect(ctx, px0, py0, TILE, TILE, "#a3382c");
+      fillRect(ctx, px0, py0, 16, 16, "#a3382c");
       // shingle rows
-      for (let yy = 0; yy < TILE; yy += 4) {
-        fillRect(ctx, px0, py0 + yy, TILE, 1, "#7d241b");
-        fillRect(ctx, px0, py0 + yy + 1, TILE, 1, "#bd4438");
+      for (let yy = 0; yy < 16; yy += 4) {
+        fillRect(ctx, px0, py0 + yy, 16, 1, "#7d241b");
+        fillRect(ctx, px0, py0 + yy + 1, 16, 1, "#bd4438");
       }
       // ridge highlight
-      fillRect(ctx, px0, py0, TILE, 1, "#d05a4a");
+      fillRect(ctx, px0, py0, 16, 1, "#d05a4a");
       break;
     }
     case T.DOOR: {
       // Wall surround matches plaster siding
-      fillRect(ctx, px0, py0, TILE, TILE, "#ece0c6");
-      fillRect(ctx, px0, py0 + 5, TILE, 1, "#cdbd98");
+      fillRect(ctx, px0, py0, 16, 16, "#ece0c6");
+      fillRect(ctx, px0, py0 + 5, 16, 1, "#cdbd98");
       // Striped awning over the door
-      for (let i = 0; i < TILE; i += 4) {
+      for (let i = 0; i < 16; i += 4) {
         fillRect(ctx, px0 + i, py0, 2, 3, "#c43a3a");
         fillRect(ctx, px0 + i + 2, py0, 2, 3, "#f0e8d0");
       }
-      fillRect(ctx, px0, py0 + 3, TILE, 1, "#8a2a2a");
+      fillRect(ctx, px0, py0 + 3, 16, 1, "#8a2a2a");
       // Door frame
-      fillRect(ctx, px0 + 2, py0 + 4, TILE - 4, TILE - 4, "#3a2418");
+      fillRect(ctx, px0 + 2, py0 + 4, 16 - 4, 16 - 4, "#3a2418");
       // Door panel — warm wood
-      fillRect(ctx, px0 + 3, py0 + 5, TILE - 6, TILE - 5, "#7a4a28");
-      fillRect(ctx, px0 + 3, py0 + 5, TILE - 6, 1, "#9a6238");  // top highlight
+      fillRect(ctx, px0 + 3, py0 + 5, 16 - 6, 16 - 5, "#7a4a28");
+      fillRect(ctx, px0 + 3, py0 + 5, 16 - 6, 1, "#9a6238");  // top highlight
       // panel split + inset lines
-      fillRect(ctx, px0 + 3, py0 + 10, TILE - 6, 1, "#2a1810");
+      fillRect(ctx, px0 + 3, py0 + 10, 16 - 6, 1, "#2a1810");
       fillRect(ctx, px0 + 5, py0 + 6, 1, 3, "#5a3418");
       fillRect(ctx, px0 + 10, py0 + 6, 1, 3, "#5a3418");
       // gold knob
@@ -360,9 +373,9 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
     }
     case T.MAT: {
       // red welcome mat (gym entry)
-      fillRect(ctx, px0, py0, TILE, TILE, "#b8392a");
-      fillRect(ctx, px0 + 1, py0 + 1, TILE - 2, TILE - 2, "#e85a3a");
-      fillRect(ctx, px0 + 2, py0 + 2, TILE - 4, TILE - 4, "#b8392a");
+      fillRect(ctx, px0, py0, 16, 16, "#b8392a");
+      fillRect(ctx, px0 + 1, py0 + 1, 16 - 2, 16 - 2, "#e85a3a");
+      fillRect(ctx, px0 + 2, py0 + 2, 16 - 4, 16 - 4, "#b8392a");
       // GYM lettering
       fillRect(ctx, px0 + 3, py0 + 6, 2, 4, "#ffe8b8");
       px(ctx, px0 + 4, py0 + 6, "#ffe8b8");
@@ -398,10 +411,10 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
     case T.NEON_FLOOR: {
       // Dark tech floor with animated circuit traces
       const base2 = ((wx + wy) % 2 === 0) ? "#1e2c4c" : "#243558";
-      fillRect(ctx, px0, py0, TILE, TILE, base2);
+      fillRect(ctx, px0, py0, 16, 16, base2);
       // Grid seams
-      fillRect(ctx, px0, py0, TILE, 1, "#2a3a5a");
-      fillRect(ctx, px0, py0, 1, TILE, "#2a3a5a");
+      fillRect(ctx, px0, py0, 16, 1, "#2a3a5a");
+      fillRect(ctx, px0, py0, 1, 16, "#2a3a5a");
       // Circuit traces (seeded per tile)
       if (r > 0.65) {
         // Horizontal trace
@@ -424,58 +437,58 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
     case T.DUSK_FLOOR: {
       // Rich marble lobby — deep purple with veining
       const mc = ((wx + wy) % 2 === 0) ? "#30205a" : "#3c2868";
-      fillRect(ctx, px0, py0, TILE, TILE, mc);
+      fillRect(ctx, px0, py0, 16, 16, mc);
       // Marble veining (diagonal streaks)
-      fillRect(ctx, px0, py0 + 4, TILE, 1, "#6040a0");
-      fillRect(ctx, px0 + 4, py0, 1, TILE, "#6040a0");
+      fillRect(ctx, px0, py0 + 4, 16, 1, "#6040a0");
+      fillRect(ctx, px0 + 4, py0, 1, 16, "#6040a0");
       // Cross highlight at vein intersections
       if (r > 0.75) {
         px(ctx, px0 + 4, py0 + 4, "#c8a0f0");
         px(ctx, px0 + 5, py0 + 5, "#9070c8");
       }
       // Reflective sheen
-      fillRect(ctx, px0, py0, TILE, 1, "#5040a0");
+      fillRect(ctx, px0, py0, 16, 1, "#5040a0");
       if (r > 0.88) fillRect(ctx, px0 + 6, py0 + 7, 4, 1, "#a080e0");
       break;
     }
     case T.NIGHT_FLOOR: {
       // Glassy tech lobby for Iterate HQ
       const nc = ((wx + wy) % 2 === 0) ? "#081428" : "#0d1e38";
-      fillRect(ctx, px0, py0, TILE, TILE, nc);
+      fillRect(ctx, px0, py0, 16, 16, nc);
       // Illuminated seams every 2 rows
-      if (wy % 2 === 0) fillRect(ctx, px0, py0, TILE, 1, "#1a4088");
-      if (wx % 2 === 0) fillRect(ctx, px0, py0, 1, TILE, "#1a3060");
+      if (wy % 2 === 0) fillRect(ctx, px0, py0, 16, 1, "#1a4088");
+      if (wx % 2 === 0) fillRect(ctx, px0, py0, 1, 16, "#1a3060");
       // Reflective sparkles
       if (r > 0.90) {
-        px(ctx, px0 + Math.floor(r * TILE), py0 + Math.floor(r * TILE), "#7ce0ff");
+        px(ctx, px0 + Math.floor(r * 16), py0 + Math.floor(r * 16), "#7ce0ff");
       }
       // Blue glow patches
       if (r > 0.78 && r < 0.82) {
         ctx.fillStyle = "rgba(60,120,220,0.2)";
-        ctx.fillRect(px0, py0, TILE, TILE);
+        ctx.fillRect(px0, py0, 16, 16);
       }
       break;
     }
     case T.MALL_FLOOR: {
       // Upscale checker mall floor with pink neon grid
       const isA = (Math.floor(wx / 2) + Math.floor(wy / 2)) % 2 === 0;
-      fillRect(ctx, px0, py0, TILE, TILE, isA ? "#1e0c30" : "#2a1440");
+      fillRect(ctx, px0, py0, 16, 16, isA ? "#1e0c30" : "#2a1440");
       // Neon grid lines (every 2 tiles aligning)
-      if (wx % 2 === 0) fillRect(ctx, px0, py0, 1, TILE, "#ff9fd430");
-      if (wy % 2 === 0) fillRect(ctx, px0, py0, TILE, 1, "#ff9fd430");
+      if (wx % 2 === 0) fillRect(ctx, px0, py0, 1, 16, "#ff9fd430");
+      if (wy % 2 === 0) fillRect(ctx, px0, py0, 16, 1, "#ff9fd430");
       // Gloss highlight corner
       if (r > 0.88) {
         ctx.fillStyle = "rgba(255,200,230,0.12)";
-        ctx.fillRect(px0, py0, TILE, TILE);
+        ctx.fillRect(px0, py0, 16, 16);
       }
       break;
     }
     case T.CRYPTO_FLOOR: {
       // Animated PCB circuit board
-      fillRect(ctx, px0, py0, TILE, TILE, "#021a10");
+      fillRect(ctx, px0, py0, 16, 16, "#021a10");
       // Board grid
-      fillRect(ctx, px0, py0, TILE, 1, "#043a20");
-      fillRect(ctx, px0, py0, 1, TILE, "#043a20");
+      fillRect(ctx, px0, py0, 16, 1, "#043a20");
+      fillRect(ctx, px0, py0, 1, 16, "#043a20");
       // PCB traces
       fillRect(ctx, px0 + 3, py0 + 4, 9, 1, "#00e8a0");
       fillRect(ctx, px0 + 3, py0 + 4, 1, 9, "#00e8a0");
@@ -496,12 +509,12 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
     case T.STUDIO_FLOOR: {
       // Warm parquet hardwood stage
       const plankDir = (wy % 2 === 0);
-      fillRect(ctx, px0, py0, TILE, TILE, "#4a2410");
+      fillRect(ctx, px0, py0, 16, 16, "#4a2410");
       const plankColor = plankDir ? "#5a3018" : "#623820";
-      fillRect(ctx, px0, py0, TILE, 8, plankColor);
+      fillRect(ctx, px0, py0, 16, 8, plankColor);
       // Wood grain lines
-      fillRect(ctx, px0, py0 + 7, TILE, 1, "#321608");
-      fillRect(ctx, px0, py0 + 15, TILE, 1, "#321608");
+      fillRect(ctx, px0, py0 + 7, 16, 1, "#321608");
+      fillRect(ctx, px0, py0 + 15, 16, 1, "#321608");
       // Knot / grain detail
       if (r > 0.88) {
         ctx.fillStyle = "#382010";
@@ -519,10 +532,10 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
       break;
     }
     case T.SNOW: {
-      fillRect(ctx, px0, py0, TILE, TILE, "#e8eef4");
+      fillRect(ctx, px0, py0, 16, 16, "#e8eef4");
       for (let i = 0; i < 3; i++) {
-        const dx = (i * 4 + Math.floor(r * 9)) % TILE;
-        const dy = (i * 6 + Math.floor(r * 7)) % TILE;
+        const dx = (i * 4 + Math.floor(r * 9)) % 16;
+        const dy = (i * 6 + Math.floor(r * 7)) % 16;
         px(ctx, px0 + dx, py0 + dy, "#c8d0d8");
       }
       break;
@@ -534,30 +547,30 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
       drawTile(ctx, T.ROUTE_GRASS, wx, wy, px0, py0, now);
       if (code === T.ARCH_L) {
         // Left pillar — dark stone with highlight edge
-        fillRect(ctx, px0 + 4, py0, 8, TILE, "#2a2440");
-        fillRect(ctx, px0 + 4, py0, 2, TILE, "#3a3458");   // left edge highlight
-        fillRect(ctx, px0 + 11, py0, 1, TILE, "#1a1830");  // right edge shadow
+        fillRect(ctx, px0 + 4, py0, 8, 16, "#2a2440");
+        fillRect(ctx, px0 + 4, py0, 2, 16, "#3a3458");   // left edge highlight
+        fillRect(ctx, px0 + 11, py0, 1, 16, "#1a1830");  // right edge shadow
         // Glowing accent strip on top
         fillRect(ctx, px0 + 5, py0, 6, 2, "#5a4080");
         // Bracket arm reaching right
         fillRect(ctx, px0 + 12, py0 + 1, 4, 3, "#2a2440");
       } else if (code === T.ARCH_R) {
         // Right pillar — mirror of left
-        fillRect(ctx, px0 + 4, py0, 8, TILE, "#2a2440");
-        fillRect(ctx, px0 + 10, py0, 2, TILE, "#3a3458");
-        fillRect(ctx, px0 + 4, py0, 1, TILE, "#1a1830");
+        fillRect(ctx, px0 + 4, py0, 8, 16, "#2a2440");
+        fillRect(ctx, px0 + 10, py0, 2, 16, "#3a3458");
+        fillRect(ctx, px0 + 4, py0, 1, 16, "#1a1830");
         fillRect(ctx, px0 + 5, py0, 6, 2, "#5a4080");
         // Bracket arm reaching left
         fillRect(ctx, px0, py0 + 1, 4, 3, "#2a2440");
       } else {
         // ARCH_M: overhead banner spanning between pillars
         // Support bar top
-        fillRect(ctx, px0, py0, TILE, 3, "#2a2440");
-        fillRect(ctx, px0, py0, TILE, 1, "#5a4080");
+        fillRect(ctx, px0, py0, 16, 3, "#2a2440");
+        fillRect(ctx, px0, py0, 16, 1, "#5a4080");
         // Hanging banner (colored per zone via accent — using purple default)
-        fillRect(ctx, px0 + 1, py0 + 3, TILE - 2, 7, "#7a3090");
-        fillRect(ctx, px0 + 1, py0 + 3, TILE - 2, 1, "#aa50c0");
-        fillRect(ctx, px0 + 1, py0 + 9, TILE - 2, 1, "#3a1040");
+        fillRect(ctx, px0 + 1, py0 + 3, 16 - 2, 7, "#7a3090");
+        fillRect(ctx, px0 + 1, py0 + 3, 16 - 2, 1, "#aa50c0");
+        fillRect(ctx, px0 + 1, py0 + 9, 16 - 2, 1, "#3a1040");
         // Decorative dots on banner
         px(ctx, px0 + 4, py0 + 5, "#f0c4ff");
         px(ctx, px0 + 8, py0 + 5, "#f0c4ff");
@@ -565,7 +578,7 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
         px(ctx, px0 + 6, py0 + 7, "#c880ff");
         px(ctx, px0 + 10, py0 + 7, "#c880ff");
         // Fringe tassels
-        for (let tx2 = 2; tx2 < TILE - 1; tx2 += 3) {
+        for (let tx2 = 2; tx2 < 16 - 1; tx2 += 3) {
           fillRect(ctx, px0 + tx2, py0 + 10, 1, 3, "#aa50c0");
         }
       }
@@ -632,19 +645,19 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
     case T.PROP_NEON_PYLON: {
       drawTile(ctx, T.NEON_FLOOR, wx, wy, px0, py0, now);
       // Pylon housing
-      fillRect(ctx, px0 + 5, py0, 6, TILE, "#162030");
-      fillRect(ctx, px0 + 5, py0, 1, TILE, "#0a1520");  // left shadow
-      fillRect(ctx, px0 + 10, py0, 1, TILE, "#2a3848"); // right highlight
+      fillRect(ctx, px0 + 5, py0, 6, 16, "#162030");
+      fillRect(ctx, px0 + 5, py0, 1, 16, "#0a1520");  // left shadow
+      fillRect(ctx, px0 + 10, py0, 1, 16, "#2a3848"); // right highlight
       // Glowing energy strip
       const phase2 = now / 300 + wx * 0.8 + wy * 0.5;
       const pulseH = Math.floor(Math.sin(phase2) * 3 + 10);
       const col1 = Math.sin(phase2) > 0 ? "#00ffcc" : "#9fe8ff";
       const col2 = Math.sin(phase2) > 0 ? "#00e8a0" : "#3a78d8";
-      fillRect(ctx, px0 + 7, py0 + 1, 2, TILE - 2, col2);
-      fillRect(ctx, px0 + 7, py0 + TILE / 2 - pulseH / 2, 2, pulseH, col1);
+      fillRect(ctx, px0 + 7, py0 + 1, 2, 16 - 2, col2);
+      fillRect(ctx, px0 + 7, py0 + 16 / 2 - pulseH / 2, 2, pulseH, col1);
       // Glow halo
       ctx.fillStyle = `${col1}30`;
-      ctx.fillRect(px0 + 4, py0 + TILE / 2 - 5, 8, 10);
+      ctx.fillRect(px0 + 4, py0 + 16 / 2 - 5, 8, 10);
       break;
     }
     case T.PROP_CANDLESTICK: {
@@ -719,24 +732,29 @@ export function drawTile(ctx: Ctx, code: TileCode, wx: number, wy: number, px0: 
     }
     case T.EMPTY:
     default:
-      fillRect(ctx, px0, py0, TILE, TILE, "#000");
+      fillRect(ctx, px0, py0, 16, 16, "#000");
       break;
   }
+  ctx.restore(); // Restore scale transform applied at start of drawTile
 }
 
 export function drawRoof(ctx: Ctx, px0: number, py0: number, color: string, shade: string, kind: "left" | "mid" | "right" | "solo") {
-  // Rich tiled roof
-  fillRect(ctx, px0, py0, TILE, TILE, color);
+  ctx.save();
+  ctx.translate(px0, py0);
+  ctx.scale(S, S);
+  // Rich tiled roof (working in 16-unit local space)
+  fillRect(ctx, 0, 0, 16, 16, color);
   // Tile ridge lines
-  for (let x = 0; x < TILE; x += 4) fillRect(ctx, px0 + x, py0, 1, TILE, shade);
+  for (let x = 0; x < 16; x += 4) fillRect(ctx, x, 0, 1, 16, shade);
   // Top / bottom edges
-  fillRect(ctx, px0, py0, TILE, 1, shade);
-  fillRect(ctx, px0, py0 + TILE - 1, TILE, 1, shade);
+  fillRect(ctx, 0, 0, 16, 1, shade);
+  fillRect(ctx, 0, 15, 16, 1, shade);
   // Highlight strip near top
-  fillRect(ctx, px0, py0 + 2, TILE, 1, lighten(color));
+  fillRect(ctx, 0, 2, 16, 1, lighten(color));
   // Side borders
-  if (kind === "left" || kind === "solo") fillRect(ctx, px0, py0, 1, TILE, shade);
-  if (kind === "right" || kind === "solo") fillRect(ctx, px0 + TILE - 1, py0, 1, TILE, shade);
+  if (kind === "left" || kind === "solo") fillRect(ctx, 0, 0, 1, 16, shade);
+  if (kind === "right" || kind === "solo") fillRect(ctx, 15, 0, 1, 16, shade);
+  ctx.restore();
 }
 
 function lighten(hex: string): string {
@@ -749,46 +767,50 @@ function lighten(hex: string): string {
 }
 
 export function drawBadge(ctx: Ctx, px0: number, py0: number, color: string, phase: number) {
+  ctx.save();
+  ctx.translate(px0, py0);
+  ctx.scale(S, S);
   const lift = Math.sin(phase) * 2.5;
   const liftI = Math.floor(lift);
   // Drop shadow
   ctx.fillStyle = "rgba(0,0,0,0.4)";
   ctx.beginPath();
-  ctx.ellipse(px0 + 8, py0 + 14, 5, 1.5, 0, 0, Math.PI * 2);
+  ctx.ellipse(8, 14, 5, 1.5, 0, 0, Math.PI * 2);
   ctx.fill();
   // Outer glow ring
   ctx.fillStyle = color + "30";
   ctx.beginPath();
-  ctx.arc(px0 + 8, py0 + 7 + liftI, 7, 0, Math.PI * 2);
+  ctx.arc(8, 7 + liftI, 7, 0, Math.PI * 2);
   ctx.fill();
   // Gem body — diamond shape
   ctx.fillStyle = color;
   ctx.beginPath();
-  ctx.moveTo(px0 + 8, py0 + 2 + liftI);   // top
-  ctx.lineTo(px0 + 13, py0 + 7 + liftI);  // right
-  ctx.lineTo(px0 + 8, py0 + 13 + liftI);  // bottom
-  ctx.lineTo(px0 + 3, py0 + 7 + liftI);   // left
+  ctx.moveTo(8, 2 + liftI);   // top
+  ctx.lineTo(13, 7 + liftI);  // right
+  ctx.lineTo(8, 13 + liftI);  // bottom
+  ctx.lineTo(3, 7 + liftI);   // left
   ctx.closePath();
   ctx.fill();
   // Inner facet highlight
   ctx.fillStyle = color + "cc";
   ctx.beginPath();
-  ctx.moveTo(px0 + 8, py0 + 3 + liftI);
-  ctx.lineTo(px0 + 11, py0 + 7 + liftI);
-  ctx.lineTo(px0 + 8, py0 + 8 + liftI);
-  ctx.lineTo(px0 + 5, py0 + 7 + liftI);
+  ctx.moveTo(8, 3 + liftI);
+  ctx.lineTo(11, 7 + liftI);
+  ctx.lineTo(8, 8 + liftI);
+  ctx.lineTo(5, 7 + liftI);
   ctx.closePath();
   ctx.fill();
   // White sparkle
   ctx.fillStyle = "#ffffff";
-  ctx.fillRect(px0 + 7, py0 + 3 + liftI, 2, 1);
-  ctx.fillRect(px0 + 6, py0 + 4 + liftI, 1, 1);
+  ctx.fillRect(7, 3 + liftI, 2, 1);
+  ctx.fillRect(6, 4 + liftI, 1, 1);
   // Twinkle star at peak of orbit
   if (Math.floor(phase * 2) % 4 === 0) {
     ctx.fillStyle = "#fff";
-    ctx.fillRect(px0 + 14, py0 + 2 + liftI, 2, 2);
-    ctx.fillRect(px0 + 1, py0 + 9 + liftI, 2, 2);
+    ctx.fillRect(14, 2 + liftI, 2, 2);
+    ctx.fillRect(1, 9 + liftI, 2, 2);
   }
+  ctx.restore();
 }
 
 // ─── Character sprite ──────────────────────────────────────
@@ -817,6 +839,12 @@ export function drawCharacter(
   px0: number,
   py0: number,
 ) {
+  // Apply scale transform so all 16px-era drawing renders at TILE size
+  ctx.save();
+  ctx.translate(px0, py0);
+  ctx.scale(S, S);
+  px0 = 0;
+  py0 = 0;
   const p = PALETTES[kind];
 
   // Special: Param (player) — taller, slimmer, South Asian appearance
@@ -912,6 +940,7 @@ export function drawCharacter(
       // Nose
       px(ctx, px0 + 11, py0 + 3, p.skin);
     }
+    ctx.restore();
     return;
   }
 
@@ -958,4 +987,5 @@ export function drawCharacter(
     fillRect(ctx, px0 + 9, py0 + 7, 3, 1, "#a04020");
     fillRect(ctx, px0 + 11, py0 + 5, 1, 2, p.hair);
   }
+  ctx.restore(); // Restore scale transform
 }

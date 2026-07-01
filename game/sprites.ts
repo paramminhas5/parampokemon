@@ -351,6 +351,14 @@ export function drawGymLeader(ctx: Ctx, leader: LeaderSprite, x: number, y: numb
 export function drawFollower(
   ctx: Ctx, stage: StarterStage["id"], px0: number, py0: number, frame: 0 | 1 | 2,
 ) {
+  // Apply scale transform — drawing is authored at 16px, renders at TILE (48px)
+  const S = 3; // TILE / 16 = 48 / 16
+  ctx.save();
+  ctx.translate(px0, py0);
+  ctx.scale(S, S);
+  px0 = 0;
+  py0 = 0;
+
   // tiny 16x16 overworld sprite, same palette as starter
   const bob = (frame === 1 ? -1 : 0);
   const palette = stage === "mermander"
@@ -376,4 +384,6 @@ export function drawFollower(
   // eyes
   px(ctx, px0 + 6, py0 + 7 + bob, "#0a0a1a");
   px(ctx, px0 + 9, py0 + 7 + bob, "#0a0a1a");
+
+  ctx.restore();
 }

@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ZONES, STARTER_STAGES, stageForBadges } from "@/game/data";
-import { drawStarter } from "@/game/sprites";
-import { CREATURE_URL, PLAYER_FRONT_URL, FOLLOWER_SPRITE_URL } from "@/game/sprite-registry";
+import { CREATURE_URL, PLAYER_FRONT_URL, FOLLOWER_SPRITE_URL, getSprite, isReady } from "@/game/sprite-registry";
 
 type Tab = "mermander" | "creatures" | "berries" | "badges";
 
@@ -49,9 +48,16 @@ function MermanderTab({ badges, skills }: { badges: Set<string>; skills: Set<str
     const loop = () => {
       if (ref.current) {
         const c = ref.current.getContext("2d")!;
-        c.imageSmoothingEnabled = false;
         c.clearRect(0, 0, 128, 128);
-        drawStarter(c, stage.id, "front", 16, 16, 3, performance.now() / 100);
+        // Use HD PNG sprite instead of procedural drawing
+        const spriteUrl = PLAYER_FRONT_URL[stage.id] ?? PLAYER_FRONT_URL.mermander;
+        const img = getSprite(spriteUrl);
+        if (img && isReady(img)) {
+          c.imageSmoothingEnabled = true;
+          c.imageSmoothingQuality = "high";
+          const bob = Math.sin(performance.now() / 350) * 2;
+          c.drawImage(img, 4, 4 + bob, 120, 120);
+        }
       }
       raf = requestAnimationFrame(loop);
     };
