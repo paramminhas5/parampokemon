@@ -781,6 +781,16 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         ctx.fillStyle = accent + (isOrb ? "cc" : "aa");
         ctx.fillRect(Math.round(spX), Math.round(spY), 2, 2);
       }
+      // Skill Orb label — "SKILL" text above the orb to distinguish from berries
+      if (isOrb) {
+        ctx.globalAlpha = 0.85;
+        ctx.font = "bold 5px monospace";
+        ctx.textAlign = "center";
+        ctx.fillStyle = accent;
+        ctx.fillText("✦ SKILL", bx + TILE / 2, by - 2 + berryBob);
+        ctx.textAlign = "left";
+        ctx.globalAlpha = 1;
+      }
     }
 
 
