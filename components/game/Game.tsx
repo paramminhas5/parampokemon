@@ -735,7 +735,7 @@ export function Game() {
               resists: npc.trainer!.resists,
               moves: npc.trainer!.moves,
               victory: npc.trainer!.victoryQuote,
-              leader: "blankpage",
+              leader: "none" as any, // No leader sprite for route trainers
             },
           };
           return (
@@ -758,7 +758,7 @@ export function Game() {
               resists: npc.trainer!.resists,
               moves: npc.trainer!.moves,
               victory: npc.trainer!.victoryQuote,
-              leader: "blankpage",
+              leader: "none" as any, // No leader sprite for route trainers
             },
           };
           return (
