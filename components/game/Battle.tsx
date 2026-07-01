@@ -476,9 +476,9 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee, onFinishingBl
         const c = oppRef.current.getContext("2d")!;
         c.imageSmoothingEnabled = true; c.imageSmoothingQuality = "high";
         c.clearRect(0, 0, 240, 240);
-        // Priority: creature sprite > npc battle sprite > leader portrait
-        const drawImg = (oppCreatureImg && isReady(oppCreatureImg)) ? oppCreatureImg
-          : (npcBattleImg && isReady(npcBattleImg)) ? npcBattleImg
+        // Priority: npc battle sprite (when explicitly provided) > creature sprite > leader portrait
+        const drawImg = (npcBattleImg && isReady(npcBattleImg)) ? npcBattleImg
+          : (oppCreatureImg && isReady(oppCreatureImg)) ? oppCreatureImg
           : (leaderImg && isReady(leaderImg)) ? leaderImg : null;
         if (drawImg) {
           const bob = Math.sin(now / 420) * 3;
