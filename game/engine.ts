@@ -10,7 +10,7 @@ import {
   CREATURE_URL, getSprite, isReady,
   PARAM_SPRITE_URL,
   FOLLOWER_SPRITE_URL, FOLLOWER_BACK_URL, FOLLOWER_LEFT_URL, FOLLOWER_RIGHT_URL,
-  BUILDING_SPRITE_URL,
+  BUILDING_SPRITE_URL, EXTRA_BUILDING_URL,
   NPC_SPRITE_URL,
 } from "./sprite-registry";
 import {
@@ -741,6 +741,38 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       if (z.gym && !state.defeatedGyms.has(z.id)) {
         // Removed the procedural GYM text label — building PNG already shows it
       }
+    }
+
+    // ── Extra small buildings (isometric, decorative) ────────────────────
+    // Each zone gets a smaller secondary building on the opposite side
+    const EXTRA_POS: Record<string, { x: number; y: number }> = {
+      home:       { x: 20, y: 9 },
+      origin:     { x: 20, y: 9 },
+      grp:        { x: 2,  y: 9 },
+      hab:        { x: 2,  y: 9 },
+      ai:         { x: 20, y: 9 },
+      investopad: { x: 20, y: 9 },
+      sole:       { x: 2,  y: 9 },
+      fere:       { x: 20, y: 9 },
+      ccd:        { x: 2,  y: 9 },
+      iterate:    { x: 2,  y: 9 },
+    };
+    for (const z of ZONES) {
+      const pos = EXTRA_POS[z.id];
+      if (!pos) continue;
+      const exUrl = EXTRA_BUILDING_URL[z.id];
+      const exImg = exUrl ? getSprite(exUrl) : null;
+      if (!exImg || !isReady(exImg)) continue;
+      const exX = (z.ox + pos.x) * TILE + offX;
+      const exY = (z.oy + pos.y) * TILE + offY;
+      // Check if within viewport
+      if (z.ox + pos.x > tx1 + 1 || z.ox + pos.x + 3 < tx0 - 1) continue;
+      if (z.oy + pos.y > ty1 + 1 || z.oy + pos.y + 3 < ty0 - 1) continue;
+      // Draw at 3×3 tile size
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(exImg, exX, exY, TILE * 3, TILE * 3);
+      ctx.imageSmoothingEnabled = false;
     }
 
     // badges — with orbiting sparkle particles
