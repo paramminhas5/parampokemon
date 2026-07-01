@@ -21,7 +21,9 @@ Param Quest is a full Pokemon-style RPG where each zone represents a chapter of 
 - Cinematic zone arrival cards
 - Synthesized audio (zero audio files — all Web Audio API)
 - Save/load system with localStorage persistence
-- Mobile touch controls
+- Mobile touch controls with haptic feedback
+- Achievement system with 20 milestones
+- High-contrast accessibility mode
 
 ---
 
@@ -34,6 +36,8 @@ Param Quest is a full Pokemon-style RPG where each zone represents a chapter of 
 - Smooth camera with lerp, click-to-walk BFS pathfinding, WASD/arrows/touch/scroll input
 - Zone ambient particles, NPC idle bob, wild creature markers
 - Building interiors (10 unique maps with themed props and NPCs)
+- All badges/orbs auto-collectible on proximity (no blocking walls)
+- Wild creatures walkable (auto-trigger encounter on proximity)
 
 ### Battle System
 - Turn-based battles with type effectiveness (2x/0.5x), crits (18%), miss, PP tracking
@@ -43,6 +47,7 @@ Param Quest is a full Pokemon-style RPG where each zone represents a chapter of 
 - Leader AI with personality-driven move selection per gym leader
 - Phase 2 mechanic for final boss (StatusQuo revives at 60% HP)
 - 9 route trainer battles with progressive difficulty
+- Distinct haptic feedback patterns for mobile (steps, hits, badges, gym entry)
 
 ### Narrative & UI
 - Title screen with Prof. Iterate intro
@@ -58,11 +63,15 @@ Param Quest is a full Pokemon-style RPG where each zone represents a chapter of 
 - Bag inventory (Mermander stats, Pokedex, Berries, Badges)
 - StartMenu (Trainer, Badges, People, Contact)
 - Zone arrival title cards with banner backgrounds
+- Achievement system with 20 milestones (explore/battle/collect/special)
+- Save confidence indicator ("✓ SAVED" flash after auto-save)
+- High-contrast accessibility mode in Settings
 
 ### Audio (100% synthesized — zero files)
 - 10 unique zone BGM tracks with distinct melodies per zone
 - Battle BGM
 - 11 SFX: step, hit, super, crit, victory, badge, catch, faint, menu, warp, hptick
+- Crossfade transitions between zone BGM tracks (smooth audio handoffs)
 - Fade in/out on zone transitions, mute toggle, localStorage persistence
 
 ### Sprites
@@ -78,6 +87,33 @@ Param Quest is a full Pokemon-style RPG where each zone represents a chapter of 
 - 10 building sprites
 - 10 tile textures (grass, paths, trees, water, sand, stone)
 - UI sprites (pokeball, title BG, champion BG, warppad)
+
+---
+
+## Recent Improvements
+
+### Release Polish (v2.0)
+- ✅ CliffNotes modal centered on desktop (560px max-width, scale-pop animation)
+- ✅ Zone transitions reduced from 600ms → 400ms (snappier navigation)
+- ✅ All badges/orbs now auto-collectible on proximity (no longer blocking walls)
+- ✅ Gym entrance mats visually adjoin buildings (no gap)
+- ✅ Wild creatures walkable (auto-trigger encounter on proximity)
+- ✅ Distinct haptic feedback patterns (steps, badges, gym entry, battle hits)
+- ✅ Audio crossfade between zones (smooth BGM transitions)
+- ✅ Save confidence indicator ("✓ SAVED" flash after auto-save)
+- ✅ Follower idle sleep animation (shrinks after 30s inactivity)
+- ✅ High-contrast accessibility mode in Settings
+- ✅ Achievement system (20 milestones across explore/battle/collect/special)
+
+---
+
+## Accessibility
+
+- High-contrast mode (enhanced borders + text visibility)
+- Configurable screen shake, particles, and touch controls
+- Adjustable text speed (slow/normal/fast)
+- Full keyboard navigation (WASD, arrows, Space, ESC)
+- Touch D-pad for mobile with haptic feedback
 
 ---
 
@@ -115,14 +151,16 @@ parampokemon/
 │   │   ├── TitleScreen.tsx         # Prof. Iterate intro
 │   │   ├── Bag.tsx                 # Inventory + Pokedex
 │   │   ├── WorldSelect.tsx         # Galaxy map view
+│   │   ├── SettingsScreen.tsx      # Settings with accessibility options
 │   │   └── ... (20+ UI components)
 │   ├── home/                       # Homepage components
 │   └── resume/                     # Resume components
 ├── game/
 │   ├── data.ts                     # All game content (zones, NPCs, gyms, creatures)
-│   ├── engine.ts                   # Game loop, input, rendering, camera
+│   ├── engine.ts                   # Game loop, input, rendering, camera, haptics
 │   ├── world.ts                    # Tile grid builder (80×300)
 │   ├── tiles.ts                    # 38 tile types + procedural drawing
+│   ├── achievements.ts            # 20 milestone achievements
 │   ├── sprites.ts                  # Overworld follower sprite
 │   ├── sprite-registry.ts         # All sprite URLs + preload system
 │   ├── interiors.ts               # 10 interior tile maps
@@ -130,7 +168,7 @@ parampokemon/
 │   ├── pathfind.ts                # BFS navigation
 │   └── _archive/                  # Archived procedural sprites
 ├── lib/
-│   └── audio.ts                   # Web Audio BGM + SFX engine
+│   └── audio.ts                   # Web Audio BGM + SFX engine (crossfade)
 ├── public/sprites/
 │   ├── creatures/     (9 files, 1.1MB)
 │   ├── leaders/       (9 files, 1.3MB)
@@ -216,6 +254,8 @@ Other sprites (creatures, leaders, player, tiles, buildings) were generated via 
 | Sprite preload | Prioritized tiers (critical → important → optional) |
 | Target FPS | 60 (Canvas 2D) |
 | Audio files | 0 (all synthesized) |
+| Zone transition | 400ms (optimized from 600ms) |
+| BGM crossfade | 150–400ms smooth handoff |
 
 ---
 

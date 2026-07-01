@@ -79,6 +79,7 @@ export function Game() {
   const [hudAccentBleed, setHudAccentBleed] = useState<string | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [creditsOpen, setCreditsOpen] = useState(false);
+  const [saveFlash, setSaveFlash] = useState(false);
   const bleedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // pendingSkillLearn: queued after dialog closes — fired once dialog unmounts
@@ -134,6 +135,8 @@ export function Game() {
         defeatedTrainers: [...(engineRef.current?.state.defeatedTrainers ?? [])],
       }));
     } catch {}
+    setSaveFlash(true);
+    setTimeout(() => setSaveFlash(false), 1500);
   }, [badges, creatures, skills, defeated, visited]);
 
   // Keep player stage in sync with badge count (fixes save-reload regression)
@@ -562,6 +565,19 @@ export function Game() {
             backdropFilter: "blur(4px)",
           }}>✕</Link>
         </div>
+
+        {/* Save indicator */}
+        {saveFlash && (
+          <div style={{
+            position: "absolute", top: 42, right: 10,
+            zIndex: 21, pointerEvents: "none",
+            fontFamily: "var(--font-pixel)", fontSize: 7,
+            color: "#00e8a0", opacity: 0.7,
+            animation: "pq-fade-in 0.2s ease-out",
+          }}>
+            ✓ SAVED
+          </div>
+        )}
 
         {/* HUD — BOTTOM RIGHT */}
         <div style={{

@@ -7,6 +7,7 @@ export type GameSettings = {
   showControls: boolean;
   screenShake: boolean;
   particleEffects: boolean;
+  highContrast: boolean;
 };
 
 const DEFAULTS: GameSettings = {
@@ -14,6 +15,7 @@ const DEFAULTS: GameSettings = {
   showControls: true,
   screenShake: true,
   particleEffects: true,
+  highContrast: false,
 };
 
 export function loadSettings(): GameSettings {
@@ -32,6 +34,9 @@ export function saveSettings(s: GameSettings) {
 
 const STYLES = `
 @keyframes settings-fade-in { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: translateY(0) } }
+body.pq-high-contrast [style*="border"] { border-width: 3px !important; }
+body.pq-high-contrast .pq-panel { border-width: 3px !important; border-color: rgba(255,255,255,0.5) !important; }
+body.pq-high-contrast [style*="font-pixel"] { text-shadow: 0 0 2px rgba(255,255,255,0.5); }
 `;
 
 export function SettingsScreen({ onClose }: { onClose: () => void }) {
@@ -41,6 +46,11 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     saveSettings(settings);
   }, [settings]);
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    document.body.classList.toggle("pq-high-contrast", settings.highContrast);
+  }, [settings.highContrast]);
 
   const toggle = (key: keyof GameSettings) => {
     setSettings(s => ({ ...s, [key]: !s[key] }));
@@ -92,6 +102,7 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
             <ToggleRow label="Screen Shake" description="Camera shake on battle hits" active={settings.screenShake} onToggle={() => toggle("screenShake")} />
             <ToggleRow label="Particles" description="Ambient zone particles + sparkles" active={settings.particleEffects} onToggle={() => toggle("particleEffects")} />
             <ToggleRow label="Touch Controls" description="Show D-pad on mobile" active={settings.showControls} onToggle={() => toggle("showControls")} />
+            <ToggleRow label="High Contrast" description="Enhanced borders + text visibility" active={settings.highContrast} onToggle={() => toggle("highContrast")} />
           </Section>
 
           {/* Text */}

@@ -331,6 +331,11 @@ function startTrack(track: BgmTrack, trackId: string, fadeInMs = 400) {
   const c = getCtx();
   if (!c) return;
 
+  // Crossfade: if already playing, fade out first
+  if (bgmActive && bgmGain) {
+    fadeBgmGain(0, Math.min(fadeInMs, 300));
+  }
+
   stopBgmTimer();
   bgmActive    = true;
   bgmBeat      = 0;
@@ -343,11 +348,18 @@ function startTrack(track: BgmTrack, trackId: string, fadeInMs = 400) {
     bgmGain.connect(getMasterGain() ?? c.destination);
   }
 
-  bgmGain.gain.cancelScheduledValues(c.currentTime);
-  bgmGain.gain.setValueAtTime(0, c.currentTime);
-  bgmGain.gain.linearRampToValueAtTime(1, c.currentTime + fadeInMs / 1000);
+  // Delay the new track start slightly so the fade-out has time to progress
+  const crossfadeDelay = bgmGain.gain.value > 0.1 ? 150 : 0;
 
-  scheduleBeat(track);
+  setTimeout(() => {
+    if (!bgmActive || _muted) return;
+    const ctx = getCtx();
+    if (!ctx || !bgmGain) return;
+    bgmGain.gain.cancelScheduledValues(ctx.currentTime);
+    bgmGain.gain.setValueAtTime(0, ctx.currentTime);
+    bgmGain.gain.linearRampToValueAtTime(1, ctx.currentTime + fadeInMs / 1000);
+    scheduleBeat(track);
+  }, crossfadeDelay);
 }
 
 export function stopBGM(fadeOutMs = 400) {
