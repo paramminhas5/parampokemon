@@ -2,8 +2,9 @@
 
 export type Beat = "did" | "learned";
 export type NpcKind =
-  | "trainer-m" | "trainer-f" | "investor" | "engineer"
-  | "celeb" | "client" | "fan" | "tenant" | "professor" | "mom" | "rival";
+  | "trainer-m" | "trainer-m2" | "trainer-f" | "investor" | "investor-f"
+  | "engineer" | "engineer-f" | "celeb" | "celeb-m" | "client" | "client-f"
+  | "fan" | "fan-f" | "tenant" | "professor" | "mom" | "rival";
 export type Dir = "up" | "down" | "left" | "right";
 
 export type LeaderSprite =
@@ -179,7 +180,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
         ] },
       { x: 8, y: 14, name: "Old Classmate", role: "Origin Town", kind: "trainer-f", beat: "did",
         quote: "You were building websites and making music while the rest of us figured out what to study.\n\nNobody called it a career back then. You just called it Tuesday." },
-      { x: 22, y: 3, name: "Hidden Sign", role: "Easter egg", kind: "fan", beat: "did",
+      { x: 22, y: 3, name: "Hidden Sign", role: "Easter egg", kind: "fan-f", beat: "did",
         quote: "★ EASTER EGG ★\n\nYou found the hidden corner.\n\nHere's the recruiter TL;DR:\n\nHire him.\n\nparam@catscandance.com" },
     ],
     creature: { id: "spark", name: "Sparkling", type: "Vision", power: 14, color: "#f5b78a", shape: "spark",
@@ -225,11 +226,11 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     npcs: [
       { x: 8, y: 16, name: "GetRightPrice", role: "Founding team · 2010", kind: "trainer-m", beat: "did",
         quote: "Founding team. In college. One of India's first price-comparison engines for electronics.\n\nAngel-backed by Sidharth Rao of Webchutney. You catalogued thousands of SKUs before most people here had smartphones." },
-      { x: 23, y: 14, name: "First-Mover Lessons", role: "What it taught you", kind: "investor", beat: "learned",
+      { x: 23, y: 14, name: "First-Mover Lessons", role: "What it taught you", kind: "investor-f", beat: "learned",
         quote: "Cataloguing. Pricing logic. Affiliate models. Crawling inventory at scale.\n\nFirst proof you could ship something real — in college, with no playbook." },
       { x: 5, y: 9, name: "Sidharth Rao", role: "Angel · Webchutney", kind: "investor", beat: "did",
         quote: "I backed GetRightPrice because the team was already building before they had a cheque.\n\nThat's always the signal. You had it." },
-      { x: 8, y: 16, name: "College Batchmate", role: "GRP Market", kind: "fan", beat: "did",
+      { x: 8, y: 16, name: "College Batchmate", role: "GRP Market", kind: "fan-f", beat: "did",
         quote: "We were in college when this launched.\n\nMost of us were figuring out internships.\n\nYou were building India's first price comparison engine." },
     ],
     creature: { id: "crawler", name: "Crawlix", type: "Search", power: 16, color: "#7ac46a", shape: "blob",
@@ -273,7 +274,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     sign: { x: 3, y: 17, text: "HAB DISTRICT\nBudget rentals. Bengaluru.\n\nSame problem as OYO.\nNo VC money. ₹1Cr revenue.\nBootstrapped. Sold operations." },
     badge: { x: 3, y: 16, id: "ops", label: "Operator Badge", color: "#f6a268" },
     npcs: [
-      { x: 7, y: 17, name: "Hab Housing", role: "Founder · 2012", kind: "trainer-m", beat: "did",
+      { x: 7, y: 17, name: "Hab Housing", role: "Founder · 2012", kind: "trainer-m2", beat: "did",
         quote: "You built one of India's first branded budget-hospitality startups — the category OYO later scaled nationally.\n\n$120K+ in revenue, fully bootstrapped. Grew from sole founder to a 16-person team across three cities." },
       { x: 7, y: 17, name: "What $120K Taught You", role: "Bootstrapping", kind: "tenant", beat: "learned",
         quote: "Operations, unit economics, acquisition, retention — without a safety net.\n\nEvery decision hit different when it was your own money on the line." },
@@ -375,9 +376,9 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     npcs: [
       { x: 3, y: 15, name: "Investopad", role: "Growth & Tech Partner · Fund I", kind: "investor", beat: "did",
         quote: "Partner for Growth and Technology.\n\nHelped build Fund I — deal sourcing, portfolio analysis, founder relationships, growth strategy. You didn't write the cheques, but you were in the room while most of the portfolio raised theirs." },
-      { x: 22, y: 12, name: "Portfolio", role: "Companies worked with", kind: "client", beat: "did",
+      { x: 22, y: 12, name: "Portfolio", role: "Companies worked with", kind: "client-f", beat: "did",
         quote: "Meesho, Entri, Simsim, Amazon, Forbes.\n\nAcross growth, brand, and product strategy. The range is the point." },
-      { x: 3, y: 15, name: "Rohan Malhotra", role: "Investopad · Family Office", kind: "investor", beat: "learned",
+      { x: 3, y: 15, name: "Rohan Malhotra", role: "Investopad · Family Office", kind: "investor-f", beat: "learned",
         beats: [
           "Being on this side of the table changes how you see everything, Param.",
           "You understand how investors think now. You understand how founders look from the other side of the room.\n\nThat's not something you can learn from a book."
@@ -433,11 +434,11 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     npcs: [
       { x: 4, y: 17, name: "SoleSearch", role: "Co-founder & CEO · 2020-24", kind: "celeb", beat: "did",
         quote: "You co-founded India's leading sneaker and streetwear platform with Prabal Baghla. Rannvijay Singha came on board. $795K raised.\n\nStores in Mumbai and Hyderabad. CNBC-TV18 feature. ₹26Cr+ yearly sales." },
-      { x: 22, y: 16, name: "Prabal Baghla", role: "Co-founder · SoleSearch", kind: "trainer-m", beat: "learned",
+      { x: 22, y: 16, name: "Prabal Baghla", role: "Co-founder · SoleSearch", kind: "trainer-m2", beat: "learned",
         quote: "We built the operations and retail presence together.\n\nMumbai, Hyderabad, 30+ events, ₹26Cr+ — and you ran it all as CEO. That's the job." },
       { x: 8, y: 8, name: "Sneakerhead", role: "SoleSearch Mall", kind: "fan", beat: "did",
         quote: "I've been to 12 SoleSearch events.\n\nThe first one was 40 people in a parking lot.\n\nThe last one had a queue around the block. You built that." },
-      { x: 18, y: 13, name: "Rannvijay Singha", role: "Brand Partner · SoleSearch", kind: "celeb", beat: "did",
+      { x: 18, y: 13, name: "Rannvijay Singha", role: "Brand Partner · SoleSearch", kind: "celeb-m", beat: "did",
         quote: "I joined because it was real.\n\nNot another influencer deal — an actual platform building India's streetwear culture from the ground up." },
     ],
     pressWall: { x: 23, y: 14 },
@@ -488,14 +489,14 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     sign: { x: 3, y: 17, text: "FERE DISTRICT\nAutonomous AI agent platform.\n\nCMO · Rejoined Akshaya Aron.\nFunded by Ethereal Ventures.\nfereai.xyz" },
     badge: { x: 5, y: 9, id: "agent", label: "Autonomy Badge", color: "#00e8a0" },
     npcs: [
-      { x: 8, y: 17, name: "Fere.ai", role: "CMO · 2024-25", kind: "engineer", beat: "did",
+      { x: 8, y: 17, name: "Fere.ai", role: "CMO · 2024-25", kind: "engineer-f", beat: "did",
         quote: "CMO at Fere.ai — autonomous AI agent platform funded by Ethereal Ventures.\n\nRejoined long-time collaborator Akshaya Aron. Restructured marketing to run lean, sustained by AI systems.\n\nUsed this operating model as the proving ground for launching Iterate." },
       { x: 24, y: 15, name: "Full Circle", role: "What Fere taught you", kind: "investor", beat: "learned",
         beats: [
           "When agents act autonomously, you're not selling a product. You're building trust in something invisible.",
           "That's exactly what you figured out here.\n\nTrust before demo. Not the other way around."
         ] },
-      { x: 4, y: 10, name: "Ethereal Ventures", role: "Lead Investor · Fere $1.3M", kind: "investor", beat: "did",
+      { x: 4, y: 10, name: "Ethereal Ventures", role: "Lead Investor · Fere $1.3M", kind: "investor-f", beat: "did",
         quote: "We led the round because the team understood both sides — the AI and the user.\n\nThat combination is rarer than most people think." },
     ],
     creature: { id: "wisp", name: "Agentwisp", type: "Autonomy", power: 28, color: "#00e8a0", shape: "wisp",
@@ -541,7 +542,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     npcs: [
       { x: 3, y: 16, name: "Cats Can Dance", role: "Music label · Pet brand", kind: "client", beat: "did",
         quote: "A music label and pet-forward brand. Original music, brand world, live events.\n\nNo brief. No client. This is the work that exists because it has to — not because someone commissioned it." },
-      { x: 21, y: 11, name: "A cat", role: "Studio resident", kind: "fan", beat: "did",
+      { x: 21, y: 11, name: "A cat", role: "Studio resident", kind: "fan-f", beat: "did",
         quote: "Mrrrp." },
       { x: 8, y: 16, name: "Music Fan", role: "CCD Live Event", kind: "fan", beat: "did",
         quote: "I discovered Cats Can Dance at a live show.\n\nMusic made without a brief sounds different.\n\nMore honest. You can tell nobody told them what to make." },
@@ -592,10 +593,10 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
       { x: 22, y: 15, name: "Work with us", role: "Founder partners only", kind: "trainer-m", beat: "did",
         quote: "We take a small number of founder partners per quarter.\n\nTalk to me: param@catscandance.com",
         special: "contact" },
-      { x: 22, y: 9, name: "param@catscandance.com", role: "Email", kind: "celeb", beat: "did",
+      { x: 22, y: 9, name: "param@catscandance.com", role: "Email", kind: "celeb-m", beat: "did",
         quote: "Send me something interesting.\n\nparam@catscandance.com",
         special: "contact" },
-      { x: 7, y: 12, name: "Former Client", role: "Iterate Partner", kind: "client", beat: "did",
+      { x: 7, y: 12, name: "Former Client", role: "Iterate Partner", kind: "client-f", beat: "did",
         quote: "We hired Iterate for a three-month sprint.\n\nThey moved faster than our internal team and shipped things we'd been planning for a year.\n\nAI-native isn't a pitch — it's how they actually work." },
       { x: 12, y: 15, name: "Rival", role: "Old friend · Final chapter", kind: "rival", beat: "did",
         quote: "...I've been watching the whole time.\n\nEvery world. Every boss. Every industry switch.\n\nOkay fine. I'll say it:\n\nYou were right. The range is the point.\n\nAnd whoever's reading this — so were you for making it this far." },
@@ -987,7 +988,7 @@ export const ROUTE_NPCS: RouteNpc[] = [
   // Route 7: SoleSearch → Fere (y = 6*30 + 25 = 205)
   { x: 40, y: 205,
     name: "Sneaker Collector", role: "Route 7 · Sole → Fere",
-    kind: "fan",
+    kind: "fan-f",
     quote: "I bought my first pair at a SoleSearch event.\n\nThere were 40 people there. Maybe 50.\n\nNow everyone acts like they were always into sneakers.",
     trainer: {
       hp: 60,

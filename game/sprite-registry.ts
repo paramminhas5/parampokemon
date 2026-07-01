@@ -94,17 +94,23 @@ export const LANDMARK_URL: Record<string, string> = {
 import type { NpcKind } from "./data";
 
 export const NPC_SPRITE_URL: Record<NpcKind, string> = {
-  "trainer-m": "/sprites/npcs/trainer_m.png",
-  "trainer-f": "/sprites/npcs/trainer_f.png",
-  investor:    "/sprites/npcs/investor.png",
-  engineer:    "/sprites/npcs/engineer.png",
-  celeb:       "/sprites/npcs/celeb.png",
-  client:      "/sprites/npcs/client.png",
-  fan:         "/sprites/npcs/fan.png",
-  tenant:      "/sprites/npcs/tenant.png",
-  professor:   "/sprites/npcs/professor.png",
-  mom:         "/sprites/npcs/mom.png",
-  rival:       "/sprites/npcs/rival.png",
+  "trainer-m":  "/sprites/npcs/trainer_m.png",
+  "trainer-m2": "/sprites/npcs/trainer_m2.png",
+  "trainer-f":  "/sprites/npcs/trainer_f.png",
+  investor:     "/sprites/npcs/investor.png",
+  "investor-f": "/sprites/npcs/investor_f.png",
+  engineer:     "/sprites/npcs/engineer.png",
+  "engineer-f": "/sprites/npcs/engineer_f.png",
+  celeb:        "/sprites/npcs/celeb.png",
+  "celeb-m":    "/sprites/npcs/celeb_m.png",
+  client:       "/sprites/npcs/client.png",
+  "client-f":   "/sprites/npcs/client_f.png",
+  fan:          "/sprites/npcs/fan.png",
+  "fan-f":      "/sprites/npcs/fan_f.png",
+  tenant:       "/sprites/npcs/tenant.png",
+  professor:    "/sprites/npcs/professor.png",
+  mom:          "/sprites/npcs/mom.png",
+  rival:        "/sprites/npcs/rival.png",
 };
 
 // ─── Zone arrival banners (Batch B) ───────────────────────────────────────

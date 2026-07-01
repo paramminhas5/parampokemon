@@ -4,8 +4,9 @@ import { PLAYER_FRONT_URL, FOLLOWER_SPRITE_URL } from "@/game/sprite-registry";
 
 type Tab = "badges" | "trainer" | "people" | "contact";
 
-export function StartMenu({ badges, creatures, skills, onClose }: {
+export function StartMenu({ badges, creatures, skills, onClose, onSettings, onCredits }: {
   badges: Set<string>; creatures: Set<string>; skills: Set<string>; onClose: () => void;
+  onSettings?: () => void; onCredits?: () => void;
 }) {
   const [tab, setTab] = useState<Tab>("trainer");
   const [selected, setSelected] = useState<string | null>(null);
@@ -85,6 +86,8 @@ export function StartMenu({ badges, creatures, skills, onClose }: {
               </ul>
               <div className="mt-3 flex flex-wrap gap-2">
                 <a href="/resume" className="pq-btn pq-btn-primary">FULL CV →</a>
+                {onSettings && <button onClick={onSettings} className="pq-btn">⚙ SETTINGS</button>}
+                {onCredits && <button onClick={onCredits} className="pq-btn">★ CREDITS</button>}
                 <a href="/" className="pq-btn">✕ EXIT TO HOME</a>
               </div>
             </div>

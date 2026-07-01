@@ -396,10 +396,12 @@ function StatusBadges({ effects }: { effects: StatusEffect[] }) {
 }
 
 // ─── Main Battle component ───────────────────────────────────────────────────
-export function Battle({ zone, ownedSkills, badges, onWin, onFlee, onFinishingBlow, opponentSpriteUrl }: {
+export function Battle({ zone, ownedSkills, badges, onWin, onFlee, onFinishingBlow, opponentSpriteUrl, berries, onUseBerry }: {
   zone: Zone; ownedSkills: Set<string>; badges: Set<string>; onWin: () => void; onFlee: () => void;
   onFinishingBlow?: () => void;
   opponentSpriteUrl?: string; // For route trainer battles — shows the NPC sprite
+  berries?: { heal: number; shield: number; speed: number };
+  onUseBerry?: (type: string) => void;
 }) {
   const gym = zone.gym!;
   const stage = stageForBadges(badges.size);
@@ -920,12 +922,61 @@ export function Battle({ zone, ownedSkills, badges, onWin, onFlee, onFinishingBl
             <MoveButton key={move.id} move={move} disabled={animating || done} ppLeft={(move.pp) - (ppUsed[move.id] ?? 0)} onClick={() => useMove(move)} />
           ))}
         </div>
-        <button
-          onClick={onFlee}
-          style={{ marginTop: 8, alignSelf: "flex-end", background: "transparent", border: "1px solid #0d1a2a", color: "#1a2a3a", padding: "6px 18px", fontFamily: "var(--font-pixel)", fontSize: 7, cursor: "pointer", borderRadius: 0, transition: "all 0.12s" }}
-          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#ef444450"; (e.currentTarget as HTMLButtonElement).style.color = "#ef4444"; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#0d1a2a"; (e.currentTarget as HTMLButtonElement).style.color = "#1a2a3a"; }}
-        >↩ FLEE</button>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8 }}>
+          {/* Berry items */}
+          {berries && onUseBerry && (
+            <div style={{ display: "flex", gap: 4 }}>
+              {([
+                { type: "heal", label: "HEAL", icon: "💚", desc: "+30 HP", color: "#4ade80" },
+                { type: "shield", label: "SHIELD", icon: "🛡", desc: "Block hit", color: "#a8b8c8" },
+                { type: "speed", label: "SPEED", icon: "⚡", desc: "Act first", color: "#f8d030" },
+              ] as const).map(b => {
+                const count = berries[b.type as keyof typeof berries];
+                const canUse = count > 0 && !animating && !done;
+                return (
+                  <button key={b.type}
+                    disabled={!canUse}
+                    onClick={() => {
+                      if (!canUse) return;
+                      onUseBerry(b.type);
+                      if (b.type === "heal") {
+                        const healAmt = Math.min(30, stage.hp - myHp);
+                        setMyHp(h => Math.min(stage.hp, h + 30));
+                        addLog(`Used Heal Berry! +${healAmt} HP`, "super");
+                        playSound("catch");
+                      } else if (b.type === "shield") {
+                        setMyStatuses(s => s.includes("shield") ? s : [...s, "shield"]);
+                        addLog("Used Shield Berry! Next hit blocked.", "info");
+                        playSound("badge");
+                      } else if (b.type === "speed") {
+                        setMyStatuses(s => s.includes("haste") ? s : [...s, "haste"]);
+                        addLog("Used Speed Berry! Acting faster!", "info");
+                        playSound("super");
+                      }
+                    }}
+                    style={{
+                      background: canUse ? `${b.color}15` : "transparent",
+                      border: `1px solid ${canUse ? b.color + "50" : "#0d1a2a"}`,
+                      color: canUse ? b.color : "#1a2a3a",
+                      padding: "4px 8px",
+                      fontFamily: "var(--font-pixel)", fontSize: 6,
+                      cursor: canUse ? "pointer" : "not-allowed",
+                      borderRadius: 0, transition: "all 0.1s",
+                    }}
+                  >
+                    {b.icon} {count}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+          <button
+            onClick={onFlee}
+            style={{ background: "transparent", border: "1px solid #0d1a2a", color: "#1a2a3a", padding: "6px 18px", fontFamily: "var(--font-pixel)", fontSize: 7, cursor: "pointer", borderRadius: 0, transition: "all 0.12s" }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#ef444450"; (e.currentTarget as HTMLButtonElement).style.color = "#ef4444"; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#0d1a2a"; (e.currentTarget as HTMLButtonElement).style.color = "#1a2a3a"; }}
+          >↩ FLEE</button>
+        </div>
       </div>
 
       {/* Defeat quote overlay */}

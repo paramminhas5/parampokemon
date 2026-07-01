@@ -20,8 +20,8 @@ import { drawFollower } from "./sprites";
 import { playSound } from "../lib/audio";
 import { findPath } from "./pathfind";
 
-const DEFAULT_VIEW_TILES_X = 26;
-const DEFAULT_VIEW_TILES_Y = 18;
+const DEFAULT_VIEW_TILES_X = 32;
+const DEFAULT_VIEW_TILES_Y = 22;
 const WALK_DURATION_MS = 140;
 
 // ─── Smooth camera lerp state ────────────────────────────────
@@ -775,8 +775,8 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       const npcUrl = NPC_SPRITE_URL[i.npc.kind];
       const npcImg = npcUrl ? getSprite(npcUrl) : null;
       if (npcImg && isReady(npcImg) && npcImg.naturalWidth > 16) {
-        // Render HD NPC sprite at 1.4× tile size — proportional to the world
-        const npcSize = Math.round(TILE * 1.4);
+        // Render HD NPC sprite at 1.15× tile size — proportional to the world
+        const npcSize = Math.round(TILE * 1.15);
         const npcOx = (TILE - npcSize) / 2;
         const npcOy = TILE - npcSize; // anchor at bottom of tile
         // Drop shadow
@@ -825,7 +825,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       const rnUrl = NPC_SPRITE_URL[rn.kind];
       const rnImg = rnUrl ? getSprite(rnUrl) : null;
       if (rnImg && isReady(rnImg) && rnImg.naturalWidth > 16) {
-        const rnSize = Math.round(TILE * 1.4);
+        const rnSize = Math.round(TILE * 1.15);
         const rnOx = (TILE - rnSize) / 2;
         const rnOy = TILE - rnSize;
         // Drop shadow

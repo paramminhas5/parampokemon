@@ -817,18 +817,24 @@ export function drawBadge(ctx: Ctx, px0: number, py0: number, color: string, pha
 type Palette = { hair: string; skin: string; shirt: string; shirtAlt: string; pants: string; shoes: string };
 
 const PALETTES: Record<NpcKind | "player", Palette> = {
-  player:     { hair: "#1a0e08", skin: "#c8956a", shirt: "#1a1a2e", shirtAlt: "#0a0a1a", pants: "#2a3a5a", shoes: "#0a0808" },
-  "trainer-m":{ hair: "#2a1810", skin: "#f0c9a0", shirt: "#3a78d8", shirtAlt: "#1f4a98", pants: "#2a2a2a", shoes: "#101010" },
-  "trainer-f":{ hair: "#7a3a2a", skin: "#f0c9a0", shirt: "#d83a78", shirtAlt: "#981f4a", pants: "#3a2a4a", shoes: "#101010" },
-  investor:   { hair: "#1a1a1a", skin: "#e8c098", shirt: "#202028", shirtAlt: "#0a0a10", pants: "#101018", shoes: "#3a3a3a" },
-  engineer:   { hair: "#1a1a1a", skin: "#d8b890", shirt: "#3a8a6a", shirtAlt: "#1f5a40", pants: "#28384a", shoes: "#101010" },
-  celeb:      { hair: "#202020", skin: "#d8a878", shirt: "#f0c870", shirtAlt: "#a08838", pants: "#2a2a2a", shoes: "#101010" },
-  client:     { hair: "#4a3020", skin: "#e8c098", shirt: "#a06fc4", shirtAlt: "#5a3a78", pants: "#2a2a2a", shoes: "#1a1a1a" },
-  fan:        { hair: "#d83a3a", skin: "#f0c9a0", shirt: "#f5d24a", shirtAlt: "#a08838", pants: "#3a2a1a", shoes: "#1a1a1a" },
-  tenant:     { hair: "#2a1810", skin: "#c4986a", shirt: "#6a8a4a", shirtAlt: "#3a5028", pants: "#3a2a1a", shoes: "#1a1a1a" },
-  professor:  { hair: "#d8d8e0", skin: "#f0c9a0", shirt: "#f5f0e0", shirtAlt: "#b8b0a0", pants: "#2a2a2a", shoes: "#3a3a3a" },
-  mom:        { hair: "#a06038", skin: "#f0c9a0", shirt: "#e89ab8", shirtAlt: "#a0506a", pants: "#5a3a4a", shoes: "#3a2a1a" },
-  rival:      { hair: "#f0c4ff", skin: "#f0c9a0", shirt: "#5a3a78", shirtAlt: "#2a1838", pants: "#1a1a1a", shoes: "#0a0a0a" },
+  player:      { hair: "#1a0e08", skin: "#c8956a", shirt: "#1a1a2e", shirtAlt: "#0a0a1a", pants: "#2a3a5a", shoes: "#0a0808" },
+  "trainer-m": { hair: "#2a1810", skin: "#f0c9a0", shirt: "#3a78d8", shirtAlt: "#1f4a98", pants: "#2a2a2a", shoes: "#101010" },
+  "trainer-m2":{ hair: "#8a7a6a", skin: "#e0b888", shirt: "#5a4030", shirtAlt: "#3a2818", pants: "#3a3028", shoes: "#1a1810" },
+  "trainer-f": { hair: "#7a3a2a", skin: "#f0c9a0", shirt: "#d83a78", shirtAlt: "#981f4a", pants: "#3a2a4a", shoes: "#101010" },
+  investor:    { hair: "#1a1a1a", skin: "#e8c098", shirt: "#202028", shirtAlt: "#0a0a10", pants: "#101018", shoes: "#3a3a3a" },
+  "investor-f":{ hair: "#1a1a2a", skin: "#e8c098", shirt: "#1a2848", shirtAlt: "#0a1428", pants: "#1a1828", shoes: "#2a2a3a" },
+  engineer:    { hair: "#1a1a1a", skin: "#d8b890", shirt: "#3a8a6a", shirtAlt: "#1f5a40", pants: "#28384a", shoes: "#101010" },
+  "engineer-f":{ hair: "#3a2018", skin: "#f0c9a0", shirt: "#7a7a7a", shirtAlt: "#4a4a4a", pants: "#2a3040", shoes: "#101010" },
+  celeb:       { hair: "#202020", skin: "#d8a878", shirt: "#f0c870", shirtAlt: "#a08838", pants: "#2a2a2a", shoes: "#101010" },
+  "celeb-m":   { hair: "#3a2a1a", skin: "#d8a878", shirt: "#f0f0f0", shirtAlt: "#b0b0b0", pants: "#1a1a1a", shoes: "#101010" },
+  client:      { hair: "#4a3020", skin: "#e8c098", shirt: "#a06fc4", shirtAlt: "#5a3a78", pants: "#2a2a2a", shoes: "#1a1a1a" },
+  "client-f":  { hair: "#2a1a10", skin: "#f0c9a0", shirt: "#c85a3a", shirtAlt: "#8a3a1a", pants: "#3a2a1a", shoes: "#1a1a1a" },
+  fan:         { hair: "#d83a3a", skin: "#f0c9a0", shirt: "#f5d24a", shirtAlt: "#a08838", pants: "#3a2a1a", shoes: "#1a1a1a" },
+  "fan-f":     { hair: "#5a2a78", skin: "#f0c9a0", shirt: "#c870d8", shirtAlt: "#8a4098", pants: "#3a2a4a", shoes: "#1a1a1a" },
+  tenant:      { hair: "#2a1810", skin: "#c4986a", shirt: "#6a8a4a", shirtAlt: "#3a5028", pants: "#3a2a1a", shoes: "#1a1a1a" },
+  professor:   { hair: "#d8d8e0", skin: "#f0c9a0", shirt: "#f5f0e0", shirtAlt: "#b8b0a0", pants: "#2a2a2a", shoes: "#3a3a3a" },
+  mom:         { hair: "#a06038", skin: "#f0c9a0", shirt: "#e89ab8", shirtAlt: "#a0506a", pants: "#5a3a4a", shoes: "#3a2a1a" },
+  rival:       { hair: "#f0c4ff", skin: "#f0c9a0", shirt: "#5a3a78", shirtAlt: "#2a1838", pants: "#1a1a1a", shoes: "#0a0a0a" },
 };
 
 export function drawCharacter(
