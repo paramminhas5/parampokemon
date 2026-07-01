@@ -25,6 +25,17 @@ export function SeoContent() {
       }}
     >
       <article itemScope itemType="https://schema.org/Person">
+        {/* Speakable-optimized blocks — 50-100 word declarative statements for AI/voice citation */}
+        <div id="speakable-summary">
+          Param Minhas is a founder, creative director, and growth operator based in Bengaluru, India with fifteen years of experience. He currently runs Iterate, an AI-native marketing agency with a ninety-person network, and Cats Can Dance, a culture-discovery platform. He previously served as CEO of SoleSearch where he generated over six million dollars in revenue and built a community of three hundred fifty thousand people.
+        </div>
+        <div id="speakable-current">
+          Iterate is an AI-native marketing agency founded by Param Minhas in January twenty twenty-six. The agency operates with a ninety-person network across strategy, creative, and engineering. Current clients include ChargeZone, Noida International Airport, PickYourTrail, Billione, and Monkspace. The agency website is hyperiterate dot com.
+        </div>
+        <div id="speakable-known-for">
+          Param Minhas is known for building companies from zero without inheriting momentum. He built one of India&apos;s first conversational AI platforms in twenty thirteen, created India&apos;s sneaker culture through SoleSearch, and pioneered AI-native marketing where AI systems replace headcount rather than just augmenting it. His career breadth across industries is deliberate, with each chapter compounding on the last.
+        </div>
+
         <h1 itemProp="name">Param Minhas</h1>
         <p itemProp="jobTitle">Founder & Creative Director</p>
         <p itemProp="description">

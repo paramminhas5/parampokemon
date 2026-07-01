@@ -143,6 +143,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       "https://catscandance.com",
       "https://hyperiterate.com",
       "https://open.spotify.com/artist/catscandance",
+      "https://www.crunchbase.com/person/param-minhas",
+      "https://tracxn.com/d/companies/hab-housing/__e1-Y8yk6fIQg8I52LcHihc_D17fv5S22nK1cO0xNuXA",
+      "https://wellfound.com/company/investopad/people",
     ],
     knowsAbout: [
       "AI-native marketing", "Go-to-market strategy", "Brand strategy", "Creative direction",
@@ -220,6 +223,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const faqJsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
+    speakable: {
+      "@type": "SpeakableSpecification",
+      cssSelector: ["#speakable-summary", "#speakable-current", "#speakable-known-for"],
+    },
     mainEntity: [
       {
         "@type": "Question",
@@ -275,6 +282,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="canonical" href="https://paramquest.vercel.app" />
         <link rel="author" href="/humans.txt" />
         <meta name="author" content="Param Minhas" />
+        <meta name="citation_author" content="Param Minhas" />
+        <meta name="citation_title" content="Param Minhas — Professional Portfolio" />
+        <meta name="citation_publication_date" content="2025/01/01" />
+        <meta name="citation_online_date" content="2026/07/01" />
+        <meta name="citation_language" content="en" />
         <meta name="geo.region" content="IN-KA" />
         <meta name="geo.placename" content="Bengaluru" />
         <meta name="geo.position" content="12.9716;77.5946" />
