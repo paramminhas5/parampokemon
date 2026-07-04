@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { motion, useScroll, useSpring } from "motion/react";
+import { useEffect, useRef, useState } from "react";
+import { motion, useScroll, useSpring, useTransform, useReducedMotion } from "motion/react";
 import { ZONES, CONTACT, PRESS } from "@/game/data";
 import { CareerCard } from "@/components/home/CareerCard";
 import { CreatureStrip } from "@/components/home/CreatureStrip";
@@ -27,13 +27,42 @@ function ScrollProgress() {
   );
 }
 
-// Shared scroll-reveal for section blocks
-const sectionReveal = {
-  initial: { opacity: 0, y: 42 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-80px" },
-  transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
-};
+// ─── Scroll-linked section wrapper ─────────────────────────────────────────
+// Unlike the old one-shot "fade in once when visible" reveal, this keeps every
+// section's opacity/position/scale continuously bound to actual scroll
+// progress through its own bounds — so content settles in as it arrives and
+// eases out as it leaves, instead of firing once and going static.
+function ScrollSection({
+  children,
+  style,
+}: {
+  children: React.ReactNode;
+  style?: React.CSSProperties;
+}) {
+  const ref = useRef<HTMLElement>(null);
+  const reduce = useReducedMotion();
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start 92%", "start 35%"],
+  });
+  const opacity = useTransform(scrollYProgress, [0, 1], [0, 1]);
+  const y = useTransform(scrollYProgress, [0, 1], [46, 0]);
+  const scale = useTransform(scrollYProgress, [0, 1], [0.975, 1]);
+
+  if (reduce) {
+    return (
+      <section ref={ref} style={style}>
+        {children}
+      </section>
+    );
+  }
+
+  return (
+    <motion.section ref={ref} style={{ ...style, opacity, y, scale }}>
+      {children}
+    </motion.section>
+  );
+}
 
 // ─── Typewriter hook ──────────────────────────────────────────────────────────
 function useTypewriter(text: string, speed = 38, trigger = true) {
@@ -132,66 +161,94 @@ function SectionHeader({ text, delay = 0 }: { text: string; delay?: number }) {
 }
 
 
-// ─── Press section with expand ────────────────────────────────────────────────
+// ─── Press wall — bold, brutalist block grid ───────────────────────────────
+// Deliberately loud relative to the rest of the site: thick hard borders, big
+// slab outlet names, no soft cards — a "wall" of press clippings, not a quiet
+// list. Colors cycle through the zone accent palette so it reads energetic
+// without needing new imagery.
+const PRESS_ACCENTS = ["#7ce0ff", "#ff9fd4", "#ffd24a", "#00e8a0", "#c89af0", "#ff8a5c"];
+
 function PressSection() {
   const [expanded, setExpanded] = useState(false);
-  const visiblePress = expanded ? PRESS : PRESS.slice(0, 4);
+  const visiblePress = expanded ? PRESS : PRESS.slice(0, 6);
 
   return (
-    <div className="pq-panel">
-      <div className="pq-panel-inner">
+    <div>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+          gap: 2,
+          background: "#0d1a2a",
+          border: "3px solid #16233a",
+        }}
+      >
         {visiblePress.map((p, i) => (
-          <PressRow key={i} p={p} i={i} total={visiblePress.length} />
+          <PressBlock key={p.url} p={p} i={i} accent={PRESS_ACCENTS[i % PRESS_ACCENTS.length]} />
         ))}
-        {!expanded && PRESS.length > 4 && (
-          <button
-            onClick={() => setExpanded(true)}
-            className="pq-btn"
-            style={{
-              marginTop: 12, fontSize: 8, padding: "8px 16px",
-              width: "100%", justifyContent: "center",
-            }}
-          >
-            SHOW ALL {PRESS.length} ARTICLES ↓
-          </button>
-        )}
       </div>
+      {!expanded && PRESS.length > 6 && (
+        <button
+          onClick={() => setExpanded(true)}
+          className="pq-btn pq-btn-primary"
+          style={{
+            marginTop: 16, fontSize: 10, padding: "14px 20px",
+            width: "100%", justifyContent: "center", letterSpacing: "0.1em",
+          }}
+        >
+          SHOW ALL {PRESS.length} MENTIONS ↓
+        </button>
+      )}
     </div>
   );
 }
 
-// ─── Press row ────────────────────────────────────────────────────────────────
-function PressRow({ p, i, total }: { p: { outlet: string; title: string; url: string }; i: number; total: number }) {
-  const { ref, visible } = useScrollReveal<HTMLDivElement>({ threshold: 0.1 });
+// ─── Press block ────────────────────────────────────────────────────────────
+function PressBlock({ p, i, accent }: { p: { outlet: string; title: string; url: string }; i: number; accent: string }) {
+  const { ref, visible } = useScrollReveal<HTMLAnchorElement>({ threshold: 0.15 });
   return (
-    <div
+    <a
       ref={ref}
+      href={p.url}
+      target="_blank"
+      rel="noopener noreferrer"
       style={{
-        padding: "10px 0",
-        borderBottom: i < total - 1 ? "1px solid #0d1a2a" : "none",
-        display: "flex", gap: 12, alignItems: "flex-start",
+        display: "block",
+        position: "relative",
+        background: "#070d18",
+        borderTop: `4px solid ${accent}`,
+        padding: "20px 20px 22px",
+        textDecoration: "none",
         opacity: visible ? 1 : 0,
-        transform: visible ? "translateX(0)" : "translateX(20px)",
-        transition: `opacity 0.4s ease ${i * 80}ms, transform 0.4s ease ${i * 80}ms`,
+        transform: visible ? "translateY(0) scale(1)" : "translateY(24px) scale(0.97)",
+        transition: `opacity 0.45s ease ${i * 60}ms, transform 0.45s ease ${i * 60}ms, background 0.15s`,
+        minHeight: 132,
       }}
+      onMouseEnter={e => { e.currentTarget.style.background = `${accent}0f`; }}
+      onMouseLeave={e => { e.currentTarget.style.background = "#070d18"; }}
     >
-      <span style={{
-        fontFamily: "var(--font-pixel)", fontSize: 7, color: "#6680bb",
-        flexShrink: 0, paddingTop: 4, minWidth: 90,
-      }}>{p.outlet}</span>
-      <a
-        href={p.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        style={{
-          fontFamily: "var(--font-mono)", fontSize: 18,
-          color: "#7ce0ff", textDecoration: "none", lineHeight: 1.4,
-        }}
-        className="story-link"
-      >
-        {p.title} ↗
-      </a>
-    </div>
+      <div style={{
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        marginBottom: 12,
+      }}>
+        <span style={{
+          fontFamily: "var(--font-pixel)", fontSize: 12,
+          color: accent, letterSpacing: "0.04em",
+          textShadow: `0 0 14px ${accent}55`,
+        }}>
+          {p.outlet.toUpperCase()}
+        </span>
+        <span style={{
+          fontFamily: "var(--font-pixel)", fontSize: 14, color: accent, opacity: 0.5,
+        }}>↗</span>
+      </div>
+      <div style={{
+        fontFamily: "var(--font-mono)", fontSize: 16, lineHeight: 1.42,
+        color: "#d0dcf0", fontWeight: 600,
+      }}>
+        {p.title}
+      </div>
+    </a>
   );
 }
 
@@ -301,7 +358,7 @@ function CareerSection({ zones }: { zones: typeof ZONES }) {
 
       <div style={{ display: "flex", flexDirection: "column", gap: 48 }}>
         {cards.map((c, i) => (
-          <div key={c.overrideId || c.zone.id} style={{ position: "relative" }}>
+          <CardScrollWrap key={c.overrideId || c.zone.id}>
             {openCards.has(i) && (
               <div style={{
                 position: "absolute", top: -26, left: 0, right: 0, zIndex: 10,
@@ -334,10 +391,35 @@ function CareerSection({ zones }: { zones: typeof ZONES }) {
               onLeaveViewport={() => handleLeaveViewport(i)}
               onClick={() => handleClick(i)}
             />
-          </div>
+          </CardScrollWrap>
         ))}
       </div>
     </>
+  );
+}
+
+// ─── Career card scroll wrapper ────────────────────────────────────────────
+// Ties each card's entrance to its own scroll progress through the viewport —
+// a slight rise + scale-in as it arrives, independent of the accordion state.
+function CardScrollWrap({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const reduce = useReducedMotion();
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start 95%", "start 55%"],
+  });
+  const opacity = useTransform(scrollYProgress, [0, 1], [0, 1]);
+  const y = useTransform(scrollYProgress, [0, 1], [32, 0]);
+  const scale = useTransform(scrollYProgress, [0, 1], [0.98, 1]);
+
+  if (reduce) {
+    return <div ref={ref} style={{ position: "relative" }}>{children}</div>;
+  }
+
+  return (
+    <motion.div ref={ref} style={{ position: "relative", opacity, y, scale }}>
+      {children}
+    </motion.div>
   );
 }
 
@@ -497,7 +579,7 @@ export function HomeClient() {
       </section>
 
       {/* ── STATS ── */}
-      <motion.section {...sectionReveal} style={{ maxWidth: 860, margin: "0 auto", padding: "24px 20px 40px", position: "relative", zIndex: 1 }}>
+      <ScrollSection style={{ maxWidth: 860, margin: "0 auto", padding: "24px 20px 40px", position: "relative", zIndex: 1 }}>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 6 }}>
           {[
             { label: "YEARS BUILDING", value: "15+" },
@@ -509,36 +591,36 @@ export function HomeClient() {
             <SnapshotPill key={s.label} label={s.label} value={s.value} delay={i * 60} />
           ))}
         </div>
-      </motion.section>
+      </ScrollSection>
 
       {/* ── CAREER ── */}
-      <motion.section {...sectionReveal} style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 40px", position: "relative", zIndex: 1 }}>
+      <ScrollSection style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 40px", position: "relative", zIndex: 1 }}>
         <SectionHeader text="★ THE CAREER · CHAPTER BY CHAPTER" />
         <CareerSection zones={careerZones} />
-      </motion.section>
+      </ScrollSection>
 
       {/* ── BRAND LOGOS ── */}
-      <motion.section {...sectionReveal} style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 40px", position: "relative", zIndex: 1 }}>
+      <ScrollSection style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 40px", position: "relative", zIndex: 1 }}>
         <SectionHeader text="★ BRANDS I WORKED WITH" />
         <BrandLogos />
-      </motion.section>
+      </ScrollSection>
 
       {/* ── PRESS ── */}
-      <motion.section {...sectionReveal} style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 32px", position: "relative", zIndex: 1 }}>
-        <SectionHeader text="★ SELECTED PRESS" />
+      <ScrollSection style={{ maxWidth: 900, margin: "0 auto", padding: "0 20px 40px", position: "relative", zIndex: 1 }}>
+        <SectionHeader text="★ AS SEEN IN" />
         <PressSection />
-      </motion.section>
+      </ScrollSection>
 
       {/* ── CONTACT ── */}
-      <motion.section {...sectionReveal} style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 40px", position: "relative", zIndex: 1 }}>
+      <ScrollSection style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 40px", position: "relative", zIndex: 1 }}>
         <SectionHeader text="★ LET'S TALK" />
         <ContactForm />
-      </motion.section>
+      </ScrollSection>
 
       {/* ── HOW TO PLAY ── */}
-      <motion.section {...sectionReveal} style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 32px", position: "relative", zIndex: 1 }}>
+      <ScrollSection style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 32px", position: "relative", zIndex: 1 }}>
         <HowToPlay />
-      </motion.section>
+      </ScrollSection>
 
       {/* ── FOOTER ── */}
       <Footer />

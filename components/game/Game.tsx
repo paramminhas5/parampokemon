@@ -51,6 +51,12 @@ export function Game() {
   const [bagOpen, setBagOpen] = useState(false);
   const [cliffOpen, setCliffOpen] = useState<Zone | null>(null);
   const [worldSelectOpen, setWorldSelectOpen] = useState(true); // open on launch
+  // True from the moment a warp is requested until engine.warpTo() has actually
+  // repositioned the player. Keeps the engine paused across the whole warp
+  // transition so an early keypress can't land on the stale pre-warp position
+  // and get silently discarded once warpTo() resets it (this was the cause of
+  // "player doesn't move" right after closing World Select / warping zones).
+  const [isWarping, setIsWarping] = useState(false);
   const [battle, setBattle] = useState<Zone | null>(null);
   const [battleIntro, setBattleIntro] = useState<Zone | null>(null);
   const [evolution, setEvolution] = useState<{ from: ReturnType<typeof stageForSkills>; to: ReturnType<typeof stageForSkills> } | null>(null);
@@ -208,7 +214,7 @@ export function Game() {
     toastTimer.current = setTimeout(() => setToast(null), 2800);
   }, []);
 
-  const isModalOpen = !!(dialog || menuOpen || bagOpen || cliffOpen || worldSelectOpen || battle || battleIntro || catchModal || wildIntro || contactOpen || pressOpen || evolution || victoryZone || skillLearnZone || !titleDone || championOpen || interiorZone || trainerBattle || trainerBattleIntro || settingsOpen || creditsOpen);
+  const isModalOpen = !!(dialog || menuOpen || bagOpen || cliffOpen || worldSelectOpen || battle || battleIntro || catchModal || wildIntro || contactOpen || pressOpen || evolution || victoryZone || skillLearnZone || !titleDone || championOpen || interiorZone || trainerBattle || trainerBattleIntro || settingsOpen || creditsOpen || isWarping);
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -381,6 +387,10 @@ export function Game() {
 
   function handleWarp(zoneId: string) {
     setWorldSelectOpen(false);
+    // Keep the engine paused through the whole warp transition — cleared only
+    // once warpTo() has actually placed the player, so no input lands on the
+    // stale pre-warp position (see isWarping declaration for detail).
+    setIsWarping(true);
     // Show onboarding for first-time players after their first warp
     if (isFirstVisit && !showOnboarding) {
       try {
@@ -395,7 +405,7 @@ export function Game() {
     setTransition({ kind: "warp", color: z?.theme.accent ?? "#7ce0ff", key: transKeyRef.current });
     setTimeout(() => {
       engineRef.current?.warpTo(zoneId);
-      engineRef.current?.setPaused(false);
+      setIsWarping(false);
     }, 260);
     playSound("warp");
     if (z) {

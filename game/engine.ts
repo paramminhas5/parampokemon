@@ -83,6 +83,11 @@ export type GameState = {
   followerUnlocked: boolean;
   /** Follower animation state */
   followerAnim: { kind: "idle" | "jump" | "spin"; startedAt: number };
+  /** Smoothed follower render position (tile units) — avoids the instant
+   *  tile-to-tile snap that read as flicker/overlap with the player. */
+  followerRenderX: number;
+  followerRenderY: number;
+  followerRenderInit: boolean;
 };
 
 type InputName = "up" | "down" | "left" | "right" | "action" | "menu";
@@ -175,6 +180,9 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
     playerStage: "mermander",
     followerUnlocked: false,
     followerAnim: { kind: "idle", startedAt: 0 },
+    followerRenderX: PLAYER_SPAWN.x,
+    followerRenderY: PLAYER_SPAWN.y,
+    followerRenderInit: false,
   };
 
   let lastPlayerMoveAt = performance.now();
@@ -1186,17 +1194,18 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         const size = Math.round(TILE * 1.5);
 
         // ── Walk cycle (single-frame sprite) ──────────────────────────────
-        // Instead of sliding, bounce in a hop arc each tile-step and lean
-        // slightly, alternating per step for a lively foot-shuffle feel.
+        // A subtle, understated foot-shuffle: gentle vertical settle with a
+        // faint per-step lean — deliberately restrained rather than a bouncy
+        // cartoon hop.
         const isMoving = state.px !== state.tx || state.py !== state.ty;
         const walkT = isMoving ? Math.min(1, (now - state.walkStart) / WALK_DURATION_MS) : 0;
         const hop = isMoving ? Math.sin(walkT * Math.PI) : 0;
-        const walkBob = -hop * (TILE * 0.16);
-        const walkLean = hop * (state.stepCount % 2 === 0 ? 1 : -1) * 0.10;
+        const walkBob = -hop * (TILE * 0.065);
+        const walkLean = hop * (state.stepCount % 2 === 0 ? 1 : -1) * 0.035;
 
-        // Drop shadow — shrinks + fades as the hero lifts off the ground
-        const shScale = 1 - hop * 0.28;
-        ctx.fillStyle = `rgba(0,0,0,${(0.45 - hop * 0.16).toFixed(2)})`;
+        // Drop shadow — shrinks + fades very slightly as the hero steps
+        const shScale = 1 - hop * 0.1;
+        ctx.fillStyle = `rgba(0,0,0,${(0.45 - hop * 0.06).toFixed(2)})`;
         ctx.beginPath();
         ctx.ellipse(pbx + TILE / 2, pby + TILE - 1, TILE * 0.45 * shScale, TILE * 0.12 * shScale, 0, 0, Math.PI * 2);
         ctx.fill();
@@ -1229,23 +1238,37 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
 
     // Follower sprite — only shown after followerUnlocked (Prof. Iterate gives Mermander)
     if (state.followerUnlocked) {
-      // Follower trails 1 tile behind the player's current direction
-      let followerX: number, followerY: number;
+      // Target tile: exactly 1 tile behind the player's current direction.
+      let followerTargetX: number, followerTargetY: number;
       if (state.walkFrom.x !== state.tx || state.walkFrom.y !== state.ty) {
-        // Player is moving — follower at previous position
-        followerX = state.walkFrom.x;
-        followerY = state.walkFrom.y;
+        // Player is moving — follower's target is the player's previous tile
+        followerTargetX = state.walkFrom.x;
+        followerTargetY = state.walkFrom.y;
       } else {
-        // Player is standing still — show follower 1 tile behind based on facing direction
-        if (state.dir === "up")         { followerX = state.tx; followerY = state.ty + 1; }
-        else if (state.dir === "down")  { followerX = state.tx; followerY = state.ty - 1; }
-        else if (state.dir === "left")  { followerX = state.tx + 1; followerY = state.ty; }
-        else                            { followerX = state.tx - 1; followerY = state.ty; }
+        // Player is standing still — target 1 tile behind based on facing direction
+        if (state.dir === "up")         { followerTargetX = state.tx; followerTargetY = state.ty + 1; }
+        else if (state.dir === "down")  { followerTargetX = state.tx; followerTargetY = state.ty - 1; }
+        else if (state.dir === "left")  { followerTargetX = state.tx + 1; followerTargetY = state.ty; }
+        else                            { followerTargetX = state.tx - 1; followerTargetY = state.ty; }
       }
-      const fbx = Math.round(followerX * TILE) + offX;
-      const fby = Math.round(followerY * TILE) + offY;
 
-      // Always render follower (removed the !== check that caused blinking)
+      // Smoothly interpolate the follower's actual render position toward its
+      // target tile every frame (same cadence as the player's own walk glide)
+      // instead of snapping — this was the source of the "flicker"/lag feel.
+      if (!state.followerRenderInit) {
+        state.followerRenderX = followerTargetX;
+        state.followerRenderY = followerTargetY;
+        state.followerRenderInit = true;
+      } else {
+        // Fixed per-frame easing factor (matches the camera lerp convention
+        // used elsewhere in this file — no delta-time tracking in this loop).
+        state.followerRenderX += (followerTargetX - state.followerRenderX) * 0.22;
+        state.followerRenderY += (followerTargetY - state.followerRenderY) * 0.22;
+      }
+
+      const fbx = Math.round(state.followerRenderX * TILE) + offX;
+      const fby = Math.round(state.followerRenderY * TILE) + offY;
+
       {
         // Compute follower animation offset
         const anim = state.followerAnim;
@@ -1290,11 +1313,12 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         const drawX = fbx + (TILE - size) / 2;
         const drawY = fby + (TILE - size) / 2 + followerOffsetY + idleBob;
 
-        // Idle sleep: follower shrinks + fades after 30s of no input
+        // Idle sleep: follower settles + dims slightly after a long stretch of
+        // no input. Kept subtle so it reads as "resting" rather than a glitch.
         const idleTime = now - lastPlayerMoveAt;
         const idleSleep = idleTime > 30000;
-        const followerScale = idleSleep ? 0.8 : 1.0;
-        const followerAlpha = idleSleep ? 0.5 : 1.0;
+        const followerScale = idleSleep ? 0.92 : 1.0;
+        const followerAlpha = idleSleep ? 0.82 : 1.0;
 
         if (followerImg && isReady(followerImg)) {
           // Drop shadow for follower
@@ -1655,9 +1679,15 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       const sy = z.oy + (z.spawn?.y ?? Math.floor(z.h / 2));
       state.px = state.tx = sx;
       state.py = state.ty = sy;
+      state.walkFrom = { x: sx, y: sy };
       state.path = [];
       state.dir = "down";
       state.visitedZones.add(z.id);
+      // Snap the follower's smoothed render position to the new spot too —
+      // otherwise it would glide in from its old on-screen position.
+      state.followerRenderX = sx;
+      state.followerRenderY = sy;
+      state.followerRenderInit = true;
       lastAutoKey = ""; // allow re-triggering after warp
     },
     setPaused(p: boolean) {
