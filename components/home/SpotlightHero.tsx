@@ -342,23 +342,6 @@ export function SpotlightHero() {
             READ CV
           </Link>
         </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 1.1 }}
-          style={{
-            fontFamily: "var(--font-sans, 'Inter', sans-serif)",
-            fontSize: 11,
-            color: "#5f7ba3",
-            marginTop: 20,
-            letterSpacing: "0.06em",
-          }}
-        >
-          <span className="hero-cursor-hint">
-            move your cursor to peek behind the surface
-          </span>
-        </motion.div>
       </motion.div>
 
       {/* Scroll cue — outer div handles horizontal centering (plain CSS),

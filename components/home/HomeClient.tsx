@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useSpring, useTransform, useReducedMotion } from "motion/react";
 import { ZONES, CONTACT, PRESS } from "@/game/data";
 import { CareerCard } from "@/components/home/CareerCard";
-import { CreatureStrip } from "@/components/home/CreatureStrip";
+import { CreatureStrip, CREATURE_DRIFT_STYLES } from "@/components/home/CreatureStrip";
+import { CREATURE_URL } from "@/game/sprite-registry";
 import { BrandLogos } from "@/components/home/BrandLogos";
 import { ContactForm } from "@/components/home/ContactForm";
 import { SpotlightHero } from "@/components/home/SpotlightHero";
@@ -109,15 +110,24 @@ function useCountUp(target: string, trigger: boolean, duration = 700) {
 function SnapshotPill({ label, value, delay }: { label: string; value: string; delay: number }) {
   const { ref, visible } = useScrollReveal<HTMLDivElement>({ threshold: 0.2 });
   const counted = useCountUp(value, visible);
+  // Extra scroll-tied "pop" layered on top of the reveal fade/rise — a tiny
+  // overshoot scale as the pill settles into place, so the stats row feels
+  // slightly bouncier/more alive than a flat fade-in. Uses a motion.div so
+  // the scroll-driven MotionValue can drive the `scale` transform directly.
+  const reduce = useReducedMotion();
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: scrollRef, offset: ["start 98%", "start 60%"] });
+  const popScale = useTransform(scrollYProgress, [0, 0.6, 1], [0.9, 1.06, 1]);
   return (
-    <div
-      ref={ref}
+    <motion.div
+      ref={node => { (ref as React.RefObject<HTMLDivElement | null>).current = node; scrollRef.current = node; }}
       className="pq-panel"
       style={{
         textAlign: "center",
         opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(18px)",
+        y: visible ? 0 : 18,
         transition: `opacity 0.5s ease ${delay}ms, transform 0.5s ease ${delay}ms`,
+        scale: reduce ? 1 : popScale,
       }}
     >
       <div className="pq-panel-inner" style={{ padding: "10px 4px" }}>
@@ -135,7 +145,7 @@ function SnapshotPill({ label, value, delay }: { label: string; value: string; d
           {counted}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -312,9 +322,65 @@ function HowToPlay() {
 }
 
 
+// ─── Scattered creatures behind the career cards ───────────────────────────
+// Individual creature sprites placed around the card stack (not a horizontal
+// strip), each with its own scroll-tied parallax drift so they move at a
+// different rate than the cards in front of them as you scroll — adds depth
+// instead of a flat backdrop.
+const CREATURE_SCATTER_POS: { left: string; top: string; size: number; depth: number }[] = [
+  { left: "4%",  top: "6%",  size: 64, depth: 60 },
+  { left: "88%", top: "14%", size: 52, depth: -40 },
+  { left: "10%", top: "34%", size: 46, depth: -55 },
+  { left: "84%", top: "46%", size: 68, depth: 45 },
+  { left: "6%",  top: "58%", size: 58, depth: 35 },
+  { left: "90%", top: "68%", size: 48, depth: -30 },
+  { left: "8%",  top: "82%", size: 60, depth: 50 },
+  { left: "86%", top: "90%", size: 44, depth: -45 },
+];
+
+function ScatteredCreature({
+  containerRef,
+  url,
+  pos,
+  index,
+}: {
+  containerRef: React.RefObject<HTMLElement | null>;
+  url: string;
+  pos: { left: string; top: string; size: number; depth: number };
+  index: number;
+}) {
+  const reduce = useReducedMotion();
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"],
+  });
+  const y = useTransform(scrollYProgress, [0, 1], [-pos.depth, pos.depth]);
+
+  return (
+    <motion.img
+      src={url}
+      alt=""
+      aria-hidden
+      style={{
+        position: "absolute",
+        left: pos.left,
+        top: pos.top,
+        width: pos.size,
+        height: pos.size,
+        imageRendering: "pixelated",
+        opacity: 0.16,
+        pointerEvents: "none",
+        y: reduce ? 0 : y,
+        animation: `creature-drift-${index % 9} ${7 + (index % 4) * 1.4}s ease-in-out ${index * 0.5}s infinite alternate`,
+      }}
+    />
+  );
+}
+
 // ─── Career section — accordion + zone dividers + backlight ──────────────────
 function CareerSection({ zones }: { zones: typeof ZONES }) {
   const [openCards, setOpenCards] = useState<Set<number>>(new Set());
+  const sectionRef = useRef<HTMLDivElement>(null);
 
   const aiZone = ZONES.find(z => z.id === "ai")!;
   const cards: { zone: typeof ZONES[0]; overrideId?: string }[] = [];
@@ -347,7 +413,8 @@ function CareerSection({ zones }: { zones: typeof ZONES }) {
   const currentAccent = lastOpen >= 0 ? cards[lastOpen]?.zone.theme.accent : null;
 
   return (
-    <>
+    <div ref={sectionRef} style={{ position: "relative" }}>
+      <style>{CREATURE_DRIFT_STYLES}</style>
       <div style={{
         position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0,
         background: currentAccent
@@ -356,9 +423,21 @@ function CareerSection({ zones }: { zones: typeof ZONES }) {
         transition: "background 1.5s ease",
       }} />
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 48 }}>
+      {/* Scattered creatures behind the card stack — scroll-tied parallax */}
+      <div style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none", overflow: "hidden" }}>
+        {CREATURE_SCATTER_POS.map((pos, i) => {
+          const zoneWithCreature = zones.filter(z => z.creature)[i % Math.max(1, zones.filter(z => z.creature).length)];
+          const url = zoneWithCreature ? CREATURE_URL[zoneWithCreature.id] : undefined;
+          if (!url) return null;
+          return (
+            <ScatteredCreature key={i} containerRef={sectionRef} url={url} pos={pos} index={i} />
+          );
+        })}
+      </div>
+
+      <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", gap: 48 }}>
         {cards.map((c, i) => (
-          <CardScrollWrap key={c.overrideId || c.zone.id}>
+          <CardScrollWrap key={c.overrideId || c.zone.id} index={i}>
             {openCards.has(i) && (
               <div style={{
                 position: "absolute", top: -26, left: 0, right: 0, zIndex: 10,
@@ -394,14 +473,14 @@ function CareerSection({ zones }: { zones: typeof ZONES }) {
           </CardScrollWrap>
         ))}
       </div>
-    </>
+    </div>
   );
 }
 
 // ─── Career card scroll wrapper ────────────────────────────────────────────
 // Ties each card's entrance to its own scroll progress through the viewport —
 // a slight rise + scale-in as it arrives, independent of the accordion state.
-function CardScrollWrap({ children }: { children: React.ReactNode }) {
+function CardScrollWrap({ children, index }: { children: React.ReactNode; index: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
   const { scrollYProgress } = useScroll({
@@ -411,13 +490,18 @@ function CardScrollWrap({ children }: { children: React.ReactNode }) {
   const opacity = useTransform(scrollYProgress, [0, 1], [0, 1]);
   const y = useTransform(scrollYProgress, [0, 1], [32, 0]);
   const scale = useTransform(scrollYProgress, [0, 1], [0.98, 1]);
+  // Tiny alternating tilt on the way in — settles to dead-straight (0deg) by
+  // the time the card is fully in view, just enough to feel playful rather
+  // than mechanically identical for every card.
+  const tiltFrom = index % 2 === 0 ? -1.4 : 1.4;
+  const rotate = useTransform(scrollYProgress, [0, 1], [tiltFrom, 0]);
 
   if (reduce) {
     return <div ref={ref} style={{ position: "relative" }}>{children}</div>;
   }
 
   return (
-    <motion.div ref={ref} style={{ position: "relative", opacity, y, scale }}>
+    <motion.div ref={ref} style={{ position: "relative", opacity, y, scale, rotate }}>
       {children}
     </motion.div>
   );
@@ -542,6 +626,34 @@ const BG_ANIMATIONS = `
 `;
 
 
+// ─── Ambient background — scroll-tied parallax ─────────────────────────────
+// The nebula blobs already drift on their own CSS-loop timers; layering a
+// slow scroll-driven vertical offset on top makes the whole backdrop feel
+// tied to how far you've scrolled, not just idling in place underneath the
+// content.
+function AmbientBackground() {
+  const reduce = useReducedMotion();
+  const { scrollYProgress } = useScroll();
+  const y1 = useTransform(scrollYProgress, [0, 1], [0, -120]);
+  const y2 = useTransform(scrollYProgress, [0, 1], [0, 90]);
+  const y3 = useTransform(scrollYProgress, [0, 1], [0, -60]);
+
+  return (
+    <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0 }}>
+      <motion.div className="nebula-blob nebula-1" style={{ y: reduce ? 0 : y1 }} />
+      <motion.div className="nebula-blob nebula-2" style={{ y: reduce ? 0 : y2 }} />
+      <motion.div className="nebula-blob nebula-3" style={{ y: reduce ? 0 : y3 }} />
+      {Array.from({ length: 24 }).map((_, pi) => (
+        <div key={pi} className={`bg-particle particle-${pi % 8}`} style={{
+          left: `${(pi * 4.2 + 3) % 100}%`,
+          top: `${(pi * 7.3 + 10) % 100}%`,
+          animationDelay: `${pi * 0.7}s`,
+        }} />
+      ))}
+    </div>
+  );
+}
+
 // ─── PAGE ─────────────────────────────────────────────────────────────────────
 export function HomeClient() {
   const careerZones = ZONES.filter(z => z.id !== "home" && z.id !== "origin");
@@ -557,28 +669,10 @@ export function HomeClient() {
       <ScrollProgress />
 
       {/* Animated background layers */}
-      <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0 }}>
-        <div className="nebula-blob nebula-1" />
-        <div className="nebula-blob nebula-2" />
-        <div className="nebula-blob nebula-3" />
-        {Array.from({ length: 24 }).map((_, pi) => (
-          <div key={pi} className={`bg-particle particle-${pi % 8}`} style={{
-            left: `${(pi * 4.2 + 3) % 100}%`,
-            top: `${(pi * 7.3 + 10) % 100}%`,
-            animationDelay: `${pi * 0.7}s`,
-          }} />
-        ))}
-      </div>
+      <AmbientBackground />
 
       {/* ── HERO — cinematic spotlight reveal ── */}
       <SpotlightHero />
-
-      {/* ── CREATURE STRIP BAND ── */}
-      {/* Extra top padding gives this real breathing room below the hero —
-          it previously sat almost glued to the hero's bottom edge. */}
-      <section style={{ maxWidth: 980, margin: "0 auto", padding: "72px 16px 24px", position: "relative", zIndex: 1 }}>
-        <CreatureStrip zones={careerZones} />
-      </section>
 
       {/* ── STATS ── */}
       <ScrollSection style={{ maxWidth: 860, margin: "0 auto", padding: "24px 20px 40px", position: "relative", zIndex: 1 }}>
@@ -623,6 +717,11 @@ export function HomeClient() {
       <ScrollSection style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 32px", position: "relative", zIndex: 1 }}>
         <HowToPlay />
       </ScrollSection>
+
+      {/* ── CREATURE STRIP BAND — sendoff lineup, sits right above the footer ── */}
+      <section style={{ maxWidth: 980, margin: "0 auto", padding: "8px 16px 32px", position: "relative", zIndex: 1 }}>
+        <CreatureStrip zones={careerZones} />
+      </section>
 
       {/* ── FOOTER ── */}
       <Footer />

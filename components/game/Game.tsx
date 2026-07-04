@@ -72,8 +72,23 @@ export function Game() {
   const transKeyRef = useRef(0);
 
   // Phase 2: narrative state
+  // isFirstVisit must be computed synchronously from localStorage on the very
+  // first render (not via a later effect) — TitleScreen reads this prop once
+  // on mount to seed its own internal `phase` state permanently. If this
+  // started as `false` and only got corrected a tick later by the "load
+  // save" effect below, TitleScreen would have already locked itself into
+  // `phase: "done"` and silently render nothing, while `titleDone` gets reset
+  // to `false` expecting the title/intro to show — leaving the engine paused
+  // forever with no visible UI. This was the root cause of the character
+  // being permanently stuck on a genuinely first-time visit (empty save).
   const [titleDone, setTitleDone] = useState(false);
-  const [isFirstVisit, setIsFirstVisit] = useState(false);
+  const [isFirstVisit, setIsFirstVisit] = useState<boolean>(() => {
+    try {
+      return typeof window !== "undefined" ? !localStorage.getItem("pq_save") : true;
+    } catch {
+      return true;
+    }
+  });
   const [victoryZone, setVictoryZone] = useState<Zone | null>(null);
   const [skillLearnZone, setSkillLearnZone] = useState<{ zone: Zone; npcName: string } | null>(null);
   const [zoneTitle, setZoneTitle] = useState<Zone | null>(null);

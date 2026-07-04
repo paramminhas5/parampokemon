@@ -222,10 +222,3 @@ body.play-mode {
   .pq-panel { border-width: 1px; }
 }
 
-
-/* ── Hero cursor hint pulse ─────────────────────────────────── */
-@keyframes hero-hint-pulse { 0%,100% { opacity: 0.45; } 50% { opacity: 0.95; } }
-.hero-cursor-hint { animation: hero-hint-pulse 2.8s ease-in-out infinite; }
-@media (prefers-reduced-motion: reduce) {
-  .hero-cursor-hint { animation: none; }
-}

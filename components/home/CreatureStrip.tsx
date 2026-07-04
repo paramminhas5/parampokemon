@@ -1,7 +1,7 @@
 "use client";
 import type { Zone } from "@/game/data";
 
-const STRIP_STYLES = `
+export const CREATURE_DRIFT_STYLES = `
 @keyframes creature-drift-0  { 0%,100%{transform:translateY(0)    translateX(0)}    50%{transform:translateY(-10px) translateX(5px)}  }
 @keyframes creature-drift-1  { 0%,100%{transform:translateY(-5px)  translateX(0)}    50%{transform:translateY(5px)   translateX(-7px)} }
 @keyframes creature-drift-2  { 0%,100%{transform:translateY(0)    translateX(-5px)}  50%{transform:translateY(-12px) translateX(3px)}  }
@@ -15,32 +15,33 @@ const STRIP_STYLES = `
 @keyframes creature-fade-in  { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
 `;
 
+// CreatureStrip is now used as a standalone band placed just above the
+// Footer (not right behind the hero) — a calm sendoff line-up of the
+// creatures the player collects, rather than a header decoration.
 export function CreatureStrip({ zones }: { zones: Zone[] }) {
   const withCreature = zones.filter(z => z.creature);
   return (
     <div style={{
-      position: "absolute",
-      top: 40,
-      left: 0,
-      right: 0,
+      position: "relative",
       display: "flex",
       justifyContent: "center",
+      flexWrap: "wrap",
       gap: 0,
-      opacity: 0.28,
+      opacity: 0.5,
       pointerEvents: "none",
       overflow: "hidden",
-      maskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.4) 20%, rgba(0,0,0,0.7) 50%, transparent 100%)",
-      WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.4) 20%, rgba(0,0,0,0.7) 50%, transparent 100%)",
+      maskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.6) 20%, rgba(0,0,0,0.9) 50%, rgba(0,0,0,0.6) 80%, transparent 100%)",
+      WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.6) 20%, rgba(0,0,0,0.9) 50%, rgba(0,0,0,0.6) 80%, transparent 100%)",
     }}>
-      <style>{STRIP_STYLES}</style>
+      <style>{CREATURE_DRIFT_STYLES}</style>
       {withCreature.map((z, i) => (
         <img
           key={z.id}
           src={`/sprites/creatures/${z.id}.png`}
           alt=""
           style={{
-            width: 88,
-            height: 88,
+            width: 72,
+            height: 72,
             imageRendering: "pixelated",
             animation: [
               `creature-fade-in 0.6s ease-out ${i * 80}ms both`,
