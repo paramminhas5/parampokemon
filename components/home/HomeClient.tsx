@@ -371,6 +371,7 @@ const BG_ANIMATIONS = `
   filter: blur(80px);
   opacity: 0.035;
   animation: nebula-float 25s ease-in-out infinite alternate;
+  will-change: transform;
 }
 .nebula-1 { width: 500px; height: 500px; background: #7ce0ff; top: 10%; left: -10%; animation-delay: 0s; }
 .nebula-2 { width: 400px; height: 400px; background: #f0c4ff; top: 40%; right: -8%; animation-delay: -8s; }
@@ -390,6 +391,7 @@ const BG_ANIMATIONS = `
   background: rgba(124, 224, 255, 0.4);
   border-radius: 50%;
   animation: particle-drift 18s ease-in-out infinite alternate;
+  will-change: transform, opacity;
 }
 .particle-0 { animation-duration: 22s; background: rgba(124,224,255,0.3); }
 .particle-1 { animation-duration: 18s; background: rgba(240,196,255,0.3); width: 3px; height: 3px; }
@@ -417,6 +419,16 @@ const BG_ANIMATIONS = `
 @keyframes zone-divider-in {
   from { opacity: 0; transform: scaleX(0.3); }
   to { opacity: 1; transform: scaleX(1); }
+}
+
+/* Mobile: cut heavy blur + halve particle count so scrolling stays buttery */
+@media (max-width: 640px) {
+  .nebula-blob { filter: blur(42px); opacity: 0.05; }
+  .nebula-3 { display: none; }
+  .bg-particle:nth-child(even) { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nebula-blob, .bg-particle { animation: none !important; }
 }
 `;
 
@@ -456,7 +468,9 @@ export function HomeClient() {
 
       {/* ── HERO ── */}
       <section style={{
-        maxWidth: 860, margin: "0 auto", padding: "40px 16px 30px",
+        maxWidth: 860, margin: "0 auto", padding: "24px 16px 44px",
+        minHeight: "clamp(540px, 88vh, 860px)",
+        display: "flex", flexDirection: "column", justifyContent: "center",
         textAlign: "center", position: "relative", zIndex: 1,
       }}>
         <div style={{

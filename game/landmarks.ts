@@ -403,3 +403,81 @@ function shade(hex: string, amt: number) {
   const b1 = Math.max(0, Math.min(255, Math.floor((n & 255) * amt)));
   return `#${((1 << 24) + (r1 << 16) + (g1 << 8) + b1).toString(16).slice(1)}`;
 }
+
+
+// ─── Zone entrance signpost ──────────────────────────────────────────────────
+// A prominent wooden signboard that displays the zone NAME, rendered at the
+// zone's sign tile. Walk up to it to read the full blurb (proximity dialog).
+export function drawZoneSign(ctx: Ctx, zone: Zone, offX: number, offY: number, now: number) {
+  // Sentinel (-99,-99) means the zone has no sign.
+  if (zone.sign.x === -99 || zone.sign.y === -99) return;
+
+  const wx = zone.ox + zone.sign.x;
+  const wy = zone.oy + zone.sign.y;
+  const cx = wx * TILE + offX + TILE / 2;   // horizontal centre of the sign tile
+  const groundY = wy * TILE + offY + TILE;   // bottom of the tile (post base)
+  const accent = zone.theme.accent;
+  const name = zone.name.toUpperCase();
+
+  // ── Board geometry ──
+  const boardW = Math.round(TILE * 5);
+  const boardH = Math.round(TILE * 1.7);
+  const bx = Math.round(cx - boardW / 2);
+  const postBase = Math.round(groundY - 1);
+  const by = Math.round(postBase - boardH - TILE * 0.7);
+
+  // Gentle idle sway for a bit of life
+  const sway = Math.sin(now / 900 + wx) * 0.6;
+
+  // ── Posts ──
+  const postW = 4;
+  const postSpread = boardW * 0.30;
+  for (const dx of [-postSpread, postSpread]) {
+    const pxp = Math.round(cx + dx - postW / 2);
+    r(ctx, pxp, by + boardH - 2, postW, postBase - (by + boardH) + 3, "#3a2412");
+    r(ctx, pxp, by + boardH - 2, 2, postBase - (by + boardH) + 3, "#5a3a1c");
+  }
+
+  // ── Drop shadow ──
+  ctx.fillStyle = "rgba(0,0,0,0.35)";
+  ctx.fillRect(bx + 3, Math.round(by + 4 + sway), boardW, boardH);
+
+  const byS = Math.round(by + sway);
+  // ── Board body (wood) ──
+  r(ctx, bx, byS, boardW, boardH, "#5e3a1e");
+  r(ctx, bx + 2, byS + 2, boardW - 4, boardH - 4, "#8a5a2c");
+  r(ctx, bx + 2, byS + 2, boardW - 4, 2, "#a5713a");                 // top highlight
+  ctx.fillStyle = "rgba(0,0,0,0.16)";
+  ctx.fillRect(bx + 2, Math.round(byS + boardH * 0.5), boardW - 4, 1); // plank seam
+  // ── Accent trim ──
+  r(ctx, bx, byS, boardW, 3, accent);
+  r(ctx, bx, byS + boardH - 3, boardW, 3, shade(accent, 0.55));
+
+  // ── Corner nails ──
+  ctx.fillStyle = "#e0c894";
+  for (const [ox, oy] of [[4, 5], [boardW - 6, 5], [4, boardH - 7], [boardW - 6, boardH - 7]]) {
+    ctx.fillRect(bx + ox, byS + oy, 2, 2);
+  }
+
+  // ── Zone name (auto-fit to board width) ──
+  ctx.save();
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.imageSmoothingEnabled = true;
+  const maxTextW = boardW - 12;
+  let fontPx = Math.round(TILE * 0.6);
+  ctx.font = `${fontPx}px 'Press Start 2P', 'Courier New', monospace`;
+  while (ctx.measureText(name).width > maxTextW && fontPx > 5) {
+    fontPx -= 1;
+    ctx.font = `${fontPx}px 'Press Start 2P', 'Courier New', monospace`;
+  }
+  const tx = Math.round(cx);
+  const ty = Math.round(byS + boardH / 2 + 1);
+  ctx.fillStyle = "rgba(0,0,0,0.55)";
+  ctx.fillText(name, tx + 1, ty + 1);
+  ctx.fillStyle = "#fdf3dd";
+  ctx.fillText(name, tx, ty);
+  ctx.restore();
+
+  ctx.imageSmoothingEnabled = false;
+}

@@ -18,6 +18,7 @@ import {
   TILE, SOLID, T, drawTile, drawBadge, drawCharacter,
 } from "./tiles";
 import { drawFollower } from "./sprites";
+import { drawZoneSign } from "./landmarks";
 import { playSound } from "../lib/audio";
 import { findPath } from "./pathfind";
 import { createLayerStack } from "./layer-stack";
@@ -698,6 +699,16 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       ctx.imageSmoothingQuality = "high";
       ctx.drawImage(exImg, exX, exY, TILE * 4, TILE * 4);
       ctx.imageSmoothingEnabled = false;
+    }
+
+    // ── Zone entrance signposts — big readable sign showing the zone name ──
+    for (const z of ZONES) {
+      if (z.sign.x === -99 || z.sign.y === -99) continue;
+      const sx = z.ox + z.sign.x;
+      const sy = z.oy + z.sign.y;
+      // Cull if the sign tile is well outside the viewport
+      if (sx < tx0 - 3 || sx > tx1 + 3 || sy < ty0 - 4 || sy > ty1 + 2) continue;
+      drawZoneSign(ctx, z, offX, offY, now);
     }
 
     // ── Door/mat entry indicator — pulsing glow ────────────────────────

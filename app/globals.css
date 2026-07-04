@@ -17,6 +17,9 @@
 
 * { box-sizing: border-box; }
 
+html {
+  scroll-behavior: smooth;
+}
 html, body {
   margin: 0; padding: 0;
   background: #05091a;
@@ -24,6 +27,12 @@ html, body {
   font-family: var(--font-mono), monospace;
   overflow-x: hidden;
   -webkit-tap-highlight-color: transparent;
+  /* Smooth momentum scrolling on touch devices */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
 }
 
 /* Play page locks scroll — applied via class on body from play layout */

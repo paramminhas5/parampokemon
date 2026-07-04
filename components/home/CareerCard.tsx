@@ -78,14 +78,16 @@ export function CareerCard({ z, i, overrideId, isOpen, onEnterViewport, onLeaveV
       ref={cardRef}
       style={{
         position: "relative",
-        background: "rgba(6,12,24,0.92)",
-        border: `1px solid ${isOpen ? accent + "45" : accent + "15"}`,
-        borderLeft: `4px solid ${isOpen ? accent : accent + "25"}`,
-        borderRadius: 10,
+        background: isOpen
+          ? `linear-gradient(180deg, rgba(16,26,46,0.97) 0%, rgba(9,16,30,0.97) 100%)`
+          : `linear-gradient(180deg, rgba(13,21,38,0.96) 0%, rgba(8,13,25,0.96) 100%)`,
+        border: `1px solid ${isOpen ? accent + "55" : accent + "26"}`,
+        borderLeft: `4px solid ${isOpen ? accent : accent + "45"}`,
+        borderRadius: 12,
         transition: "all 0.5s cubic-bezier(0.4,0,0.2,1)",
         boxShadow: isOpen
-          ? `0 8px 48px ${accent}18, 0 0 0 1px ${accent}12`
-          : `0 1px 4px rgba(0,0,0,0.2)`,
+          ? `0 10px 52px ${accent}22, 0 2px 10px rgba(0,0,0,0.5), 0 0 0 1px ${accent}18`
+          : `0 6px 24px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.03)`,
         overflow: "hidden",
         cursor: "pointer",
       }}
