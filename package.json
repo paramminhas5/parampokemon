@@ -14,6 +14,7 @@
     "@pixi/filter-crt": "^5.1.1",
     "@react-pdf/renderer": "^4.5.1",
     "howler": "^2.2.4",
+    "motion": "^12.42.2",
     "next": "^15.3.9",
     "pixi-filters": "^6.1.5",
     "pixi.js": "^8.19.0",

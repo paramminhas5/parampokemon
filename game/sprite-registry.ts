@@ -16,7 +16,8 @@ export const LEADER_URL: Record<LeaderSprite, string> = {
 };
 
 export const CREATURE_URL: Record<string, string> = {
-  origin:     "/sprites/creatures/origin.png",
+  // ?v=2 busts the browser cache so the refreshed Sparkling sprite is fetched.
+  origin:     "/sprites/creatures/origin.png?v=2",
   grp:        "/sprites/creatures/grp.png",
   hab:        "/sprites/creatures/hab.png",
   ai:         "/sprites/creatures/ai.png",

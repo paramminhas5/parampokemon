@@ -851,8 +851,8 @@ export function stageForBadges(badges: number): StarterStage {
 
 /** Determine evolution stage based on Skill Orbs collected (primary progression). */
 export function stageForSkills(skillCount: number): StarterStage {
-  if (skillCount >= 7) return STARTER_STAGES[2]; // Merlord
-  if (skillCount >= 4) return STARTER_STAGES[1]; // Mermalion
+  if (skillCount >= 6) return STARTER_STAGES[2]; // Merlord
+  if (skillCount >= 3) return STARTER_STAGES[1]; // Mermalion (first evolution at 3 skills)
   return STARTER_STAGES[0]; // Mermander
 }
 

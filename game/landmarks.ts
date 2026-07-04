@@ -406,77 +406,75 @@ function shade(hex: string, amt: number) {
 
 
 // ─── Zone entrance signpost ──────────────────────────────────────────────────
-// A prominent wooden signboard that displays the zone NAME, rendered at the
-// zone's sign tile. Walk up to it to read the full blurb (proximity dialog).
-export function drawZoneSign(ctx: Ctx, zone: Zone, offX: number, offY: number, now: number) {
+// A SMALL roadside signpost (deliberately smaller than the player, ~1 tile) drawn
+// at the zone's sign tile, with a compact zone-name plate floating just above it.
+// Walk up to it to read the full blurb via the proximity dialog.
+export function drawZoneSign(ctx: Ctx, zone: Zone, offX: number, offY: number, playerTx: number, playerTy: number) {
   // Sentinel (-99,-99) means the zone has no sign.
   if (zone.sign.x === -99 || zone.sign.y === -99) return;
 
   const wx = zone.ox + zone.sign.x;
   const wy = zone.oy + zone.sign.y;
-  const cx = wx * TILE + offX + TILE / 2;   // horizontal centre of the sign tile
-  const groundY = wy * TILE + offY + TILE;   // bottom of the tile (post base)
+  // Only reveal the name plate when the player is close, so signs stay tiny/uncluttered.
+  const near = Math.abs(playerTx - wx) + Math.abs(playerTy - wy) <= 5;
+  const cx = Math.round(wx * TILE + offX + TILE / 2);   // horizontal centre of the tile
+  const groundY = Math.round(wy * TILE + offY + TILE);  // bottom of the tile (post base)
   const accent = zone.theme.accent;
   const name = zone.name.toUpperCase();
 
-  // ── Board geometry ──
-  const boardW = Math.round(TILE * 5);
-  const boardH = Math.round(TILE * 1.7);
-  const bx = Math.round(cx - boardW / 2);
-  const postBase = Math.round(groundY - 1);
-  const by = Math.round(postBase - boardH - TILE * 0.7);
+  // ── Tiny signpost geometry (smaller than the player, which is TILE * 1.5) ──
+  const boardW = Math.round(TILE * 0.9);   // ~14px board
+  const boardH = Math.round(TILE * 0.55);  // ~9px board
+  const postH  = Math.round(TILE * 0.45);  // ~7px post
+  const bx = cx - Math.round(boardW / 2);
+  const boardBottom = groundY - postH;
+  const by = boardBottom - boardH;
 
-  // Gentle idle sway for a bit of life
-  const sway = Math.sin(now / 900 + wx) * 0.6;
+  // Post
+  r(ctx, cx - 1, boardBottom - 1, 2, postH + 1, "#3a2412");
+  r(ctx, cx, boardBottom - 1, 1, postH + 1, "#5a3a1c");
 
-  // ── Posts ──
-  const postW = 4;
-  const postSpread = boardW * 0.30;
-  for (const dx of [-postSpread, postSpread]) {
-    const pxp = Math.round(cx + dx - postW / 2);
-    r(ctx, pxp, by + boardH - 2, postW, postBase - (by + boardH) + 3, "#3a2412");
-    r(ctx, pxp, by + boardH - 2, 2, postBase - (by + boardH) + 3, "#5a3a1c");
-  }
+  // Board shadow
+  ctx.fillStyle = "rgba(0,0,0,0.3)";
+  ctx.fillRect(bx + 1, by + 1, boardW, boardH);
+  // Board body (wood)
+  r(ctx, bx, by, boardW, boardH, "#5e3a1e");
+  r(ctx, bx + 1, by + 1, boardW - 2, boardH - 2, "#8a5a2c");
+  r(ctx, bx + 1, by + 1, boardW - 2, 1, "#a5713a");     // top highlight
+  r(ctx, bx, by, boardW, 1, accent);                     // accent trim
+  // Decorative text lines
+  ctx.fillStyle = "rgba(52,28,12,0.75)";
+  ctx.fillRect(bx + 2, by + 3, boardW - 5, 1);
+  ctx.fillRect(bx + 2, by + 5, boardW - 7, 1);
 
-  // ── Drop shadow ──
-  ctx.fillStyle = "rgba(0,0,0,0.35)";
-  ctx.fillRect(bx + 3, Math.round(by + 4 + sway), boardW, boardH);
-
-  const byS = Math.round(by + sway);
-  // ── Board body (wood) ──
-  r(ctx, bx, byS, boardW, boardH, "#5e3a1e");
-  r(ctx, bx + 2, byS + 2, boardW - 4, boardH - 4, "#8a5a2c");
-  r(ctx, bx + 2, byS + 2, boardW - 4, 2, "#a5713a");                 // top highlight
-  ctx.fillStyle = "rgba(0,0,0,0.16)";
-  ctx.fillRect(bx + 2, Math.round(byS + boardH * 0.5), boardW - 4, 1); // plank seam
-  // ── Accent trim ──
-  r(ctx, bx, byS, boardW, 3, accent);
-  r(ctx, bx, byS + boardH - 3, boardW, 3, shade(accent, 0.55));
-
-  // ── Corner nails ──
-  ctx.fillStyle = "#e0c894";
-  for (const [ox, oy] of [[4, 5], [boardW - 6, 5], [4, boardH - 7], [boardW - 6, boardH - 7]]) {
-    ctx.fillRect(bx + ox, byS + oy, 2, 2);
-  }
-
-  // ── Zone name (auto-fit to board width) ──
+  // ── Compact zone-name plate above the sign (only when the player is near) ──
+  if (!near) { ctx.imageSmoothingEnabled = false; return; }
   ctx.save();
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.imageSmoothingEnabled = true;
-  const maxTextW = boardW - 12;
-  let fontPx = Math.round(TILE * 0.6);
+  const fontPx = 6;
   ctx.font = `${fontPx}px 'Press Start 2P', 'Courier New', monospace`;
-  while (ctx.measureText(name).width > maxTextW && fontPx > 5) {
-    fontPx -= 1;
-    ctx.font = `${fontPx}px 'Press Start 2P', 'Courier New', monospace`;
-  }
-  const tx = Math.round(cx);
-  const ty = Math.round(byS + boardH / 2 + 1);
-  ctx.fillStyle = "rgba(0,0,0,0.55)";
-  ctx.fillText(name, tx + 1, ty + 1);
+  const textW = Math.ceil(ctx.measureText(name).width);
+  const plateW = textW + 8;
+  const plateH = fontPx + 6;
+  const plateX = cx - Math.round(plateW / 2);
+  const plateY = by - plateH - 3;
+  // Plate background + accent border
+  ctx.fillStyle = "rgba(6,12,22,0.85)";
+  ctx.fillRect(plateX, plateY, plateW, plateH);
+  ctx.strokeStyle = accent + "aa";
+  ctx.lineWidth = 1;
+  ctx.strokeRect(plateX + 0.5, plateY + 0.5, plateW - 1, plateH - 1);
+  // Little connector notch to the sign
+  ctx.fillStyle = accent + "aa";
+  ctx.fillRect(cx - 1, plateY + plateH, 2, 2);
+  // Name text
+  const ty = plateY + Math.round(plateH / 2) + 1;
+  ctx.fillStyle = "rgba(0,0,0,0.6)";
+  ctx.fillText(name, cx + 1, ty + 1);
   ctx.fillStyle = "#fdf3dd";
-  ctx.fillText(name, tx, ty);
+  ctx.fillText(name, cx, ty);
   ctx.restore();
 
   ctx.imageSmoothingEnabled = false;
