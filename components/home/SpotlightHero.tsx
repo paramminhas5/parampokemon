@@ -99,13 +99,14 @@ export function SpotlightHero() {
       style={{
         position: "relative",
         width: "100%",
-        height: "100dvh",
-        minHeight: 560,
+        height: "68vh",
+        minHeight: 460,
+        maxHeight: 720,
         overflow: "hidden",
         background: "#03060f",
       }}
     >
-      {/* Base layer — polished futuristic cosmos */}
+      {/* Base layer — subtle brutalist cosmos */}
       <motion.div
         aria-hidden
         style={{
@@ -116,6 +117,7 @@ export function SpotlightHero() {
           backgroundImage: "url(/hero/hero-cosmos.jpg)",
           backgroundSize: "cover",
           backgroundPosition: "center",
+          filter: "saturate(0.85) contrast(1.08)",
         }}
       />
       {/* Legibility wash over the cosmos */}
@@ -126,7 +128,7 @@ export function SpotlightHero() {
           inset: 0,
           zIndex: 11,
           background:
-            "radial-gradient(ellipse at 50% 42%, rgba(3,6,15,0.15), rgba(3,6,15,0.72) 85%)",
+            "radial-gradient(ellipse at 50% 42%, rgba(3,6,15,0.25), rgba(3,6,15,0.8) 85%)",
         }}
       />
 
@@ -226,7 +228,7 @@ export function SpotlightHero() {
             letterSpacing: "0.32em",
             color: "#7ce0ff",
             textShadow: "0 0 18px rgba(124,224,255,0.6)",
-            marginBottom: 22,
+            marginBottom: 16,
           }}
         >
           ★ A PLAYABLE PORTFOLIO
@@ -246,7 +248,7 @@ export function SpotlightHero() {
                 style={{
                   display: "inline-block",
                   fontFamily: "var(--font-pixel)",
-                  fontSize: "clamp(38px, 9vw, 96px)",
+                  fontSize: "clamp(32px, 7.5vw, 78px)",
                   color: "#ffffff",
                   letterSpacing: "-0.01em",
                   textShadow:
@@ -265,10 +267,10 @@ export function SpotlightHero() {
           transition={{ duration: 0.6, delay: 0.5 }}
           style={{
             fontFamily: "var(--font-sans, 'Inter', sans-serif)",
-            fontSize: "clamp(15px, 2.4vw, 21px)",
+            fontSize: "clamp(14px, 2vw, 19px)",
             fontWeight: 500,
             color: "#cfe0f5",
-            margin: "22px 0 6px",
+            margin: "16px 0 6px",
             letterSpacing: "0.01em",
           }}
         >
@@ -299,7 +301,7 @@ export function SpotlightHero() {
             gap: 12,
             flexWrap: "wrap",
             justifyContent: "center",
-            marginTop: 32,
+            marginTop: 24,
             pointerEvents: "auto",
           }}
         >
@@ -308,7 +310,7 @@ export function SpotlightHero() {
             className="pq-btn pq-btn-primary"
             style={{
               fontSize: 13,
-              padding: "18px 34px",
+              padding: "16px 30px",
               animation: "btn-glow-pulse 2.4s ease-in-out 1.2s infinite",
             }}
           >
@@ -317,7 +319,7 @@ export function SpotlightHero() {
           <Link
             href="/resume"
             className="pq-btn"
-            style={{ fontSize: 13, padding: "18px 26px" }}
+            style={{ fontSize: 13, padding: "16px 24px" }}
           >
             READ CV
           </Link>
@@ -331,7 +333,7 @@ export function SpotlightHero() {
             fontFamily: "var(--font-sans, 'Inter', sans-serif)",
             fontSize: 11,
             color: "#5f7ba3",
-            marginTop: 30,
+            marginTop: 20,
             letterSpacing: "0.06em",
           }}
         >
