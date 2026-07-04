@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { createEngine, TILE } from "@/game/engine";
-import { ZONES, type Interactive, type Zone, type NpcKind, PLAYER_SPAWN, stageForBadges, stageForSkills, type RouteNpc } from "@/game/data";
+import { ZONES, type Interactive, type Zone, type NpcKind, PLAYER_SPAWN, stageForBadges, stageForSkills, STARTER_STAGES, type RouteNpc } from "@/game/data";
 import { DialogBox } from "./DialogBox";
 import { StartMenu } from "./StartMenu";
 import { Bag } from "./Bag";
@@ -13,7 +13,7 @@ import { CatchModal } from "./CatchModal";
 import { WorldSelect } from "./WorldSelect";
 import { ContactModal } from "./ContactModal";
 import { PressModal } from "./PressModal";
-import { EvolutionCutscene, checkEvolution } from "./EvolutionCutscene";
+import { EvolutionCutscene } from "./EvolutionCutscene";
 import { TransitionOverlay, type TransitionKind } from "./TransitionOverlay";
 import { ZoneAmbience } from "./ZoneAmbience";
 import { TitleScreen } from "./TitleScreen";
@@ -112,6 +112,15 @@ export function Game() {
   // would otherwise close over a stale `visited` set, causing the zone arrival
   // cinematic to replay for zones already seen. This ref reflects the live set.
   const visitedRef = useRef<Set<string>>(new Set([ZONES[0].id]));
+  // Baseline evolution stage, seeded from the save so we don't replay the
+  // cutscene for already-earned stages. Never moved backward.
+  const prevStageRef = useRef<string>((() => {
+    try {
+      const raw = typeof window !== "undefined" ? localStorage.getItem("pq_save") : null;
+      if (raw) { const s = JSON.parse(raw); return stageForSkills((s.skills?.length as number) ?? 0).id; }
+    } catch {}
+    return STARTER_STAGES[0].id;
+  })());
 
   // Load save
   useEffect(() => {
@@ -161,9 +170,31 @@ export function Game() {
     setTimeout(() => setSaveFlash(false), 1500);
   }, [badges, creatures, skills, defeated, visited, berries]);
 
-  // Keep player stage in sync with skill count (evolution driven by Skill Orbs collected)
+  // Keep player stage in sync with skill count AND fire the evolution cutscene
+  // whenever the stage advances. This is the single source of truth for
+  // evolution — it reacts to the live `skills` state (no stale closures), so it
+  // reliably triggers at the thresholds for every skill source.
   useEffect(() => {
-    engineRef.current?.setPlayerStage(stageForSkills(skills.size).id);
+    const stage = stageForSkills(skills.size);
+    const order: string[] = STARTER_STAGES.map(s => s.id);
+    const prevIdx = order.indexOf(prevStageRef.current);
+    const newIdx = order.indexOf(stage.id);
+    if (newIdx > prevIdx) {
+      const from = STARTER_STAGES[prevIdx] ?? STARTER_STAGES[0];
+      prevStageRef.current = stage.id;
+      // Let any skill-learn overlay show first, then play the evolution cutscene.
+      // playerStage stays on the OLD form until the cutscene reveals the new one.
+      setTimeout(() => {
+        setSkillLearnZone(null);
+        setEvolution({ from, to: stage });
+        engineRef.current?.setPaused(true);
+        playSound("evolve");
+      }, 2200);
+    } else {
+      // No evolution — keep the sprite in sync; never move the baseline backward.
+      if (newIdx >= prevIdx) prevStageRef.current = stage.id;
+      engineRef.current?.setPlayerStage(stage.id);
+    }
   }, [skills]);
 
   // Mirror `visited` into a ref so the engine's onZoneEnter callback (created once)
@@ -286,11 +317,8 @@ export function Game() {
       },
       onSkillOrb: (z: Zone) => {
         if (!z.skill) return;
-        const prevSkillCount = skills.size;
-        let wasNew = false;
         setSkills(prev => {
           if (prev.has(z.skill!.id)) return prev;
-          wasNew = true;
           const n = new Set(prev); n.add(z.skill!.id);
           engine.addSkill(z.skill!.id);
           return n;
@@ -300,24 +328,11 @@ export function Game() {
         engine.setPaused(true);
         // Show skill learn overlay directly (single overlay)
         showToast(`✦ SKILL ORB`, z.skill!.name);
-        // Always show the overlay — even if skill was already collected, briefly show then unpause
+        // Always show the overlay — even if skill was already collected, briefly show then unpause.
+        // Evolution (if the stage advances) is handled centrally by the [skills] effect.
         setTimeout(() => {
           setSkillLearnZone({ zone: z, npcName: "Skill Orb" });
         }, 100);
-        // Check evolution milestone (4 skills → Mermalion, 7 → Merlord)
-        if (wasNew) {
-          const newSkillCount = prevSkillCount + 1;
-          const evo = checkEvolution(prevSkillCount, newSkillCount);
-          if (evo) {
-            // Queue evolution after skill learn overlay closes
-            setTimeout(() => {
-              setSkillLearnZone(null);
-              setEvolution(evo);
-              engine.setPaused(true);
-              playSound("evolve");
-            }, 2500);
-          }
-        }
       },
       onBerryItem: (z: Zone) => {
         // Award a random consumable berry

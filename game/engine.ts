@@ -41,6 +41,25 @@ let camXSmooth = 0;
 let camYSmooth = 0;
 let camInitialized = false;
 
+// ─── Per-NPC palette variation ───────────────────────────────
+// Many NPCs share the same base sprite (by "kind"). To make every NPC feel
+// unique, we derive a deterministic, natural-range colour shift from a seed
+// string (name + position) and apply it as a canvas filter when drawing.
+// Story-critical characters keep their exact look.
+const NPC_TINT_SKIP = new Set(["professor", "mom", "rival"]);
+function npcTintFilter(seed: string): string {
+  let h = 2166136261;
+  for (let k = 0; k < seed.length; k++) {
+    h ^= seed.charCodeAt(k);
+    h = Math.imul(h, 16777619);
+  }
+  h = h >>> 0;
+  const hue = (h % 91) - 45;                        // -45°..+45°
+  const sat = (0.82 + ((h >>> 7) % 48) / 100);      // 0.82..1.29
+  const bri = (0.90 + ((h >>> 13) % 22) / 100);     // 0.90..1.11
+  return `hue-rotate(${hue}deg) saturate(${sat.toFixed(2)}) brightness(${bri.toFixed(2)})`;
+}
+
 
 export type GameState = {
   px: number; py: number;
@@ -995,6 +1014,10 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         ctx.save();
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
+        // Unique per-NPC palette so no two of the same "kind" look identical
+        if (!NPC_TINT_SKIP.has(i.npc.kind)) {
+          ctx.filter = npcTintFilter(`${i.npc.name}:${i.x},${i.y}`);
+        }
         if (npcDir === "left") {
           ctx.translate(npcPx + TILE, npcPy);
           ctx.scale(-1, 1);
@@ -1045,6 +1068,10 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
         ctx.save();
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
+        // Unique per-NPC palette so no two route trainers look identical
+        if (!NPC_TINT_SKIP.has(rn.kind)) {
+          ctx.filter = npcTintFilter(`${rn.name}:${rn.x},${rn.y}`);
+        }
         if (rnDir === "left") {
           ctx.translate(rnPx + TILE, rnPy);
           ctx.scale(-1, 1);
@@ -1157,22 +1184,34 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       if (paramImg && isReady(paramImg)) {
         // Render player at 1.5x tile — bigger than NPCs, clearly the hero
         const size = Math.round(TILE * 1.5);
-        // Drop shadow
-        ctx.fillStyle = "rgba(0,0,0,0.45)";
+
+        // ── Walk cycle (single-frame sprite) ──────────────────────────────
+        // Instead of sliding, bounce in a hop arc each tile-step and lean
+        // slightly, alternating per step for a lively foot-shuffle feel.
+        const isMoving = state.px !== state.tx || state.py !== state.ty;
+        const walkT = isMoving ? Math.min(1, (now - state.walkStart) / WALK_DURATION_MS) : 0;
+        const hop = isMoving ? Math.sin(walkT * Math.PI) : 0;
+        const walkBob = -hop * (TILE * 0.16);
+        const walkLean = hop * (state.stepCount % 2 === 0 ? 1 : -1) * 0.10;
+
+        // Drop shadow — shrinks + fades as the hero lifts off the ground
+        const shScale = 1 - hop * 0.28;
+        ctx.fillStyle = `rgba(0,0,0,${(0.45 - hop * 0.16).toFixed(2)})`;
         ctx.beginPath();
-        ctx.ellipse(pbx + TILE / 2, pby + TILE - 1, TILE * 0.45, TILE * 0.12, 0, 0, Math.PI * 2);
+        ctx.ellipse(pbx + TILE / 2, pby + TILE - 1, TILE * 0.45 * shScale, TILE * 0.12 * shScale, 0, 0, Math.PI * 2);
         ctx.fill();
+
+        // Draw sprite around its feet pivot so the lean/hop reads naturally
+        const footX = pbx + TILE / 2;
+        const footY = pby + TILE;
+        ctx.save();
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
-        if (flipHorizontal) {
-          ctx.save();
-          ctx.translate(pbx + TILE / 2, 0);
-          ctx.scale(-1, 1);
-          ctx.drawImage(paramImg, -(TILE / 2) + (TILE - size) / 2, pby + TILE - size, size, size);
-          ctx.restore();
-        } else {
-          ctx.drawImage(paramImg, pbx + (TILE - size) / 2, pby + TILE - size, size, size);
-        }
+        ctx.translate(footX, footY + walkBob);
+        if (walkLean) ctx.rotate(walkLean);
+        if (flipHorizontal) ctx.scale(-1, 1);
+        ctx.drawImage(paramImg, -size / 2, -size, size, size);
+        ctx.restore();
         ctx.imageSmoothingEnabled = false;
       } else {
         drawCharacter(ctx, "player", state.dir, state.frame, pbx, pby);
@@ -1230,9 +1269,13 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
           }
         }
 
-        // Increased idle bob: 2.5px amplitude
+        // Bob: gentle idle sway when still, a walk hop when the player is moving
+        const followerMoving = state.px !== state.tx || state.py !== state.ty;
+        const followerWalkT = followerMoving ? Math.min(1, (now - state.walkStart) / WALK_DURATION_MS) : 0;
         const idleBob = anim.kind === "idle"
-          ? Math.round(Math.sin(now / 350) * 2.5)
+          ? Math.round(followerMoving
+              ? -Math.sin(followerWalkT * Math.PI) * (TILE * 0.12)
+              : Math.sin(now / 350) * 2.5)
           : 0;
 
         // Pick directional follower sprite (faces toward player = opposite of player dir)

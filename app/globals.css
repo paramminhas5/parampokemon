@@ -3,6 +3,7 @@
 :root {
   --font-pixel: 'Press Start 2P', monospace;
   --font-mono: 'Space Mono', monospace;
+  --font-sans: 'Inter', system-ui, sans-serif;
   --color-dialog: #c8d8f0;
   --color-dialog-border: #2a3a5a;
   --color-dialog-shadow: #5570aa;
@@ -219,4 +220,12 @@ body.play-mode {
 /* Homepage hero responsive */
 @media (max-width: 480px) {
   .pq-panel { border-width: 1px; }
+}
+
+
+/* ── Hero cursor hint pulse ─────────────────────────────────── */
+@keyframes hero-hint-pulse { 0%,100% { opacity: 0.45; } 50% { opacity: 0.95; } }
+.hero-cursor-hint { animation: hero-hint-pulse 2.8s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .hero-cursor-hint { animation: none; }
 }

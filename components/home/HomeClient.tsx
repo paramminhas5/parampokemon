@@ -1,12 +1,39 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { motion, useScroll, useSpring } from "motion/react";
 import { ZONES, CONTACT, PRESS } from "@/game/data";
 import { CareerCard } from "@/components/home/CareerCard";
 import { CreatureStrip } from "@/components/home/CreatureStrip";
 import { BrandLogos } from "@/components/home/BrandLogos";
 import { ContactForm } from "@/components/home/ContactForm";
+import { SpotlightHero } from "@/components/home/SpotlightHero";
 import { useScrollReveal } from "@/lib/useScrollReveal";
+
+// ─── Scroll progress bar (ties the whole page to scroll) ──────────────────────
+function ScrollProgress() {
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 120, damping: 30, mass: 0.3 });
+  return (
+    <motion.div
+      aria-hidden
+      style={{
+        position: "fixed", top: 0, left: 0, right: 0, height: 3, zIndex: 100,
+        transformOrigin: "0%", scaleX,
+        background: "linear-gradient(90deg, #7ce0ff, #a06fff, #ff9fd4)",
+        boxShadow: "0 0 12px rgba(124,224,255,0.6)",
+      }}
+    />
+  );
+}
+
+// Shared scroll-reveal for section blocks
+const sectionReveal = {
+  initial: { opacity: 0, y: 42 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: "-80px" },
+  transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
+};
 
 // ─── Typewriter hook ──────────────────────────────────────────────────────────
 function useTypewriter(text: string, speed = 38, trigger = true) {
@@ -436,12 +463,6 @@ const BG_ANIMATIONS = `
 // ─── PAGE ─────────────────────────────────────────────────────────────────────
 export function HomeClient() {
   const careerZones = ZONES.filter(z => z.id !== "home" && z.id !== "origin");
-  const [heroVisible, setHeroVisible] = useState(false);
-
-  useEffect(() => {
-    const id = setTimeout(() => setHeroVisible(true), 80);
-    return () => clearTimeout(id);
-  }, []);
 
   return (
     <div style={{
@@ -451,6 +472,7 @@ export function HomeClient() {
       overflow: "hidden",
     }}>
       <style>{PRESS_START_GLOW}{BG_ANIMATIONS}</style>
+      <ScrollProgress />
 
       {/* Animated background layers */}
       <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0 }}>
@@ -466,89 +488,16 @@ export function HomeClient() {
         ))}
       </div>
 
-      {/* ── HERO ── */}
-      <section style={{
-        maxWidth: 860, margin: "0 auto", padding: "24px 16px 44px",
-        minHeight: "clamp(540px, 88vh, 860px)",
-        display: "flex", flexDirection: "column", justifyContent: "center",
-        textAlign: "center", position: "relative", zIndex: 1,
-      }}>
-        <div style={{
-          position: "absolute", inset: 0, pointerEvents: "none",
-          backgroundImage: `
-            repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(124,224,255,0.012) 3px, rgba(124,224,255,0.012) 4px),
-            repeating-linear-gradient(90deg, transparent, transparent 3px, rgba(124,224,255,0.008) 3px, rgba(124,224,255,0.008) 4px)
-          `,
-          zIndex: 0,
-        }} />
+      {/* ── HERO — cinematic spotlight reveal ── */}
+      <SpotlightHero />
 
+      {/* ── CREATURE STRIP BAND ── */}
+      <section style={{ maxWidth: 980, margin: "0 auto", padding: "36px 16px 8px", position: "relative", zIndex: 1 }}>
         <CreatureStrip zones={careerZones} />
-
-        <div style={{ position: "relative", zIndex: 1 }}>
-          <div style={{
-            fontFamily: "var(--font-pixel)", fontSize: 9,
-            color: "#3a5a80", letterSpacing: "0.25em", marginBottom: 20,
-            opacity: heroVisible ? 1 : 0,
-            transition: "opacity 0.5s ease 100ms",
-          }}>★ A PLAYABLE PORTFOLIO</div>
-
-          <h1 style={{
-            fontFamily: "var(--font-pixel)",
-            fontSize: "clamp(32px, 8vw, 64px)",
-            lineHeight: 1.1, margin: "0 0 8px",
-            color: "#7ce0ff",
-            textShadow: "0 6px 0 #0a2040, 0 0 40px rgba(124,224,255,0.35)",
-            opacity: heroVisible ? 1 : 0,
-            transform: heroVisible ? "translateY(0)" : "translateY(16px)",
-            transition: "opacity 0.55s ease 180ms, transform 0.55s ease 180ms",
-          }}>PARAM<br />MINHAS</h1>
-
-          <div style={{
-            maxWidth: 500, margin: "16px auto",
-            opacity: heroVisible ? 1 : 0,
-            transform: heroVisible ? "translateY(0)" : "translateY(12px)",
-            transition: "opacity 0.5s ease 300ms, transform 0.5s ease 300ms",
-          }}>
-            <p style={{
-              fontFamily: "var(--font-mono)", fontSize: 20,
-              color: "#8aa0c0", margin: "0 0 4px", lineHeight: 1.4,
-            }}>
-              Builder · Designer · Creative Director
-            </p>
-            <p style={{
-              fontFamily: "var(--font-mono)", fontSize: 14,
-              color: "#4a6080", margin: 0, lineHeight: 1.5,
-              letterSpacing: "0.04em",
-            }}>
-              Growth & Brand Leadership | GTM | AI-Native Marketing | Creative Direction | Product
-            </p>
-          </div>
-
-          <div style={{
-            display: "flex", gap: 12, justifyContent: "center",
-            flexWrap: "wrap", marginTop: 28,
-            opacity: heroVisible ? 1 : 0,
-            transition: "opacity 0.5s ease 420ms",
-          }}>
-            <Link
-              href="/play"
-              className="pq-btn pq-btn-primary"
-              style={{
-                fontSize: 13, padding: "18px 32px",
-                animation: "btn-glow-pulse 2.4s ease-in-out 1.2s infinite",
-              }}
-            >
-              PRESS START <span className="pq-blink">▶</span>
-            </Link>
-            <Link href="/resume" className="pq-btn" style={{ fontSize: 13, padding: "18px 24px" }}>
-              READ CV
-            </Link>
-          </div>
-        </div>
       </section>
 
       {/* ── STATS ── */}
-      <section style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 40px" }}>
+      <motion.section {...sectionReveal} style={{ maxWidth: 860, margin: "0 auto", padding: "24px 20px 40px", position: "relative", zIndex: 1 }}>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 6 }}>
           {[
             { label: "YEARS BUILDING", value: "15+" },
@@ -560,36 +509,36 @@ export function HomeClient() {
             <SnapshotPill key={s.label} label={s.label} value={s.value} delay={i * 60} />
           ))}
         </div>
-      </section>
+      </motion.section>
 
       {/* ── CAREER ── */}
-      <section style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 40px", position: "relative", zIndex: 1 }}>
+      <motion.section {...sectionReveal} style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 40px", position: "relative", zIndex: 1 }}>
         <SectionHeader text="★ THE CAREER · CHAPTER BY CHAPTER" />
         <CareerSection zones={careerZones} />
-      </section>
+      </motion.section>
 
       {/* ── BRAND LOGOS ── */}
-      <section style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 40px" }}>
+      <motion.section {...sectionReveal} style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 40px", position: "relative", zIndex: 1 }}>
         <SectionHeader text="★ BRANDS I WORKED WITH" />
         <BrandLogos />
-      </section>
+      </motion.section>
 
       {/* ── PRESS ── */}
-      <section style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 32px", position: "relative", zIndex: 1 }}>
+      <motion.section {...sectionReveal} style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 32px", position: "relative", zIndex: 1 }}>
         <SectionHeader text="★ SELECTED PRESS" />
         <PressSection />
-      </section>
+      </motion.section>
 
       {/* ── CONTACT ── */}
-      <section style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 40px" }}>
+      <motion.section {...sectionReveal} style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 40px", position: "relative", zIndex: 1 }}>
         <SectionHeader text="★ LET'S TALK" />
         <ContactForm />
-      </section>
+      </motion.section>
 
       {/* ── HOW TO PLAY ── */}
-      <section style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 32px" }}>
+      <motion.section {...sectionReveal} style={{ maxWidth: 860, margin: "0 auto", padding: "0 20px 32px", position: "relative", zIndex: 1 }}>
         <HowToPlay />
-      </section>
+      </motion.section>
 
       {/* ── FOOTER ── */}
       <Footer />
