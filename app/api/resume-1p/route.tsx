@@ -41,6 +41,7 @@ function OnePageResumePDF() {
           <View style={styles.contactRow}>
             <Link src="mailto:minhas.param@gmail.com"><Text>minhas.param@gmail.com</Text></Link>
             <Link src="https://linkedin.com/in/paramminhas"><Text>linkedin.com/in/paramminhas</Text></Link>
+            <Link src="https://hyperiterate.com"><Text>hyperiterate.com</Text></Link>
             <Link src="https://catscandance.com"><Text>catscandance.com</Text></Link>
             <Text>Bengaluru, India</Text>
           </View>
@@ -158,12 +159,21 @@ function OnePageResumePDF() {
   );
 }
 
+// Force dynamic rendering — without this, Next.js may statically generate
+// and cache this route at build time server-side (in addition to the
+// browser-side no-store header below), serving a stale PDF after content
+// changes.
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const buffer = await renderToBuffer(<OnePageResumePDF />);
   return new Response(new Uint8Array(buffer), {
     headers: {
       "Content-Type": "application/pdf",
       "Content-Disposition": 'attachment; filename="Param_Minhas_1Pager.pdf"',
+      // Always regenerate on download — prevents browsers/CDNs from serving
+      // a stale cached PDF after the resume content is updated.
+      "Cache-Control": "no-store, no-cache, must-revalidate",
     },
   });
 }

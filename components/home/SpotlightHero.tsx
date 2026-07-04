@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { motion, useScroll, useTransform, useReducedMotion } from "motion/react";
 
-const SPOTLIGHT_R = 230;
+const SPOTLIGHT_R = 170;
 
 /**
  * Cinematic hero for the playable portfolio.
@@ -49,12 +49,13 @@ export function SpotlightHero() {
       const idle = mouse.current.x < -9000;
 
       if (!hasHover || reduce || idle) {
-        // Auto-orbit the spotlight so the reveal is alive without a cursor
-        t += reduce ? 0 : 0.011;
+        // Auto-orbit the spotlight so the reveal is alive without a cursor —
+        // kept slow and lazy so it doesn't feel jittery/attention-grabbing.
+        t += reduce ? 0 : 0.0028;
         const tx = rect.width / 2 + Math.cos(t) * rect.width * 0.26;
         const ty = rect.height / 2 + Math.sin(t * 1.3) * rect.height * 0.2;
-        smooth.current.x += (tx - smooth.current.x) * 0.06;
-        smooth.current.y += (ty - smooth.current.y) * 0.06;
+        smooth.current.x += (tx - smooth.current.x) * 0.035;
+        smooth.current.y += (ty - smooth.current.y) * 0.035;
       } else {
         smooth.current.x += (mouse.current.x - smooth.current.x) * 0.12;
         smooth.current.y += (mouse.current.y - smooth.current.y) * 0.12;
@@ -99,14 +100,14 @@ export function SpotlightHero() {
       style={{
         position: "relative",
         width: "100%",
-        height: "68vh",
-        minHeight: 460,
-        maxHeight: 720,
+        height: "56vh",
+        minHeight: 400,
+        maxHeight: 600,
         overflow: "hidden",
         background: "#03060f",
       }}
     >
-      {/* Base layer — subtle brutalist cosmos */}
+      {/* Base layer — modern dark Pokémon-map backdrop */}
       <motion.div
         aria-hidden
         style={{
@@ -117,10 +118,10 @@ export function SpotlightHero() {
           backgroundImage: "url(/hero/hero-cosmos.jpg)",
           backgroundSize: "cover",
           backgroundPosition: "center",
-          filter: "saturate(0.85) contrast(1.08)",
+          filter: "saturate(0.9) contrast(1.03)",
         }}
       />
-      {/* Legibility wash over the cosmos */}
+      {/* Legibility wash over the backdrop */}
       <div
         aria-hidden
         style={{
@@ -128,11 +129,16 @@ export function SpotlightHero() {
           inset: 0,
           zIndex: 11,
           background:
-            "radial-gradient(ellipse at 50% 42%, rgba(3,6,15,0.25), rgba(3,6,15,0.8) 85%)",
+            "radial-gradient(ellipse at 50% 42%, rgba(3,6,15,0.2), rgba(3,6,15,0.75) 85%)",
         }}
       />
 
-      {/* Reveal layer — the pixel game world, masked to the spotlight */}
+      {/* Reveal layer — the pixel game world, masked to the spotlight.
+          The mask + mouse-tracking math is kept on this outer box (same
+          size/position as the section) so the coordinate space stays
+          correct; the actual image lives on an oversized inner layer so
+          "cover" crops far less aggressively — showing more of the scene
+          instead of a zoomed-in sliver of it. */}
       <div
         ref={revealRef}
         aria-hidden
@@ -140,22 +146,34 @@ export function SpotlightHero() {
           position: "absolute",
           inset: 0,
           zIndex: 20,
-          backgroundImage: "url(/hero/hero-world.jpg)",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          imageRendering: "pixelated",
           pointerEvents: "none",
           maskImage: maskGradient,
           WebkitMaskImage: maskGradient,
         }}
       >
-        {/* pixel scanlines only inside the reveal */}
+        {/* Oversized image layer — zoomed out relative to the visible box */}
+        <div
+          style={{
+            position: "absolute",
+            top: "-32%",
+            bottom: "-32%",
+            left: "-12%",
+            right: "-12%",
+            backgroundImage: "url(/hero/hero-world.jpg)",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            imageRendering: "pixelated",
+            filter: "brightness(1.12) saturate(1.08)",
+          }}
+        />
+        {/* pixel scanlines only inside the reveal — kept subtle so the
+            reveal reads as bright/light against the dark backdrop */}
         <div
           style={{
             position: "absolute",
             inset: 0,
             backgroundImage:
-              "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.18) 2px, rgba(0,0,0,0.18) 3px)",
+              "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 3px)",
           }}
         />
       </div>
@@ -228,7 +246,7 @@ export function SpotlightHero() {
             letterSpacing: "0.32em",
             color: "#7ce0ff",
             textShadow: "0 0 18px rgba(124,224,255,0.6)",
-            marginBottom: 16,
+            marginBottom: 12,
           }}
         >
           ★ A PLAYABLE PORTFOLIO
@@ -248,7 +266,7 @@ export function SpotlightHero() {
                 style={{
                   display: "inline-block",
                   fontFamily: "var(--font-pixel)",
-                  fontSize: "clamp(32px, 7.5vw, 78px)",
+                  fontSize: "clamp(28px, 6.5vw, 66px)",
                   color: "#ffffff",
                   letterSpacing: "-0.01em",
                   textShadow:
