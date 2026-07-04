@@ -100,9 +100,9 @@ export function SpotlightHero() {
       style={{
         position: "relative",
         width: "100%",
-        height: "62vh",
-        minHeight: 440,
-        maxHeight: 660,
+        height: "70vh",
+        minHeight: 480,
+        maxHeight: 740,
         overflow: "hidden",
         background: "#03060f",
       }}
@@ -361,26 +361,37 @@ export function SpotlightHero() {
         </motion.div>
       </motion.div>
 
-      {/* Scroll cue */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: [0, 1, 1, 0], y: [0, 8, 8, 0] }}
-        transition={{ duration: 2.2, repeat: Infinity, delay: 1.4 }}
+      {/* Scroll cue — outer div handles horizontal centering (plain CSS),
+          inner motion.div only animates opacity/y. Framer Motion fully owns
+          the `transform` style once you animate x/y/scale/etc., so a manual
+          `transform: translateX(-50%)` on the same animated element gets
+          silently clobbered — splitting into two elements avoids that. */}
+      <div
         style={{
           position: "absolute",
           bottom: 22,
-          left: "50%",
-          transform: "translateX(-50%)",
+          left: 0,
+          right: 0,
           zIndex: 50,
-          fontFamily: "var(--font-pixel)",
-          fontSize: 8,
-          color: "#7ce0ff",
-          letterSpacing: "0.2em",
+          display: "flex",
+          justifyContent: "center",
           pointerEvents: "none",
         }}
       >
-        ▼ SCROLL
-      </motion.div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: [0, 1, 1, 0], y: [0, 8, 8, 0] }}
+          transition={{ duration: 2.2, repeat: Infinity, delay: 1.4 }}
+          style={{
+            fontFamily: "var(--font-pixel)",
+            fontSize: 8,
+            color: "#7ce0ff",
+            letterSpacing: "0.2em",
+          }}
+        >
+          ▼ SCROLL
+        </motion.div>
+      </div>
     </section>
   );
 }
