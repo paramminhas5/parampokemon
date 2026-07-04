@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { motion, useScroll, useTransform, useReducedMotion } from "motion/react";
 
-const SPOTLIGHT_R = 170;
+const SPOTLIGHT_R = 120;
 
 /**
  * Cinematic hero for the playable portfolio.
@@ -100,9 +100,9 @@ export function SpotlightHero() {
       style={{
         position: "relative",
         width: "100%",
-        height: "56vh",
-        minHeight: 400,
-        maxHeight: 600,
+        height: "62vh",
+        minHeight: 440,
+        maxHeight: 660,
         overflow: "hidden",
         background: "#03060f",
       }}
