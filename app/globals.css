@@ -27,9 +27,6 @@ html, body {
   font-family: var(--font-mono), monospace;
   overflow-x: hidden;
   -webkit-tap-highlight-color: transparent;
-  /* Smooth momentum scrolling on touch devices */
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: none;
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
