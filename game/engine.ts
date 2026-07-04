@@ -708,7 +708,7 @@ export function createEngine(canvas: HTMLCanvasElement, cb: EngineCallbacks) {
       const sy = z.oy + z.sign.y;
       // Cull if the sign tile is well outside the viewport
       if (sx < tx0 - 3 || sx > tx1 + 3 || sy < ty0 - 4 || sy > ty1 + 2) continue;
-      drawZoneSign(ctx, z, offX, offY, now);
+      drawZoneSign(ctx, z, offX, offY, state.tx, state.ty);
     }
 
     // ── Door/mat entry indicator — pulsing glow ────────────────────────
