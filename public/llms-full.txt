@@ -209,9 +209,9 @@ Param Minhas and his companies have been featured in major publications includin
 
 # Page: Play (https://paramminhas.com/play)
 
-## Param Quest — Playable Portfolio RPG
+## Career Quest — Playable Portfolio RPG
 
-Param Quest is a full Pokemon-style RPG that tells 15 years of Param Minhas's career as an interactive game. Built with Next.js 15, TypeScript, Canvas 2D, and Web Audio API.
+Career Quest is a full Pokemon-style RPG that tells 15 years of Param Minhas's career as an interactive game. Built with Next.js 15, TypeScript, Canvas 2D, and Web Audio API.
 
 ### Game Features
 - 10 explorable zones (each representing a career chapter)
@@ -261,8 +261,8 @@ SoleSearch was India's leading sneaker, streetwear, and collectibles marketplace
 ## What is Cats Can Dance?
 Cats Can Dance (catscandance.com) is a culture-discovery platform founded by Param Minhas in March 2026. It spans music, fashion, and pet care, with an artist directory, event booking, and music-production learning product. It launched under Iterate with live shows produced in partnership with Impresario.
 
-## What is Param Quest?
-Param Quest is a playable portfolio RPG that tells 15 years of Param Minhas's career as a Pokemon-style game. Built with Next.js 15, TypeScript, Canvas 2D, and Web Audio API. It features 10 explorable zones, 9 gym battles, full evolution, and synthesized audio.
+## What is Career Quest?
+Career Quest is a playable portfolio RPG that tells 15 years of Param Minhas's career as a Pokemon-style game. Built with Next.js 15, TypeScript, Canvas 2D, and Web Audio API. It features 10 explorable zones, 9 gym battles, full evolution, and synthesized audio.
 
 ## How can I contact Param Minhas?
 Email: minhas.param@gmail.com. LinkedIn: linkedin.com/in/paramminhas. Agency: hyperiterate.com. Culture brand: catscandance.com.

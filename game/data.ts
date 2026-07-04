@@ -1,4 +1,4 @@
-// Param Quest — career data as a Pokémon-style RPG.
+// Career Quest — career data as a Pokémon-style RPG.
 
 export type Beat = "did" | "learned";
 export type NpcKind =
@@ -123,7 +123,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     w: 26, h: 20,
     // Cozy cottage top-left with fenced garden; Prof lab top-right
     building: { x: 1, y: 2, w: 9, h: 6, doorX: 4, color: "#d0d8e8", roof: "#b0382c" },
-    sign: { x: 16, y: 16, text: "PARAM QUEST\nA career told as an RPG.\n\nYou are a recruiter.\nWalk through it.\n\nARROWS/WASD to move\nTAP to walk there\nSPACE to talk\nMAP to jump anywhere" },
+    sign: { x: 16, y: 16, text: "CAREER QUEST\nA career told as an RPG.\n\nYou are a recruiter.\nWalk through it.\n\nARROWS/WASD to move\nTAP to walk there\nSPACE to talk\nMAP to jump anywhere" },
     badge: { x: 22, y: 8, id: "curiosity", label: "Starter Token", color: "#9ad6e8" },
     spawn: { x: 13, y: 14 },
     npcs: [

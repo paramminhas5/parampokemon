@@ -319,7 +319,7 @@ export default function AboutPage() {
               📰 Press & Media Coverage
             </Link>
             <Link href="/play" style={{ display: "block", padding: "16px", background: "#f8f9fc", border: "1px solid #e8e8ec", borderRadius: 6, textDecoration: "none", color: "#2a4a8a", fontSize: 14, fontWeight: 600 }}>
-              🎮 Play Param Quest (RPG)
+              🎮 Play Career Quest (RPG)
             </Link>
             <Link href="/" style={{ display: "block", padding: "16px", background: "#f8f9fc", border: "1px solid #e8e8ec", borderRadius: 6, textDecoration: "none", color: "#2a4a8a", fontSize: 14, fontWeight: 600 }}>
               🏠 Interactive Homepage

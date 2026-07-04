@@ -21,7 +21,7 @@ export function StartMenu({ badges, creatures, skills, onClose, onSettings, onCr
                   paddingBottom: "calc(env(safe-area-inset-bottom) + 8px)" }}>
       <div className="pq-panel w-full h-full flex flex-col max-w-3xl mx-auto" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between px-3 py-2" style={{ borderBottom: "2px solid var(--color-dialog-border)" }}>
-          <div className="pq-label">PARAM QUEST · PAUSE MENU</div>
+          <div className="pq-label">CAREER QUEST · PAUSE MENU</div>
           <button className="pq-label" onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer" }}>✕ CLOSE</button>
         </div>
         <div className="flex flex-nowrap overflow-x-auto gap-2 px-3 py-2" style={{ borderBottom: "2px solid var(--color-dialog-shadow)", WebkitOverflowScrolling: "touch" }}>

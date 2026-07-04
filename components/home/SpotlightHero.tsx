@@ -107,7 +107,8 @@ export function SpotlightHero() {
         background: "#03060f",
       }}
     >
-      {/* Base layer — modern dark Pokémon-map backdrop */}
+      {/* Base layer — same starry backdrop used on the in-game title screen,
+          for visual continuity between the homepage and Career Quest itself. */}
       <motion.div
         aria-hidden
         style={{
@@ -115,7 +116,7 @@ export function SpotlightHero() {
           inset: 0,
           zIndex: 10,
           scale: bgScale,
-          backgroundImage: "url(/hero/hero-cosmos.jpg)",
+          backgroundImage: "url(/sprites/ui/title_bg.png)",
           backgroundSize: "cover",
           backgroundPosition: "center",
           filter: "saturate(0.9) contrast(1.03)",

@@ -572,7 +572,7 @@ export function Game() {
       {/* Game container - full screen on mobile, boxed on desktop */}
       <div
         role="application"
-        aria-label="Param Quest — A playable portfolio RPG game"
+        aria-label="Career Quest — A playable portfolio RPG game"
         style={{
           position: "relative",
           width: "min(100vw, 960px)",
@@ -1093,7 +1093,7 @@ export function Game() {
                 setCreditsOpen(true);
               }, 1200);
               // Show toast about post-game
-              showToast("★ CHAMPION", "You've completed Param Quest. The journey continues.");
+              showToast("★ CHAMPION", "You've completed Career Quest. The journey continues.");
               engineRef.current?.setPaused(false);
             }}
           />

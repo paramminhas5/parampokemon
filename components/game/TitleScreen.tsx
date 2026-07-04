@@ -7,7 +7,7 @@ const INTRO_LINES = [
   {
     speaker: "Prof. Iterate",
     role: "Pokémon Professor",
-    text: "Welcome to the world of PARAM QUEST.\n\nThis is a portfolio — but not a PDF you scroll past. It's a world you walk through.",
+    text: "Welcome to the world of CAREER QUEST.\n\nThis is a portfolio — but not a PDF you scroll past. It's a world you walk through.",
   },
   {
     speaker: "Prof. Iterate",
@@ -295,7 +295,7 @@ export function TitleScreen({ onComplete, isFirstVisit }: Props) {
               color:      "#7ce0ff",
               textShadow: "0 6px 0 #0a2040, 0 0 50px rgba(124,224,255,0.55)",
               letterSpacing: "0.03em",
-            }}>PARAM</div>
+            }}>CAREER</div>
             <div style={{
               fontFamily: "var(--font-pixel)",
               fontSize:   "clamp(30px, 7.5vw, 56px)",

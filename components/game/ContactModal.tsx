@@ -10,7 +10,7 @@ export function ContactModal({ onClose }: { onClose: () => void }) {
 
   function handleSend() {
     if (!name || !email || !message) return;
-    const subject = encodeURIComponent("Param Quest — Let's talk");
+    const subject = encodeURIComponent("Career Quest — Let's talk");
     const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\n${message}`);
     window.open(`mailto:${CONTACT.email}?subject=${subject}&body=${body}`);
     setSent(true);
