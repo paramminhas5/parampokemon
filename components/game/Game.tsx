@@ -108,6 +108,10 @@ export function Game() {
   const [visited, setVisited] = useState<Set<string>>(new Set([ZONES[0].id]));
   const [currentZoneId, setCurrentZoneId] = useState<string>(ZONES[0].id);
   const caughtRef = useRef<Set<string>>(new Set());
+  // Always-current mirror of `visited`. The engine callbacks are created once and
+  // would otherwise close over a stale `visited` set, causing the zone arrival
+  // cinematic to replay for zones already seen. This ref reflects the live set.
+  const visitedRef = useRef<Set<string>>(new Set([ZONES[0].id]));
 
   // Load save
   useEffect(() => {
@@ -121,7 +125,7 @@ export function Game() {
         if (s.creatures) { setCreatures(new Set(s.creatures)); caughtRef.current = new Set(s.creatures); }
         if (s.skills)    setSkills(new Set(s.skills));
         if (s.defeated)  setDefeated(new Set(s.defeated));
-        if (s.visited)   setVisited(new Set(s.visited));
+        if (s.visited)   { setVisited(new Set(s.visited)); visitedRef.current = new Set(s.visited); }
         if (s.berries)   setBerries(s.berries);
         setIsFirstVisit(false);
         setTitleDone(false);
@@ -162,6 +166,10 @@ export function Game() {
     engineRef.current?.setPlayerStage(stageForSkills(skills.size).id);
   }, [skills]);
 
+  // Mirror `visited` into a ref so the engine's onZoneEnter callback (created once)
+  // always reads the live, persisted set instead of a stale closure.
+  useEffect(() => { visitedRef.current = visited; }, [visited]);
+
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const showToast = useCallback((title: string, sub?: string) => {
     setToast({ title, sub });
@@ -181,9 +189,10 @@ export function Game() {
           engine.setPaused(true);
           // Unlock follower the moment the professor is spoken to
           if (i.npc.kind === "professor") engine.unlockFollower();
-          if (i.npc.beat === "did" && i.zone.creature && !caughtRef.current.has(i.zone.creature.id)) {
-            setTimeout(() => setCatchModal(i.zone), 400);
-          }
+          // NOTE: Talking to regular/route NPCs no longer triggers a wild-creature
+          // catch encounter. Zone creatures are caught only via their dedicated wild
+          // encounter tiles (onWild → WildEncounterIntro → CatchModal). The professor
+          // still hands over Mermander through unlockFollower() above.
           if (i.npc.beat === "learned" && i.zone.skill) {
             setSkills(prev => {
               if (prev.has(i.zone.skill!.id)) return prev;
@@ -202,7 +211,10 @@ export function Game() {
       },
       onZoneEnter: (z: Zone) => {
         setCurrentZoneId(z.id);
-        const isFirstTime = !visited.has(z.id);
+        // Use the live ref (not a stale closure) so the arrival cinematic plays
+        // only the FIRST time a zone is ever visited, across sessions.
+        const isFirstTime = !visitedRef.current.has(z.id);
+        visitedRef.current.add(z.id);
         setVisited(prev => { const n = new Set(prev); n.add(z.id); return n; });
         // Toast uses zone accent colour
         setToast({ title: z.name.toUpperCase(), sub: z.subtitle });
