@@ -112,11 +112,11 @@ export function BadgeShareCard({ zone, badgeCount, totalGyms, onClose }: Props) 
     ctx.fillText("★", bx, by + 10);
     ctx.textAlign = "left";
 
-    // "PARAM QUEST" branding
+    // "CAREER QUEST" branding
     ctx.font = "bold 10px monospace";
     ctx.fillStyle = "#2a4060";
     ctx.textAlign = "right";
-    ctx.fillText("PARAM QUEST", W - 24, H - 24);
+    ctx.fillText("CAREER QUEST", W - 24, H - 24);
     ctx.textAlign = "left";
 
     // Generate image URL
@@ -140,7 +140,7 @@ export function BadgeShareCard({ zone, badgeCount, totalGyms, onClose }: Props) 
     return lines.slice(0, 3);
   }
 
-  const shareText = `Just earned the ${zone.badge.label} in PARAM QUEST — a playable portfolio RPG.\n\n${badgeCount}/${totalGyms} badges collected. Play at paramminhas.com/play`;
+  const shareText = `Just earned the ${zone.badge.label} in CAREER QUEST — a playable portfolio RPG.\n\n${badgeCount}/${totalGyms} badges collected. Play at paramminhas.com/play`;
   const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
   const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent("https://paramminhas.com/play")}`;
 
@@ -155,7 +155,7 @@ export function BadgeShareCard({ zone, badgeCount, totalGyms, onClose }: Props) 
     if (!imageUrl) return;
     const a = document.createElement("a");
     a.href = imageUrl;
-    a.download = `param-quest-badge-${zone.badge.id}.png`;
+    a.download = `career-quest-badge-${zone.badge.id}.png`;
     a.click();
   }
 

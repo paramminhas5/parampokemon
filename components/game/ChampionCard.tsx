@@ -64,7 +64,7 @@ export function ChampionCard({ badges, defeated, creatures, onClose }: Props) {
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, []);
 
-  const shareText = `I just beat PARAM QUEST — the world's first playable CV.\n\n${defeated.size}/${TOTAL_GYMS} gym badges. 15 years of Param Minhas's career. Play it at paramquest.com`;
+  const shareText = `I just beat CAREER QUEST — the world's first playable CV.\n\n${defeated.size}/${TOTAL_GYMS} gym badges. 15 years of Param Minhas's career. Play it at paramminhas.com/play`;
   const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
 
   function handleCopy() {
@@ -259,7 +259,7 @@ export function ChampionCard({ badges, defeated, creatures, onClose }: Props) {
                   transition: "all 0.15s",
                 }}>{copied ? "✓ COPIED" : "⎘ COPY"}</button>
               </div>
-              <a href={`mailto:${CONTACT.email}?subject=I just completed Param Quest&body=${encodeURIComponent(shareText)}`} onClick={e => e.stopPropagation()} style={{
+              <a href={`mailto:${CONTACT.email}?subject=I just completed Career Quest&body=${encodeURIComponent(shareText)}`} onClick={e => e.stopPropagation()} style={{
                 display: "flex", alignItems: "center", justifyContent: "center",
                 background: "linear-gradient(135deg, rgba(255,210,74,0.15) 0%, rgba(232,133,42,0.1) 100%)",
                 border: "2px solid rgba(255,210,74,0.4)",

@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "Play Param Quest — A Playable Portfolio RPG | 15 Years of Career as a Pokemon-Style Game";
+export const alt = "Play Career Quest — A Playable Portfolio RPG | 15 Years of Career as a Pokemon-Style Game";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -76,7 +76,7 @@ export default async function Image() {
             display: "flex",
           }}
         >
-          PARAM QUEST
+          CAREER QUEST
         </div>
 
         {/* Subtitle */}

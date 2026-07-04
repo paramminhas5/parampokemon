@@ -4,10 +4,10 @@ import { Game } from "@/components/game/Game";
 import { PlayBodyClass } from "@/components/game/PlayBodyClass";
 
 export const metadata: Metadata = {
-  title: "Play Param Quest — A Playable Portfolio RPG by Param Minhas",
-  description: "Play Param Quest — a full Pokemon-style RPG that tells 15 years of Param Minhas's career. 10 explorable zones, 9 gym leader battles, full evolution system, synthesized audio. Built with Next.js, TypeScript, Canvas 2D, and Web Audio API. No downloads needed — play instantly in your browser.",
+  title: "Play Career Quest — A Playable Portfolio RPG by Param Minhas",
+  description: "Play Career Quest — a full Pokemon-style RPG that tells 15 years of Param Minhas's career. 10 explorable zones, 9 gym leader battles, full evolution system, synthesized audio. Built with Next.js, TypeScript, Canvas 2D, and Web Audio API. No downloads needed — play instantly in your browser.",
   keywords: [
-    "Param Quest", "playable portfolio", "portfolio RPG", "Pokemon-style game",
+    "Career Quest", "playable portfolio", "portfolio RPG", "Pokemon-style game",
     "interactive resume", "career game", "indie game", "browser RPG",
     "Param Minhas game", "Next.js game", "Canvas 2D game",
     "creative portfolio", "developer portfolio game", "gamified resume",
@@ -17,14 +17,14 @@ export const metadata: Metadata = {
     canonical: "https://paramminhas.com/play",
   },
   openGraph: {
-    title: "Play Param Quest — Playable Portfolio RPG",
+    title: "Play Career Quest — Playable Portfolio RPG",
     description: "15 years of career told as a Pokemon-style game. 10 zones. 9 gym battles. Full battle system. Play now in your browser.",
     type: "website",
     url: "https://paramminhas.com/play",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Play Param Quest — Playable Portfolio RPG",
+    title: "Play Career Quest — Playable Portfolio RPG",
     description: "Walk through 15 years of building. 10 worlds. 9 gym battles. Full Pokemon-style RPG in your browser.",
     creator: "@paramminhas",
   },
@@ -34,7 +34,7 @@ export default function PlayPage() {
   const videoGameJsonLd = {
     "@context": "https://schema.org",
     "@type": "VideoGame",
-    name: "Param Quest",
+    name: "Career Quest",
     alternateName: "Param Minhas Playable Portfolio",
     description: "A playable portfolio RPG — 15 years of Param Minhas's career told as a premium indie Pokemon-style game. 10 explorable zones, 9 gym leader battles, full evolution system, and synthesized audio.",
     url: "https://paramminhas.com/play",

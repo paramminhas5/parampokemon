@@ -284,7 +284,7 @@ function HowToPlay() {
           fontFamily: "var(--font-mono)", fontSize: 19,
           lineHeight: 1.6, color: "#8aa0c0",
         }}>
-          This is <strong style={{ color: "#c8d8f0" }}>PARAM QUEST</strong> — fifteen years of building told as an RPG.
+          This is <strong style={{ color: "#c8d8f0" }}>CAREER QUEST</strong> — fifteen years of building told as an RPG.
           Walk through 10 worlds. Talk to the people. Fight the bosses. Collect the badges.
           Each gym leader is a <strong style={{ color: "#c8d8f0" }}>real challenge I actually faced</strong>.
           Defeat them to earn the badge and read what I learned. Use the MAP to fast-travel anywhere.

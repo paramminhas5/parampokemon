@@ -8,7 +8,7 @@
 - [About](https://paramminhas.com/about): Full biography, career history, skills, and what Param Minhas is known for
 - [Resume](https://paramminhas.com/resume): Professional CV with 8 positions, skills matrix, education, and contact
 - [Press](https://paramminhas.com/press): All media coverage — VICE, CNBC-TV18, Storyboard18, Economic Times, and more
-- [Play Param Quest](https://paramminhas.com/play): Interactive Pokemon-style RPG telling 15 years of career as a game
+- [Play Career Quest](https://paramminhas.com/play): Interactive Pokemon-style RPG telling 15 years of career as a game
 
 ## Optional
 

@@ -11,7 +11,7 @@ const STYLES = `
 `;
 
 const CREDITS = [
-  { section: "PARAM QUEST", items: ["A career told as an RPG"] },
+  { section: "CAREER QUEST", items: ["A career told as an RPG"] },
   { section: "CREATED BY", items: ["Param Minhas"] },
   { section: "DESIGN & DIRECTION", items: ["Param Minhas"] },
   { section: "PROGRAMMING", items: ["TypeScript · Next.js 15 · Canvas 2D", "Custom game engine · BFS pathfinding", "Web Audio API synthesized soundtrack"] },

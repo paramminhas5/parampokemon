@@ -1,4 +1,4 @@
-# PARAM QUEST
+# CAREER QUEST
 
 > A playable portfolio RPG — 15 years of Param Minhas's career told as a premium indie Pokemon-style game.
 
@@ -10,7 +10,7 @@ Built on **Next.js 15 · TypeScript · Canvas 2D · Web Audio API · Bria AI spr
 
 ## Overview
 
-Param Quest is a full Pokemon-style RPG where each zone represents a chapter of a 15-year career in tech, startups, and creative industries. Players explore 10 themed zones, battle gym leaders representing real challenges, collect creatures and skills, and discover the story through NPC dialog and CliffNotes.
+Career Quest is a full Pokemon-style RPG where each zone represents a chapter of a 15-year career in tech, startups, and creative industries. Players explore 10 themed zones, battle gym leaders representing real challenges, collect creatures and skills, and discover the story through NPC dialog and CliffNotes.
 
 **This is not a portfolio hack.** It's a complete indie game with:
 - 10 explorable zones with unique themes, tiles, and ambient music

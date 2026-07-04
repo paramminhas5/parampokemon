@@ -124,7 +124,7 @@ export function GameBoot({ children }: { children: React.ReactNode }) {
               ★ FIFTEEN YEARS IN THE MAKING
             </div>
 
-            {/* PARAM QUEST inline */}
+            {/* CAREER QUEST inline */}
             <div style={{
               display:       "flex",
               alignItems:    "baseline",
@@ -140,7 +140,7 @@ export function GameBoot({ children }: { children: React.ReactNode }) {
                 lineHeight:  1.1,
                 textShadow:  "0 5px 0 #0a2040, 0 0 40px rgba(124,224,255,0.5)",
                 letterSpacing: "0.03em",
-              }}>PARAM</span>
+              }}>CAREER</span>
               <span style={{
                 fontFamily:  "var(--font-pixel)",
                 fontSize:    "clamp(24px, 6vw, 42px)",
