@@ -20,7 +20,7 @@ export function CreatureStrip({ zones }: { zones: Zone[] }) {
   return (
     <div style={{
       position: "absolute",
-      top: -10,
+      top: 40,
       left: 0,
       right: 0,
       display: "flex",

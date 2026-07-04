@@ -574,7 +574,9 @@ export function HomeClient() {
       <SpotlightHero />
 
       {/* ── CREATURE STRIP BAND ── */}
-      <section style={{ maxWidth: 980, margin: "0 auto", padding: "36px 16px 8px", position: "relative", zIndex: 1 }}>
+      {/* Extra top padding gives this real breathing room below the hero —
+          it previously sat almost glued to the hero's bottom edge. */}
+      <section style={{ maxWidth: 980, margin: "0 auto", padding: "72px 16px 24px", position: "relative", zIndex: 1 }}>
         <CreatureStrip zones={careerZones} />
       </section>
 
