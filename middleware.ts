@@ -29,11 +29,12 @@ export function middleware(req: NextRequest) {
     });
   }
 
-  const path = req.nextUrl.pathname.replace(/^\/paramos/, "") || "/";
+  const p = req.nextUrl.pathname;
+  const path = p.startsWith("/mermanos") ? (p.replace(/^\/mermanos/, "") === "" ? "/mermanos/" : p) : (p.replace(/^\/paramos/, "") || "/");
   const headers = new Headers(req.headers);
   headers.set("x-vercel-protection-bypass", bypass);
   headers.delete("authorization");
   return NextResponse.rewrite(new URL(TARGET + path), { request: { headers } });
 }
 
-export const config = { matcher: ["/paramos", "/paramos/:path*"] };
+export const config = { matcher: ["/paramos", "/paramos/:path*", "/mermanos", "/mermanos/:path*"] };
