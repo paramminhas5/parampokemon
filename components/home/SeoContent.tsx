@@ -51,7 +51,7 @@ export function SeoContent() {
             <li>15+ years building products, brands, and companies</li>
             <li>$6M+ GMV generated (SoleSearch)</li>
             <li>350,000+ community built</li>
-            <li> 40-person team at peak led (Iterate)</li>
+            <li> 40-person team at peak led (SoleSearch)</li>
             <li>$795K raised (Venture Catalysts, Anthill Ventures, Cornerstone Ventures)</li>
             <li>30+ live events produced</li>
             <li>4 companies founded/co-founded</li>

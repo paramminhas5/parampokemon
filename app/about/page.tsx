@@ -193,7 +193,7 @@ export default function AboutPage() {
               { label: "Years Building", value: "15+" },
               { label: "Revenue Generated", value: "$6M+" },
               { label: "Community Built", value: "350K+" },
-              { label: "Network Led", value: "90 people" },
+              { label: "Team Led", value: "40 at peak" },
               { label: "Capital Raised", value: "$795K" },
               { label: "Live Events", value: "30+" },
               { label: "Companies Founded", value: "4" },

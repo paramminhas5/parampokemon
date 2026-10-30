@@ -48,7 +48,7 @@ function OnePageResumePDF() {
           <View style={styles.metricsRow}>
             {[
               { l: "Experience", v: "15+ Years" }, { l: "Revenue", v: "$6M+" },
-              { l: "Community", v: "350K+" }, { l: "Network", v: "90-Person" }, { l: "Raised", v: "$795K" },
+              { l: "Community", v: "350K+" }, { l: "Team", v: "40 at peak" }, { l: "Raised", v: "$795K" },
             ].map(m => (
               <View key={m.l} style={styles.metricBox}>
                 <Text style={styles.metricLabel}>{m.l}</Text>
