@@ -70,7 +70,7 @@ export default async function Image() {
             { label: "Experience", value: "15+ Years" },
             { label: "Revenue", value: "$6M+" },
             { label: "Community", value: "350K+" },
-            { label: "Network Led", value: "90-Person" },
+            { label: "Team Led", value: "40 at peak" },
             { label: "Raised", value: "$795K" },
           ].map((stat) => (
             <div

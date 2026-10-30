@@ -598,7 +598,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     sign: { x: 3, y: 17, text: "ITERATE HQ\nAI-native marketing agency.\n\nhyperiterate.com\nClients: an EV charging network, an airport, a travel platform, a fintech, a co-living brand." },
     badge: { x: 4, y: 15, id: "champion", label: "Champion Badge", color: "#7ce0ff" },
     npcs: [
-      { x: 6, y: 17, name: "Iterate", role: "Founder & Creative Director · 2024–Present", kind: "engineer", beat: "did",
+      { x: 6, y: 17, name: "Iterate", role: "Founder & Creative Director · 2026–Present", kind: "engineer", beat: "did",
         quote: "AI-native marketing agency. Leads a five-person core team and a partner network across strategy, creative, and engineering.\n\nClients include the largest EV charging network in India, a new international airport, a leading online travel platform, a fintech and a co-living brand.\n\nhyperiterate.com" },
       { x: 22, y: 15, name: "Work with us", role: "Founder partners only", kind: "trainer-m", beat: "did",
         quote: "We take a small number of founder partners per quarter.\n\nTalk to me: param@catscandance.com",
@@ -634,7 +634,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     hiddenItem: { x: 6, y: 10 },
     berryItem: { x: 14, y: 14 },
     cliff: {
-      era: "2024–Present · The Full Stack",
+      era: "2026–Present · The Full Stack",
       did: ["AI-native marketing agency", "Five-person core team and partner network across strategy, creative, engineering", "Clients: an EV charging network, an airport, a travel platform, a fintech, a co-living brand", "Launched Cats Can Dance under Iterate"],
       learned: ["The full stack as competitive advantage", "Speed × taste compounds"],
       metrics: [{ label: "NETWORK", value: "90" }, { label: "CLIENTS", value: "5+" }],
