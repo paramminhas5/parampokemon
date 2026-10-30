@@ -115,7 +115,7 @@ const EXPERIENCE = [
   {
     company: "Octo",
     role: "Founding Team, Head of Growth",
-    type: "Conversational AI platform, acquired by Quartic.ai",
+    type: "AI marketing orchestration platform, acquired and became Quartic.ai",
     period: "2016 – 2017",
     location: "New Delhi, India",
     link: "https://www.slideshare.net/slideshow/param-minhas-octo-marketing-deck/71004948",
@@ -177,7 +177,7 @@ export default function ResumePage() {
       { "@type": "ListItem", position: 3, item: { "@type": "Role", roleName: "Founder & CEO", startDate: "2022", endDate: "2024-12", memberOf: { "@type": "Organization", name: "SoleSearch", description: "India's leading sneaker & streetwear marketplace, $6M+ GMV, $795K raised, 350K+ community" } } },
       { "@type": "ListItem", position: 4, item: { "@type": "Role", roleName: "Director of Product Marketing", startDate: "2020", endDate: "2022", memberOf: { "@type": "Organization", name: "Quartic.ai", url: "https://www.quartic.ai", description: "Enterprise AI platform" } } },
       { "@type": "ListItem", position: 5, item: { "@type": "Role", roleName: "Partner, Growth & Technology", startDate: "2017", endDate: "2020", memberOf: { "@type": "Organization", name: "Good Capital (Investopad)", description: "Family office turned venture fund, portfolio: Meesho, Entri, Simsim" } } },
-      { "@type": "ListItem", position: 6, item: { "@type": "Role", roleName: "Founding Team, Head of Growth", startDate: "2016", endDate: "2017", memberOf: { "@type": "Organization", name: "Octo", description: "Conversational AI platform, acquired by Quartic.ai" } } },
+      { "@type": "ListItem", position: 6, item: { "@type": "Role", roleName: "Founding Team, Head of Growth", startDate: "2016", endDate: "2017", memberOf: { "@type": "Organization", name: "Octo", description: "AI marketing orchestration platform, acquired and became Quartic.ai" } } },
       { "@type": "ListItem", position: 7, item: { "@type": "Role", roleName: "Founder", startDate: "2012", endDate: "2015", memberOf: { "@type": "Organization", name: "Hab Housing", description: "India's first branded budget-hospitality startup, bootstrapped $120K+" } } },
       { "@type": "ListItem", position: 8, item: { "@type": "Role", roleName: "Founding Team Member", startDate: "2011", endDate: "2012", memberOf: { "@type": "Organization", name: "GetRightPrice", description: "India's first price-comparison engine" } } },
     ],
@@ -392,7 +392,7 @@ export default function ResumePage() {
             SUMMARY
           </h2>
           <p style={{ fontSize: 14, lineHeight: 1.7, color: "#2a2a4a", margin: 0 }}>
-            Founder and creative director who builds growth, brand, and marketing functions from zero, then ships the product underneath them. Operator across the full GTM stack — positioning, demand generation, brand systems, performance — with a rare engineering hand: built AI products before &ldquo;AI&rdquo; was a category, co-building one of India&apos;s first conversational AI platforms in 2013. Has led teams from 5 to 40. Built one company to $6M+ in GMV and a 350,000+ community on a $795K raise; now runs an AI-native marketing agency serving clients including a national airport and a national EV charging network. Based in Bengaluru.
+            Founder and creative director who builds growth, brand, and marketing functions from zero, then ships the product underneath them. Operator across the full GTM stack — positioning, demand generation, brand systems, performance — with a rare engineering hand: built AI products before &ldquo;AI&rdquo; was a category, building his first WhatsApp chatbot, AHit, in 2013. Has led teams from 5 to 40. Built one company to $6M+ in GMV and a 350,000+ community on a $795K raise; now runs an AI-native marketing agency serving clients including a national airport and a national EV charging network. Based in Bengaluru.
           </p>
         </section>
 

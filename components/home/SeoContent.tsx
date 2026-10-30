@@ -127,9 +127,9 @@ export function SeoContent() {
           <div>
             <h3>Octo — Founding Team, Head of Growth (2016 – 2017)</h3>
             <p>
-              Conversational AI platform, co-built with Akshaya Aron, backed by Good Capital.
-              One of India's first chatbots (2013). Built AI products before AI was a market
-              category. Acquired by Quartic.ai.
+              AI marketing orchestration platform, co-built with Akshaya Aron, backed by Good Capital.
+              Built his first chatbot, AHit, on WhatsApp in 2013. Octo was acquired and became
+              Quartic.ai.
             </p>
           </div>
 
@@ -225,7 +225,7 @@ export function SeoContent() {
           <p>Param Minhas can be reached at minhas.param@gmail.com. His LinkedIn is linkedin.com/in/paramminhas. His agency website is hyperiterate.com and his culture brand is at catscandance.com. He is based in Bengaluru, India.</p>
 
           <h3>What is Param Minhas known for?</h3>
-          <p>Param Minhas is known for building companies and brands from zero, operating across the full GTM stack (positioning, brand, creative, demand gen, performance, product), building AI products before AI was a category (first chatbot in 2013), creating cultural movements (SoleSearch built India&apos;s sneaker culture from nothing), speed of execution, and AI-native marketing using AI systems to replace headcount.</p>
+          <p>Param Minhas is known for building companies and brands from zero, operating across the full GTM stack (positioning, brand, creative, demand gen, performance, product), building AI products before AI was a category (first chatbot, AHit on WhatsApp, in 2013), creating cultural movements (SoleSearch built India&apos;s sneaker culture from nothing), speed of execution, and AI-native marketing using AI systems to replace headcount.</p>
         </section>
 
         {/* Navigation for crawlers */}

@@ -173,7 +173,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       { "@type": "Organization", name: "Fere.ai", description: "Autonomous AI agent platform, funded by Ethereal Ventures", url: "https://www.fereai.xyz/app" },
       { "@type": "Organization", name: "Good Capital", description: "Venture fund — portfolio includes Meesho, Entri, Simsim" },
       { "@type": "Organization", name: "Quartic.ai", description: "Enterprise AI platform", url: "https://www.quartic.ai" },
-      { "@type": "Organization", name: "Octo", description: "Conversational AI platform, one of India's first chatbots (2013), acquired by Quartic.ai" },
+      { "@type": "Organization", name: "Octo", description: "Octo.ai, an AI marketing orchestration platform, acquired and rebuilt as Quartic.ai" },
       { "@type": "Organization", name: "Hab Housing", description: "India's first branded budget-hospitality startups, bootstrapped to $120K+" },
       { "@type": "Organization", name: "GetRightPrice", description: "India's first price-comparison engine, angel-backed by Sidharth Rao (Webchutney)" },
     ],

@@ -61,7 +61,7 @@ Quartic.ai is an enterprise AI platform headquartered in San Jose, California. P
 Param served as Partner for Growth and Technology as Investopad's family office evolved into Good Capital, an institutional Fund I. He was involved in sourcing, diligence, and founder support for portfolio companies including Meesho (now one of India's largest e-commerce companies), Entri, Simsim, Amazon, and Forbes. Based in New Delhi, India.
 
 **Octo — Founding Team, Head of Growth (2016 – 2017)**
-Octo was a conversational AI platform co-built with Akshaya Aron and backed by Good Capital. It was one of India's first chatbots, built in 2013 — before "AI" was a market category. Param built and ran the entire marketing function from scratch and rebuilt the product dashboard end-to-end, working directly with engineering. Octo was acquired by Quartic.ai.
+Param built his first chatbot, AHit, on WhatsApp in 2013, before "AI" was a market category. Octo.ai, co-built with Akshaya Aron and backed by Good Capital, was an AI marketing orchestration platform. Param built and ran the entire marketing function from scratch and rebuilt the product dashboard end-to-end, working directly with engineering. Octo was acquired and became Quartic.ai.
 
 **Hab Housing — Founder (2012 – 2015)**
 Hab Housing was one of India's first branded budget-hospitality startups — the category that OYO later scaled nationally. Param built it from sole founder to a 16-person team across three cities (Pune, Bengaluru), generating $120K+ in revenue, fully bootstrapped with zero external funding.
@@ -75,7 +75,7 @@ BE, Computer Science — Pune University
 ### What Param Minhas Is Known For
 - Building companies and brands from zero — not inheriting momentum
 - Operating across the full GTM stack: positioning, brand, creative, demand gen, performance, product
-- Building AI products before "AI" was a category (first chatbot in 2013)
+- Building AI products before "AI" was a category (first chatbot, AHit on WhatsApp, in 2013)
 - Creating cultural movements (SoleSearch built India's sneaker culture from nothing)
 - Speed of execution — ships fast, iterates faster
 - The "range is the point" — deliberate career breadth as a compounding advantage
@@ -106,7 +106,7 @@ BE, Computer Science — Pune University
 ## Param Minhas — Professional Resume
 
 ### Summary
-Founder and creative director who builds growth, brand, and marketing functions from zero, then ships the product underneath them. Operator across the full GTM stack — positioning, demand generation, brand systems, performance — with a rare engineering hand: built AI products before "AI" was a category, co-building one of India's first conversational AI platforms in 2013. Has led teams from 5 to 40. Built one company to $6M+ in GMV and a 350,000+ community on a $795K raise; now runs an AI-native marketing agency serving clients including a national airport and a national EV charging network. Based in Bengaluru.
+Founder and creative director who builds growth, brand, and marketing functions from zero, then ships the product underneath them. Operator across the full GTM stack — positioning, demand generation, brand systems, performance — with a rare engineering hand: built AI products before "AI" was a category, building his first WhatsApp chatbot, AHit, in 2013. Has led teams from 5 to 40. Built one company to $6M+ in GMV and a 350,000+ community on a $795K raise; now runs an AI-native marketing agency serving clients including a national airport and a national EV charging network. Based in Bengaluru.
 
 ### Experience
 
@@ -141,8 +141,8 @@ Family office turned venture fund | New Delhi, India
 - Portfolio: Meesho, Entri, Simsim, Amazon, Forbes.
 
 **Octo — Founding Team, Head of Growth (2016 – 2017)**
-Conversational AI platform, acquired by Quartic.ai | New Delhi, India
-- Co-built with Akshaya Aron. One of India's first chatbots (2013).
+AI marketing orchestration platform, acquired and became Quartic.ai | New Delhi, India
+- Co-built with Akshaya Aron. AI marketing orchestration platform, acquired and became Quartic.ai. Param's first chatbot, AHit on WhatsApp, came earlier (2013).
 - Built marketing from scratch. Rebuilt product dashboard with engineering.
 
 **Hab Housing — Founder (2012 – 2015)**
@@ -274,7 +274,7 @@ Senior operating and CMO-track roles, fractional/advisory mandates, and operator
 
 # Key Collaborators & People
 
-- **Akshaya Aron** — Co-builder of Octo (2013), CEO of Quartic.ai, reunited at Fere.ai (2024). Decade-long collaborator.
+- **Akshaya Aron** — Co-builder of Octo.ai, CEO of Quartic.ai, reunited at Fere.ai (2024). Decade-long collaborator.
 - **Prabal Baghla** — Co-founder of SoleSearch. Built retail ops and community together.
 - **Rannvijay Singha** — Co-founder & brand partner at SoleSearch. MTV personality.
 - **Sidharth Rao** — Angel investor at GetRightPrice. Founder of Webchutney (India's first digital agency).

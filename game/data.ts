@@ -318,7 +318,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     id: "ai", index: 4, name: "Quartic Lab", org: "Octo.ai", role: "Head of Growth",
     subtitle: "2016-17 · Conversational AI",
     years: "2016–2017",
-    outcome: "Co-built one of India's first conversational AI platforms in 2013. Octo acquired by Quartic.ai.",
+    outcome: "Built my first chatbot, AHit, on WhatsApp in 2013. Then co-built Octo.ai, an AI marketing orchestration platform, acquired and rebuilt as Quartic.ai.",
     bullets: ["Co-built with Akshaya Aron, backed by Good Capital", "Built AI products before 'AI' was a category", "Built and ran entire marketing function from scratch", "Rebuilt product dashboard end-to-end, working directly with engineering", "Director of Product Marketing at Quartic.ai post-acquisition"],
     theme: { ground: "neon", accent: "#9fe8ff", landmark: "lab" },
     w: 26, h: 20,
@@ -358,7 +358,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     berryItem: { x: 10, y: 16 },
     cliff: {
       era: "2013-17 · AI before AI",
-      did: ["One of India's first chatbots in 2013", "Co-built Octo (acquired by Quartic.ai)", "Led marketing as Director"],
+      did: ["Built AHit, a WhatsApp chatbot, in 2013", "Co-built Octo.ai, AI marketing orchestration (became Quartic.ai)", "Led marketing as Director"],
       learned: ["Translating deep tech into adoption", "Closing the engineer ↔ buyer gap"],
       metrics: [{ label: "EXIT", value: "Acquired" }, { label: "ROLE", value: "Director" }],
     },

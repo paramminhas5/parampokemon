@@ -19,7 +19,7 @@ const HIGHLIGHTS = [
   { org: "SoleSearch", role: "Founder & CEO", period: "2022–2024", metric: "$6M+ GMV", accent: "#ff9fd4" },
   { org: "Quartic.ai", role: "Director of Product Marketing", period: "2020–2022", metric: "Enterprise AI", accent: "#9fe8ff" },
   { org: "Good Capital", role: "Partner, Growth & Tech", period: "2017–2020", metric: "Meesho, Entri, Simsim", accent: "#f0c4ff" },
-  { org: "Octo", role: "Founding Team", period: "2016–2017", metric: "India's first chatbot", accent: "#a8d39a" },
+  { org: "Octo", role: "Founding Team", period: "2016–2017", metric: "First chatbot 2013 · acquired", accent: "#a8d39a" },
   { org: "Hab Housing", role: "Founder", period: "2012–2015", metric: "$120K bootstrapped", accent: "#f6a268" },
   { org: "GetRightPrice", role: "Founding Team", period: "2011–2012", metric: "India's first price comparison", accent: "#f5b78a" },
 ];

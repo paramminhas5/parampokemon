@@ -77,7 +77,7 @@ export default function AboutPage() {
       { "@type": "Organization", name: "Fere.ai", url: "https://www.fereai.xyz/app", description: "Autonomous AI agent platform" },
       { "@type": "Organization", name: "Good Capital", description: "Venture fund — portfolio includes Meesho, Entri, Simsim" },
       { "@type": "Organization", name: "Quartic.ai", url: "https://www.quartic.ai", description: "Enterprise AI platform" },
-      { "@type": "Organization", name: "Octo", description: "One of India's first conversational AI platforms (2013), acquired by Quartic" },
+      { "@type": "Organization", name: "Octo", description: "Octo.ai, an AI marketing orchestration platform, acquired and rebuilt as Quartic.ai" },
       { "@type": "Organization", name: "Hab Housing", description: "Branded budget-hospitality startup, bootstrapped $120K+" },
       { "@type": "Organization", name: "GetRightPrice", description: "India's first price-comparison engine" },
     ],
@@ -234,7 +234,7 @@ export default function AboutPage() {
 
             <h3 style={{ fontSize: 16, fontWeight: 700, color: "#1a1a2e", marginBottom: 4 }}>Octo — Founding Team, Head of Growth (2016 – 2017)</h3>
             <p style={{ marginBottom: 20 }}>
-              Octo was a conversational AI platform co-built with Akshaya Aron and backed by Good Capital. It was one of India&apos;s first chatbots, conceived in 2013 — years before &ldquo;AI&rdquo; became a market category. Param built and ran the entire marketing function from scratch and rebuilt the product dashboard end-to-end, working directly with engineering. Octo was acquired by Quartic.ai.
+              Param built his first chatbot, AHit, on WhatsApp in 2013, years before &ldquo;AI&rdquo; became a market category. Octo.ai, co-built with Akshaya Aron and backed by Good Capital, was an AI marketing orchestration platform. Param built and ran the entire marketing function from scratch and rebuilt the product dashboard end-to-end, working directly with engineering. Octo was acquired and became Quartic.ai.
             </p>
 
             <h3 style={{ fontSize: 16, fontWeight: 700, color: "#1a1a2e", marginBottom: 4 }}>Hab Housing — Founder (2012 – 2015)</h3>
@@ -255,7 +255,7 @@ export default function AboutPage() {
           <ul style={{ fontSize: 15, lineHeight: 1.8, color: "#2a2a4a", margin: 0, paddingLeft: 20 }}>
             <li style={{ marginBottom: 8 }}>Building companies and brands from zero — not inheriting momentum</li>
             <li style={{ marginBottom: 8 }}>Operating across the full GTM stack: positioning, brand, creative, demand gen, performance, product</li>
-            <li style={{ marginBottom: 8 }}>Building AI products before &ldquo;AI&rdquo; was a category (first chatbot in 2013)</li>
+            <li style={{ marginBottom: 8 }}>Building AI products before &ldquo;AI&rdquo; was a category (first chatbot, AHit on WhatsApp, in 2013)</li>
             <li style={{ marginBottom: 8 }}>Creating cultural movements from scratch (SoleSearch built India&apos;s sneaker culture from nothing)</li>
             <li style={{ marginBottom: 8 }}>Speed of execution — ships fast, iterates faster</li>
             <li style={{ marginBottom: 8 }}>The &ldquo;range is the point&rdquo; — deliberate career breadth across industries as a compounding advantage</li>

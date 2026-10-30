@@ -45,7 +45,7 @@ const EXPERIENCE = [
     bullets: ["Partner for Tech & Growth as family office evolved into Good Capital, an institutional Fund I.", "Helped build the fund — sourcing, diligence, founder support — for a portfolio including Meesho, Entri, Simsim, Amazon, and Forbes."] },
   { company: "Quartic.ai", role: "Director of Product Marketing", type: "Enterprise AI platform", period: "2020 – 2022", location: "San Jose, CA (HQ)",
     bullets: ["Led a team of 5. Backed by Good Capital, Celesta Capital, and Michael Marks.", "Built the marketing function from zero: brand identity, website, collateral, and press strategy."] },
-  { company: "Octo", role: "Founding Team, Head of Growth", type: "Conversational AI platform, acquired by Quartic.ai", period: "2016 – 2017", location: "New Delhi, India",
+  { company: "Octo", role: "Founding Team, Head of Growth", type: "AI marketing orchestration platform, acquired and became Quartic.ai", period: "2016 – 2017", location: "New Delhi, India",
     bullets: ["Co-built with Akshaya Aron, backed by Good Capital — built AI products before \"AI\" was a market category.", "Built and ran the entire marketing function from scratch and rebuilt the product dashboard end-to-end."] },
   { company: "Hab Housing", role: "Founder", type: "Branded budget hospitality", period: "2012 – 2015", location: "Pune, India",
     bullets: ["Built one of India's first branded budget-hospitality startups — the category OYO later scaled nationally.", "$120K+ in revenue, fully bootstrapped. Grew from sole founder to a 16-person team across three cities."] },
@@ -95,7 +95,7 @@ function FullResumePDF() {
         {/* Summary */}
         <Text style={styles.sectionTitle}>Summary</Text>
         <Text style={{ fontSize: 9.5, lineHeight: 1.6, color: "#2a2a4a", marginBottom: 4 }}>
-          Founder and creative director who builds growth, brand, and marketing functions from zero, then ships the product underneath them. Operator across the full GTM stack with a rare engineering hand: built AI products before "AI" was a category, co-building one of India&apos;s first conversational AI platforms in 2013. Has led teams from 5 to 40. Built one company to $6M+ in GMV and a 350,000+ community on a $795K raise; now runs an AI-native marketing agency serving clients including a national airport and a national EV charging network.
+          Founder and creative director who builds growth, brand, and marketing functions from zero, then ships the product underneath them. Operator across the full GTM stack with a rare engineering hand: built AI products before "AI" was a category, building his first WhatsApp chatbot, AHit, in 2013. Has led teams from 5 to 40. Built one company to $6M+ in GMV and a 350,000+ community on a $795K raise; now runs an AI-native marketing agency serving clients including a national airport and a national EV charging network.
         </Text>
 
         {/* Experience */}
