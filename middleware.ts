@@ -30,7 +30,11 @@ export function middleware(req: NextRequest) {
   }
 
   const p = req.nextUrl.pathname;
-  const path = p.startsWith("/mermanos") ? (p.replace(/^\/mermanos/, "") === "" ? "/mermanos/" : p) : (p.replace(/^\/paramos/, "") || "/");
+  // /paramos/* serves the app in ParamOS /app, /paramos/api/* its data functions in /api, /mermanos stays as is.
+  const rest = p.replace(/^\/paramos/, "") || "/";
+  const path = p.startsWith("/mermanos")
+    ? (p.replace(/^\/mermanos/, "") === "" ? "/mermanos/" : p)
+    : rest.startsWith("/api/") ? rest : "/app" + (rest === "/" ? "/" : rest);
   const headers = new Headers(req.headers);
   headers.set("x-vercel-protection-bypass", bypass);
   headers.delete("authorization");
