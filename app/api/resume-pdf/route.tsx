@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
 
 const EXPERIENCE = [
   { company: "Iterate", role: "Founder & Creative Director", type: "AI-native marketing agency", period: "Jan 2026 – Present", location: "Bengaluru, India", url: "hyperiterate.com",
-    bullets: ["Leads a 90-person network across strategy, creative, and engineering.", "Clients include ChargeZone, Noida International Airport, PickYourTrail, Billione, and Monkspace."],
+    bullets: ["Leads a five-person core team and a partner network across strategy, creative, and engineering.", "Clients include the largest EV charging network in India, a new international airport, a leading online travel platform, a fintech and a co-living brand."],
     sub: { company: "Cats Can Dance", desc: "Culture platform (music, fashion & pet care)", period: "Mar 2026 – Present",
       bullets: ["Designed and built a culture-discovery platform end-to-end — artist directory, event booking, and a music-production learning product.", "Produced a series of live shows pan-India, in partnership with Impresario."] }
   },
@@ -43,7 +43,7 @@ const EXPERIENCE = [
     bullets: ["Founded SoleSearch; joined by Prabal Baghla and Rannvijay Singha. Led a team of 40. Raised $795K from Venture Catalysts, Anthill Ventures, and Cornerstone Ventures.", "Generated $6M+ in total revenue over four years, with omnichannel retail in Mumbai and Hyderabad.", "Built a 350,000+ follower community and ran 30+ live events, including SneakinOut — India's first sneaker convention.", "Secured press in VICE, CNBC-TV18, Storyboard18, Economic Times, Inc42, and Business of Fashion."] },
   { company: "Investopad → Good Capital", role: "Partner, Growth & Technology", type: "Family office turned venture fund", period: "2017 – 2020", location: "New Delhi, India",
     bullets: ["Partner for Tech & Growth as family office evolved into Good Capital, an institutional Fund I.", "Helped build the fund — sourcing, diligence, founder support — for a portfolio including Meesho, Entri, Simsim, Amazon, and Forbes."] },
-  { company: "Quartic.ai", role: "Director of Marketing", type: "Enterprise AI platform", period: "2020 – 2022", location: "San Jose, CA (HQ)",
+  { company: "Quartic.ai", role: "Director of Product Marketing", type: "Enterprise AI platform", period: "2020 – 2022", location: "San Jose, CA (HQ)",
     bullets: ["Led a team of 5. Backed by Good Capital, Celesta Capital, and Michael Marks.", "Built the marketing function from zero: brand identity, website, collateral, and press strategy."] },
   { company: "Octo", role: "Founding Team, Head of Growth", type: "Conversational AI platform, acquired by Quartic.ai", period: "2016 – 2017", location: "New Delhi, India",
     bullets: ["Co-built with Akshaya Aron, backed by Good Capital — built AI products before \"AI\" was a market category.", "Built and ran the entire marketing function from scratch and rebuilt the product dashboard end-to-end."] },
@@ -59,7 +59,7 @@ const SKILLS = [
   { group: "Brand & Creative", items: "Brand identity systems, Creative direction, Copywriting, PR & press strategy" },
   { group: "Strategy", items: "Positioning, ICP definition, Pricing & packaging, Fundraising, GTM planning" },
   { group: "AI & Engineering", items: "AI-native marketing, Conversational AI & agent development, Full-stack web (Next.js, React), Prompt engineering, Data pipelines" },
-  { group: "Leadership", items: "Team building (5 to 90+), Hiring, Founder coaching" },
+  { group: "Leadership", items: "Team building (5 to 40), Hiring, Founder coaching" },
   { group: "Tools", items: "Notion, Linear, Figma, Cursor, Claude, Webflow, Shopify, Meta/Google Ads, GA4, n8n, Zapier" },
 ];
 
@@ -95,7 +95,7 @@ function FullResumePDF() {
         {/* Summary */}
         <Text style={styles.sectionTitle}>Summary</Text>
         <Text style={{ fontSize: 9.5, lineHeight: 1.6, color: "#2a2a4a", marginBottom: 4 }}>
-          Founder and creative director who builds growth, brand, and marketing functions from zero, then ships the product underneath them. Operator across the full GTM stack with a rare engineering hand: built AI products before "AI" was a category, co-building one of India&apos;s first conversational AI platforms in 2013. Has led teams from 5 to 90+. Built one company to $6M+ in revenue and a 350,000+ community on a $795K raise; now runs an AI-native marketing agency serving clients including a national airport and a national EV charging network.
+          Founder and creative director who builds growth, brand, and marketing functions from zero, then ships the product underneath them. Operator across the full GTM stack with a rare engineering hand: built AI products before "AI" was a category, co-building one of India&apos;s first conversational AI platforms in 2013. Has led teams from 5 to 40. Built one company to $6M+ in GMV and a 350,000+ community on a $795K raise; now runs an AI-native marketing agency serving clients including a national airport and a national EV charging network.
         </Text>
 
         {/* Experience */}

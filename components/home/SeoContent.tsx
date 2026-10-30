@@ -30,7 +30,7 @@ export function SeoContent() {
           Param Minhas is a founder, creative director, and growth operator based in Bengaluru, India with fifteen years of experience. He currently runs Iterate, an AI-native marketing agency with a ninety-person network, and Cats Can Dance, a culture-discovery platform. He previously served as CEO of SoleSearch where he generated over six million dollars in revenue and built a community of three hundred fifty thousand people.
         </div>
         <div id="speakable-current">
-          Iterate is an AI-native marketing agency founded by Param Minhas in January twenty twenty-six. The agency operates with a ninety-person network across strategy, creative, and engineering. Current clients include ChargeZone, Noida International Airport, PickYourTrail, Billione, and Monkspace. The agency website is hyperiterate dot com.
+          Iterate is an AI-native marketing agency founded by Param Minhas in January twenty twenty-six. The agency operates with a ninety-person network across strategy, creative, and engineering. Current clients include the largest EV charging network in India, a new international airport, a leading online travel platform, a fintech and a co-living brand. The agency website is hyperiterate dot com.
         </div>
         <div id="speakable-known-for">
           Param Minhas is known for building companies from zero without inheriting momentum. He built one of India&apos;s first conversational AI platforms in twenty thirteen, created India&apos;s sneaker culture through SoleSearch, and pioneered AI-native marketing where AI systems replace headcount rather than just augmenting it. His career breadth across industries is deliberate, with each chapter compounding on the last.
@@ -41,7 +41,7 @@ export function SeoContent() {
         <p itemProp="description">
           Builder, designer, and creative director with 15+ years across e-commerce, AI,
           real estate, sneakers, music, and AI-native marketing. Currently running Iterate —
-          an AI-native marketing agency with a 90-person network — and Cats Can Dance,
+          an AI-native marketing agency — and Cats Can Dance,
           a culture-discovery platform. Based in Bengaluru, India.
         </p>
 
@@ -49,9 +49,9 @@ export function SeoContent() {
           <h2>Key Metrics</h2>
           <ul>
             <li>15+ years building products, brands, and companies</li>
-            <li>$6M+ total revenue generated (SoleSearch)</li>
+            <li>$6M+ GMV generated (SoleSearch)</li>
             <li>350,000+ community built</li>
-            <li>90-person network led (Iterate)</li>
+            <li> 40-person team at peak led (Iterate)</li>
             <li>$795K raised (Venture Catalysts, Anthill Ventures, Cornerstone Ventures)</li>
             <li>30+ live events produced</li>
             <li>4 companies founded/co-founded</li>
@@ -63,9 +63,8 @@ export function SeoContent() {
           <div itemProp="worksFor" itemScope itemType="https://schema.org/Organization">
             <h3><span itemProp="name">Iterate</span> — Founder & Creative Director (Jan 2026 – Present)</h3>
             <p itemProp="description">
-              AI-native marketing agency with a 90-person network across strategy, creative,
-              and engineering. Clients include ChargeZone, Noida International Airport,
-              PickYourTrail, Billione, and Monkspace.
+              AI-native marketing agency with a five-person core team and a partner network across strategy, creative,
+              and engineering. Clients include the largest EV charging network in India, a new international airport, a leading online travel platform, a fintech and a co-living brand.
             </p>
             <a itemProp="url" href="https://hyperiterate.com">hyperiterate.com</a>
           </div>
@@ -99,7 +98,7 @@ export function SeoContent() {
             <p>
               India's leading sneaker, streetwear, and collectibles marketplace.
               Co-founded with Prabal Baghla; Rannvijay Singha joined as co-founder.
-              $6M+ total revenue. $795K raised from Venture Catalysts, Anthill Ventures,
+              $6M+ GMV. $795K raised from Venture Catalysts, Anthill Ventures,
               Cornerstone Ventures. 350,000+ follower community. 30+ live events including
               SneakinOut — India's first sneaker convention format. Omnichannel retail in
               Mumbai and Hyderabad. Team of 40. Press: VICE, CNBC-TV18, Storyboard18,
@@ -108,7 +107,7 @@ export function SeoContent() {
           </div>
 
           <div>
-            <h3>Quartic.ai — Director of Marketing (2020 – 2022)</h3>
+            <h3>Quartic.ai — Director of Product Marketing (2020 – 2022)</h3>
             <p>
               Enterprise AI platform, San Jose, California. Led team of 5. Backed by Good
               Capital, Celesta Capital, and Michael Marks. Built marketing function from
@@ -159,7 +158,7 @@ export function SeoContent() {
             <li>Brand & Creative: Brand identity systems, creative direction, copywriting, PR & press strategy</li>
             <li>Strategy: Positioning, ICP definition, pricing & packaging, fundraising, GTM planning</li>
             <li>AI & Engineering: AI-native marketing, conversational AI, full-stack web (Next.js, React, TypeScript), prompt engineering</li>
-            <li>Leadership: Team building (5 to 90+ people), hiring, founder coaching</li>
+            <li>Leadership: Team building (5 to 40 people), hiring, founder coaching</li>
           </ul>
         </section>
 
@@ -208,13 +207,13 @@ export function SeoContent() {
           <h2>Frequently Asked Questions</h2>
 
           <h3>Who is Param Minhas?</h3>
-          <p>Param Minhas is a founder, creative director, and growth operator based in Bengaluru, India. He has 15+ years of experience across e-commerce, AI, real estate, sneakers, music, and AI-native marketing. He currently runs Iterate (an AI-native marketing agency with a 90-person network) and Cats Can Dance (a culture platform). Previously, he was CEO at SoleSearch ($6M+ revenue, 350K+ community), CMO at Fere.ai, and Partner at Good Capital (portfolio: Meesho, Entri, Simsim).</p>
+          <p>Param Minhas is a founder, creative director, and growth operator based in Bengaluru, India. He has 15+ years of experience across e-commerce, AI, real estate, sneakers, music, and AI-native marketing. He currently runs Iterate (an AI-native marketing agency) and Cats Can Dance (a culture platform). Previously, he was CEO at SoleSearch ($6M+ GMV, 350K+ community), CMO at Fere.ai, and Partner at Good Capital (portfolio: Meesho, Entri, Simsim).</p>
 
           <h3>What is Iterate?</h3>
-          <p>Iterate is an AI-native marketing agency founded by Param Minhas in January 2026. It has a 90-person network across strategy, creative, and engineering. Clients include ChargeZone, Noida International Airport, PickYourTrail, Billione, and Monkspace. The agency website is hyperiterate.com.</p>
+          <p>Iterate is an AI-native marketing agency founded by Param Minhas in January 2026. It has a five-person core team and a partner network across strategy, creative, and engineering. Clients include the largest EV charging network in India, a new international airport, a leading online travel platform, a fintech and a co-living brand. The agency website is hyperiterate.com.</p>
 
           <h3>What is SoleSearch?</h3>
-          <p>SoleSearch was India&apos;s leading sneaker, streetwear, and collectibles marketplace, co-founded by Param Minhas, Prabal Baghla, and Rannvijay Singha. It generated $6M+ in revenue, built a 350K+ community, raised $795K from Venture Catalysts, Anthill Ventures, and Cornerstone Ventures, held 30+ live events including SneakinOut (India&apos;s first sneaker convention format), and operated retail stores in Mumbai and Hyderabad. It was featured in VICE, CNBC-TV18, Storyboard18, and Economic Times.</p>
+          <p>SoleSearch was India&apos;s leading sneaker, streetwear, and collectibles marketplace, co-founded by Param Minhas, Prabal Baghla, and Rannvijay Singha. It generated $6M+ in GMV, built a 350K+ community, raised $795K from Venture Catalysts, Anthill Ventures, and Cornerstone Ventures, held 30+ live events including SneakinOut (India&apos;s first sneaker convention format), and operated retail stores in Mumbai and Hyderabad. It was featured in VICE, CNBC-TV18, Storyboard18, and Economic Times.</p>
 
           <h3>What is Cats Can Dance?</h3>
           <p>Cats Can Dance is a culture-discovery platform founded by Param Minhas in March 2026. It spans music, fashion, and pet care, featuring an artist directory, event booking, and music-production learning. It launched under Iterate with live shows produced in partnership with Impresario. The website is catscandance.com.</p>

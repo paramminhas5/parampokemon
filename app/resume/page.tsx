@@ -4,7 +4,7 @@ import { ResumeThemeToggle } from "@/components/resume/ResumeThemeToggle";
 
 export const metadata: Metadata = {
   title: "Resume — Param Minhas | Founder & Creative Director | 15+ Years Experience",
-  description: "Param Minhas's full professional resume. Founder of Iterate (AI-native marketing agency, 90-person network). 15+ years building across AI, e-commerce, sneakers, music. $6M+ revenue, 350K+ community, $795K raised. Previously CEO at SoleSearch, CMO at Fere.ai, Partner at Good Capital (Meesho, Entri). BE Computer Science, Pune University. Based in Bengaluru.",
+  description: "Param Minhas's full professional resume. Founder of Iterate (AI-native marketing agency). 15+ years building across AI, e-commerce, sneakers, music. $6M+ GMV, 350K+ community, $795K raised. Previously CEO at SoleSearch, CMO at Fere.ai, Partner at Good Capital (Meesho, Entri). BE Computer Science, Pune University. Based in Bengaluru.",
   keywords: [
     "Param Minhas resume", "Param Minhas CV", "Param Minhas experience",
     "creative director resume", "marketing leader resume India",
@@ -18,14 +18,14 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Resume — Param Minhas | Founder & Creative Director",
-    description: "15+ years building. $6M+ revenue. 350K+ community. 90-person network. Full professional resume with career timeline, skills, and press coverage.",
+    description: "15+ years building. $6M+ GMV. 350K+ community. Full professional resume with career timeline, skills, and press coverage.",
     type: "profile",
     url: "https://paramminhas.com/resume",
   },
   twitter: {
     card: "summary_large_image",
     title: "Resume — Param Minhas | Founder & Creative Director",
-    description: "15+ years. $6M+ revenue. 350K+ community. Full CV — Iterate, SoleSearch, Fere.ai, Good Capital.",
+    description: "15+ years. $6M+ GMV. 350K+ community. Full CV — Iterate, SoleSearch, Fere.ai, Good Capital.",
     creator: "@paramminhas",
   },
 };
@@ -40,8 +40,8 @@ const EXPERIENCE = [
     url: "hyperiterate.com",
     link: "https://hyperiterate.com",
     bullets: [
-      "Leads a 90-person network across strategy, creative, and engineering.",
-      "Clients include ChargeZone, Noida International Airport, PickYourTrail, Billione, and Monkspace.",
+      "Leads a five-person core team and a partner network across strategy, creative, and engineering.",
+      "Clients include the largest EV charging network in India, a new international airport, a leading online travel platform, a fintech and a co-living brand.",
     ],
     sub: {
       company: "Cats Can Dance",
@@ -86,7 +86,7 @@ const EXPERIENCE = [
   },
   {
     company: "Quartic.ai",
-    role: "Director of Marketing",
+    role: "Director of Product Marketing",
     type: "Enterprise AI platform",
     period: "2020 – 2022",
     location: "San Jose, California (HQ)",
@@ -154,7 +154,7 @@ const SKILLS = [
   { group: "Brand & Creative", items: ["Brand identity systems", "Creative direction", "Copywriting", "PR & press strategy"] },
   { group: "Strategy", items: ["Positioning", "ICP definition", "Pricing & packaging", "Fundraising", "GTM planning"] },
   { group: "AI & Engineering", items: ["AI-native marketing", "Conversational AI & agent development", "Full-stack web (Next.js, React)", "WhatsApp/bot integrations", "Prompt engineering", "Data pipelines"] },
-  { group: "Leadership", items: ["Team building (5 to 90+)", "Hiring", "Founder coaching"] },
+  { group: "Leadership", items: ["Team building (5 to 40)", "Hiring", "Founder coaching"] },
   { group: "Tools", items: ["Notion", "Linear", "Figma", "Cursor", "Claude", "Webflow", "Shopify", "Meta/Google Ads", "GA4", "n8n", "Zapier"] },
 ];
 
@@ -172,10 +172,10 @@ export default function ResumePage() {
     description: "Complete career timeline of Param Minhas, founder and creative director with 15+ years of experience.",
     numberOfItems: 8,
     itemListElement: [
-      { "@type": "ListItem", position: 1, item: { "@type": "Role", roleName: "Founder & Creative Director", startDate: "2026-01", memberOf: { "@type": "Organization", name: "Iterate", url: "https://hyperiterate.com", description: "AI-native marketing agency, 90-person network" } } },
+      { "@type": "ListItem", position: 1, item: { "@type": "Role", roleName: "Founder & Creative Director", startDate: "2026-01", memberOf: { "@type": "Organization", name: "Iterate", url: "https://hyperiterate.com", description: "AI-native marketing agency" } } },
       { "@type": "ListItem", position: 2, item: { "@type": "Role", roleName: "CMO", startDate: "2025-01", endDate: "2025-12", memberOf: { "@type": "Organization", name: "Fere.ai", url: "https://www.fereai.xyz/app", description: "Autonomous AI agent platform, funded by Ethereal Ventures" } } },
-      { "@type": "ListItem", position: 3, item: { "@type": "Role", roleName: "Founder & CEO", startDate: "2022", endDate: "2024-12", memberOf: { "@type": "Organization", name: "SoleSearch", description: "India's leading sneaker & streetwear marketplace, $6M+ revenue, $795K raised, 350K+ community" } } },
-      { "@type": "ListItem", position: 4, item: { "@type": "Role", roleName: "Director of Marketing", startDate: "2020", endDate: "2022", memberOf: { "@type": "Organization", name: "Quartic.ai", url: "https://www.quartic.ai", description: "Enterprise AI platform" } } },
+      { "@type": "ListItem", position: 3, item: { "@type": "Role", roleName: "Founder & CEO", startDate: "2022", endDate: "2024-12", memberOf: { "@type": "Organization", name: "SoleSearch", description: "India's leading sneaker & streetwear marketplace, $6M+ GMV, $795K raised, 350K+ community" } } },
+      { "@type": "ListItem", position: 4, item: { "@type": "Role", roleName: "Director of Product Marketing", startDate: "2020", endDate: "2022", memberOf: { "@type": "Organization", name: "Quartic.ai", url: "https://www.quartic.ai", description: "Enterprise AI platform" } } },
       { "@type": "ListItem", position: 5, item: { "@type": "Role", roleName: "Partner, Growth & Technology", startDate: "2017", endDate: "2020", memberOf: { "@type": "Organization", name: "Good Capital (Investopad)", description: "Family office turned venture fund, portfolio: Meesho, Entri, Simsim" } } },
       { "@type": "ListItem", position: 6, item: { "@type": "Role", roleName: "Founding Team, Head of Growth", startDate: "2016", endDate: "2017", memberOf: { "@type": "Organization", name: "Octo", description: "Conversational AI platform, acquired by Quartic.ai" } } },
       { "@type": "ListItem", position: 7, item: { "@type": "Role", roleName: "Founder", startDate: "2012", endDate: "2015", memberOf: { "@type": "Organization", name: "Hab Housing", description: "India's first branded budget-hospitality startup, bootstrapped $120K+" } } },
@@ -392,7 +392,7 @@ export default function ResumePage() {
             SUMMARY
           </h2>
           <p style={{ fontSize: 14, lineHeight: 1.7, color: "#2a2a4a", margin: 0 }}>
-            Founder and creative director who builds growth, brand, and marketing functions from zero, then ships the product underneath them. Operator across the full GTM stack — positioning, demand generation, brand systems, performance — with a rare engineering hand: built AI products before &ldquo;AI&rdquo; was a category, co-building one of India&apos;s first conversational AI platforms in 2013. Has led teams from 5 to 90+. Built one company to $6M+ in revenue and a 350,000+ community on a $795K raise; now runs an AI-native marketing agency serving clients including a national airport and a national EV charging network. Based in Bengaluru.
+            Founder and creative director who builds growth, brand, and marketing functions from zero, then ships the product underneath them. Operator across the full GTM stack — positioning, demand generation, brand systems, performance — with a rare engineering hand: built AI products before &ldquo;AI&rdquo; was a category, co-building one of India&apos;s first conversational AI platforms in 2013. Has led teams from 5 to 40. Built one company to $6M+ in GMV and a 350,000+ community on a $795K raise; now runs an AI-native marketing agency serving clients including a national airport and a national EV charging network. Based in Bengaluru.
           </p>
         </section>
 

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "About Param Minhas — Founder, Creative Director & Growth Operator | Bengaluru, India",
-  description: "Param Minhas is a founder, creative director, and growth operator based in Bengaluru, India with 15+ years of experience. Currently Founder & Creative Director at Iterate (AI-native marketing agency, 90-person network) and Cats Can Dance (culture platform). Previously CEO at SoleSearch ($6M+ revenue), CMO at Fere.ai, Partner at Good Capital (Meesho, Entri, Simsim). BE Computer Science, Pune University.",
+  description: "Param Minhas is a founder, creative director, and growth operator based in Bengaluru, India with 15+ years of experience. Currently Founder & Creative Director at Iterate (AI-native marketing agency) and Cats Can Dance (culture platform). Previously CEO at SoleSearch ($6M+ GMV), CMO at Fere.ai, Partner at Good Capital (Meesho, Entri, Simsim). BE Computer Science, Pune University.",
   keywords: [
     "Param Minhas", "who is Param Minhas", "Param Minhas bio", "Param Minhas about",
     "Param Minhas founder", "Param Minhas Iterate", "Param Minhas Bengaluru",
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "About Param Minhas — Founder, Creative Director & Growth Operator",
-    description: "15+ years building. $6M+ revenue. 350K+ community. 90-person network. The full story of Param Minhas — from India's first chatbot to running an AI-native marketing agency.",
+    description: "15+ years building. $6M+ GMV. 350K+ community. The full story of Param Minhas — from India's first chatbot to running an AI-native marketing agency.",
     type: "profile",
     url: "https://paramminhas.com/about",
     firstName: "Param",
@@ -57,7 +57,7 @@ export default function AboutPage() {
         "@type": "Organization",
         name: "Iterate",
         url: "https://hyperiterate.com",
-        description: "AI-native marketing agency with a 90-person network",
+        description: "AI-native marketing agency run by a five-person core team and a partner network",
         foundingDate: "2026-01",
         numberOfEmployees: { "@type": "QuantitativeValue", value: 90 },
       },
@@ -73,7 +73,7 @@ export default function AboutPage() {
       { "@type": "EducationalOrganization", name: "Pune University", department: "Computer Science" },
     ],
     memberOf: [
-      { "@type": "Organization", name: "SoleSearch", description: "India's leading sneaker marketplace, $6M+ revenue" },
+      { "@type": "Organization", name: "SoleSearch", description: "India's leading sneaker marketplace, $6M+ GMV" },
       { "@type": "Organization", name: "Fere.ai", url: "https://www.fereai.xyz/app", description: "Autonomous AI agent platform" },
       { "@type": "Organization", name: "Good Capital", description: "Venture fund — portfolio includes Meesho, Entri, Simsim" },
       { "@type": "Organization", name: "Quartic.ai", url: "https://www.quartic.ai", description: "Enterprise AI platform" },
@@ -177,7 +177,7 @@ export default function AboutPage() {
               He is known for building from zero — not inheriting momentum. Every company he has led started without an existing audience, without a playbook, and in most cases without venture backing. The range across industries is deliberate: each chapter compounds on the last, creating a rare combination of operational, creative, and technical skill that defines his approach to building.
             </p>
             <p style={{ marginBottom: 16 }}>
-              Param Minhas currently serves as Founder and Creative Director of <a href="https://hyperiterate.com" target="_blank" rel="noopener noreferrer" style={{ color: "#2a4a8a" }}>Iterate</a>, an AI-native marketing agency launched in January 2026. Iterate operates with a 90-person network spanning strategy, creative, and engineering. The agency serves clients including ChargeZone (India&apos;s leading EV charging network), Noida International Airport, PickYourTrail, Billione, and Monkspace.
+              Param Minhas currently serves as Founder and Creative Director of <a href="https://hyperiterate.com" target="_blank" rel="noopener noreferrer" style={{ color: "#2a4a8a" }}>Iterate</a>, an AI-native marketing agency launched in January 2026. Iterate operates with a five-person core team and a partner network spanning strategy, creative, and engineering. The agency serves clients including the largest EV charging network in India, a new international airport, a leading online travel platform, a fintech and a co-living brand.
             </p>
             <p style={{ marginBottom: 16 }}>
               He also founded <a href="https://catscandance.com" target="_blank" rel="noopener noreferrer" style={{ color: "#2a4a8a" }}>Cats Can Dance</a> in March 2026 — a culture-discovery platform spanning music, fashion, and pet care. It includes an artist directory, event booking system, and a music-production learning product. He produced a series of live shows across India in partnership with Impresario.
@@ -222,7 +222,7 @@ export default function AboutPage() {
               SoleSearch was India&apos;s leading sneaker, streetwear, and collectibles marketplace. Param co-founded it with Prabal Baghla, and Rannvijay Singha (MTV, Roadies) joined as co-founder. Under his leadership as CEO, the company generated $6M+ in total revenue over four years, raised $795K from Venture Catalysts, Anthill Ventures, and Cornerstone Ventures, built a 350,000+ follower community, produced 30+ live events including SneakinOut — India&apos;s first sneaker convention format (3 seasons with Swiggy SteppinOut) — and operated omnichannel retail stores in Mumbai and Hyderabad with a team of 40. SoleSearch was featured in VICE, CNBC-TV18, Storyboard18, Economic Times, Open Magazine, The Established, and Business of Fashion.
             </p>
 
-            <h3 style={{ fontSize: 16, fontWeight: 700, color: "#1a1a2e", marginBottom: 4 }}>Quartic.ai — Director of Marketing (2020 – 2022)</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 700, color: "#1a1a2e", marginBottom: 4 }}>Quartic.ai — Director of Product Marketing (2020 – 2022)</h3>
             <p style={{ marginBottom: 20 }}>
               Quartic.ai is an enterprise AI platform headquartered in San Jose, California. Param led a team of 5 and was invited back by the Good Capital partners following Octo&apos;s acquisition. He built the entire marketing function from zero: brand identity, website, collateral, and press strategy. Backed by Good Capital, Celesta Capital, and Michael Marks.
             </p>
@@ -273,7 +273,7 @@ export default function AboutPage() {
               { group: "Brand & Creative", items: "Brand identity systems, creative direction, copywriting, PR & press strategy" },
               { group: "Strategy", items: "Positioning, ICP definition, pricing & packaging, fundraising, GTM planning" },
               { group: "AI & Engineering", items: "AI-native marketing, conversational AI, agent development, full-stack web (Next.js, React, TypeScript), prompt engineering" },
-              { group: "Leadership", items: "Team building (5 to 90+), hiring, founder coaching, cross-functional management" },
+              { group: "Leadership", items: "Team building (5 to 40), hiring, founder coaching, cross-functional management" },
               { group: "Tools", items: "Notion, Linear, Figma, Cursor, Claude, Webflow, Shopify, Meta/Google Ads, GA4, n8n, Zapier" },
             ].map(sg => (
               <div key={sg.group} style={{ background: "#f8f9fc", border: "1px solid #e8e8ec", borderRadius: 6, padding: "14px 16px" }}>

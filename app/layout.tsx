@@ -5,10 +5,10 @@ import { SkipToContent } from "@/components/SkipToContent";
 export const metadata: Metadata = {
   metadataBase: new URL("https://paramminhas.com"),
   title: {
-    default: "Param Minhas — Builder · Designer · Creative Director | Founder of Iterate | 15+ Years, $6M+ Revenue",
+    default: "Param Minhas — Builder · Designer · Creative Director | Founder of Iterate | 15+ Years, $6M+ GMV",
     template: "%s | Param Minhas",
   },
-  description: "Param Minhas is a founder, creative director, and growth operator with 15+ years across AI, e-commerce, sneakers, music, and marketing. Currently running Iterate — an AI-native marketing agency (90-person network). Previously CEO at SoleSearch ($6M+ revenue, 350K+ community), CMO at Fere.ai, Partner at Good Capital (Meesho, Entri, Simsim). Based in Bengaluru, India.",
+  description: "Param Minhas is a founder, creative director, and growth operator with 15+ years across AI, e-commerce, sneakers, music, and marketing. Currently running Iterate — an AI-native marketing agency. Previously CEO at SoleSearch ($6M+ GMV, 350K+ community), CMO at Fere.ai, Partner at Good Capital (Meesho, Entri, Simsim). Based in Bengaluru, India.",
   keywords: [
     // Name variations
     "Param Minhas", "Param Minhas resume", "Param Minhas portfolio", "Param Minhas LinkedIn",
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   classification: "Personal Portfolio",
   openGraph: {
     title: "Param Minhas — Builder · Designer · Creative Director",
-    description: "15+ years building. $6M+ revenue. 350K+ community. 90-person network. Founder of Iterate (AI-native marketing agency) & Cats Can Dance (culture platform). Previously: SoleSearch, Fere.ai, Good Capital.",
+    description: "15+ years building. $6M+ GMV. 350K+ community. Founder of Iterate (AI-native marketing agency) & Cats Can Dance (culture platform). Previously: SoleSearch, Fere.ai, Good Capital.",
     type: "profile",
     url: "https://paramminhas.com",
     siteName: "Param Quest — Playable Portfolio",
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Param Minhas — Builder · Designer · Creative Director",
-    description: "15+ years building. $6M+ revenue. 350K+ community. AI-native marketing agency founder. Playable portfolio RPG.",
+    description: "15+ years building. $6M+ GMV. 350K+ community. AI-native marketing agency founder. Playable portfolio RPG.",
     creator: "@paramminhas",
     site: "@paramminhas",
   },
@@ -105,7 +105,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     givenName: "Param",
     familyName: "Minhas",
     jobTitle: "Founder & Creative Director",
-    description: "Founder, creative director, and growth operator with 15+ years across e-commerce, AI, real estate, sneakers, music, and AI-native marketing. $6M+ revenue generated, 350K+ community built, 90-person network led. Currently running Iterate (AI-native marketing agency) and Cats Can Dance (culture platform).",
+    description: "Founder, creative director, and growth operator with 15+ years across e-commerce, AI, real estate, sneakers, music, and AI-native marketing. $6M+ GMV, 350K+ community built 40-person team at peak led. Currently running Iterate (AI-native marketing agency) and Cats Can Dance (culture platform).",
     url: "https://paramminhas.com",
     email: "minhas.param@gmail.com",
     image: "https://paramminhas.com/opengraph-image",
@@ -122,7 +122,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         "@id": "https://hyperiterate.com/#org",
         name: "Iterate",
         url: "https://hyperiterate.com",
-        description: "AI-native marketing agency with a 90-person network across strategy, creative, and engineering",
+        description: "AI-native marketing agency with a five-person core team and a partner network across strategy, creative, and engineering",
         foundingDate: "2026-01",
         founder: { "@id": "https://paramminhas.com/#person" },
         numberOfEmployees: { "@type": "QuantitativeValue", value: 90 },
@@ -169,7 +169,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       { "@type": "EducationalOrganization", name: "Pune University", department: "Computer Science" },
     ],
     memberOf: [
-      { "@type": "Organization", name: "SoleSearch", description: "India's leading sneaker & streetwear marketplace, $6M+ revenue, 350K+ community", url: "https://www.vice.com/en/article/india-genz-sneakerheads-sneaker-resellers-hype/" },
+      { "@type": "Organization", name: "SoleSearch", description: "India's leading sneaker & streetwear marketplace, $6M+ GMV, 350K+ community", url: "https://www.vice.com/en/article/india-genz-sneakerheads-sneaker-resellers-hype/" },
       { "@type": "Organization", name: "Fere.ai", description: "Autonomous AI agent platform, funded by Ethereal Ventures", url: "https://www.fereai.xyz/app" },
       { "@type": "Organization", name: "Good Capital", description: "Venture fund — portfolio includes Meesho, Entri, Simsim" },
       { "@type": "Organization", name: "Quartic.ai", description: "Enterprise AI platform", url: "https://www.quartic.ai" },
@@ -234,7 +234,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         name: "Who is Param Minhas?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Param Minhas is a founder, creative director, and growth operator based in Bengaluru, India. He has 15+ years of experience across e-commerce, AI, real estate, sneakers, music, and AI-native marketing. He currently runs Iterate (an AI-native marketing agency with a 90-person network) and Cats Can Dance (a culture platform). Previously, he was CEO at SoleSearch ($6M+ revenue), CMO at Fere.ai, and Partner at Good Capital.",
+          text: "Param Minhas is a founder, creative director, and growth operator based in Bengaluru, India. He has 15+ years of experience across e-commerce, AI, real estate, sneakers, music, and AI-native marketing. He currently runs Iterate (an AI-native marketing agency) and Cats Can Dance (a culture platform). Previously, he was CEO at SoleSearch ($6M+ GMV), CMO at Fere.ai, and Partner at Good Capital.",
         },
       },
       {
@@ -242,7 +242,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         name: "What is Iterate?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Iterate (hyperiterate.com) is an AI-native marketing agency founded by Param Minhas in January 2026. It has a 90-person network across strategy, creative, and engineering. Clients include ChargeZone, Noida International Airport, PickYourTrail, Billione, and Monkspace.",
+          text: "Iterate (hyperiterate.com) is an AI-native marketing agency founded by Param Minhas in January 2026. It has a five-person core team and a partner network across strategy, creative, and engineering. Clients include the largest EV charging network in India, a new international airport, a leading online travel platform, a fintech and a co-living brand.",
         },
       },
       {
@@ -250,7 +250,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         name: "What is SoleSearch?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "SoleSearch was India's leading sneaker, streetwear, and collectibles marketplace, co-founded by Param Minhas, Prabal Baghla, and Rannvijay Singha. It generated $6M+ in revenue, built a 350K+ community, raised $795K, held 30+ live events, and operated retail stores in Mumbai and Hyderabad. It was featured in VICE, CNBC-TV18, and Economic Times.",
+          text: "SoleSearch was India's leading sneaker, streetwear, and collectibles marketplace, co-founded by Param Minhas, Prabal Baghla, and Rannvijay Singha. It generated $6M+ in GMV, built a 350K+ community, raised $795K, held 30+ live events, and operated retail stores in Mumbai and Hyderabad. It was featured in VICE, CNBC-TV18, and Economic Times.",
         },
       },
       {

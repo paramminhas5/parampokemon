@@ -319,12 +319,12 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     subtitle: "2016-17 · Conversational AI",
     years: "2016–2017",
     outcome: "Co-built one of India's first conversational AI platforms in 2013. Octo acquired by Quartic.ai.",
-    bullets: ["Co-built with Akshaya Aron, backed by Good Capital", "Built AI products before 'AI' was a category", "Built and ran entire marketing function from scratch", "Rebuilt product dashboard end-to-end, working directly with engineering", "Director of Marketing at Quartic.ai post-acquisition"],
+    bullets: ["Co-built with Akshaya Aron, backed by Good Capital", "Built AI products before 'AI' was a category", "Built and ran entire marketing function from scratch", "Rebuilt product dashboard end-to-end, working directly with engineering", "Director of Product Marketing at Quartic.ai post-acquisition"],
     theme: { ground: "neon", accent: "#9fe8ff", landmark: "lab" },
     w: 26, h: 20,
     // Server room far-left, neon pylon grid fills center; entry from right
     building: { x: 1, y: 1, w: 10, h: 8, doorX: 5, color: "#4a6e9a", roof: "#1f3548" },
-    sign: { x: 20, y: 16, text: "QUARTIC LAB\nBuilt AI before it was a category.\n\nOne of India's first chatbots: 2013.\nCo-built Octo · Acquired by Quartic.ai\nDirector of Marketing post-acquisition." },
+    sign: { x: 20, y: 16, text: "QUARTIC LAB\nBuilt AI before it was a category.\n\nOne of India's first chatbots: 2013.\nCo-built Octo · Acquired by Quartic.ai\nDirector of Product Marketing post-acquisition." },
     badge: { x: 22, y: 7, id: "ai", label: "Conversation Badge", color: "#9fe8ff" },
     npcs: [
       { x: 5, y: 16, name: "Octo → Quartic", role: "Founding team · 2013", kind: "engineer", beat: "did",
@@ -423,7 +423,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     id: "sole", index: 6, name: "SoleSearch Mall", org: "SoleSearch", role: "Founder & CEO",
     subtitle: "2022-24 · Sneakers & Streetwear",
     years: "2022–Dec 2024",
-    outcome: "$6M+ revenue. 350K+ community. $795K raised. 30+ events. Team of 40.",
+    outcome: "$6M+ GMV. 350K+ community. $795K raised. 30+ events. Team of 40.",
     bullets: [
       "Founded SoleSearch; joined by Prabal Baghla and Rannvijay Singha. Led a team of 40.",
       "$795K raised from Venture Catalysts, Anthill Ventures, Cornerstone Ventures",
@@ -473,7 +473,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     berryItem: { x: 12, y: 14 },
     cliff: {
       era: "2020-24 · Sneakers + Streetwear",
-      did: ["$6M+ total revenue", "$795K raised", "350K+ community", "30+ live events including SneakinOut", "Retail in Mumbai & Hyderabad", "Led team of 40"],
+      did: ["$6M+ GMV", "$795K raised", "350K+ community", "30+ live events including SneakinOut", "Retail in Mumbai & Hyderabad", "Led team of 40"],
       learned: ["How to manufacture cultural demand", "Press, ops, retail, drops — at once"],
       metrics: [{ label: "REVENUE", value: "$6M+" }, { label: "RAISED", value: "$795K" }, { label: "COMMUNITY", value: "350K+" }],
     },
@@ -589,17 +589,17 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     id: "iterate", index: 9, name: "Iterate HQ", org: "Iterate", role: "Founder & Creative Director",
     subtitle: "Jan 2026 – Present · AI-native Marketing",
     years: "Jan 2026–Present",
-    outcome: "AI-native marketing agency. 90-person network. Clients: ChargeZone, Noida Airport, PickYourTrail, Billione, Monkspace.",
-    bullets: ["Leads a 90-person network across strategy, creative, and engineering", "Clients: ChargeZone, Noida International Airport, PickYourTrail, Billione, Monkspace", "Launched Cats Can Dance — culture platform (music, fashion & pet care)", "Built on 15 years of operator instinct"],
+    outcome: "AI-native marketing agency. Clients: an EV charging network, an airport, a travel platform, a fintech, a co-living brand.",
+    bullets: ["Leads a five-person core team and a partner network across strategy, creative, and engineering", "Clients: an EV charging network, an airport, a travel platform, a fintech, a co-living brand", "Launched Cats Can Dance — culture platform (music, fashion & pet care)", "Built on 15 years of operator instinct"],
     theme: { ground: "night", accent: "#7ce0ff", landmark: "agency" },
     w: 26, h: 20,
     // HQ building top-right with trophy wall; champion archway center; contact left
     building: { x: 15, y: 1, w: 10, h: 8, doorX: 4, color: "#4a8cc4", roof: "#1a3858" },
-    sign: { x: 3, y: 17, text: "ITERATE HQ\nAI-native marketing agency.\n\n90-person network · hyperiterate.com\nClients: ChargeZone, Noida Airport,\nPickYourTrail, Billione, Monkspace." },
+    sign: { x: 3, y: 17, text: "ITERATE HQ\nAI-native marketing agency.\n\nhyperiterate.com\nClients: an EV charging network, an airport, a travel platform, a fintech, a co-living brand." },
     badge: { x: 4, y: 15, id: "champion", label: "Champion Badge", color: "#7ce0ff" },
     npcs: [
       { x: 6, y: 17, name: "Iterate", role: "Founder & Creative Director · 2024–Present", kind: "engineer", beat: "did",
-        quote: "AI-native marketing agency. Leads a 90-person network across strategy, creative, and engineering.\n\nClients include ChargeZone, Noida International Airport, PickYourTrail, Billione, and Monkspace.\n\nhyperiterate.com" },
+        quote: "AI-native marketing agency. Leads a five-person core team and a partner network across strategy, creative, and engineering.\n\nClients include the largest EV charging network in India, a new international airport, a leading online travel platform, a fintech and a co-living brand.\n\nhyperiterate.com" },
       { x: 22, y: 15, name: "Work with us", role: "Founder partners only", kind: "trainer-m", beat: "did",
         quote: "We take a small number of founder partners per quarter.\n\nTalk to me: param@catscandance.com",
         special: "contact" },
@@ -635,7 +635,7 @@ const Z: Omit<Zone, "ox" | "oy">[] = [
     berryItem: { x: 14, y: 14 },
     cliff: {
       era: "2024–Present · The Full Stack",
-      did: ["AI-native marketing agency", "90-person network across strategy, creative, engineering", "Clients: ChargeZone, Noida Airport, PickYourTrail, Billione, Monkspace", "Launched Cats Can Dance under Iterate"],
+      did: ["AI-native marketing agency", "Five-person core team and partner network across strategy, creative, engineering", "Clients: an EV charging network, an airport, a travel platform, a fintech, a co-living brand", "Launched Cats Can Dance under Iterate"],
       learned: ["The full stack as competitive advantage", "Speed × taste compounds"],
       metrics: [{ label: "NETWORK", value: "90" }, { label: "CLIENTS", value: "5+" }],
     },
@@ -766,8 +766,8 @@ export const KEY_PEOPLE: Record<string, { name: string; relevance: string }[]> =
     { name: "Impresario (Social)", relevance: "Partnership for pan-India live show series" },
   ],
   iterate: [
-    { name: "90-person network", relevance: "Strategy, creative, and engineering across all client work" },
-    { name: "ChargeZone, Noida Airport, PickYourTrail, Billione, Monkspace", relevance: "Current clients" },
+    { name: "Five-person core team + partner network", relevance: "Strategy, creative, and engineering across all client work" },
+    { name: "an EV charging network, an airport, a travel platform, a fintech, a co-living brand", relevance: "Current clients" },
   ],
 };
 

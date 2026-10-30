@@ -7,13 +7,6 @@ type BrandItem = {
   url?: string;
 };
 
-const CURRENT_CLIENTS: BrandItem[] = [
-  { name: "ChargeZone", domain: "chargezone.com", url: "https://chargezone.com" },
-  { name: "Noida International Airport", domain: "niiairport.com", url: "https://niiairport.com" },
-  { name: "PickYourTrail", domain: "pickyourtrail.com", url: "https://pickyourtrail.com" },
-  { name: "Billione", domain: "billione.com" },
-  { name: "Monkspace", domain: "monkspace.in" },
-];
 
 const BUILT_BACKED: BrandItem[] = [
   { name: "Meesho", domain: "meesho.com", url: "https://meesho.com" },
@@ -135,7 +128,6 @@ export function BrandLogos() {
   return (
     <div className="pq-panel">
       <div className="pq-panel-inner" style={{ padding: "20px 16px" }}>
-        <BrandRow title="★ CURRENT CLIENTS" brands={CURRENT_CLIENTS} accent="#7ce0ff" />
         <BrandRow title="★ BUILT & BACKED" brands={BUILT_BACKED} accent="#f0c4ff" />
         <BrandRow title="★ PARTNERED WITH" brands={PARTNERED_WITH} accent="#ff9fd4" />
         <BrandRow title="★ FEATURED IN" brands={FEATURED_IN} accent="#ffd29a" />
