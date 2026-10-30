@@ -13,14 +13,14 @@
 Param Minhas is a founder, creative director, and growth operator based in Bengaluru, India. He has 15+ years of experience building companies, brands, and products across e-commerce, AI, real estate, sneakers, music, and AI-native marketing.
 
 He currently runs two companies:
-1. **Iterate** (hyperiterate.com) — An AI-native marketing agency with a 90-person network across strategy, creative, and engineering. Clients include ChargeZone, Noida International Airport, PickYourTrail, Billione, and Monkspace.
+1. **Iterate** (hyperiterate.com) — An AI-native marketing agency with a five-person core team and a partner network across strategy, creative, and engineering. Clients include the largest EV charging network in India, a new international airport, a leading online travel platform, a fintech and a co-living brand.
 2. **Cats Can Dance** (catscandance.com) — A culture-discovery platform spanning music, fashion, and pet care. Artist directory, event booking, and music-production learning product. Produced live shows pan-India in partnership with Impresario.
 
 ### Key Metrics
 - 15+ years building products, brands, and companies
-- $6M+ total revenue generated (primarily through SoleSearch)
+- $6M+ GMV generated (primarily through SoleSearch)
 - 350,000+ community built
-- 90-person network led (Iterate)
+- 40-person team at peak led (Iterate)
 - $795K capital raised (Venture Catalysts, Anthill Ventures, Cornerstone Ventures)
 - 30+ live events produced
 - 4 companies founded/co-founded
@@ -42,7 +42,7 @@ He is known for building from zero — not inheriting momentum. Every company he
 
 ### What Param Minhas Does Today
 
-Param Minhas currently serves as Founder and Creative Director of Iterate, an AI-native marketing agency launched in January 2026. Iterate operates with a 90-person network spanning strategy, creative, and engineering. The agency serves clients including ChargeZone (India's leading EV charging network), Noida International Airport, PickYourTrail (travel platform), Billione (fintech), and Monkspace (co-living). The agency website is hyperiterate.com.
+Param Minhas currently serves as Founder and Creative Director of Iterate, an AI-native marketing agency launched in January 2026. Iterate operates with a five-person core team and a partner network spanning strategy, creative, and engineering. The agency serves clients including the largest EV charging network in India, a new international airport, a leading online travel platform, a fintech and a co-living brand. The agency website is hyperiterate.com.
 
 He also founded Cats Can Dance in March 2026, a culture-discovery platform that spans music, fashion, and pet care. It includes an artist directory, event booking system, and a music-production learning product. He produced a series of live shows across India in partnership with Impresario (the group behind Social and Antispace). The brand website is catscandance.com.
 
@@ -54,14 +54,14 @@ Fere.ai is an autonomous AI agent platform funded by Ethereal Ventures ($1.3M ra
 **SoleSearch — Founder & CEO (2022 – December 2024)**
 SoleSearch was India's leading sneaker, streetwear, and collectibles marketplace. Param co-founded it with Prabal Baghla, and Rannvijay Singha (MTV fame) joined as co-founder. Under Param's leadership as CEO, the company generated $6M+ in total revenue over four years, raised $795K from Venture Catalysts, Anthill Ventures, and Cornerstone Ventures, built a 350,000+ follower community, produced 30+ live events including SneakinOut (India's first sneaker convention format, 3 seasons with Swiggy SteppinOut), and operated omnichannel retail stores in Mumbai and Hyderabad with a team of 40 people. SoleSearch was featured in VICE, CNBC-TV18, Storyboard18, Economic Times, Open Magazine, The Established, and Business of Fashion.
 
-**Quartic.ai — Director of Marketing (2020 – 2022)**
+**Quartic.ai — Director of Product Marketing (2020 – 2022)**
 Quartic.ai is an enterprise AI platform headquartered in San Jose, California. Param led a team of 5 and was invited back by the Good Capital partners following Octo's acquisition by Quartic. He built the entire marketing function from zero: brand identity, website, collateral, and press strategy. The company is backed by Good Capital, Celesta Capital, and Michael Marks. Website: quartic.ai.
 
 **Investopad → Good Capital — Partner, Growth & Technology (2017 – 2020)**
 Param served as Partner for Growth and Technology as Investopad's family office evolved into Good Capital, an institutional Fund I. He was involved in sourcing, diligence, and founder support for portfolio companies including Meesho (now one of India's largest e-commerce companies), Entri, Simsim, Amazon, and Forbes. Based in New Delhi, India.
 
 **Octo — Founding Team, Head of Growth (2016 – 2017)**
-Octo was a conversational AI platform co-built with Akshaya Aron and backed by Good Capital. It was one of India's first chatbots, built in 2013 — before "AI" was a market category. Param built and ran the entire marketing function from scratch and rebuilt the product dashboard end-to-end, working directly with engineering. Octo was acquired by Quartic.ai.
+Param built his first chatbot, AHit, on WhatsApp in 2013, before "AI" was a market category. Octo.ai, co-built with Akshaya Aron and backed by Good Capital, was an AI marketing orchestration platform. Param built and ran the entire marketing function from scratch and rebuilt the product dashboard end-to-end, working directly with engineering. Octo was acquired and became Quartic.ai.
 
 **Hab Housing — Founder (2012 – 2015)**
 Hab Housing was one of India's first branded budget-hospitality startups — the category that OYO later scaled nationally. Param built it from sole founder to a 16-person team across three cities (Pune, Bengaluru), generating $120K+ in revenue, fully bootstrapped with zero external funding.
@@ -75,7 +75,7 @@ BE, Computer Science — Pune University
 ### What Param Minhas Is Known For
 - Building companies and brands from zero — not inheriting momentum
 - Operating across the full GTM stack: positioning, brand, creative, demand gen, performance, product
-- Building AI products before "AI" was a category (first chatbot in 2013)
+- Building AI products before "AI" was a category (first chatbot, AHit on WhatsApp, in 2013)
 - Creating cultural movements (SoleSearch built India's sneaker culture from nothing)
 - Speed of execution — ships fast, iterates faster
 - The "range is the point" — deliberate career breadth as a compounding advantage
@@ -86,7 +86,7 @@ BE, Computer Science — Pune University
 - Brand & Creative: Brand identity systems, creative direction, copywriting, PR & press strategy
 - Strategy: Positioning, ICP definition, pricing & packaging, fundraising, GTM planning
 - AI & Engineering: AI-native marketing, conversational AI, agent development, full-stack web (Next.js, React, TypeScript), prompt engineering, data pipelines
-- Leadership: Team building (5 to 90+ people), hiring, founder coaching
+- Leadership: Team building (5 to 40 people), hiring, founder coaching
 - Tools: Notion, Linear, Figma, Cursor, Claude, Webflow, Shopify, Meta/Google Ads, GA4, n8n, Zapier
 
 ### Contact Information
@@ -106,14 +106,14 @@ BE, Computer Science — Pune University
 ## Param Minhas — Professional Resume
 
 ### Summary
-Founder and creative director who builds growth, brand, and marketing functions from zero, then ships the product underneath them. Operator across the full GTM stack — positioning, demand generation, brand systems, performance — with a rare engineering hand: built AI products before "AI" was a category, co-building one of India's first conversational AI platforms in 2013. Has led teams from 5 to 90+. Built one company to $6M+ in revenue and a 350,000+ community on a $795K raise; now runs an AI-native marketing agency serving clients including a national airport and a national EV charging network. Based in Bengaluru.
+Founder and creative director who builds growth, brand, and marketing functions from zero, then ships the product underneath them. Operator across the full GTM stack — positioning, demand generation, brand systems, performance — with a rare engineering hand: built AI products before "AI" was a category, building his first WhatsApp chatbot, AHit, in 2013. Has led teams from 5 to 40. Built one company to $6M+ in GMV and a 350,000+ community on a $795K raise; now runs an AI-native marketing agency serving clients including a national airport and a national EV charging network. Based in Bengaluru.
 
 ### Experience
 
 **Iterate — Founder & Creative Director (Jan 2026 – Present)**
 AI-native marketing agency | Bengaluru, India | hyperiterate.com
-- Leads a 90-person network across strategy, creative, and engineering.
-- Clients include ChargeZone, Nodia International Airport, PickYourTrail, Billione, and Monkspace.
+- Leads a five-person core team and a partner network across strategy, creative, and engineering.
+- Clients include the largest EV charging network in India, a new international airport, a leading online travel platform, a fintech and a co-living brand.
 - Sub-brand: Cats Can Dance (catscandance.com) — Culture platform (music, fashion & pet care). Designed and built end-to-end. Artist directory, event booking, music-production learning. Produced live shows pan-India with Impresario.
 
 **Fere.ai — CMO (Jan 2025 – Dec 2025)**
@@ -126,11 +126,11 @@ Autonomous AI agent platform, funded by Ethereal Ventures | India | fereai.xyz
 Sneaker, streetwear & collectibles marketplace | India
 - Co-founded with Prabal Baghla; Rannvijay Singha joined. Led team of 40.
 - Raised $795K from Venture Catalysts, Anthill Ventures, Cornerstone Ventures.
-- $6M+ total revenue, omnichannel retail in Mumbai and Hyderabad.
+- $6M+ GMV, omnichannel retail in Mumbai and Hyderabad.
 - 350,000+ community. 30+ events. SneakinOut — India's first sneaker convention.
 - Press: VICE, CNBC-TV18, Storyboard18, Economic Times, Business of Fashion.
 
-**Quartic.ai — Director of Marketing (2020 – 2022)**
+**Quartic.ai — Director of Product Marketing (2020 – 2022)**
 Enterprise AI platform | San Jose, California | quartic.ai
 - Led team of 5. Backed by Good Capital, Celesta Capital, Michael Marks.
 - Built marketing function from zero: brand, website, collateral, press.
@@ -141,8 +141,8 @@ Family office turned venture fund | New Delhi, India
 - Portfolio: Meesho, Entri, Simsim, Amazon, Forbes.
 
 **Octo — Founding Team, Head of Growth (2016 – 2017)**
-Conversational AI platform, acquired by Quartic.ai | New Delhi, India
-- Co-built with Akshaya Aron. One of India's first chatbots (2013).
+AI marketing orchestration platform, acquired and became Quartic.ai | New Delhi, India
+- Co-built with Akshaya Aron. AI marketing orchestration platform, acquired and became Quartic.ai. Param's first chatbot, AHit on WhatsApp, came earlier (2013).
 - Built marketing from scratch. Rebuilt product dashboard with engineering.
 
 **Hab Housing — Founder (2012 – 2015)**
@@ -160,7 +160,7 @@ India's first price-comparison engine | Delhi, India
 - Brand & Creative: Brand identity, creative direction, copywriting, PR strategy
 - Strategy: Positioning, ICP definition, pricing, fundraising, GTM planning
 - AI & Engineering: AI-native marketing, conversational AI, Next.js, React, TypeScript, prompt engineering
-- Leadership: Team building (5-90+), hiring, founder coaching
+- Leadership: Team building (5 to 40), hiring, founder coaching
 - Tools: Notion, Linear, Figma, Cursor, Claude, Webflow, Shopify, Meta/Google Ads, GA4, n8n, Zapier
 
 ### Education
@@ -250,13 +250,13 @@ Param Quest is a full Pokemon-style RPG that tells 15 years of Param Minhas's ca
 # Frequently Asked Questions
 
 ## Who is Param Minhas?
-Param Minhas is a founder, creative director, and growth operator based in Bengaluru, India. He has 15+ years of experience across e-commerce, AI, real estate, sneakers, music, and AI-native marketing. He currently runs Iterate (an AI-native marketing agency with a 90-person network) and Cats Can Dance (a culture platform). Previously, he was CEO at SoleSearch ($6M+ revenue), CMO at Fere.ai, and Partner at Good Capital.
+Param Minhas is a founder, creative director, and growth operator based in Bengaluru, India. He has 15+ years of experience across e-commerce, AI, real estate, sneakers, music, and AI-native marketing. He currently runs Iterate (an AI-native marketing agency) and Cats Can Dance (a culture platform). Previously, he was CEO at SoleSearch ($6M+ GMV), CMO at Fere.ai, and Partner at Good Capital.
 
 ## What is Iterate?
-Iterate (hyperiterate.com) is an AI-native marketing agency founded by Param Minhas in January 2026. It has a 90-person network across strategy, creative, and engineering. Clients include ChargeZone, Nodia International Airport, PickYourTrail, Billione, and Monkspace.
+Iterate (hyperiterate.com) is an AI-native marketing agency founded by Param Minhas in January 2026. It has a five-person core team and a partner network across strategy, creative, and engineering. Clients include the largest EV charging network in India, a new international airport, a leading online travel platform, a fintech and a co-living brand.
 
 ## What is SoleSearch?
-SoleSearch was India's leading sneaker, streetwear, and collectibles marketplace, co-founded by Param Minhas, Prabal Baghla, and Rannvijay Singha. It generated $6M+ in revenue, built a 350K+ community, raised $795K, held 30+ live events, and operated retail stores in Mumbai and Hyderabad. It was featured in VICE, CNBC-TV18, and Economic Times.
+SoleSearch was India's leading sneaker, streetwear, and collectibles marketplace, co-founded by Param Minhas, Prabal Baghla, and Rannvijay Singha. It generated $6M+ in GMV, built a 350K+ community, raised $795K, held 30+ live events, and operated retail stores in Mumbai and Hyderabad. It was featured in VICE, CNBC-TV18, and Economic Times.
 
 ## What is Cats Can Dance?
 Cats Can Dance (catscandance.com) is a culture-discovery platform founded by Param Minhas in March 2026. It spans music, fashion, and pet care, with an artist directory, event booking, and music-production learning product. It launched under Iterate with live shows produced in partnership with Impresario.
@@ -274,7 +274,7 @@ Senior operating and CMO-track roles, fractional/advisory mandates, and operator
 
 # Key Collaborators & People
 
-- **Akshaya Aron** — Co-builder of Octo (2013), CEO of Quartic.ai, reunited at Fere.ai (2024). Decade-long collaborator.
+- **Akshaya Aron** — Co-builder of Octo.ai, CEO of Quartic.ai, reunited at Fere.ai (2024). Decade-long collaborator.
 - **Prabal Baghla** — Co-founder of SoleSearch. Built retail ops and community together.
 - **Rannvijay Singha** — Co-founder & brand partner at SoleSearch. MTV personality.
 - **Sidharth Rao** — Angel investor at GetRightPrice. Founder of Webchutney (India's first digital agency).

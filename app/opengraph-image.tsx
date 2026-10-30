@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "Param Minhas — Builder · Designer · Creative Director | 15+ Years, $6M+ Revenue";
+export const alt = "Param Minhas — Builder · Designer · Creative Director | 15+ Years, $6M+ GMV";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -91,9 +91,9 @@ export default async function Image() {
         >
           {[
             { label: "YEARS", value: "15+" },
-            { label: "REVENUE", value: "$6M+" },
+            { label: "GMV", value: "$6M+" },
             { label: "COMMUNITY", value: "350K+" },
-            { label: "NETWORK", value: "90+" },
+            { label: "TEAM AT PEAK", value: "40" },
             { label: "RAISED", value: "$795K" },
           ].map((stat) => (
             <div

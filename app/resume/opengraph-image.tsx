@@ -100,9 +100,9 @@ export default async function Image() {
         {/* Career highlights */}
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {[
-            "Iterate — AI-native agency, 90-person network (2026–Present)",
+            "Iterate — AI-native agency (2026–Present)",
             "Fere.ai — CMO, autonomous AI agents (2025)",
-            "SoleSearch — Founder & CEO, $6M+ revenue (2022–2024)",
+            "SoleSearch — Founder & CEO, $6M+ GMV (2022–2024)",
             "Good Capital — Partner, portfolio incl. Meesho (2017–2020)",
           ].map((line) => (
             <div key={line} style={{ fontSize: 15, color: "#2a2a4a", display: "flex" }}>

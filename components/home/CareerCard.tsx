@@ -9,10 +9,10 @@ const ZONE_NARRATIVE: Record<string, { challenge: string; impact: string }> = {
   ai: { challenge: "Selling AI in 2016 before anyone searched for the term. Pure missionary selling, zero market awareness.", impact: "Built and ran entire marketing function. Rebuilt product dashboard end-to-end. Octo acquired by Quartic.ai." },
   investopad: { challenge: "Operator → investor transition. Building a venture fund from family office to institutional.", impact: "Fund I built. Portfolio: Meesho (now India's largest e-commerce), Entri, Simsim." },
   quartic: { challenge: "Joining a post-acquisition enterprise AI company and building marketing from zero in San Jose.", impact: "Built brand identity, website, collateral, press strategy. Led team of 5." },
-  sole: { challenge: "Creating sneaker culture in India from nothing — no existing market, no playbook.", impact: "$6M+ revenue. 350K+ community. $795K raised. SneakinOut: India's first sneaker convention." },
+  sole: { challenge: "Creating sneaker culture in India from nothing — no existing market, no playbook.", impact: "$6M+ GMV. 350K+ community. $795K raised. SneakinOut: India's first sneaker convention." },
   fere: { challenge: "Marketing invisible autonomous AI agents in a noisy crypto-adjacent market.", impact: "AI-native ops model proven. Lean team via AI systems. Proving ground for Iterate." },
   ccd: { challenge: "Creating without a brief or client — building because it needed to exist.", impact: "Platform live. Series of live shows pan-India with Impresario. Creative sovereignty." },
-  iterate: { challenge: "Competing against traditional agencies — slow, headcount-heavy, not scalable.", impact: "90-person network. National clients (airport, EV network). AI-native at scale." },
+  iterate: { challenge: "Competing against traditional agencies — slow, headcount-heavy, not scalable.", impact: "Five-person core team plus partners. National clients (airport, EV network). AI-native at scale." },
 };
 
 const QUARTIC_PEOPLE = [
@@ -120,7 +120,7 @@ export function CareerCard({ z, i, overrideId, isOpen, onEnterViewport, onLeaveV
           }}>▼</span>
         </div>
         <div style={{ fontFamily: "var(--font-mono)", fontSize: 16, color: "#b0c8e0", marginBottom: 4, fontWeight: 500 }}>
-          {cardId === "quartic" ? "Director of Marketing" : z.role}
+          {cardId === "quartic" ? "Director of Product Marketing" : z.role}
         </div>
         <div style={{ fontFamily: "var(--font-mono)", fontSize: 13, color: "#6088aa", lineHeight: 1.45 }}>
           {cardId === "quartic" ? "Enterprise AI platform. Built marketing from zero post-acquisition. San Jose, CA." : z.outcome}

@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "Recruiter Quick View — Param Minhas | 15+ Years, $6M+ Revenue, 90-Person Network";
+export const alt = "Recruiter Quick View — Param Minhas | 15+ Years, $6M+ GMV, 90-Person Network";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -124,7 +124,7 @@ export default async function Image() {
         <div style={{ display: "flex", gap: 24, fontSize: 14, color: "#4a6888" }}>
           <span>15+ Years</span>
           <span style={{ color: "#2a4060" }}>·</span>
-          <span>$6M+ Revenue</span>
+          <span>$6M+ GMV</span>
           <span style={{ color: "#2a4060" }}>·</span>
           <span>350K+ Community</span>
           <span style={{ color: "#2a4060" }}>·</span>

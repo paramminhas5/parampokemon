@@ -679,9 +679,9 @@ export function HomeClient() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 6 }}>
           {[
             { label: "YEARS BUILDING", value: "15+" },
-            { label: "REVENUE",        value: "$6M+" },
+            { label: "GMV",            value: "$6M+" },
             { label: "COMMUNITY",      value: "350K+" },
-            { label: "TEAM & NETWORK LED", value: "90+" },
+            { label: "TEAM AT PEAK", value: "40" },
             { label: "RAISED",         value: "$795K" },
           ].map((s, i) => (
             <SnapshotPill key={s.label} label={s.label} value={s.value} delay={i * 60} />

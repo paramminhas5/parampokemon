@@ -175,9 +175,9 @@ export function RecruiterSpeedRun({ onClose, onHire }: Props) {
             }}>
               {[
                 { label: "YEARS", value: "15+" },
-                { label: "REVENUE", value: "$6M+" },
+                { label: "GMV", value: "$6M+" },
                 { label: "COMMUNITY", value: "350K+" },
-                { label: "NETWORK", value: "90+" },
+                { label: "TEAM AT PEAK", value: "40" },
               ].map((m, i) => (
                 <div key={m.label} style={{
                   padding: "8px 14px",
@@ -328,8 +328,8 @@ export function RecruiterSpeedRun({ onClose, onHire }: Props) {
               fontFamily: "var(--font-mono)", fontSize: 16,
               color: "#7a9ab8", lineHeight: 1.6, marginBottom: 24,
             }}>
-              Param Minhas — Founder of Iterate (AI-native marketing agency, 90-person network).
-              Previously CEO at SoleSearch ($6M+ revenue), CMO at Fere.ai,
+              Param Minhas — Founder of Iterate (AI-native marketing agency).
+              Previously CEO at SoleSearch ($6M+ GMV), CMO at Fere.ai,
               Partner at Good Capital (Meesho, Entri, Simsim).
             </div>
 

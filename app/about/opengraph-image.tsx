@@ -27,7 +27,7 @@ export default async function Image() {
           <div style={{ fontSize: 22, color: "#4a5a7a", marginBottom: 8, display: "flex" }}>Founder & Creative Director</div>
           <div style={{ fontSize: 16, color: "#6a6a8a", marginBottom: 32, display: "flex" }}>Bengaluru, India · 15+ years building</div>
           <div style={{ fontSize: 16, color: "#2a2a4a", lineHeight: 1.6, maxWidth: 800, display: "flex" }}>
-            Builder, designer, and growth operator across AI, e-commerce, sneakers, music, and marketing. Currently running Iterate (AI-native agency, 90-person network) and Cats Can Dance (culture platform).
+            Builder, designer, and growth operator across AI, e-commerce, sneakers, music, and marketing. Currently running Iterate (AI-native agency) and Cats Can Dance (culture platform).
           </div>
         </div>
         <div style={{ display: "flex", gap: 24, fontSize: 13, color: "#6a7a9a" }}>

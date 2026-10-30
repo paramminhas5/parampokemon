@@ -61,7 +61,7 @@ function OnePageResumePDF() {
         {/* Summary — 3 sentences */}
         <Text style={styles.sectionTitle}>Summary</Text>
         <Text style={{ fontSize: 9, lineHeight: 1.5, color: "#2a2a4a", marginBottom: 4 }}>
-          Founder and creative director who builds growth, brand, and marketing functions from zero. Built one company to $6M+ in revenue and a 350K+ community on a $795K raise. Now runs an AI-native marketing agency (90-person network) serving national-scale clients.
+          Founder and creative director who builds growth, brand, and marketing functions from zero. Built one company to $6M+ in GMV and a 350K+ community on a $795K raise. Now runs an AI-native marketing agency serving national-scale clients.
         </Text>
 
 
@@ -78,8 +78,8 @@ function OnePageResumePDF() {
             <Text style={styles.expPeriod}>Jan 2026 – Present</Text>
           </View>
           <Text style={styles.expMeta}>AI-native marketing agency | Bengaluru | hyperiterate.com</Text>
-          <Text style={styles.bullet}>• Leads a 90-person network across strategy, creative, and engineering.</Text>
-          <Text style={styles.bullet}>• Clients: ChargeZone, Noida International Airport, PickYourTrail, Billione, Monkspace.</Text>
+          <Text style={styles.bullet}>• Leads a five-person core team and a partner network across strategy, creative, and engineering.</Text>
+          <Text style={styles.bullet}>• Clients: an EV charging network, an airport, a travel platform, a fintech, a co-living brand.</Text>
           <Text style={styles.bullet}>• Launched Cats Can Dance — culture-discovery platform with live shows (Impresario partnership).</Text>
         </View>
 
@@ -93,7 +93,7 @@ function OnePageResumePDF() {
             <Text style={styles.expPeriod}>2022 – Dec 2024</Text>
           </View>
           <Text style={styles.expMeta}>Sneaker, streetwear & collectibles marketplace | India</Text>
-          <Text style={styles.bullet}>• $6M+ total revenue, $795K raised (Venture Catalysts, Anthill, Cornerstone). Team of 40.</Text>
+          <Text style={styles.bullet}>• $6M+ GMV, $795K raised (Venture Catalysts, Anthill, Cornerstone). Team of 40.</Text>
           <Text style={styles.bullet}>• 350K+ community, 30+ events incl. SneakinOut — India's first sneaker convention.</Text>
           <Text style={styles.bullet}>• Press: VICE, CNBC-TV18, Business of Fashion, Economic Times, Inc42.</Text>
         </View>
@@ -116,7 +116,7 @@ function OnePageResumePDF() {
         <View style={{ marginTop: 6, marginBottom: 2 }}>
           <Text style={{ fontSize: 8.5, color: "#4a4a6a", fontFamily: "Helvetica-Bold", marginBottom: 4 }}>ALSO:</Text>
           <Text style={{ fontSize: 8.5, color: "#2a2a4a", lineHeight: 1.5 }}>
-            Partner, Growth & Technology at Investopad → Good Capital (2017–20, portfolio incl. Meesho) · Director of Marketing at Quartic.ai (2020–22) · Head of Growth at Octo (2016–17, acq. by Quartic) · Founder, Hab Housing (2012–15, $120K bootstrapped) · Founding Team, GetRightPrice (2011–12, angel-backed)
+            Partner, Growth & Technology at Investopad → Good Capital (2017–20, portfolio incl. Meesho) · Director of Product Marketing at Quartic.ai (2020–22) · Head of Growth at Octo (2016–17, acq. by Quartic) · Founder, Hab Housing (2012–15, $120K bootstrapped) · Founding Team, GetRightPrice (2011–12, angel-backed)
           </Text>
         </View>
 
@@ -129,7 +129,7 @@ function OnePageResumePDF() {
             { group: "Brand & Creative", items: "Identity systems, Creative direction, Copywriting, PR" },
             { group: "Strategy", items: "Positioning, ICP, Pricing, Fundraising, GTM planning" },
             { group: "AI & Engineering", items: "AI-native marketing, Agents, Next.js/React, Prompting" },
-            { group: "Leadership", items: "Team building (5–90+), Hiring, Founder coaching" },
+            { group: "Leadership", items: "Team building (5–40), Hiring, Founder coaching" },
             { group: "Tools", items: "Notion, Linear, Figma, Cursor, Claude, Webflow, Shopify, Ads" },
           ].map(sg => (
             <View key={sg.group} style={styles.skillGroup}>
