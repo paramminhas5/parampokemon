@@ -74,4 +74,8 @@ export const POSTS: Post[] = [
   },
 ];
 
-export const getPost = (slug: string) => POSTS.find((p) => p.slug === slug);
+// Drafts render for review only (noindex, not listed, not in the sitemap).
+import { DRAFTS } from "./drafts";
+export const isDraft = (slug: string) => DRAFTS.some((p) => p.slug === slug);
+export const getPost = (slug: string) => POSTS.find((p) => p.slug === slug) ?? DRAFTS.find((p) => p.slug === slug);
+export const ALL_SLUGS = [...POSTS, ...DRAFTS].map((p) => p.slug);
