@@ -18,6 +18,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.95,
     },
+    ...["brand-builder", "culture", "design", "music"].map((slug) => ({
+      url: `${baseUrl}/${slug}`,
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: slug === "brand-builder" ? 0.95 : 0.9,
+    })),
     {
       url: `${baseUrl}/resume`,
       lastModified: now,

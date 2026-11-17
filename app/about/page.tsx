@@ -312,6 +312,18 @@ export default function AboutPage() {
         <section>
           <h2 style={{ fontSize: 11, fontFamily: "'Press Start 2P', monospace", color: "#2a4a8a", letterSpacing: "0.1em", marginBottom: 12 }}>EXPLORE MORE</h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 12 }}>
+            <Link href="/brand-builder" style={{ display: "block", padding: "16px", background: "#f8f9fc", border: "1px solid #e8e8ec", borderRadius: 6, textDecoration: "none", color: "#2a4a8a", fontSize: 14, fontWeight: 600 }}>
+              Brand builder
+            </Link>
+            <Link href="/culture" style={{ display: "block", padding: "16px", background: "#f8f9fc", border: "1px solid #e8e8ec", borderRadius: 6, textDecoration: "none", color: "#2a4a8a", fontSize: 14, fontWeight: 600 }}>
+              Culture
+            </Link>
+            <Link href="/design" style={{ display: "block", padding: "16px", background: "#f8f9fc", border: "1px solid #e8e8ec", borderRadius: 6, textDecoration: "none", color: "#2a4a8a", fontSize: 14, fontWeight: 600 }}>
+              Design
+            </Link>
+            <Link href="/music" style={{ display: "block", padding: "16px", background: "#f8f9fc", border: "1px solid #e8e8ec", borderRadius: 6, textDecoration: "none", color: "#2a4a8a", fontSize: 14, fontWeight: 600 }}>
+              Music (Merman)
+            </Link>
             <Link href="/resume" style={{ display: "block", padding: "16px", background: "#f8f9fc", border: "1px solid #e8e8ec", borderRadius: 6, textDecoration: "none", color: "#2a4a8a", fontSize: 14, fontWeight: 600 }}>
               📄 Full Resume / CV
             </Link>

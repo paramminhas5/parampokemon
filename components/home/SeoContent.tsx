@@ -234,6 +234,10 @@ export function SeoContent() {
           <ul>
             <li><a href="https://paramminhas.com/">Homepage — Interactive portfolio</a></li>
             <li><a href="https://paramminhas.com/about">About Param Minhas — Full biography</a></li>
+            <li><a href="https://paramminhas.com/brand-builder">Param Minhas, brand builder: culture, design and music</a></li>
+            <li><a href="https://paramminhas.com/culture">Culture: sneakers, streetwear and nightlife in India</a></li>
+            <li><a href="https://paramminhas.com/design">Design: creative direction and brand identity</a></li>
+            <li><a href="https://paramminhas.com/music">Music: Merman, Cats Can Dance and CCD School</a></li>
             <li><a href="https://paramminhas.com/resume">Resume / CV — Professional experience</a></li>
             <li><a href="https://paramminhas.com/press">Press & Media — All coverage</a></li>
             <li><a href="https://paramminhas.com/play">Play Param Quest — RPG game</a></li>
