@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { POSTS, getPost } from "@/lib/posts";
+import { ALL_SLUGS, getPost, isDraft } from "@/lib/posts";
 
 export function generateStaticParams() {
-  return POSTS.map((p) => ({ slug: p.slug }));
+  return ALL_SLUGS.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -12,6 +12,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const post = getPost(slug);
   if (!post) return {};
   const url = `https://paramminhas.com/writing/${post.slug}`;
+  if (isDraft(slug)) {
+    return { title: `Draft: ${post.title}`, robots: { index: false, follow: false, nocache: true } };
+  }
   return {
     title: post.title,
     description: post.description,
@@ -53,6 +56,11 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
       </nav>
       <main id="main-content" style={{ maxWidth: 720, margin: "0 auto", padding: "48px 24px 64px" }}>
         <article>
+          {isDraft(post.slug) && (
+            <div style={{ marginBottom: 20, padding: "12px 16px", background: "#fff6d6", border: "1px solid #e8d38a", borderRadius: 6, fontSize: 13, lineHeight: 1.6 }}>
+              Draft for review. Not listed or indexed yet. Planned date {post.date}.
+            </div>
+          )}
           <div style={{ fontSize: 11, color: "#6a7a9a", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 10 }}>
             {post.tag} · <time dateTime={post.date}>{post.date}</time>
           </div>
