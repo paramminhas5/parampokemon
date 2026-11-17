@@ -105,7 +105,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     givenName: "Param",
     familyName: "Minhas",
     jobTitle: "Founder & Creative Director",
-    description: "Founder, creative director, and growth operator with 15+ years across e-commerce, AI, real estate, sneakers, music, and AI-native marketing. $6M+ GMV, 350K+ community built 40-person team at peak led. Currently running Iterate (AI-native marketing agency) and Cats Can Dance (culture platform).",
+    disambiguatingDescription: "Indian brand builder and creative director in culture, design and music; built and ran SoleSearch; founder of Cats Can Dance and Iterate; music as Merman.",
+    description: "Brand builder and creative director with 15+ years across e-commerce, AI, sneakers, streetwear, music, and AI-native marketing. Built and ran SoleSearch, India's leading sneaker and streetwear marketplace ($6M+ GMV, 350K+ community, 40-person team at peak). Currently running Cats Can Dance (culture platform for India's music scene) and Iterate (AI-native marketing agency). Reaches 170K+ followers across the Instagram pages he runs.",
     url: "https://paramminhas.com",
     email: "minhas.param@gmail.com",
     image: "https://paramminhas.com/opengraph-image",
@@ -149,6 +150,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       "https://wellfound.com/company/investopad/people",
     ],
     knowsAbout: [
+      "Brand building", "Street culture", "Streetwear", "Nightlife", "Electronic music", "DJing",
+      "Music production", "Ableton Live", "Brand identity design", "Visual identity systems",
       "AI-native marketing", "Go-to-market strategy", "Brand strategy", "Creative direction",
       "Demand generation", "Community building", "Performance marketing", "Product strategy",
       "Conversational AI", "Full-stack development", "Next.js", "React", "TypeScript",
@@ -235,6 +238,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         acceptedAnswer: {
           "@type": "Answer",
           text: "Param Minhas is a founder, creative director, and growth operator based in Bengaluru, India. He has 15+ years of experience across e-commerce, AI, real estate, sneakers, music, and AI-native marketing. He currently runs Iterate (an AI-native marketing agency) and Cats Can Dance (a culture platform). Previously, he was CEO at SoleSearch ($6M+ GMV), CMO at Fere.ai, and Partner at Good Capital.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Is Param Minhas a brand builder?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Yes. Param Minhas is a brand builder and creative director in Bengaluru who works where culture, design and music meet. He built and ran SoleSearch, India's leading sneaker and streetwear marketplace ($6M+ GMV, 350K+ community), and now runs Cats Can Dance and Iterate. See paramminhas.com/brand-builder.",
         },
       },
       {
